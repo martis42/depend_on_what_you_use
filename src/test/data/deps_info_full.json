@@ -1,0 +1,41 @@
+{
+    "private_deps": [
+        {
+            "headers": [
+                "private/dep/foo_a.h",
+                "private/dep/foo_b.h"
+            ],
+            "target": "//private/dep:foo"
+        },
+        {
+            "headers": [
+                "private/dep/bar_a.h",
+                "private/dep/bar_b.h"
+            ],
+            "target": "//private/dep:bar"
+        }
+    ],
+    "public_deps": [
+        {
+            "headers": [
+                "public/dep/foo_a.h",
+                "public/dep/foo_b.h"
+            ],
+            "target": "//public/dep:foo"
+        },
+        {
+            "headers": [
+                "public/dep/bar_a.h",
+                "public/dep/bar_b.h"
+            ],
+            "target": "//public/dep:bar"
+        }
+    ],
+    "self": {
+        "headers": [
+            "self/a.h",
+            "self/b.h"
+        ],
+        "target": "//:baz"
+    }
+}

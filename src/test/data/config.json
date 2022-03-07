@@ -1,0 +1,10 @@
+{
+    "ignore_include_paths": [
+        "foo",
+        "bar"
+    ],
+    "extra_ignore_include_paths": [
+        "wup",
+        "wupwup"
+    ]
+}

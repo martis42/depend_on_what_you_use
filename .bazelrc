@@ -1,0 +1,14 @@
+# Make sure not to use legacy features and be prepared for future Bazel versions
+# These flags have to be supported by all Bazel versions supported by DWYU
+# Flags only available for specific Bazel versions are managed directly in the acceptance tests
+common --incompatible_disable_target_provider_fields
+common --incompatible_disallow_empty_glob
+common --incompatible_no_implicit_file_export
+common --incompatible_struct_has_no_methods
+common --incompatible_use_cc_configure_from_rules_cc
+common --incompatible_use_platforms_repo_for_constraints
+common --incompatible_visibility_private_attributes_at_definition
+build --incompatible_default_to_explicit_init_py
+
+# Allow users to provide their own workspace settings
+try-import %workspace%/.bazelrc.user

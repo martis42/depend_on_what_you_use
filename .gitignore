@@ -1,0 +1,14 @@
+*~
+
+# Bazel
+bazel-*
+.bazelrc.user
+
+# Python
+__pycache__
+*.pyc
+
+# IDEs
+.clwb
+.idea
+.vscode

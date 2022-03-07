@@ -1,0 +1,8 @@
+{
+    "private_deps": [],
+    "public_deps": [],
+    "self": {
+        "headers": [],
+        "target": "//:foo"
+    }
+}

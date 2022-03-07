@@ -1,0 +1,4 @@
+{
+    "DisableFormat": true,
+    "SortIncludes": "false"  // with clang-format version < 13 use `false` here. For newer use `Never`
+}

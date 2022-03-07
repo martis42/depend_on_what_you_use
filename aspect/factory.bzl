@@ -1,0 +1,58 @@
+load(":dwyu.bzl", "dwyu_aspect_impl")
+
+def dwyu_aspect_factory(
+        config = Label("@//aspect:private/empty_default_config.json"),
+        recursive = False,
+        use_implementation_deps = False,
+        min_utilization = 0):
+    """
+    Create a "Depend on What You Use" (DWYU) aspect.
+
+    An aspect can only have default values and cannot be configured on the command line. Use this factory to create
+    an aspect with the desired behavior and then use it on the command line or in rules.
+
+    Args:
+        config: Configuration file for the tool comparing the include statements to the dependencies.
+        recursive: If true, execute the aspect on all trannsitive dependencies.
+                   If false, analyze only the target the aspect is being executed on.
+        use_implementation_deps: If true, ensure cc_library dependencies which are used only on private files are
+                                 listed in implementation_deps. Only available for Bazel >= 5.0.0 and if flag
+                                 '--experimental_cc_implementation_deps' is provided.
+        min_utilization: [Percent] Analyze how many headers from a dependency are used by the target. Fail, if a
+                         smaller percentage than specified of the dependency headers is utilized.
+                         CAUTION: Virtual include paths virtally increase the amount of headers available from a
+                         dependency and thus utilization is lower than one might expect.
+    Returns:
+        Configured DWYU aspect
+    """
+    if min_utilization < 0 or min_utilization > 100:
+        fail("min_utilization has to be an integer in the range [0, 100]")
+
+    attr_aspects = ["deps"] if recursive else []
+    return aspect(
+        implementation = dwyu_aspect_impl,
+        attr_aspects = attr_aspects,
+        attrs = {
+            "_dwyu_binary": attr.label(
+                default = Label("@//src:analyze_includes"),
+                allow_files = True,
+                executable = True,
+                cfg = "exec",
+                doc = "Tool Analyzing the include statement in the source code under inspection" +
+                      " and comparing them to the available dependencies.",
+            ),
+            "_config": attr.label(
+                default = config,
+                allow_single_file = [".json"],
+            ),
+            "_recursive": attr.bool(
+                default = recursive,
+            ),
+            "_use_implementation_deps": attr.bool(
+                default = use_implementation_deps,
+            ),
+            "_min_utilization": attr.int(
+                default = min_utilization,
+            ),
+        },
+    )

@@ -1,0 +1,314 @@
+import unittest
+from pathlib import Path
+
+from src.evaluate_includes import DependencyUtilization, Result, evaluate_includes
+from src.get_dependencies import AvailableDependencies, AvailableDependency, AvailableInclude
+from src.parse_source import Include
+
+
+class TestResult(unittest.TestCase):
+    @staticmethod
+    def _expected_msg(msg):
+        border = 80 * "="
+        return border + "\n" + msg + "\n" + border
+
+    def test_is_ok(self):
+        unit = Result()
+
+        self.assertTrue(unit.is_ok())
+        self.assertEqual(unit.to_str(), self._expected_msg("DWYU: Success"))
+
+    def test_is_ok_fails_due_to_invalid_includes(self):
+        unit = Result(invalid_includes=[Include(file=Path("foo"), include="bar")])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                "DWYU: Failure\n"
+                "Includes which are not available from the direct dependencies:\n"
+                "  File='foo', include='bar'"
+            ),
+        )
+
+    def test_is_ok_fails_due_to_unused_deps(self):
+        unit = Result(unused_deps=["foo"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                "DWYU: Failure\nUnused dependencies (none of their headers are referenced):\n  Dependency='foo'"
+            ),
+        )
+
+    def test_is_ok_fails_due_to_deps_which_should_be_private(self):
+        unit = Result(deps_which_should_be_private=["foo"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                "DWYU: Failure\n"
+                "Public dependencies which are only used in private code, move them to 'implementation_deps':\n"
+                "  Dependency='foo'"
+            ),
+        )
+
+    def test_is_ok_fails_due_to_lowly_utilized_deps(self):
+        unit = Result(deps_with_low_utilization=[DependencyUtilization(name="foo", utilization=42)])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                "DWYU: Failure\n"
+                "Dependencies with utilization below the threshold:\n"
+                "  Dependency='foo', utilization='42'"
+            ),
+        )
+
+
+class TestEvaluateIncludes(unittest.TestCase):
+    def test_success_for_valid_external_dependencies(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("file1"), include="foo.h"),
+                Include(file=Path("file2"), include="foo/bar.h"),
+            ],
+            private_includes=[
+                Include(file=Path("file3"), include="baz.h"),
+                Include(file=Path("file4"), include="self/own_header.h"),
+            ],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="self", hdrs=[AvailableInclude("self/own_header.h")]),
+                public=[
+                    AvailableDependency(
+                        name="foo_pkg", hdrs=[AvailableInclude("foo.h"), AvailableInclude("foo/bar.h")]
+                    ),
+                    AvailableDependency(name="lib_without_hdrs_purely_for_linking", hdrs=[]),
+                ],
+                private=[AvailableDependency(name="baz_pkg", hdrs=[AvailableInclude("baz.h")])],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_success_for_target_internal_includes_with_flat_structure(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("foo.h"), include="bar.h")],
+            private_includes=[],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[AvailableInclude("foo.h"), AvailableInclude("bar.h")]),
+                public=[],
+                private=[],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_success_for_target_internal_includes_with_nested_structure(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("nested/dir/foo.h"), include="bar.h"),
+                Include(file=Path("nested/dir/foo.h"), include="sub/baz.h"),
+            ],
+            private_includes=[],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(
+                    name="self",
+                    hdrs=[
+                        AvailableInclude("nested/dir/foo.h"),
+                        AvailableInclude("nested/dir/bar.h"),
+                        AvailableInclude("nested/dir/sub/baz.h"),
+                    ],
+                ),
+                public=[],
+                private=[],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_invalid_includes_missing_internal_include(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("nested/dir/foo.h"), include="bar.h")],
+            private_includes=[],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(
+                    name="self", hdrs=[AvailableInclude("nested/dir/foo.h"), AvailableInclude("some/other/dir/bar.h")]
+                ),
+                public=[],
+                private=[],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertFalse(result.is_ok())
+        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.deps_which_should_be_private, [])
+        self.assertEqual(result.deps_with_low_utilization, [])
+        self.assertEqual(result.invalid_includes, [Include(file=Path("nested/dir/foo.h"), include="bar.h")])
+
+    def test_missing_includes_from_dependencies(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("public_file"), include="foo.h"),
+                Include(file=Path("public_file"), include="foo/foo.h"),
+                Include(file=Path("public_file"), include="foo/bar.h"),
+            ],
+            private_includes=[
+                Include(file=Path("private_file"), include="bar.h"),
+                Include(file=Path("private_file"), include="bar/foo.h"),
+                Include(file=Path("private_file"), include="bar/bar.h"),
+            ],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[]),
+                public=[AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")])],
+                private=[AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")])],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertFalse(result.is_ok())
+        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.deps_which_should_be_private, [])
+        self.assertEqual(result.deps_with_low_utilization, [])
+        self.assertEqual(len(result.invalid_includes), 4)
+        self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.invalid_includes)
+        self.assertTrue(Include(file=Path("public_file"), include="foo/bar.h") in result.invalid_includes)
+        self.assertTrue(Include(file=Path("private_file"), include="bar/foo.h") in result.invalid_includes)
+        self.assertTrue(Include(file=Path("private_file"), include="bar/bar.h") in result.invalid_includes)
+
+    def test_unused_dependencies(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("public_file"), include="foobar.h")],
+            private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[]),
+                public=[
+                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
+                    AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")]),
+                    AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")]),
+                ],
+                private=[
+                    AvailableDependency(name="impl_dep", hdrs=[AvailableInclude("impl_dep.h")]),
+                    AvailableDependency(name="impl_foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
+                    AvailableDependency(name="impl_bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+                ],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertFalse(result.is_ok())
+        self.assertEqual(result.invalid_includes, [])
+        self.assertEqual(result.deps_which_should_be_private, [])
+        self.assertEqual(result.deps_with_low_utilization, [])
+        self.assertEqual(len(result.unused_deps), 4)
+        self.assertTrue("foo" in result.unused_deps)
+        self.assertTrue("bar" in result.unused_deps)
+        self.assertTrue("impl_foo" in result.unused_deps)
+        self.assertTrue("impl_bar" in result.unused_deps)
+
+    def test_public_dependencies_which_should_be_private(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("public_file"), include="foobar.h")],
+            private_includes=[
+                Include(file=Path("private_file"), include="impl_dep_foo.h"),
+                Include(file=Path("private_file"), include="impl_dep_bar.h"),
+            ],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[]),
+                public=[
+                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
+                    AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
+                    AvailableDependency(name="bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+                ],
+                private=[],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=0,
+        )
+
+        self.assertFalse(result.is_ok())
+        self.assertEqual(result.invalid_includes, [])
+        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.deps_with_low_utilization, [])
+        self.assertEqual(len(result.deps_which_should_be_private), 2)
+        self.assertTrue("foo" in result.deps_which_should_be_private)
+        self.assertTrue("bar" in result.deps_which_should_be_private)
+
+    def test_public_dependencies_which_should_be_private_disabled(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("public_file"), include="foobar.h")],
+            private_includes=[
+                Include(file=Path("private_file"), include="impl_dep_foo.h"),
+                Include(file=Path("private_file"), include="impl_dep_bar.h"),
+            ],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[]),
+                public=[
+                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
+                    AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
+                    AvailableDependency(name="bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+                ],
+                private=[],
+            ),
+            ensure_private_deps=False,
+            min_dependency_utilization=0,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_min_dependecy_utilization_infringed(self):
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("public_file"), include="foo1.h")],
+            private_includes=[Include(file=Path("private_file"), include="bar1.h")],
+            dependencies=AvailableDependencies(
+                self=AvailableDependency(name="", hdrs=[]),
+                public=[
+                    AvailableDependency(
+                        name="foo",
+                        hdrs=[
+                            AvailableInclude("foo1.h"),
+                            AvailableInclude("foo2.h"),
+                            AvailableInclude("foo3.h"),
+                            AvailableInclude("foo4.h"),
+                        ],
+                    ),
+                ],
+                private=[
+                    AvailableDependency(
+                        name="bar",
+                        hdrs=[
+                            AvailableInclude("bar1.h"),
+                            AvailableInclude("bar2.h"),
+                            AvailableInclude("bar3.h"),
+                        ],
+                    ),
+                ],
+            ),
+            ensure_private_deps=True,
+            min_dependency_utilization=50,
+        )
+
+        self.assertFalse(result.is_ok())
+        self.assertEqual(result.invalid_includes, [])
+        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.deps_which_should_be_private, [])
+        self.assertEqual(len(result.deps_with_low_utilization), 2)
+        self.assertTrue(DependencyUtilization(name="foo", utilization=25) in result.deps_with_low_utilization)
+        self.assertTrue(DependencyUtilization(name="bar", utilization=33) in result.deps_with_low_utilization)
+
+
+if __name__ == "__main__":
+    unittest.main()
