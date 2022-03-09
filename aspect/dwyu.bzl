@@ -25,7 +25,7 @@ def _make_args(ctx, public_files, private_files, report_file, headers_info_file,
     args.add("--headers-info", headers_info_file)
     args.add("--report", report_file)
 
-    if ctx.file._config.path != "aspect/private/empty_default_config.json":
+    if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
         args.add("--config", ctx.file._config)
 
     if ensure_private_deps:
