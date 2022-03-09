@@ -1,7 +1,7 @@
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 def dwyu_aspect_factory(
-        config = Label("@//aspect:private/empty_default_config.json"),
+        config = Label("@depend_on_what_you_use//aspect:private/empty_default_config.json"),
         recursive = False,
         use_implementation_deps = False,
         min_utilization = 0):
@@ -34,7 +34,7 @@ def dwyu_aspect_factory(
         attr_aspects = attr_aspects,
         attrs = {
             "_dwyu_binary": attr.label(
-                default = Label("@//src:analyze_includes"),
+                default = Label("@depend_on_what_you_use//src:analyze_includes"),
                 allow_files = True,
                 executable = True,
                 cfg = "exec",
