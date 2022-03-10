@@ -14,7 +14,6 @@ The main features are:
 This project is still in a prototyping phase.
 It has been made public to ease sharing with other developers for gathering feedback on the concept.
 Do not expect stability of
-* the git history
 * the project structure
 * the feature set
 * the tools chosen to implement DWYU
