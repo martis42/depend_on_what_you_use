@@ -65,7 +65,10 @@ If a problem is detected, the build command will fail with an error and a descri
 For example:
 ```
 ================================================================================
-DWYU: Failure
+DWYU analyzing: '<analyzed_target>'
+
+Result: Failure
+
 Unused dependencies (none of their headers are referenced):
   Dependency='//some/target/with_an_unused:dependency'
 ===============================================================================
