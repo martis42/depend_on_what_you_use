@@ -16,6 +16,7 @@ class DependencyUtilization:
 
 @dataclass
 class Result:
+    target: str
     invalid_includes: List[Include] = field(default_factory=list)
     unused_deps: List[str] = field(default_factory=list)
     deps_which_should_be_private: List[str] = field(default_factory=list)
@@ -30,10 +31,12 @@ class Result:
         )
 
     def to_str(self) -> str:
+        msg = f"DWYU analyzing: '{self.target}'\n"
         if self.is_ok():
-            return self._framed_msg("DWYU: Success")
+            msg += "Result: SUCCESS"
+            return self._framed_msg(msg)
         else:
-            msg = "DWYU: Failure"
+            msg += "Result: FAILURE"
             if self.invalid_includes:
                 msg += "\nIncludes which are not available from the direct dependencies:\n"
                 msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)
@@ -174,13 +177,14 @@ def _filter_empty_dependencies(deps: AvailableDependencies) -> AvailableDependen
 
 
 def evaluate_includes(
+    target: str,
     public_includes: List[Include],
     private_includes: List[Include],
     dependencies: AvailableDependencies,
     ensure_private_deps: bool,
     min_dependency_utilization: int,
 ) -> Result:
-    result = Result()
+    result = Result(target)
     dependencies = _filter_empty_dependencies(dependencies)
 
     result.invalid_includes = _check_for_invalid_includes(

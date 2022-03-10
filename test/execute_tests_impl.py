@@ -8,7 +8,7 @@ from typing import Dict, List, Union
 ERRORS_PREFIX = " " * 2
 
 # DWYU terminal output key fragments
-DWYU_FAILURE = "DWYU: Failure"
+DWYU_FAILURE = "Result: FAILURE"
 CATEGORY_INVALID_INCLUDES = "Includes which are not available from the direct dependencies"
 CATEGORY_NON_PRIVATE_DEPS = "Public dependencies which are only used in private code"
 CATEGORY_UNUSED_DEPS = "Unused dependencies (none of their headers are referenced)"

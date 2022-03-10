@@ -8,63 +8,67 @@ from src.parse_source import Include
 
 class TestResult(unittest.TestCase):
     @staticmethod
-    def _expected_msg(msg):
+    def _expected_msg(target: str, errors: str = "") -> str:
         border = 80 * "="
-        return border + "\n" + msg + "\n" + border
+        msg = f"DWYU analyzing: '{target}'\n"
+        if errors:
+            msg += "Result: FAILURE\n"
+        else:
+            msg += "Result: SUCCESS"
+        return border + "\n" + msg + errors + "\n" + border
 
     def test_is_ok(self):
-        unit = Result()
+        unit = Result("//foo:bar")
 
         self.assertTrue(unit.is_ok())
-        self.assertEqual(unit.to_str(), self._expected_msg("DWYU: Success"))
+        self.assertEqual(unit.to_str(), self._expected_msg(target="//foo:bar"))
 
     def test_is_ok_fails_due_to_invalid_includes(self):
-        unit = Result(invalid_includes=[Include(file=Path("foo"), include="bar")])
+        unit = Result(target="//foo:bar", invalid_includes=[Include(file=Path("foo"), include="bar")])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
             unit.to_str(),
             self._expected_msg(
-                "DWYU: Failure\n"
-                "Includes which are not available from the direct dependencies:\n"
-                "  File='foo', include='bar'"
+                target="//foo:bar",
+                errors="Includes which are not available from the direct dependencies:\n" "  File='foo', include='bar'",
             ),
         )
 
     def test_is_ok_fails_due_to_unused_deps(self):
-        unit = Result(unused_deps=["foo"])
+        unit = Result(target="//foo:bar", unused_deps=["foo"])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
             unit.to_str(),
             self._expected_msg(
-                "DWYU: Failure\nUnused dependencies (none of their headers are referenced):\n  Dependency='foo'"
+                target="//foo:bar",
+                errors="Unused dependencies (none of their headers are referenced):\n  Dependency='foo'",
             ),
         )
 
     def test_is_ok_fails_due_to_deps_which_should_be_private(self):
-        unit = Result(deps_which_should_be_private=["foo"])
+        unit = Result(target="//foo:bar", deps_which_should_be_private=["foo"])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
             unit.to_str(),
             self._expected_msg(
-                "DWYU: Failure\n"
-                "Public dependencies which are only used in private code, move them to 'implementation_deps':\n"
-                "  Dependency='foo'"
+                target="//foo:bar",
+                errors="Public dependencies which are only used in private code, move them to 'implementation_deps':\n"
+                "  Dependency='foo'",
             ),
         )
 
     def test_is_ok_fails_due_to_lowly_utilized_deps(self):
-        unit = Result(deps_with_low_utilization=[DependencyUtilization(name="foo", utilization=42)])
+        unit = Result(target="//foo:bar", deps_with_low_utilization=[DependencyUtilization(name="foo", utilization=42)])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
             unit.to_str(),
             self._expected_msg(
-                "DWYU: Failure\n"
-                "Dependencies with utilization below the threshold:\n"
-                "  Dependency='foo', utilization='42'"
+                target="//foo:bar",
+                errors="Dependencies with utilization below the threshold:\n" "  Dependency='foo', utilization='42'",
             ),
         )
 
@@ -72,6 +76,7 @@ class TestResult(unittest.TestCase):
 class TestEvaluateIncludes(unittest.TestCase):
     def test_success_for_valid_external_dependencies(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[
                 Include(file=Path("file1"), include="foo.h"),
                 Include(file=Path("file2"), include="foo/bar.h"),
@@ -98,6 +103,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_success_for_target_internal_includes_with_flat_structure(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("foo.h"), include="bar.h")],
             private_includes=[],
             dependencies=AvailableDependencies(
@@ -113,6 +119,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_success_for_target_internal_includes_with_nested_structure(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[
                 Include(file=Path("nested/dir/foo.h"), include="bar.h"),
                 Include(file=Path("nested/dir/foo.h"), include="sub/baz.h"),
@@ -138,6 +145,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_invalid_includes_missing_internal_include(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("nested/dir/foo.h"), include="bar.h")],
             private_includes=[],
             dependencies=AvailableDependencies(
@@ -159,6 +167,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_missing_includes_from_dependencies(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[
                 Include(file=Path("public_file"), include="foo.h"),
                 Include(file=Path("public_file"), include="foo/foo.h"),
@@ -190,6 +199,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_unused_dependencies(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
             dependencies=AvailableDependencies(
@@ -221,6 +231,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_public_dependencies_which_should_be_private(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[
                 Include(file=Path("private_file"), include="impl_dep_foo.h"),
@@ -249,6 +260,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_public_dependencies_which_should_be_private_disabled(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[
                 Include(file=Path("private_file"), include="impl_dep_foo.h"),
@@ -271,6 +283,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_min_dependecy_utilization_infringed(self):
         result = evaluate_includes(
+            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foo1.h")],
             private_includes=[Include(file=Path("private_file"), include="bar1.h")],
             dependencies=AvailableDependencies(
