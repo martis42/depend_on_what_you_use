@@ -17,12 +17,13 @@ def _parse_sources(attr):
 
     return public_files, private_files
 
-def _make_args(ctx, public_files, private_files, report_file, headers_info_file, ensure_private_deps):
+def _make_args(ctx, target, public_files, private_files, report_file, headers_info_file, ensure_private_deps):
     args = ctx.actions.args()
 
     args.add_all("--public-files", [pf.path for pf in public_files])
     args.add_all("--private-files", [pf.path for pf in private_files])
     args.add("--headers-info", headers_info_file)
+    args.add("--target", target)
     args.add("--report", report_file)
 
     if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
@@ -145,6 +146,7 @@ def dwyu_aspect_impl(target, ctx):
 
     args = _make_args(
         ctx = ctx,
+        target = target.label,
         public_files = public_files,
         private_files = private_files,
         report_file = report_file,

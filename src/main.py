@@ -12,6 +12,7 @@ from src.std_header import STD_HEADER
 
 def cli():
     parser = ArgumentParser()
+    parser.add_argument("--target", help="Target which is being analyzed.")
     parser.add_argument(
         "--public-files", metavar="PATH", nargs="+", help="All public files of the target under inspection."
     )
@@ -95,6 +96,7 @@ def main(args: Any) -> int:
 
     min_dependency_utilization = args.min_dependency_utilization if args.min_dependency_utilization else 0
     result = evaluate_includes(
+        target=args.target,
         public_includes=all_includes_from_public,
         private_includes=all_includes_from_private,
         dependencies=allowed_includes,
