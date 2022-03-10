@@ -25,7 +25,7 @@ class TestCmd:
 @dataclass
 class ExpectedResult:
     """
-    TODO
+    Encapsulates an expected result of a DWYU analysis and offers functions to compare a given output to the expectations.
     """
 
     success: bool
@@ -74,21 +74,25 @@ class ExpectedResult:
         return False
 
     @staticmethod
+    def _get_error_lines(idx_category: int, output: List[str]) -> List[str]:
+        errors_begin = idx_category + 1
+        errors_end = 0
+        for i in range(errors_begin, len(output)):
+            if output[i].startswith(ERRORS_PREFIX):
+                errors_end = i + 1
+            else:
+                break
+        return output[errors_begin:errors_end]
+
+    @staticmethod
     def _has_expected_errors(expected_errors: List[str], error_category: str, output: List[str]) -> bool:
         idx_category = ExpectedResult._find_line_with(lines=output, val=error_category)
         if expected_errors and idx_category is None:
             return False
         if expected_errors:
-            # todo idx magic into helper func
-            errors_begin = idx_category + 1
-            errors_end = 0
-            for i in range(errors_begin, len(output)):
-                if output[i].startswith(ERRORS_PREFIX):
-                    errors_end = i + 1
-                else:
-                    break
             if not ExpectedResult._has_errors(
-                error_lines=output[errors_begin:errors_end], expected_errors=expected_errors
+                error_lines=ExpectedResult._get_error_lines(idx_category=idx_category, output=output),
+                expected_errors=expected_errors,
             ):
                 return False
         if not expected_errors and not idx_category is None:
