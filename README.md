@@ -36,7 +36,7 @@ http_archive(
     name = "depend_on_what_you_use",
     sha256 = "<archive_checksum>",
     strip_prefix = "depend_on_what_you_use-{}".format(dwyu_version),
-    url = "https://github.com/bazelbuild/rules_python/archive/{}.zip".format(dwyu_version),
+    url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.zip".format(dwyu_version),
 )
 ```
 
