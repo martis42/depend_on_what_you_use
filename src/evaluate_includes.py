@@ -31,12 +31,12 @@ class Result:
         )
 
     def to_str(self) -> str:
-        msg = f"DWYU analyzing: '{self.target}'\n"
+        msg = f"DWYU analyzing: '{self.target}'\n\n"
         if self.is_ok():
             msg += "Result: SUCCESS"
             return self._framed_msg(msg)
         else:
-            msg += "Result: FAILURE"
+            msg += "Result: FAILURE\n"
             if self.invalid_includes:
                 msg += "\nIncludes which are not available from the direct dependencies:\n"
                 msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)

@@ -10,9 +10,9 @@ class TestResult(unittest.TestCase):
     @staticmethod
     def _expected_msg(target: str, errors: str = "") -> str:
         border = 80 * "="
-        msg = f"DWYU analyzing: '{target}'\n"
+        msg = f"DWYU analyzing: '{target}'\n\n"
         if errors:
-            msg += "Result: FAILURE\n"
+            msg += "Result: FAILURE\n\n"
         else:
             msg += "Result: SUCCESS"
         return border + "\n" + msg + errors + "\n" + border
