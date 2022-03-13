@@ -149,6 +149,10 @@ Minimum required Bazel version is **4.0.0**.
 * Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
 * Before 4.0.0 the global json module is not available in Starlark
 
+
+Maximum available Bazel version  is **6.0.0-pre.20220216.3**.
+`implementation_deps` will be removed again in Bazel 6.0.0.
+
 ### Python
 
 Requires Python 3. Code is only tested with Python 3.8, but should work with most 3.X versions.

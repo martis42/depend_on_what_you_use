@@ -6,7 +6,7 @@ BAZEL_VERSIONS = [
     "4.0.0",
     "4.2.2",
     "5.0.0",
-    "6.0.0-pre.20220127.1",
+    "6.0.0-pre.20220216.3",
 ]
 
 VERSION_SPECIFIC_ARGS = {
