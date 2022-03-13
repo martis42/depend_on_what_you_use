@@ -132,6 +132,12 @@ def dwyu_aspect_impl(target, ctx):
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
 
+    # Skip incompatible targets
+    # Ideally we should check for the existance of "IncompatiblePlatformProvider".
+    # However, this provider is not available in Starlark
+    if not CcInfo in target:
+        return []
+
     implementation_deps = []
     ensure_private_deps = False
     if ctx.attr._use_implementation_deps and hasattr(ctx.rule.attr, "implementation_deps"):

@@ -156,6 +156,11 @@ TESTS = [
         cmd=TestCmd(target="@complex_includes_repo//..."),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="incompatible_platforms",
+        cmd=TestCmd(target="//test/platforms/..."),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
