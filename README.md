@@ -5,9 +5,10 @@ It applies the principals established by [Include What You Use](https://github.c
 to the dependencies of your `cc_*` targets.
 
 The main features are:
-* Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies**
-* Finding unused dependencies
-* Given one uses `implementation_deps`, finding dependencies which are used only in private code and thus should be an implementation dependency
+* Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies**.
+* Finding unused dependencies.
+* Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and private dependencies for `cc_library`.
+  For more details see [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
 
 # Word of Warning
 
@@ -126,7 +127,22 @@ your_aspect = dwyu_aspect_factory(min_utilization = [0..100])
 
 Examples for this can be seen at [test/dependency_utilization](../test/dependency_utilization).
 
-### Implementation_deps
+### Ensure a proper split between public and private dependencies
+
+Starting with version 5.0.0 Bazel offers experimental features to distinguish between public (aka interface) and
+private (aka implementation) dependencies for `cc_library`.
+The private dependencies are not made available to users of the library to trim down dependency trees.
+
+DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in
+private files, but not put into the private dependency attribute.
+
+#### Implementation_deps
+
+**WARNING** \
+`implementation_deps` is being removed again with Bazel 6.0.0.
+DWYUs support for it may be removed at any point since it is of little value to support an experimental feature which
+is available only in a single Bazel version.
+See [Interface_deps](#Interface_deps) for the forward path, which is however as well only in experimental stage.
 
 Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/main/be/c-cpp.html#cc_library.implementation_deps)
 for `cc_library`. In short, this enables you to specify dependencies which are only relevant for your `srcs` files and
@@ -140,6 +156,14 @@ your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
 Examples for this can be seen at [test/implementation_deps](../test/implementation_deps).
+
+#### Interface_deps
+
+This is not yet supported by DWYU.
+
+https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c25c introduces `--experimental_cc_interface_deps`.
+However an issue about potential problems with this new approach was raised: https://github.com/bazelbuild/bazel/issues/14950.
+We will wait some time to make sure `interface_deps` really is the forward path before investing time into this.
 
 ## Supported Platforms
 
