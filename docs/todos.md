@@ -51,6 +51,13 @@ The LLVM toolchain is a quite powerful toolset and allows interaction with the p
 See for example https://clang.llvm.org/doxygen/classclang_1_1Preprocessor.html#details.
 LLVM is however not a lightweight dependency and having to compile DWYU will reduce its portability.
 
+Yet another possibility is telling the compiler to generate a `.d` file, which lists the includes required for a given source file.
+This provides an easy to parse output listing all include statements which are required after resolving macros and defines.
+However, a first test shows all transitive headers are resolved.
+This is a problem, since we need to know the include statements for the file under inspection, but not more.
+If all transitive includes are listed as well, we cannot compare this list to the direct dependencies.
+It is not yet known if this behavior can be modified.
+
 # New Feature: Use bazelmod for third_party
 
 Bazel 5.0.0 introduced a new approach to manage external dependencies.
