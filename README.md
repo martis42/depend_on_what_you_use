@@ -206,10 +206,6 @@ The Bazel aspect implementation is for sure not yet ideal, but is considered it 
 The Python implementation to analyze the include statements in C++ code is a minimal implementation with [several restrictions](#Known-limitations).
 If it will be expanded or replaced is currently unclear.
 
-## TODOs
-
-See [docs/todos](docs/todos.md).
-
 # Contributing
 
 See [Contributing](CONTRIBUTING.md).
