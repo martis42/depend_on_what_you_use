@@ -13,6 +13,7 @@ Ideally as a test case, but any minimal example helps
 
 * Please create an [issue](https://github.com/martis42/depend_on_what_you_use/issues) before changing features or introducing new features.
   Discussing your idea first makes sure it is in the interest of the project and your work will not be in vain due to following an undesired direction.
+* Make sure you are aware of the existing [design decisions](docs/design_decisions.md).
 * No feature shall be changed or introduced without adapting or adding tests accordingly.
 
 # Trivial changes
