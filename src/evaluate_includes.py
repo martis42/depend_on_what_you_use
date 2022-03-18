@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from json import dumps
 from pathlib import Path
 from typing import List
 
@@ -41,6 +42,15 @@ class Result:
             msg += "\nPublic dependencies which are only used in private code, move them to 'implementation_deps':\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
         return self._framed_msg(msg)
+
+    def to_json(self) -> str:
+        content = {
+            "analyzed_target": self.target,
+            "invalid_includes": {str(x.file): x.include for x in self.invalid_includes},
+            "unused_dependencies": self.unused_deps,
+            "deps_which_should_be_private": self.deps_which_should_be_private,
+        }
+        return dumps(content, indent=2) + "\n"
 
     @staticmethod
     def _framed_msg(msg: str) -> str:
