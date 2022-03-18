@@ -1,8 +1,10 @@
 import unittest
 from pathlib import Path
 
-from src.evaluate_includes import DependencyUtilization, Result, evaluate_includes
-from src.get_dependencies import AvailableDependencies, AvailableDependency, AvailableInclude
+from src.evaluate_includes import (DependencyUtilization, Result,
+                                   evaluate_includes)
+from src.get_dependencies import (AvailableDependencies, AvailableDependency,
+                                  AvailableInclude)
 from src.parse_source import Include
 
 

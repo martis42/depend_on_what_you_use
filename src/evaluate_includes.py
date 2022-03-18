@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-from src.get_dependencies import AvailableDependencies, AvailableDependency, IncludeUsage
+from src.get_dependencies import (AvailableDependencies, AvailableDependency,
+                                  IncludeUsage)
 from src.parse_source import Include
 
 
