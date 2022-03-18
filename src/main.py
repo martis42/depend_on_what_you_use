@@ -99,13 +99,14 @@ def main(args: Any) -> int:
 
     out = Path(args.report)
     out.parent.mkdir(parents=True, exist_ok=True)
-    result_msg = result.to_str()
-    with open(out, mode="w", encoding="utf-8") as fout:
-        fout.write(result_msg)
-    if result.is_ok():
-        return 0
-    print(result_msg)
-    return 1
+    with open(out, mode="w", encoding="utf-8") as report:
+        report.write(result.to_json())
+
+    if not result.is_ok():
+        print(result.to_str())
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
