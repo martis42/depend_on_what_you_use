@@ -7,6 +7,7 @@ bazel-*
 # Python
 __pycache__
 *.pyc
+venv/
 
 # IDEs
 .clwb

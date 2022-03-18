@@ -1,2 +1,15 @@
+[tool.poetry]
+name = "depend_on_what_you_use"
+version = "1.0.0"
+description = ""
+authors = ["Martin Medler"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
 [tool.black]
 line-length = 120
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+isort = "^5.10.1"
