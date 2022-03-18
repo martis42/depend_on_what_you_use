@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+
 from execute_tests_impl import ExpectedResult, TestCase, TestCmd, cli, main
 
 BAZEL_VERSIONS = [
