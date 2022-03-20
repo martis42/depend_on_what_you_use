@@ -8,6 +8,7 @@
   - [Recursion](#recursion)
   - [Ensure a proper split between public and private dependencies](#ensure-a-proper-split-between-public-and-private-dependencies)
   - [Known limitations](#known-limitations)
+  - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
 - [Contributing](#contributing)
 - [License](#license)
@@ -166,6 +167,23 @@ We will wait some time to make sure `interface_deps` really is the forward path 
   No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected
   through the `defines = [...]` attribute of the `cc_` rules.
 - Include statements utilizing `..` to go up the directory tree are not resolved.
+
+## Applying automatic fixes
+
+DWYU offers a tool to automatically fix detected problems.
+
+The workflow is the following:
+1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems for
+   each analyzed target.
+2. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --workspace=<path_to_the_workspace_used_in_step_1>`.
+   This tool discovers the report files generated in the previous step and gathers the problems for which a fix is available.
+   The tool then utilizes [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) to
+   adapt the BUILDS files in your workspace.
+
+Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover the whole CLI interface of the tool.
+
+Currently only unused dependencies can be automatically fixed. However, more automatic fixes are planned and will be
+added over time.
 
 # Supported Platforms
 
