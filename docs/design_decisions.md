@@ -1,5 +1,21 @@
 # Design Decisions
 
+## Design: Why use a multi step automatic fixes workflow
+
+Having to execute a separate tool to apply fixes seems bothersome. Ideally, DWYU would perform fixes
+while analyzing the problems.<br/>
+However, given DWYU is implemented as a Bazel aspect, there are limitations to what we can do in a single step:
+- The DWYU aspect is analyzing the dependencies of the targets. Changing the dependencies while analyzing them would
+  invalidate the dependency graph and require rebuilding the graph after each fix before continuing to
+  analyze more targets. There is no standard feature of Bazel aspects allowing this.
+- A Bazel aspect is executed in the sandbox. To be able to modify the BUILD files in the workspace, one would have to
+  escape the sandbox. This is generally considered a bad practice when working with Bazel.
+
+We circumvent the above problems by using a two step approach. First we discover all problems and store the result in
+a machine readable format. Then, we use a separate tool to process the results and apply fixes to the BUILD files in
+the workspace. There are no problems regarding the sandboxing, since we utilize `bazel run` to execute the fixing tool.
+A tool being executed like this can access any part of the host system.
+
 ## Rejected: Includes parsing via .d files
 
 Most modern compilers can generate `.d` files which document the headers required to compile a source file.
