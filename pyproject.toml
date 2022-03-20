@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "depend_on_what_you_use"
-version = "1.0.0"
+version = "0.1.0"
 description = ""
 authors = ["Martin Medler"]
 
@@ -10,6 +10,17 @@ python = "^3.8"
 [tool.black]
 line-length = 120
 
+[tool.isort]
+multi_line_output = 3
+profile = "black"
+
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
 isort = "^5.10.1"
+pre-commit = "^2.17.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+

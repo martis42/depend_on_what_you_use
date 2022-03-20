@@ -1,8 +1,12 @@
 import unittest
 from pathlib import Path
 
-from src.parse_source import (Include, filter_includes, get_includes_from_file,
-                              get_relevant_includes_from_files)
+from src.parse_source import (
+    Include,
+    filter_includes,
+    get_includes_from_file,
+    get_relevant_includes_from_files,
+)
 
 
 class TestInclude(unittest.TestCase):
