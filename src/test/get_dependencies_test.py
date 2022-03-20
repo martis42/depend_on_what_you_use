@@ -1,8 +1,11 @@
 import unittest
 from pathlib import Path
 
-from src.get_dependencies import (AvailableInclude, IncludeUsage,
-                                  get_available_dependencies)
+from src.get_dependencies import (
+    AvailableInclude,
+    IncludeUsage,
+    get_available_dependencies,
+)
 
 
 class TestAvailableInclude(unittest.TestCase):

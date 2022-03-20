@@ -1,10 +1,16 @@
 import unittest
 
-from execute_tests_impl import (CATEGORY_INVALID_INCLUDES,
-                                CATEGORY_NON_PRIVATE_DEPS,
-                                CATEGORY_UNUSED_DEPS, CATEGORY_UTILIZATION,
-                                DWYU_FAILURE, ERRORS_PREFIX, ExpectedResult,
-                                TestCmd, make_cmd)
+from execute_tests_impl import (
+    CATEGORY_INVALID_INCLUDES,
+    CATEGORY_NON_PRIVATE_DEPS,
+    CATEGORY_UNUSED_DEPS,
+    CATEGORY_UTILIZATION,
+    DWYU_FAILURE,
+    ERRORS_PREFIX,
+    ExpectedResult,
+    TestCmd,
+    make_cmd,
+)
 
 
 class TestExpectedResult(unittest.TestCase):
