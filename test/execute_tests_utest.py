@@ -7,8 +7,10 @@ from execute_tests_impl import (
     CATEGORY_UTILIZATION,
     DWYU_FAILURE,
     ERRORS_PREFIX,
+    CompatibleVersions,
     ExpectedResult,
     TestCmd,
+    is_compatible_version,
     make_cmd,
 )
 
@@ -179,6 +181,28 @@ class TestMakeCmd(unittest.TestCase):
             test_cmd=TestCmd(target="//foo:bar", extra_args=["--abc", "--cba"]), extra_args=["--some_bazel_extra_arg"]
         )
         self.assertEqual(cmd, self._base_cmd() + ["--some_bazel_extra_arg", "--abc", "--cba", "--", "//foo:bar"])
+
+
+class TestIsCompatibleVersion(unittest.TestCase):
+    def test_no_limits(self):
+        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions()))
+
+    def test_above_min_version(self):
+        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="0.9.9")))
+
+    def test_below_min_version(self):
+        self.assertFalse(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="1.1.0")))
+
+    def test_below_max_version(self):
+        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(max="1.1.0")))
+
+    def test_above_max_version(self):
+        self.assertFalse(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(max="0.9.0")))
+
+    def test_inside_interval(self):
+        self.assertTrue(
+            is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="0.9.0", max="1.1.0"))
+        )
 
 
 if __name__ == "__main__":

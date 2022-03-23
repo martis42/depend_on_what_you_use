@@ -118,11 +118,17 @@ class ExpectedResult:
 
 
 @dataclass
+class CompatibleVersions:
+    min: str = ""
+    max: str = ""
+
+
+@dataclass
 class TestCase:
     name: str
     cmd: TestCmd
     expected: ExpectedResult
-    min_version: str = ""
+    compatible_versions: CompatibleVersions = CompatibleVersions()
 
 
 @dataclass
@@ -155,6 +161,18 @@ def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
     return cmd
 
 
+def is_compatible_version(version: str, compatible_versions: CompatibleVersions) -> bool:
+    comply_with_min_version = True
+    if compatible_versions.min:
+        comply_with_min_version = version >= compatible_versions.min
+
+    comply_with_max_version = True
+    if compatible_versions.max:
+        comply_with_max_version = version <= compatible_versions.max
+
+    return comply_with_min_version and comply_with_max_version
+
+
 def execute_tests(
     versions: List[str], tests: List[TestCase], version_specific_args: Dict, verbose: bool = False
 ) -> List[FailedTest]:
@@ -173,7 +191,7 @@ def execute_tests(
                 extra_args.extend(args)
 
         for test in tests:
-            if test.min_version and test.min_version > version:
+            if not is_compatible_version(version=version, compatible_versions=test.compatible_versions):
                 print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{version}'")
                 continue
             else:
