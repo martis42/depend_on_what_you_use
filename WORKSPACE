@@ -30,7 +30,6 @@ bazel_skylib_workspace()
 load("@bazel_skylib//lib:versions.bzl", "versions")
 
 versions.check(
-    maximum_bazel_version = "6.0.0-pre.20220216.3",
     minimum_bazel_version = "4.0.0",
 )
 
