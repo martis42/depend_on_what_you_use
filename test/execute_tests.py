@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 import sys
 
-from execute_tests_impl import ExpectedResult, TestCase, TestCmd, cli, main
+from execute_tests_impl import (
+    CompatibleVersions,
+    ExpectedResult,
+    TestCase,
+    TestCmd,
+    cli,
+    main,
+)
 
 BAZEL_VERSIONS = [
     "4.0.0",
@@ -64,7 +71,7 @@ TESTS = [
     ),
     TestCase(
         name="proper implementation_deps",
-        min_version="5.0.0",
+        compatible_versions=CompatibleVersions(min="5.0.0", max="5.9.9"),
         cmd=TestCmd(
             target="//test/implementation_deps:proper_private_deps",
             aspect="//test/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -74,7 +81,7 @@ TESTS = [
     ),
     TestCase(
         name="superfluous public_dep",
-        min_version="5.0.0",
+        compatible_versions=CompatibleVersions(min="5.0.0", max="5.9.9"),
         cmd=TestCmd(
             target="//test/implementation_deps:superfluous_public_dep",
             aspect="//test/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -147,13 +154,13 @@ TESTS = [
     ),
     TestCase(
         name="complex_includes",
-        min_version="4.1.0",  # Does not even compile with 4.0.0
+        compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
         cmd=TestCmd(target="//test/complex_includes:all"),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
         name="complex_includes_in_ext_repo",
-        min_version="4.1.0",  # Does not even compile with 4.0.0
+        compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
         cmd=TestCmd(target="@complex_includes_repo//..."),
         expected=ExpectedResult(success=True),
     ),
