@@ -37,7 +37,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
     - Include paths utilizing '../' are not resolved.
     """
     includes = []
-    with open(file, mode="r", encoding="utf-8") as fin:
+    with open(file, encoding="utf-8") as fin:
         inside_comment_block = False
         for line in fin.readlines():
             if not inside_comment_block and "/*" in line:
@@ -57,7 +57,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
                 line = line.partition("*/")[2]
 
             if line.strip().startswith("#include"):
-                include = re.findall('#include\s*["<](.+)[">]', line)
+                include = re.findall(r'#include\s*["<](.+)[">]', line)
                 if not include:
                     raise Exception(f"Did not find any include path in file '{file}' in line '{line}'")
                 if len(include) > 1:
