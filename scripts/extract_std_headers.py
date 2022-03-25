@@ -8,7 +8,7 @@ import re
 
 INPUT_FILE = "content_of_cppreference.txt"
 
-with open(INPUT_FILE, mode="r", encoding="utf-8") as fin:
+with open(INPUT_FILE, encoding="utf-8") as fin:
     for line in fin.readlines():
         include = re.findall("^<(.+)>$", line)
         if len(include) == 1:

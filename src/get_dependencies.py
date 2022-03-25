@@ -74,7 +74,7 @@ def _get_available_dependencies_impl(dependencies) -> List[AvailableDependency]:
 
 
 def get_available_dependencies(allowed_includes_file: Path) -> AvailableDependencies:
-    with open(allowed_includes_file, mode="r", encoding="utf-8") as fin:
+    with open(allowed_includes_file, encoding="utf-8") as fin:
         loaded = json.load(fin)
         return AvailableDependencies(
             self=_make_available_dependency(loaded["self"]),
