@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "depend_on_what_you_use"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = ["Martin Medler"]
 
