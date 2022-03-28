@@ -39,6 +39,10 @@ http_archive(
     strip_prefix = "depend_on_what_you_use-{}".format(dwyu_version),
     url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.zip".format(dwyu_version),
 )
+
+load("@depend_on_what_you_use//:dependencies.bzl", dwyu_public_dependencies = "public_dependencies")
+
+dwyu_public_dependencies()
 ```
 
 ## Use DWYU
