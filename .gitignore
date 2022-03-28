@@ -8,6 +8,7 @@ bazel-*
 __pycache__
 *.pyc
 venv/
+.coverage
 
 # IDEs
 .clwb

@@ -25,3 +25,9 @@ repos:
         args: [ --py38-plus ]
         language: system
         types: [ python ]
+
+      - id: coverage
+        name: coverage
+        entry: poetry run pytest --cov
+        language: system
+        types: [ python ]
