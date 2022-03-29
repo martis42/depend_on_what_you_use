@@ -22,7 +22,7 @@ omit = ["*test*"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 99
+fail_under = 95
 
 
 [tool.poetry.dev-dependencies]
