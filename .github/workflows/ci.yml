@@ -14,5 +14,6 @@ jobs:
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
     - run: pip install poetry
+    - run: poetry install
     - name: Coverage
       run: poetry run pytest --cov
