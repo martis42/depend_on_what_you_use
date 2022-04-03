@@ -35,13 +35,6 @@ def cli():
         " Meaning headers from them are only used in the private files.",
     )
     parser.add_argument(
-        "--min-dependency-utilization",
-        metavar="PERCENT",
-        type=int,
-        choices=range(0, 101),
-        help="Report an error if a smaller fraction of the public headers of any dependency is included.",
-    )
-    parser.add_argument(
         "--ignore-include-paths",
         metavar="PATH",
         nargs="*",
@@ -94,14 +87,12 @@ def main(args: Any) -> int:
 
     allowed_includes = get_available_dependencies(args.headers_info)
 
-    min_dependency_utilization = args.min_dependency_utilization if args.min_dependency_utilization else 0
     result = evaluate_includes(
         target=args.target,
         public_includes=all_includes_from_public,
         private_includes=all_includes_from_private,
         dependencies=allowed_includes,
         ensure_private_deps=args.implementation_deps_available,
-        min_dependency_utilization=min_dependency_utilization,
     )
 
     out = Path(args.report)

@@ -3,8 +3,7 @@ load(":dwyu.bzl", "dwyu_aspect_impl")
 def dwyu_aspect_factory(
         config = Label("@depend_on_what_you_use//aspect:private/dwyu_empty_config.json"),
         recursive = False,
-        use_implementation_deps = False,
-        min_utilization = 0):
+        use_implementation_deps = False):
     """
     Create a "Depend on What You Use" (DWYU) aspect.
 
@@ -18,16 +17,9 @@ def dwyu_aspect_factory(
         use_implementation_deps: If true, ensure cc_library dependencies which are used only on private files are
                                  listed in implementation_deps. Only available for Bazel >= 5.0.0 and if flag
                                  '--experimental_cc_implementation_deps' is provided.
-        min_utilization: [Percent] Analyze how many headers from a dependency are used by the target. Fail, if a
-                         smaller percentage than specified of the dependency headers is utilized.
-                         CAUTION: Virtual include paths virtally increase the amount of headers available from a
-                         dependency and thus utilization is lower than one might expect.
     Returns:
         Configured DWYU aspect
     """
-    if min_utilization < 0 or min_utilization > 100:
-        fail("min_utilization has to be an integer in the range [0, 100]")
-
     attr_aspects = ["deps"] if recursive else []
     return aspect(
         implementation = dwyu_aspect_impl,
@@ -50,9 +42,6 @@ def dwyu_aspect_factory(
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,
-            ),
-            "_min_utilization": attr.int(
-                default = min_utilization,
             ),
         },
     )

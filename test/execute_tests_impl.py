@@ -4,7 +4,7 @@ import subprocess as sb
 from dataclasses import dataclass, field
 from typing import Dict, List, Union
 
-# Each line in the output corresponding to an error is expexted to start with this
+# Each line in the output corresponding to an error is expected to start with this
 ERRORS_PREFIX = " " * 2
 
 # DWYU terminal output key fragments
@@ -12,7 +12,6 @@ DWYU_FAILURE = "Result: FAILURE"
 CATEGORY_INVALID_INCLUDES = "Includes which are not available from the direct dependencies"
 CATEGORY_NON_PRIVATE_DEPS = "Public dependencies which are only used in private code"
 CATEGORY_UNUSED_DEPS = "Unused dependencies (none of their headers are referenced)"
-CATEGORY_UTILIZATION = "Dependencies with utilization below the threshold"
 
 
 @dataclass
@@ -32,7 +31,6 @@ class ExpectedResult:
     invalid_includes: List[str] = field(default_factory=list)
     unused_deps: List[str] = field(default_factory=list)
     deps_which_should_be_private: List[str] = field(default_factory=list)
-    deps_with_low_utilization: List[str] = field(default_factory=list)
 
     def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
         if not self._has_correct_status(return_code=return_code, output=dwyu_output):
@@ -54,12 +52,6 @@ class ExpectedResult:
         if not ExpectedResult._has_expected_errors(
             expected_errors=self.deps_which_should_be_private,
             error_category=CATEGORY_NON_PRIVATE_DEPS,
-            output=output_lines,
-        ):
-            return False
-        if not ExpectedResult._has_expected_errors(
-            expected_errors=self.deps_with_low_utilization,
-            error_category=CATEGORY_UTILIZATION,
             output=output_lines,
         ):
             return False

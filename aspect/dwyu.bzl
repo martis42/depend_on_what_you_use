@@ -32,9 +32,6 @@ def _make_args(ctx, target, public_files, private_files, report_file, headers_in
     if ensure_private_deps:
         args.add("--implementation-deps-available")
 
-    if ctx.attr._min_utilization > 0:
-        args.add("--min-dependency-utilization", ctx.attr._min_utilization)
-
     return args
 
 def _get_available_include_paths(label, system_includes, header_file):
