@@ -20,13 +20,13 @@ def cli():
         "--private-files", metavar="PATH", nargs="+", help="All private files of the target under inspection."
     )
     parser.add_argument(
-        "--headers-info", metavar="PATH", help="Json file containing informations about all relevant header files."
+        "--headers-info", metavar="PATH", help="Json file containing information about all relevant header files."
     )
     parser.add_argument("--report", metavar="FILE", help="Report result into this file.")
     parser.add_argument(
         "--config",
         metavar="FILE",
-        help="Config file in Json fomrat overriting the attributes '--ignore-include-paths' and '--extra-ignore-include-paths'.",
+        help="Config file in Json format overriting the attributes '--ignore-include-paths' and '--extra-ignore-include-paths'.",
     )
     parser.add_argument(
         "--implementation-deps-available",
@@ -63,16 +63,17 @@ def cli():
 
 
 def _get_ignored_includes(args: Any) -> set:
-    if args.config:
-        ignored_includes, extra_ignored_includes = load_config(Path(args.config))
-        ignored_includes += extra_ignored_includes
-        return set(ignored_includes)
-
     ignored_includes = STD_HEADER if not args.ignore_include_paths else {args.ignore_include_paths}
-    if args.extra_ignore_include_paths:
-        ignored_includes += {args.extra_ignore_include_paths}
+    extra_ignored_includes = {args.extra_ignore_include_paths} if args.extra_ignore_include_paths else {}
 
-    return ignored_includes
+    if args.config:
+        config_ignored_includes, config_extra_ignored_includes = load_config(Path(args.config))
+        if config_ignored_includes:
+            ignored_includes = set(config_ignored_includes)
+        if config_extra_ignored_includes:
+            extra_ignored_includes = set(config_extra_ignored_includes)
+
+    return ignored_includes.union(extra_ignored_includes)
 
 
 def main(args: Any) -> int:
