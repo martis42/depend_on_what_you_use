@@ -47,25 +47,6 @@ TESTS = [
         ),
     ),
     TestCase(
-        name="low_dependecy_utilization",
-        cmd=TestCmd(
-            target="//test/dependency_utilization:utilization_low",
-            aspect="//test/dependency_utilization:aspect.bzl%utilization_aspect",
-        ),
-        expected=ExpectedResult(
-            success=False,
-            deps_with_low_utilization=["Dependency='//test/dependency_utilization:lib', utilization='33"],
-        ),
-    ),
-    TestCase(
-        name="high_dependecy_utilization",
-        cmd=TestCmd(
-            target="//test/dependency_utilization:utilization_high",
-            aspect="//test/dependency_utilization:aspect.bzl%utilization_aspect",
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
         name="use_external_dependencies",
         cmd=TestCmd(target="//test/external_repo:use_external_libs", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),

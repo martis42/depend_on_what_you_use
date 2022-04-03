@@ -4,7 +4,6 @@ from execute_tests_impl import (
     CATEGORY_INVALID_INCLUDES,
     CATEGORY_NON_PRIVATE_DEPS,
     CATEGORY_UNUSED_DEPS,
-    CATEGORY_UTILIZATION,
     DWYU_FAILURE,
     ERRORS_PREFIX,
     CompatibleVersions,
@@ -65,7 +64,7 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_expected_fail_due_to_invalid_includes_fails_on_other_error(self):
         unit = ExpectedResult(success=False, invalid_includes=["foo/bar.cpp", "bar/foo.h"])
-        for cat in [CATEGORY_NON_PRIVATE_DEPS, CATEGORY_UNUSED_DEPS, CATEGORY_UTILIZATION]:
+        for cat in [CATEGORY_NON_PRIVATE_DEPS, CATEGORY_UNUSED_DEPS]:
             self.assertFalse(
                 unit.matches_expectation(
                     return_code=1,
@@ -93,7 +92,7 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_expected_fail_due_to_unused_deps_fails_on_other_error(self):
         unit = ExpectedResult(success=False, unused_deps=["//foo:bar", "//bar:foo"])
-        for cat in [CATEGORY_INVALID_INCLUDES, CATEGORY_NON_PRIVATE_DEPS, CATEGORY_UTILIZATION]:
+        for cat in [CATEGORY_INVALID_INCLUDES, CATEGORY_NON_PRIVATE_DEPS]:
             self.assertFalse(
                 unit.matches_expectation(
                     return_code=1,
@@ -123,35 +122,7 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_expected_fail_due_to_non_private_deps_fails_on_other_error(self):
         unit = ExpectedResult(success=False, deps_which_should_be_private=["//foo:bar", "//bar:foo"])
-        for cat in [CATEGORY_INVALID_INCLUDES, CATEGORY_UNUSED_DEPS, CATEGORY_UTILIZATION]:
-            self.assertFalse(
-                unit.matches_expectation(
-                    return_code=1,
-                    dwyu_output=self._make_error_output(category=cat, errors=["//foo:bar", "//bar:foo"]),
-                )
-            )
-
-    def test_expected_fail_due_to_low_utilization(self):
-        unit = ExpectedResult(success=False, deps_with_low_utilization=["//foo:bar", "//bar:foo"])
-        self.assertTrue(
-            unit.matches_expectation(
-                return_code=1,
-                dwyu_output=self._make_error_output(category=CATEGORY_UTILIZATION, errors=["//foo:bar", "//bar:foo"]),
-            )
-        )
-
-    def test_expected_fail_due_to_low_utilization_fails(self):
-        unit = ExpectedResult(success=False, deps_with_low_utilization=["//foo:bar", "//bar:foo"])
-        self.assertFalse(
-            unit.matches_expectation(
-                return_code=1,
-                dwyu_output=self._make_error_output(category=CATEGORY_UTILIZATION, errors=["//foo:bar"]),
-            )
-        )
-
-    def test_expected_fail_due_to_low_utilization_on_other_error(self):
-        unit = ExpectedResult(success=False, deps_with_low_utilization=["//foo:bar", "//bar:foo"])
-        for cat in [CATEGORY_INVALID_INCLUDES, CATEGORY_NON_PRIVATE_DEPS, CATEGORY_UNUSED_DEPS]:
+        for cat in [CATEGORY_INVALID_INCLUDES, CATEGORY_UNUSED_DEPS]:
             self.assertFalse(
                 unit.matches_expectation(
                     return_code=1,

@@ -11,27 +11,17 @@ from src.parse_source import Include
 
 
 @dataclass
-class DependencyUtilization:
-    """How many percent of headers from a dependency are used in the target under inspection"""
-
-    name: str
-    utilization: int
-
-
-@dataclass
 class Result:
     target: str
     invalid_includes: List[Include] = field(default_factory=list)
     unused_deps: List[str] = field(default_factory=list)
     deps_which_should_be_private: List[str] = field(default_factory=list)
-    deps_with_low_utilization: List[DependencyUtilization] = field(default_factory=list)
 
     def is_ok(self) -> bool:
         return (
             len(self.invalid_includes) == 0
             and len(self.unused_deps) == 0
             and len(self.deps_which_should_be_private) == 0
-            and len(self.deps_with_low_utilization) == 0
         )
 
     def to_str(self) -> str:
@@ -52,12 +42,6 @@ class Result:
                     "\nPublic dependencies which are only used in private code, move them to 'implementation_deps':\n"
                 )
                 msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
-            if self.deps_with_low_utilization:
-                msg += "\nDependencies with utilization below the threshold:\n"
-                msg += "\n".join(
-                    f"  Dependency='{dep.name}', utilization='{dep.utilization}'"
-                    for dep in self.deps_with_low_utilization
-                )
             return self._framed_msg(msg)
 
     @staticmethod
@@ -143,35 +127,11 @@ def _check_for_public_deps_which_should_be_private(dependencies: AvailableDepend
     return should_be_private
 
 
-def _check_for_deps_whith_low_utilization_impl(
-    dependencies: List[AvailableDependency], min_utilization: int
-) -> List[DependencyUtilization]:
-    lowly_utilized_deps = []
-    for dep in dependencies:
-        used = sum(hdr.used != IncludeUsage.NONE for hdr in dep.hdrs)
-        utilization = int(100 * used / len(dep.hdrs))
-        if utilization < min_utilization:
-            lowly_utilized_deps.append(DependencyUtilization(name=dep.name, utilization=utilization))
-    return lowly_utilized_deps
-
-
-def _check_for_deps_whith_low_utilization(
-    dependencies: AvailableDependencies, min_utilization: int
-) -> List[DependencyUtilization]:
-    lowly_utilized_deps = _check_for_deps_whith_low_utilization_impl(
-        dependencies=dependencies.public, min_utilization=min_utilization
-    )
-    lowly_utilized_deps.extend(
-        _check_for_deps_whith_low_utilization_impl(dependencies=dependencies.private, min_utilization=min_utilization)
-    )
-    return lowly_utilized_deps
-
-
 def _filter_empty_dependencies(deps: AvailableDependencies) -> AvailableDependencies:
     """
     Some dependencies contain no headers and provide only libraries to link against. Since our analysis is based on
     includes we are not interested in those and throw them away to prevent them raising findings regarding unused
-    dependencies or header utilization.
+    dependencies.
     """
     return AvailableDependencies(
         self=deps.self,
@@ -186,7 +146,6 @@ def evaluate_includes(
     private_includes: List[Include],
     dependencies: AvailableDependencies,
     ensure_private_deps: bool,
-    min_dependency_utilization: int,
 ) -> Result:
     result = Result(target)
     dependencies = _filter_empty_dependencies(dependencies)
@@ -197,9 +156,5 @@ def evaluate_includes(
     result.unused_deps = _check_for_unused_dependencies(dependencies)
     if ensure_private_deps:
         result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(dependencies)
-    if min_dependency_utilization > 0:
-        result.deps_with_low_utilization = _check_for_deps_whith_low_utilization(
-            dependencies=dependencies, min_utilization=min_dependency_utilization
-        )
 
     return result

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from src.evaluate_includes import DependencyUtilization, Result, evaluate_includes
+from src.evaluate_includes import Result, evaluate_includes
 from src.get_dependencies import (
     AvailableDependencies,
     AvailableDependency,
@@ -64,18 +64,6 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-    def test_is_ok_fails_due_to_lowly_utilized_deps(self):
-        unit = Result(target="//foo:bar", deps_with_low_utilization=[DependencyUtilization(name="foo", utilization=42)])
-
-        self.assertFalse(unit.is_ok())
-        self.assertEqual(
-            unit.to_str(),
-            self._expected_msg(
-                target="//foo:bar",
-                errors="Dependencies with utilization below the threshold:\n" "  Dependency='foo', utilization='42'",
-            ),
-        )
-
 
 class TestEvaluateIncludes(unittest.TestCase):
     def test_success_for_valid_external_dependencies(self):
@@ -100,7 +88,6 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[AvailableDependency(name="baz_pkg", hdrs=[AvailableInclude("baz.h")])],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertTrue(result.is_ok())
@@ -116,7 +103,6 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertTrue(result.is_ok())
@@ -142,7 +128,6 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertTrue(result.is_ok())
@@ -160,13 +145,11 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.unused_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(result.deps_with_low_utilization, [])
         self.assertEqual(result.invalid_includes, [Include(file=Path("nested/dir/foo.h"), include="bar.h")])
 
     def test_missing_includes_from_dependencies(self):
@@ -188,13 +171,11 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")])],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.unused_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(result.deps_with_low_utilization, [])
         self.assertEqual(len(result.invalid_includes), 4)
         self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.invalid_includes)
         self.assertTrue(Include(file=Path("public_file"), include="foo/bar.h") in result.invalid_includes)
@@ -220,13 +201,11 @@ class TestEvaluateIncludes(unittest.TestCase):
                 ],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.invalid_includes, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(result.deps_with_low_utilization, [])
         self.assertEqual(len(result.unused_deps), 4)
         self.assertTrue("foo" in result.unused_deps)
         self.assertTrue("bar" in result.unused_deps)
@@ -251,13 +230,11 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[],
             ),
             ensure_private_deps=True,
-            min_dependency_utilization=0,
         )
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.invalid_includes, [])
         self.assertEqual(result.unused_deps, [])
-        self.assertEqual(result.deps_with_low_utilization, [])
         self.assertEqual(len(result.deps_which_should_be_private), 2)
         self.assertTrue("foo" in result.deps_which_should_be_private)
         self.assertTrue("bar" in result.deps_which_should_be_private)
@@ -280,51 +257,9 @@ class TestEvaluateIncludes(unittest.TestCase):
                 private=[],
             ),
             ensure_private_deps=False,
-            min_dependency_utilization=0,
         )
 
         self.assertTrue(result.is_ok())
-
-    def test_min_dependecy_utilization_infringed(self):
-        result = evaluate_includes(
-            target="foo",
-            public_includes=[Include(file=Path("public_file"), include="foo1.h")],
-            private_includes=[Include(file=Path("private_file"), include="bar1.h")],
-            dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[]),
-                public=[
-                    AvailableDependency(
-                        name="foo",
-                        hdrs=[
-                            AvailableInclude("foo1.h"),
-                            AvailableInclude("foo2.h"),
-                            AvailableInclude("foo3.h"),
-                            AvailableInclude("foo4.h"),
-                        ],
-                    ),
-                ],
-                private=[
-                    AvailableDependency(
-                        name="bar",
-                        hdrs=[
-                            AvailableInclude("bar1.h"),
-                            AvailableInclude("bar2.h"),
-                            AvailableInclude("bar3.h"),
-                        ],
-                    ),
-                ],
-            ),
-            ensure_private_deps=True,
-            min_dependency_utilization=50,
-        )
-
-        self.assertFalse(result.is_ok())
-        self.assertEqual(result.invalid_includes, [])
-        self.assertEqual(result.unused_deps, [])
-        self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(len(result.deps_with_low_utilization), 2)
-        self.assertTrue(DependencyUtilization(name="foo", utilization=25) in result.deps_with_low_utilization)
-        self.assertTrue(DependencyUtilization(name="bar", utilization=33) in result.deps_with_low_utilization)
 
 
 if __name__ == "__main__":

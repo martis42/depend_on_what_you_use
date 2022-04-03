@@ -15,11 +15,9 @@ The main features are:
 
 # Word of Warning
 
-This project is still in a prototyping phase.
-It has been made public to ease sharing with other developers for gathering feedback on the concept.
-Do not expect stability of
+This project is still in an early phase.
+Do not yet expect stability of
 * the project structure
-* the feature set
 * the tools chosen to implement DWYU
 
 # Getting started
@@ -113,26 +111,6 @@ This can be used to create a rule invoking DWYU on a target and all its dependen
 Also it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
 
 Examples for this can be seen at [test/recursion](../test/recursion).
-
-### Measure dependency utilization
-
-If a library provides many headers but typically only a fraction of them are used at the call sites, this can be a hint
-that the library should be split into smaller parts. DWYU allows you to find cases where a percentage less than
-a provided threshold of headers from a dependency is used by a call site.
-
-This feature is intended to analyze your stack and search for suboptimal dependencies. It is not recommended to enforce
-unconditionally a minimum dependency header utilization on your whole stack. \
-Using `include_prefix`, `strip_include_prefix` or `includes` on `cc_` targets tampers with the reliability of this measurement.
-Those attributes make multiple include paths available for a single header file.
-These, paths appear as multiple files to the DWYU implementation.
-Consequently, the amount of headers provided by a dependency increases virtually and thus utilization drops.
-
-Activate this behavior via:
-```
-your_aspect = dwyu_aspect_factory(min_utilization = [0..100])
-```
-
-Examples for this can be seen at [test/dependency_utilization](../test/dependency_utilization).
 
 ### Ensure a proper split between public and private dependencies
 
