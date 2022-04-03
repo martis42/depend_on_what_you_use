@@ -4,6 +4,9 @@ DWYU is a Bazel aspect for C++ projects to make sure the headers your targets ar
 It applies the principals established by [Include What You Use](https://github.com/include-what-you-use/include-what-you-use)
 to the dependencies of your `cc_*` targets.
 
+DWYUs design philosophy in one sentence: \
+**A `cc_*` target X shall depend directly on the targets providing the header files which are included directly in the source code of X.**
+
 The main features are:
 * Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies**.
 * Finding unused dependencies.
@@ -40,9 +43,9 @@ http_archive(
     url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.zip".format(dwyu_version),
 )
 
-load("@depend_on_what_you_use//:dependencies.bzl", dwyu_public_dependencies = "public_dependencies")
+load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
 
-dwyu_public_dependencies()
+dwyu_dependencies()
 ```
 
 ## Use DWYU
@@ -144,8 +147,6 @@ private files, but not put into the private dependency attribute.
 
 **WARNING** \
 `implementation_deps` is being removed again with Bazel 6.0.0.
-DWYUs support for it may be removed at any point since it is of little value to support an experimental feature which
-is available only in a single Bazel version.
 See [Interface_deps](#Interface_deps) for the forward path, which is however as well only in experimental stage.
 
 Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/main/be/c-cpp.html#cc_library.implementation_deps)
@@ -176,10 +177,6 @@ We will wait some time to make sure `interface_deps` really is the forward path 
 Minimum required Bazel version is **4.0.0**.
 * Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
 * Before 4.0.0 the global json module is not available in Starlark
-
-
-Maximum available Bazel version  is **6.0.0-pre.20220216.3**.
-`implementation_deps` will be removed again in Bazel 6.0.0.
 
 ### Python
 
