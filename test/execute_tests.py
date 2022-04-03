@@ -151,6 +151,25 @@ TESTS = [
         cmd=TestCmd(target="//test/platforms/..."),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="invalid_dependency_through_alias",
+        cmd=TestCmd(target="//test/alias:use_a_transitively", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=["File='test/alias/use_a_and_b.cpp', include='test/alias/a.h'"],
+        ),
+    ),
+    TestCase(
+        name="unused_dependency_through_alias",
+        cmd=TestCmd(target="//test/alias:unused_dependency", aspect=DEFAULT_ASPECT),
+        # The aspect does not see the alias, but only the resolved actual dependency
+        expected=ExpectedResult(success=False, unused_deps=["//test/alias:lib_a"]),
+    ),
+    TestCase(
+        name="dependency_through_alias",
+        cmd=TestCmd(target="//test/alias:use_a_directly", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
