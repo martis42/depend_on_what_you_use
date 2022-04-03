@@ -1,0 +1,6 @@
+{
+    "ignore_include_paths": [],
+    "extra_ignore_include_paths": [
+        "some_arcane_header.h"
+    ]
+}
