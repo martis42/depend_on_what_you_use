@@ -17,8 +17,8 @@ class TestInclude(unittest.TestCase):
         self.assertTrue(Include(file=Path("bar"), include="bar.h") in unit)
 
     def test_hash(self):
-        foo = Include(file=Path("foo"), include="bar")
-        unit = {foo, foo, Include(file=Path("foo"), include="bar"), Include(file=Path("bar"), include="foo")}
+        include = Include(file=Path("foo"), include="bar")
+        unit = {include, include, Include(file=Path("foo"), include="bar"), Include(file=Path("bar"), include="foo")}
 
         self.assertEqual(len(unit), 2)
         self.assertTrue(Include(file=Path("foo"), include="bar") in unit)

@@ -26,13 +26,14 @@ def cli():
     parser.add_argument(
         "--config",
         metavar="FILE",
-        help="Config file in Json format overriting the attributes '--ignore-include-paths' and '--extra-ignore-include-paths'.",
+        help="Config file in Json format overriting the attributes '--ignore-include-paths' "
+        "and '--extra-ignore-include-paths'.",
     )
     parser.add_argument(
         "--implementation-deps-available",
         action="store_true",
-        help="If this Bazel 5.0 feature is vailable, then check if some dependencies could be private instead of public."
-        " Meaning headers from them are only used in the private files.",
+        help="If this Bazel 5.0 feature is vailable, then check if some dependencies "
+        "could be private instead of public. Meaning headers from them are only used in the private files.",
     )
     parser.add_argument(
         "--ignore-include-paths",
@@ -103,9 +104,8 @@ def main(args: Any) -> int:
         fout.write(result_msg)
     if result.is_ok():
         return 0
-    else:
-        print(result_msg)
-        return 1
+    print(result_msg)
+    return 1
 
 
 if __name__ == "__main__":

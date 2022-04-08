@@ -29,20 +29,18 @@ class Result:
         if self.is_ok():
             msg += "Result: SUCCESS"
             return self._framed_msg(msg)
-        else:
-            msg += "Result: FAILURE\n"
-            if self.invalid_includes:
-                msg += "\nIncludes which are not available from the direct dependencies:\n"
-                msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)
-            if self.unused_deps:
-                msg += "\nUnused dependencies (none of their headers are referenced):\n"
-                msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
-            if self.deps_which_should_be_private:
-                msg += (
-                    "\nPublic dependencies which are only used in private code, move them to 'implementation_deps':\n"
-                )
-                msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
-            return self._framed_msg(msg)
+
+        msg += "Result: FAILURE\n"
+        if self.invalid_includes:
+            msg += "\nIncludes which are not available from the direct dependencies:\n"
+            msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)
+        if self.unused_deps:
+            msg += "\nUnused dependencies (none of their headers are referenced):\n"
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
+        if self.deps_which_should_be_private:
+            msg += "\nPublic dependencies which are only used in private code, move them to 'implementation_deps':\n"
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
+        return self._framed_msg(msg)
 
     @staticmethod
     def _framed_msg(msg: str) -> str:
