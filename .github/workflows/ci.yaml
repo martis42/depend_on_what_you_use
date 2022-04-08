@@ -16,4 +16,4 @@ jobs:
     - run: pip install poetry
     - run: poetry install
     - name: Coverage
-      run: poetry run pytest --cov
+      run: poetry run pytest --cov --pylint

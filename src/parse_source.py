@@ -76,7 +76,7 @@ def filter_includes(includes: List[Include], ignored_includes: set) -> List[Incl
 def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: set) -> List[Include]:
     all_includes = []
     if files:
-        for f in files:
-            includes = get_includes_from_file(Path(f))
+        for file in files:
+            includes = get_includes_from_file(Path(file))
             all_includes.extend(includes)
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)
