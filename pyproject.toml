@@ -33,13 +33,17 @@ pyupgrade = "^2.31.1"
 coverage = {extras = ["toml"], version = "^6.3.2"}
 pytest-cov = "^3.0.0"
 pylint = "^2.13.5"
+pytest-pylint = "^0.18.0"
 
 [tool.pylint.FORMAT]
 max-line-length = 120
-
 disable = ["missing-function-docstring",
     "missing-module-docstring",
-    "missing-class-docstring"]
+    "missing-class-docstring",
+    "too-many-branches", "import-error"]
+
+[tool.pylint.SIMILARITIES]
+ignore-imports=true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -140,7 +140,7 @@ class TestMakeCmd(unittest.TestCase):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[])
         self.assertEqual(cmd, self._base_cmd() + ["--", "//foo:bar"])
 
-    def test_with_aspect(self):
+    def test_with_aspect_2(self):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar", aspect="//some/aspect.bzl"), extra_args=[])
         self.assertEqual(
             cmd,

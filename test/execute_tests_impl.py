@@ -24,7 +24,8 @@ class TestCmd:
 @dataclass
 class ExpectedResult:
     """
-    Encapsulates an expected result of a DWYU analysis and offers functions to compare a given output to the expectations.
+    Encapsulates an expected result of a DWYU analysis and offers functions
+    to compare a given output to the expectations.
     """
 
     success: bool
@@ -136,10 +137,10 @@ def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> 
         ok_verb = "succeeded" if test.expected.success else "failed"
         print(f"<<< OK '{test.name}' {ok_verb} as expected")
         return True
-    else:
-        print("\n" + process.stdout + "\n")
-        print(f"<<< ERROR '{test.name}' did not behave as expected")
-        return False
+
+    print("\n" + process.stdout + "\n")
+    print(f"<<< ERROR '{test.name}' did not behave as expected")
+    return False
 
 
 def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
@@ -186,8 +187,8 @@ def execute_tests(
             if not is_compatible_version(version=version, compatible_versions=test.compatible_versions):
                 print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{version}'")
                 continue
-            else:
-                print(f"\n>>> Execute '{test.name}' with Bazel '{version}'")
+
+            print(f"\n>>> Execute '{test.name}' with Bazel '{version}'")
 
             process = sb.run(
                 make_cmd(test_cmd=test.cmd, extra_args=extra_args),
@@ -195,6 +196,7 @@ def execute_tests(
                 text=True,
                 stdout=sb.PIPE,
                 stderr=sb.STDOUT,
+                check=False,
             )
 
             if not verify_test(test=test, process=process, verbose=verbose):
@@ -229,6 +231,6 @@ def main(args: argparse.Namespace, test_cases: List[TestCase], test_versions: Li
         print("These tests failed:")
         print("\n".join(f"- '{t.name} - for Bazel version '{t.version}'" for t in failed_tests))
         return 1
-    else:
-        print("SUCCESS\n")
-        return 0
+
+    print("SUCCESS\n")
+    return 0

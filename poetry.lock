@@ -328,6 +328,19 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
+name = "pytest-pylint"
+version = "0.18.0"
+description = "pytest plugin to check source code with pylint"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+pylint = ">=2.3.0"
+pytest = ">=5.4"
+toml = ">=0.7.1"
+
+[[package]]
 name = "pyupgrade"
 version = "2.31.1"
 description = "A tool to automatically upgrade syntax for newer versions."
@@ -415,7 +428,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "36f456da3fa2573d2e7da125a4f5a2a08754f9d81c5cd9c8c62afbe3dc37296e"
+content-hash = "40af318318e9471837ae77e5227daaa5172ce1a17646f7e55217ca833a6ca1f3"
 
 [metadata.files]
 astroid = [
@@ -624,6 +637,10 @@ pytest = [
 pytest-cov = [
     {file = "pytest-cov-3.0.0.tar.gz", hash = "sha256:e7f0f5b1617d2210a2cabc266dfe2f4c75a8d32fb89eafb7ad9d06f6d076d470"},
     {file = "pytest_cov-3.0.0-py3-none-any.whl", hash = "sha256:578d5d15ac4a25e5f961c938b85a05b09fdaae9deef3bb6de9a6e766622ca7a6"},
+]
+pytest-pylint = [
+    {file = "pytest-pylint-0.18.0.tar.gz", hash = "sha256:790c7a8019fab08e59bd3812db1657a01995a975af8b1c6ce95b9aa39d61da27"},
+    {file = "pytest_pylint-0.18.0-py3-none-any.whl", hash = "sha256:b63aaf8b80ff33c8ceaa7f68323ed04102c7790093ccf6bdb261a4c2dc6fd564"},
 ]
 pyupgrade = [
     {file = "pyupgrade-2.31.1-py2.py3-none-any.whl", hash = "sha256:4060a7c20c79d373a3dcf34566b275c6de6cd2b034ad22465d3263fb0de82648"},
