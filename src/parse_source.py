@@ -1,6 +1,5 @@
 import re
 from dataclasses import dataclass
-from enum import Enum, auto
 from pathlib import Path
 from typing import List, Union
 
@@ -44,12 +43,11 @@ def get_includes_from_file(file: Path) -> List[Include]:
                 if not "*/" in line:
                     inside_comment_block = True
                     continue
-                else:
-                    while "*/" in line:
-                        line = line.partition("*/")[2]
-                    if "/*" in line:
-                        inside_comment_block = True
-                        continue
+                while "*/" in line:
+                    line = line.partition("*/")[2]
+                if "/*" in line:
+                    inside_comment_block = True
+                    continue
             if inside_comment_block and not "*/" in line:
                 continue
             if inside_comment_block and "*/" in line:

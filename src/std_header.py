@@ -1,9 +1,11 @@
 """
 List is based on https://en.cppreference.com/w/cpp/header.
-The content of the website has been copied into a file (plain ctrl + c) and then extract_std_headers.py has been executed on the file.
+The content of the website has been copied into a file (plain ctrl + c)
+and then extract_std_headers.py has been executed on the file.
 
-The list is a superset of all headers, no matter in which standard they have been introduced or if they are already removed.
-If you require a list tailored to a specific standard, you have to define it yourself and provide it to the tool through the CLI.
+The list is a superset of all headers, no matter in which standard they have been introduced
+or if they are already removed. If you require a list tailored to a specific standard,
+you have to define it yourself and provide it to the tool through the CLI.
 """
 
 # extracted 2022.01.03
