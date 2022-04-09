@@ -136,11 +136,11 @@ class TestMakeCmd(unittest.TestCase):
     def _base_cmd():
         return ["bazelisk", "build", "--noshow_progress"]
 
-    def test_with_aspect(self):
+    def test_basic_cmd(self):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[])
         self.assertEqual(cmd, self._base_cmd() + ["--", "//foo:bar"])
 
-    def test_with_aspect_2(self):
+    def test_with_aspect(self):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar", aspect="//some/aspect.bzl"), extra_args=[])
         self.assertEqual(
             cmd,
