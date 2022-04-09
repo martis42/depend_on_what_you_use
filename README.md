@@ -13,13 +13,6 @@ The main features are:
 * Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and private dependencies for `cc_library`.
   For more details see [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
 
-# Word of Warning
-
-This project is still in an early phase.
-Do not yet expect stability of
-* the project structure
-* the tools chosen to implement DWYU
-
 # Getting started
 
 ## Get a release
@@ -171,19 +164,6 @@ Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
 * Defines are ignored.
   No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected through the `defines = [...]` attribute of the `cc_` rules.
 * Include statements utilizing `..` to go up the directory tree are not resolved.
-
-# Project Roadmap
-
-## Overview of current state
-
-The focus until now has been to come up with a prototype for the idea behind DWYU and to be able to gather first user feedback.
-
-[Test cases](test) have been established to make sure the concept works with a wide range of use cases and DWYU can evolve without introducing regressions.
-
-The Bazel aspect implementation is for sure not yet ideal, but is considered it a solid starting point.
-
-The Python implementation to analyze the include statements in C++ code is a minimal implementation with [several restrictions](#Known-limitations).
-If it will be expanded or replaced is currently unclear.
 
 # Contributing
 
