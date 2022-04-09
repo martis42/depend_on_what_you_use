@@ -1,17 +1,17 @@
 # Depend on what you use (DWYU)
 
-DWYU is a Bazel aspect for C++ projects to make sure the headers your targets are using are aligned with the targets dependency list.
-It applies the principals established by [Include What You Use](https://github.com/include-what-you-use/include-what-you-use)
-to the dependencies of your `cc_*` targets.
+DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.
 
-DWYUs design philosophy in one sentence: \
-**A `cc_*` target X shall depend directly on the targets providing the header files which are included directly in the source code of X.**
+DWYUs enforces the design principle: \
+**A `cc_*` target X shall depend directly on the targets providing the header files which are included in the source code of X.**
 
 The main features are:
-* Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies**.
+* Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
 * Finding unused dependencies.
 * Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and private dependencies for `cc_library`.
   For more details see [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
+
+For more information about the DWYU design principle see [the docs](docs/design_principle.md).
 
 # Getting started
 
