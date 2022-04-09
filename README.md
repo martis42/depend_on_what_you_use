@@ -81,16 +81,16 @@ This can be useful to make the execution part of a bazel build (e.g. `bazel buil
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 A concrete example for doing so for a DWYU aspect can be [found in the recursion test cases](test/recursion/rule.bzl).
 
-## Features
+# Features
 
-### Custom header ignore list
+## Custom header ignore list
 
 By default DWYU ignores all header from the standard library when comparing include statements to the dependencies.
 
 You can exclude a custom set of header files by providing a config file in json format to the aspect.
 An example for this and the correct format can be seen at [test/custom_config](../test/custom_config).
 
-### Recursion
+## Recursion
 
 By default DWYU analyzes only the target it is being applied to.
 
@@ -105,7 +105,7 @@ Also it can be a convenience to analyze specific fraction of your stack without 
 
 Examples for this can be seen at [test/recursion](../test/recursion).
 
-### Ensure a proper split between public and private dependencies
+## Ensure a proper split between public and private dependencies
 
 Starting with version 5.0.0 Bazel offers experimental features to distinguish between public (aka interface) and
 private (aka implementation) dependencies for `cc_library`.
@@ -114,10 +114,9 @@ The private dependencies are not made available to users of the library to trim 
 DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in
 private files, but not put into the private dependency attribute.
 
-#### Implementation_deps
+### Implementation_deps
 
-**WARNING** \
-`implementation_deps` is being removed again with Bazel 6.0.0.
+:warning: **`implementation_deps` is being removed again with Bazel 6.0.0**.
 See [Interface_deps](#Interface_deps) for the forward path, which is however as well only in experimental stage.
 
 Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/main/be/c-cpp.html#cc_library.implementation_deps)
@@ -133,7 +132,7 @@ your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 
 Examples for this can be seen at [test/implementation_deps](../test/implementation_deps).
 
-#### Interface_deps
+### Interface_deps
 
 This is not yet supported by DWYU.
 
@@ -141,29 +140,29 @@ https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c
 However an issue about potential problems with this new approach was raised: https://github.com/bazelbuild/bazel/issues/14950.
 We will wait some time to make sure `interface_deps` really is the forward path before investing time into this.
 
-## Supported Platforms
-
-### Bazel
-
-Minimum required Bazel version is **4.0.0**.
-* Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
-* Before 4.0.0 the global json module is not available in Starlark
-
-### Python
-
-Requires Python 3. Code is only tested with Python 3.8, but should work with most 3.X versions.
-
-## Operating system
-
-DWYU is not designed for a specific platform.
-Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
-
 ## Known limitations
 
 * If includes are added through a macro, this is invisible to DWYU.
 * Defines are ignored.
   No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected through the `defines = [...]` attribute of the `cc_` rules.
 * Include statements utilizing `..` to go up the directory tree are not resolved.
+
+# Supported Platforms
+
+## Operating system
+
+DWYU is not designed for a specific platform.
+Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
+
+## Bazel
+
+Minimum required Bazel version is **4.0.0**.
+* Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
+* Before 4.0.0 the global json module is not available in Starlark
+
+## Python
+
+Requires Python 3. Code is only tested with Python 3.8, but should work with most 3.X versions.
 
 # Contributing
 
