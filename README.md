@@ -87,15 +87,19 @@ A concrete example for doing so for a DWYU aspect can be [found in the recursion
 
 By default DWYU ignores all header from the standard library when comparing include statements to the dependencies.
 
-You can exclude a custom set of header files by providing a config file in json format to the aspect.
-An example for this and the correct format can be seen at [test/custom_config](../test/custom_config).
+You can exclude a custom set of header files by providing a config file in json format to the aspect:
+```
+your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
+```
+
+Examples and the correct format can be seen at [test/custom_config](test/custom_config).
 
 ## Recursion
 
 By default DWYU analyzes only the target it is being applied to.
 
-You can activate recursive analysis, meaning the aspect analyzes recursively all dependencies of the target it is being
-applied to. Activate this behavior via:
+You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is being
+applied to:
 ```
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
@@ -103,7 +107,7 @@ your_aspect = dwyu_aspect_factory(recursive = True)
 This can be used to create a rule invoking DWYU on a target and all its dependencies as part of a normal build command.
 Also it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
 
-Examples for this can be seen at [test/recursion](../test/recursion).
+Examples for this can be seen at [test/recursion](test/recursion).
 
 ## Ensure a proper split between public and private dependencies
 
@@ -130,7 +134,7 @@ Activate this behavior via:
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
-Examples for this can be seen at [test/implementation_deps](../test/implementation_deps).
+Examples for this can be seen at [test/implementation_deps](test/implementation_deps).
 
 ### Interface_deps
 
