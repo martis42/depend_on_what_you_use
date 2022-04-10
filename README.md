@@ -1,3 +1,17 @@
+- [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
+- [Getting started](#getting-started)
+  - [Get a release](#get-a-release)
+  - [Get a specific commit](#get-a-specific-commit)
+  - [Use DWYU](#use-dwyu)
+- [Features](#features)
+  - [Custom header ignore list](#custom-header-ignore-list)
+  - [Recursion](#recursion)
+  - [Ensure a proper split between public and private dependencies](#ensure-a-proper-split-between-public-and-private-dependencies)
+  - [Known limitations](#known-limitations)
+- [Supported Platforms](#supported-platforms)
+- [Contributing](#contributing)
+- [License](#license)
+
 # Depend on what you use (DWYU)
 
 DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.
@@ -153,18 +167,18 @@ We will wait some time to make sure `interface_deps` really is the forward path 
 
 # Supported Platforms
 
-## Operating system
+### Operating system
 
 DWYU is not designed for a specific platform.
 Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
 
-## Bazel
+### Bazel
 
 Minimum required Bazel version is **4.0.0**.
 * Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
 * Before 4.0.0 the global json module is not available in Starlark
 
-## Python
+### Python
 
 Requires Python 3. Code is only tested with Python 3.8, but should work with most 3.X versions.
 
