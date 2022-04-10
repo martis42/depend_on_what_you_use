@@ -16,16 +16,17 @@
 
 DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.
 
-DWYUs enforces the design principle: \
+DWYUs enforces the design principle:<br/>
 **A `cc_*` target X shall depend directly on the targets providing the header files which are included in the source code of X.**
 
 The main features are:
-* Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
-* Finding unused dependencies.
-* Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and private dependencies for `cc_library`.
-  For more details see [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
+- Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
+- Finding unused dependencies.
+- Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and
+  private dependencies for `cc_library`. For more details see
+  [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
 
-For more information about the DWYU design principle see [the docs](docs/design_principle.md).
+More information about the DWYU design principle is available in [the docs](docs/design_principle.md).
 
 # Getting started
 
@@ -70,12 +71,12 @@ your_dywu_aspect = dwyu_aspect_factory()
 
 ### Use the aspect
 
-Invoke the aspect through the command line on a target: \
+Invoke the aspect through the command line on a target:<br/>
 `bazel build <target_pattern> --aspects=//:aspect.bzl%your_dywu_aspect --output_groups=cc_dwyu_output`
 
-If no problem is found, the command will exit with `INFO: Build completed successfully`. \
-If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal.
-For example:
+If no problem is found, the command will exit with `INFO: Build completed successfully`.<br/>
+If a problem is detected, the build command will fail with an error and a description of the problem will be printed in
+the terminal. For example:
 ```
 ================================================================================
 DWYU analyzing: '<analyzed_target>'
@@ -89,8 +90,8 @@ Unused dependencies (none of their headers are referenced):
 
 ### Create a rule invoking the aspect.
 
-You can invoke the aspect from within a rule.
-This can be useful to make the execution part of a bazel build (e.g. `bazel build //...`) without having to execute the longish manual aspect build command.
+You can invoke the aspect from within a rule. This can be useful to make the execution part of a bazel build (e.g.
+`bazel build //...`) without having to execute the longish manual aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 A concrete example for doing so for a DWYU aspect can be [found in the recursion test cases](test/recursion/rule.bzl).
@@ -112,8 +113,8 @@ Examples and the correct format can be seen at [test/custom_config](test/custom_
 
 By default DWYU analyzes only the target it is being applied to.
 
-You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is being
-applied to:
+You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is
+being applied to:
 ```
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
@@ -155,15 +156,16 @@ Examples for this can be seen at [test/implementation_deps](test/implementation_
 This is not yet supported by DWYU.
 
 https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c25c introduces `--experimental_cc_interface_deps`.
-However an issue about potential problems with this new approach was raised: https://github.com/bazelbuild/bazel/issues/14950.
+However, an issue about potential problems with this new approach was raised: https://github.com/bazelbuild/bazel/issues/14950.
 We will wait some time to make sure `interface_deps` really is the forward path before investing time into this.
 
 ## Known limitations
 
-* If includes are added through a macro, this is invisible to DWYU.
-* Defines are ignored.
-  No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected through the `defines = [...]` attribute of the `cc_` rules.
-* Include statements utilizing `..` to go up the directory tree are not resolved.
+- If includes are added through a macro, this is invisible to DWYU.
+- Defines are ignored.
+  No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected
+  through the `defines = [...]` attribute of the `cc_` rules.
+- Include statements utilizing `..` to go up the directory tree are not resolved.
 
 # Supported Platforms
 
@@ -175,8 +177,8 @@ Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
 ### Bazel
 
 Minimum required Bazel version is **4.0.0**.
-* Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
-* Before 4.0.0 the global json module is not available in Starlark
+- Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
+- Before 4.0.0 the global json module is not available in Starlark
 
 ### Python
 
