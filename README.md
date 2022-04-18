@@ -187,20 +187,12 @@ added over time.
 
 # Supported Platforms
 
-### Operating system
-
-DWYU is not designed for a specific platform.
-Ubuntu 20.04 is however the only OS DWYU is currently being tested on.
-
-### Bazel
-
-Minimum required Bazel version is **4.0.0**.
-- Before 3.3.0 CcInfo compilation_context has a structure which is not supported by the aspect
-- Before 4.0.0 the global json module is not available in Starlark
-
-### Python
-
-Requires Python 3. Code is only tested with Python 3.8, but should work with most 3.X versions.
+| Platform         | Constraints                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------ |
+| Operating system | No constraints. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
+| Python           | Python 3. Tests are currently running based on Python 3.8.                                       |
+| Bazel            | Minimum version is 4.0.0.                                                                        |
+| Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
 
 # Contributing
 

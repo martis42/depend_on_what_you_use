@@ -53,3 +53,9 @@ This makes sense, after all the compiler requires all used headers to compile `c
 However, it makes the `.d` file impractical for DWYU.
 We need to know if header `a.h` was included directly in `c.cpp` or is used transitively by `b.h`.
 Without this distinction we cannot compare the include statements to the list of direct dependencies.
+
+## Platforms: Why are older Bazel version not supported
+
+The aspect implementation is not compatible to old Bazel versions due to:
+- Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
+- Before 4.0.0 the global json module is not available in Starlark
