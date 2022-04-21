@@ -17,6 +17,8 @@ load("@depend_on_what_you_use//:dependencies.bzl", dwyu_public_dependencies = "p
 dwyu_public_dependencies()
 """
 
+# TODO generalize impl
+
 
 def get_current_workspace() -> Path:
     process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
