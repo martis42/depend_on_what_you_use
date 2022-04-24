@@ -28,6 +28,6 @@ versions.check(
 # Testing
 #
 
-load("//test:test.bzl", "test_setup")
+load("//test/aspect:test.bzl", "test_setup")
 
 test_setup()
