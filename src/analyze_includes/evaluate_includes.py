@@ -3,12 +3,12 @@ from json import dumps
 from pathlib import Path
 from typing import List
 
-from src.get_dependencies import (
+from src.analyze_includes.get_dependencies import (
     AvailableDependencies,
     AvailableDependency,
     IncludeUsage,
 )
-from src.parse_source import Include
+from src.analyze_includes.parse_source import Include
 
 
 @dataclass

@@ -3,7 +3,7 @@ load("@rules_python//python:defs.bzl", "py_test")
 py_test(
     name = "evaluate_includes_test",
     srcs = ["evaluate_includes_test.py"],
-    deps = ["//src:lib"],
+    deps = ["//src/analyze_includes:lib"],
 )
 
 py_test(
@@ -13,7 +13,7 @@ py_test(
         "data/deps_info_empty.json",
         "data/deps_info_full.json",
     ],
-    deps = ["//src:lib"],
+    deps = ["//src/analyze_includes:lib"],
 )
 
 py_test(
@@ -23,7 +23,7 @@ py_test(
         "data/config.json",
         "data/config_empty.json",
     ],
-    deps = ["//src:lib"],
+    deps = ["//src/analyze_includes:lib"],
 )
 
 py_test(
@@ -36,5 +36,5 @@ py_test(
         "data/commented_includes/single_line_comments.h",
         "data/some_header.h",
     ],
-    deps = ["//src:lib"],
+    deps = ["//src/analyze_includes:lib"],
 )
