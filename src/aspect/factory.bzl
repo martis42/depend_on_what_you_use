@@ -1,7 +1,7 @@
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 def dwyu_aspect_factory(
-        config = Label("@depend_on_what_you_use//aspect:private/dwyu_empty_config.json"),
+        config = Label("@depend_on_what_you_use//src/aspect:private/dwyu_empty_config.json"),
         recursive = False,
         use_implementation_deps = False):
     """
