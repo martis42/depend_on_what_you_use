@@ -1,13 +1,13 @@
 import unittest
 from pathlib import Path
 
-from src.evaluate_includes import Result, evaluate_includes
-from src.get_dependencies import (
+from src.analyze_includes.evaluate_includes import Result, evaluate_includes
+from src.analyze_includes.get_dependencies import (
     AvailableDependencies,
     AvailableDependency,
     AvailableInclude,
 )
-from src.parse_source import Include
+from src.analyze_includes.parse_source import Include
 
 
 class TestResult(unittest.TestCase):

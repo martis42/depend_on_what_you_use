@@ -3,11 +3,11 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
 
-from src.evaluate_includes import evaluate_includes
-from src.get_dependencies import get_available_dependencies
-from src.parse_config import load_config
-from src.parse_source import get_relevant_includes_from_files
-from src.std_header import STD_HEADER
+from src.analyze_includes.evaluate_includes import evaluate_includes
+from src.analyze_includes.get_dependencies import get_available_dependencies
+from src.analyze_includes.parse_config import load_config
+from src.analyze_includes.parse_source import get_relevant_includes_from_files
+from src.analyze_includes.std_header import STD_HEADER
 
 
 def cli():

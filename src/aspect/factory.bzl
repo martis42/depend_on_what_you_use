@@ -26,7 +26,7 @@ def dwyu_aspect_factory(
         attr_aspects = attr_aspects,
         attrs = {
             "_dwyu_binary": attr.label(
-                default = Label("@depend_on_what_you_use//src:analyze_includes"),
+                default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
                 allow_files = True,
                 executable = True,
                 cfg = "exec",

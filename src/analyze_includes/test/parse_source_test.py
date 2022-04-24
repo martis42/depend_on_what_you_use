@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from src.parse_source import (
+from src.analyze_includes.parse_source import (
     Include,
     filter_includes,
     get_includes_from_file,
@@ -49,13 +49,13 @@ class TestFilterIncludes(unittest.TestCase):
 
 class TestGetIncludesFromFile(unittest.TestCase):
     def test_single_include(self):
-        test_file = Path("src/test/data/another_header.h")
+        test_file = Path("src/analyze_includes/test/data/another_header.h")
         result = get_includes_from_file(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
 
     def test_multiple_includes(self):
-        test_file = Path("src/test/data/some_header.h")
+        test_file = Path("src/analyze_includes/test/data/some_header.h")
         result = get_includes_from_file(test_file)
 
         self.assertEqual(len(result), 4)
@@ -64,13 +64,13 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="some/path/to_a/system_header.h") in result)
 
     def test_commented_includes_single_line_comments(self):
-        test_file = Path("src/test/data/commented_includes/single_line_comments.h")
+        test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
         result = get_includes_from_file(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
 
     def test_commented_includes_block_comments(self):
-        test_file = Path("src/test/data/commented_includes/block_comments.h")
+        test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
         result = get_includes_from_file(test_file)
 
         self.assertEqual(len(result), 5)
@@ -81,7 +81,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_e.h") in result)
 
     def test_commented_includes_mixed_style(self):
-        test_file = Path("src/test/data/commented_includes/mixed_style.h")
+        test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
         result = get_includes_from_file(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
@@ -90,16 +90,22 @@ class TestGetIncludesFromFile(unittest.TestCase):
 class TestGetRelevantIncludesFromFiles(unittest.TestCase):
     def test_get_relevant_includes_from_files(self):
         result = get_relevant_includes_from_files(
-            files=["src/test/data/some_header.h", "src/test/data/another_header.h"], ignored_includes={"vector"}
+            files=["src/analyze_includes/test/data/some_header.h", "src/analyze_includes/test/data/another_header.h"],
+            ignored_includes={"vector"},
         )
 
         self.assertEqual(len(result), 4)
-        self.assertTrue(Include(file=Path("src/test/data/some_header.h"), include="bar.h") in result)
-        self.assertTrue(Include(file=Path("src/test/data/some_header.h"), include="foo/bar/baz.h") in result)
+        self.assertTrue(Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="bar.h") in result)
         self.assertTrue(
-            Include(file=Path("src/test/data/some_header.h"), include="some/path/to_a/system_header.h") in result
+            Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="foo/bar/baz.h") in result
         )
-        self.assertTrue(Include(file=Path("src/test/data/another_header.h"), include="foo/bar.h") in result)
+        self.assertTrue(
+            Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="some/path/to_a/system_header.h")
+            in result
+        )
+        self.assertTrue(
+            Include(file=Path("src/analyze_includes/test/data/another_header.h"), include="foo/bar.h") in result
+        )
 
 
 if __name__ == "__main__":
