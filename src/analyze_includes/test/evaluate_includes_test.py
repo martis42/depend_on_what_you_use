@@ -82,8 +82,7 @@ class TestResult(unittest.TestCase):
             unit.to_str(),
             self._expected_msg(
                 target="//foo:bar",
-                errors="Public dependencies which are only used in private code, move them to 'implementation_deps':\n"
-                "  Dependency='foo'",
+                errors="Public dependencies which are used only in private code:\n" "  Dependency='foo'",
             ),
         )
         self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar", should_be_private_error='"foo"'))
