@@ -39,7 +39,7 @@ class Result:
             msg += "\nUnused dependencies (none of their headers are referenced):\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
         if self.deps_which_should_be_private:
-            msg += "\nPublic dependencies which are only used in private code, move them to 'implementation_deps':\n"
+            msg += "\nPublic dependencies which are used only in private code:\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
         return self._framed_msg(msg)
 

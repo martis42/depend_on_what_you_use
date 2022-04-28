@@ -58,7 +58,7 @@ def _get_available_include_paths(label, system_includes, header_file):
         return includes
 
     # Paths for headers from external repos are prefixed with the external repo root. But the headers are
-    # included relative to the external workspace rootbs users
+    # included relative to the external workspace root.
     if header_file.owner.workspace_root != "":
         return [header_file.path.replace(header_file.owner.workspace_root + "/", "")]
 
@@ -97,19 +97,19 @@ def _make_dep_info(dep):
 
     return struct(target = str(dep.label), headers = [inc for inc in includes])
 
-def _make_headers_info(target, deps, impl_deps):
+def _make_headers_info(target, public_deps, private_deps):
     """
     Create a struct summarizing all information about the target and the dependency headers required for DWYU.
 
     Args:
         target: Current target under inspection
-        deps: Direct dependencies of target under inspection
-        impl_deps: Implementation dependencies of target under inspection
+        public_deps: Direct public dependencies of target under inspection
+        private_deps: Direct pribate dependencies of target under inspection
     """
     return struct(
         self = _make_target_info(target),
-        public_deps = [_make_dep_info(dep) for dep in deps],
-        private_deps = [_make_dep_info(dep) for dep in impl_deps],
+        public_deps = [_make_dep_info(dep) for dep in public_deps],
+        private_deps = [_make_dep_info(dep) for dep in private_deps],
     )
 
 def _label_to_name(label):
@@ -135,16 +135,18 @@ def dwyu_aspect_impl(target, ctx):
     if not CcInfo in target:
         return []
 
-    implementation_deps = []
-    ensure_private_deps = False
-    if ctx.attr._use_implementation_deps and hasattr(ctx.rule.attr, "implementation_deps"):
-        implementation_deps = ctx.rule.attr.implementation_deps
-        ensure_private_deps = True
+    ensure_private_deps = (ctx.attr._use_implementation_deps or ctx.attr._use_interface_deps)
+    if ctx.attr._use_interface_deps:
+        public_deps = ctx.rule.attr.interface_deps if hasattr(ctx.rule.attr, "interface_deps") else []
+        private_deps = ctx.rule.attr.deps
+    else:
+        public_deps = ctx.rule.attr.deps
+        private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
 
     public_files, private_files = _parse_sources(ctx.rule.attr)
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(_label_to_name(target.label)))
     headers_info_file = ctx.actions.declare_file("{}_deps_info.json".format(_label_to_name(target.label)))
-    headers_info = _make_headers_info(target = target, deps = ctx.rule.attr.deps, impl_deps = implementation_deps)
+    headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps)
     ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
 
     args = _make_args(

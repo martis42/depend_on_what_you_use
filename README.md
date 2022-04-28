@@ -154,11 +154,23 @@ Examples for this can be seen at [test/implementation_deps](test/implementation_
 
 ### Interface_deps
 
-This is not yet supported by DWYU.
+Bazel 6.0.0 introduces the experimental feature [`interface_deps`](https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c25c)
+for `cc_library`. In short, this enables you to specify dependencies which are only relevant for your `srcs` files and
+whose headers are not made available to users of the library.
+Activate this experimental feature with flag `--experimental_cc_interface_deps`.
 
-https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c25c introduces `--experimental_cc_interface_deps`.
-However, an issue about potential problems with this new approach was raised: https://github.com/bazelbuild/bazel/issues/14950.
-We will wait some time to make sure `interface_deps` really is the forward path before investing time into this.
+A word of warning, this feature is a breaking change. Enabling it changes the semantic of the `deps` attribute.
+Headers provided by dependencies listed in `deps` are no longer available to users of the library.
+The new attribute `interface_deps` has to be used for dependencies, whose headers are available to users of the library.
+
+DWYU can report `interface_deps` which are used only in private sources and should be moved from `interface_deps` to `deps`.
+
+Activate this behavior via:
+```
+your_aspect = dwyu_aspect_factory(use_interface_deps = True)
+```
+
+Examples for this can be seen at [the interface_deps test cases](test/aspect/interface_deps/).
 
 ## Known limitations
 
