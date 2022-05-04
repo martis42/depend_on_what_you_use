@@ -95,7 +95,7 @@ You can invoke the aspect from within a rule. This can be useful to make the exe
 `bazel build //...`) without having to execute the longish manual aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
-A concrete example for doing so for a DWYU aspect can be [found in the recursion test cases](test/recursion/rule.bzl).
+A concrete example for doing so for the DWYU aspect can be found in [a rule in the recursion test cases](test/aspect/recursion/rule.bzl).
 
 # Features
 
@@ -108,7 +108,7 @@ You can exclude a custom set of header files by providing a config file in json 
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
-Examples and the correct format can be seen at [test/custom_config](test/custom_config).
+Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
 
 ## Recursion
 
@@ -123,7 +123,7 @@ your_aspect = dwyu_aspect_factory(recursive = True)
 This can be used to create a rule invoking DWYU on a target and all its dependencies as part of a normal build command.
 Also it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
 
-Examples for this can be seen at [test/recursion](test/recursion).
+Examples for this can be seen at the [recursion test cases](test/aspect/recursion).
 
 ## Ensure a proper split between public and private dependencies
 
@@ -150,7 +150,7 @@ Activate this behavior via:
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
-Examples for this can be seen at [test/implementation_deps](test/implementation_deps).
+Examples for this can be seen at the [implementation_deps test cases](test/aspect/implementation_deps).
 
 ### Interface_deps
 
@@ -170,7 +170,7 @@ Activate this behavior via:
 your_aspect = dwyu_aspect_factory(use_interface_deps = True)
 ```
 
-Examples for this can be seen at [the interface_deps test cases](test/aspect/interface_deps/).
+Examples for this can be seen at the [interface_deps test cases](test/aspect/interface_deps/).
 
 ## Known limitations
 
