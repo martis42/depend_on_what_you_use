@@ -10,7 +10,15 @@ TESTS = [
         path="test/apply_fixes/unused_dependencies",
         target="//:main",
         expected_deps=["//:used"],
-    )
+    ),
+    # Executing the automatic fixes tool with "--dry-run" must not remove the unused dependency
+    TestCase(
+        name="dry_run_ignores_the_unused_dependecy",
+        path="test/apply_fixes/unused_dependencies",
+        target="//:main",
+        extra_args=["--dry-run"],
+        expected_deps=["//:unused", "//:used"],
+    ),
 ]
 
 
