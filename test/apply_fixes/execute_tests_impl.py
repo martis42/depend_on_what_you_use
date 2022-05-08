@@ -23,6 +23,7 @@ class TestCase:
     path: str
     target: str
     expected_deps: List[str]
+    extra_args: str = ""
 
 
 @dataclass
@@ -62,12 +63,11 @@ def setup_test_workspace(test: TestCase, workspace: Path, verbose: bool) -> None
     )
 
 
-def apply_automatic_fix(workspace: Path, verbose: bool) -> None:
-    subprocess.run(
-        ["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={workspace}"],
-        capture_output=(not verbose),
-        check=True,
-    )
+def apply_automatic_fix(workspace: Path, extra_args: List[str], verbose: bool) -> None:
+    cmd = ["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={workspace}"]
+    if extra_args:
+        cmd.extend(extra_args)
+    subprocess.run(cmd, capture_output=(not verbose), check=True)
 
 
 def query_test_target_dependencies(workspace: Path, target: str, verbose: bool) -> Set["str"]:
@@ -86,7 +86,7 @@ def execute_test(test: TestCase, verbose: bool) -> Result:
     with tempfile.TemporaryDirectory() as test_workspace:
         try:
             setup_test_workspace(test=test, workspace=test_workspace, verbose=verbose)
-            apply_automatic_fix(workspace=test_workspace, verbose=verbose)
+            apply_automatic_fix(workspace=test_workspace, extra_args=test.extra_args, verbose=verbose)
 
             deps_after_fix = query_test_target_dependencies(
                 workspace=test_workspace, target=test.target, verbose=verbose
