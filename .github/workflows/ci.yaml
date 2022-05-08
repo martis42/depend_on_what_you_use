@@ -21,22 +21,22 @@ jobs:
       - run: source .venv/bin/activate
       - uses: pre-commit/action@v2.0.3
 
-  tests:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - uses: actions/setup-python@v3
-      with:
-        python-version: 3.8
-        cache: 'poetry'
-    - name: Install dependencies
-      run: poetry install --no-interaction --no-root
-    - name: Display Python version
-      run: python -c "import sys; print(sys.version)"
-    - name: Coverage
-      run: poetry run pytest --cov --pylint
+  # tests:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: snok/install-poetry@v1
+  #     with:
+  #       virtualenvs-create: true
+  #       virtualenvs-in-project: true
+  #       installer-parallel: true
+  #   - uses: actions/setup-python@v3
+  #     with:
+  #       python-version: 3.8
+  #       cache: 'poetry'
+  #   - name: Install dependencies
+  #     run: poetry install --no-interaction --no-root
+  #   - name: Display Python version
+  #     run: python -c "import sys; print(sys.version)"
+  #   - name: Coverage
+  #     run: poetry run pytest --cov --pylint
