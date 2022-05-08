@@ -31,7 +31,15 @@ def cli():
 
 
 def get_bazel_bin_dir(workspace: Path) -> Path:
-    process = subprocess.run(["bazel", "info", "bazel-bin"], cwd=workspace, check=True, capture_output=True, text=True)
+    process = subprocess.run(
+        ["bazel", "info", "bazel-bin"],
+        cwd=workspace,
+        check=True,
+        encoding="utf-8",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
     return Path(process.stdout.strip())
 
 
