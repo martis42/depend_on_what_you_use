@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -87,6 +88,16 @@ class TestResult(unittest.TestCase):
         )
         self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar", should_be_private_error='"foo"'))
 
+    def test_to_json_of_invalid_includes(self):
+        unit = Result(target="//foo:bar", invalid_includes = [
+            Include(file=Path("foo"), include = "dog.h"),
+            Include(file=Path("bar"), include = "cat.h"),
+            Include(file=Path("bar"), include = "dog.h")
+        ])
+        restored_unit = json.loads(unit.to_json())
+        invalid_includes = restored_unit["invalid_includes"]
+        self.assertEqual(len(invalid_includes), 2)
+        self.assertEqual(len(invalid_includes["bar"]), 2)
 
 class TestEvaluateIncludes(unittest.TestCase):
     def test_success_for_valid_external_dependencies(self):
