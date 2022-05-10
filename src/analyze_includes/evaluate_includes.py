@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
@@ -44,9 +45,12 @@ class Result:
         return self._framed_msg(msg)
 
     def to_json(self) -> str:
+        invalid_includes_mapping = defaultdict(list)
+        for x in self.invalid_includes:
+            invalid_includes_mapping[str(x.file)].append(x.include)
         content = {
             "analyzed_target": self.target,
-            "invalid_includes": {str(x.file): x.include for x in self.invalid_includes},
+            "invalid_includes": invalid_includes_mapping,
             "unused_dependencies": self.unused_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
         }
