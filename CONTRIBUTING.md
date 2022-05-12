@@ -1,6 +1,17 @@
-# Code reviews
+# Contributing Code
+
+## Reviews
 
 All contributions require a review from the [code owners](.github/CODEOWNERS).
+
+## Code Style and Code Quality
+
+The project uses several formatters and linters. `poetry` and `pre-commit-hooks` are used to manage and execute those.
+When contributing code, please make sure to execute the checks.
+
+After you have installed `poetry` for your platform install the tools required by DWYU: `poetry install`.
+Then, you can execute all relevant checks via `poetry run pre-commit run --all-files` or configure `pre-commit-hooks`
+to run automatically for each commit.
 
 # Bug reports
 
