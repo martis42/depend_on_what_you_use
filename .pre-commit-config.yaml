@@ -22,6 +22,6 @@ repos:
       - id: pyupgrade
         name: pyupgrade
         entry: poetry run pyupgrade
-        args: [ --py38-plus ]
+        args: [ --py36-plus ]
         language: system
         types: [ python ]
