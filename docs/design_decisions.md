@@ -59,3 +59,10 @@ Without this distinction we cannot compare the include statements to the list of
 The aspect implementation is not compatible to old Bazel versions due to:
 - Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
 - Before 4.0.0 the global json module is not available in Starlark
+
+## Platforms: Why is Python < 3.6 not supported
+
+As a rule of thumb, we aim to only support Python versions which are not EOL. Using a modern Python version enables
+us to write clean code utilizing modern Python features. <br/>
+Nevertheless, we support Python 3.6 although it is already EOL. This version is the default for Ubuntu 18.04, which
+still a lot of users are still using. Thus, we make an exception for Python 3.6.
