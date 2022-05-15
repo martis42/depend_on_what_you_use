@@ -6,7 +6,9 @@ All contributions require a review from the [code owners](.github/CODEOWNERS).
 
 ## Code Style and Code Quality
 
-The project uses several formatters and linters. `poetry` and `pre-commit-hooks` are used to manage and execute those.
+The project uses several formatters and linters. [poetry](https://github.com/python-poetry/poetry) and
+[pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) are used to manage and execute those.
+
 When contributing code, please make sure to execute the checks.
 
 After you have installed `poetry` for your platform install the tools required by DWYU: `poetry install`.
