@@ -1,4 +1,3 @@
-import json
 import unittest
 from pathlib import Path
 
@@ -22,85 +21,119 @@ class TestResult(unittest.TestCase):
             msg += "Result: SUCCESS"
         return border + "\n" + msg + errors + "\n" + border
 
-    @staticmethod
-    def _expected_json(target: str, includes_error="", unused_error="", should_be_private_error="") -> str:
-        def _dict_error(msg: str) -> str:
-            if msg:
-                return "{\n" + 2 * indent + msg + "\n" + indent + "}"
-            return "{}"
-
-        def _list_error(msg: str) -> str:
-            if msg:
-                return "[\n" + 2 * indent + msg + "\n" + indent + "]"
-            return "[]"
-
-        indent = 2 * " "
-        content = indent + f'"analyzed_target": "{target}",\n'
-        content += indent + f'"invalid_includes": {_dict_error(includes_error)},\n'
-        content += indent + f'"unused_dependencies": {_list_error(unused_error)},\n'
-        content += indent + f'"deps_which_should_be_private": {_list_error(should_be_private_error)}'
-
-        return "{\n" + content + "\n}\n"
-
     def test_is_ok(self):
         unit = Result("//foo:bar")
 
         self.assertTrue(unit.is_ok())
         self.assertEqual(unit.to_str(), self._expected_msg(target="//foo:bar"))
-        self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar"))
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {},
+  "unused_dependencies": [],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
 
     def test_is_ok_fails_due_to_invalid_includes(self):
-        unit = Result(target="//foo:bar", invalid_includes=[Include(file=Path("foo"), include="bar")])
-
-        self.assertFalse(unit.is_ok())
-        self.assertEqual(
-            unit.to_str(),
-            self._expected_msg(
-                target="//foo:bar",
-                errors="Includes which are not available from the direct dependencies:\n" "  File='foo', include='bar'",
-            ),
-        )
-        self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar", includes_error='"foo": "bar"'))
-
-    def test_is_ok_fails_due_to_unused_deps(self):
-        unit = Result(target="//foo:bar", unused_deps=["foo"])
-
-        self.assertFalse(unit.is_ok())
-        self.assertEqual(
-            unit.to_str(),
-            self._expected_msg(
-                target="//foo:bar",
-                errors="Unused dependencies (none of their headers are referenced):\n  Dependency='foo'",
-            ),
-        )
-        self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar", unused_error='"foo"'))
-
-    def test_is_ok_fails_due_to_deps_which_should_be_private(self):
-        unit = Result(target="//foo:bar", deps_which_should_be_private=["foo"])
-
-        self.assertFalse(unit.is_ok())
-        self.assertEqual(
-            unit.to_str(),
-            self._expected_msg(
-                target="//foo:bar",
-                errors="Public dependencies which are used only in private code:\n" "  Dependency='foo'",
-            ),
-        )
-        self.assertEqual(unit.to_json(), self._expected_json(target="//foo:bar", should_be_private_error='"foo"'))
-
-    def test_to_json_of_invalid_includes(self):
         unit = Result(
             target="//foo:bar",
             invalid_includes=[
-                Include(file=Path("foo"), include="dog.h"),
-                Include(file=Path("bar"), include="cat.h"),
-                Include(file=Path("bar"), include="dog.h"),
+                Include(file=Path("foo"), include="missing_1"),
+                Include(file=Path("bar"), include="missing_2"),
+                Include(file=Path("bar"), include="missing_3"),
             ],
         )
-        restored_unit = json.loads(unit.to_json())
-        invalid_includes = restored_unit["invalid_includes"]
-        self.assertEqual(len(invalid_includes), 2)
-        self.assertEqual(len(invalid_includes["bar"]), 2)
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Includes which are not available from the direct dependencies:\n"
+                "  File='foo', include='missing_1'\n"
+                "  File='bar', include='missing_2'\n"
+                "  File='bar', include='missing_3'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {
+    "foo": [
+      "missing_1"
+    ],
+    "bar": [
+      "missing_2",
+      "missing_3"
+    ]
+  },
+  "unused_dependencies": [],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_due_to_unused_deps(self):
+        unit = Result(target="//foo:bar", unused_deps=["foo", "baz"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Unused dependencies (none of their headers are referenced):\n"
+                "  Dependency='foo'\n"
+                "  Dependency='baz'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {},
+  "unused_dependencies": [
+    "foo",
+    "baz"
+  ],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_due_to_deps_which_should_be_private(self):
+        unit = Result(target="//foo:bar", deps_which_should_be_private=["foo", "baz"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Public dependencies which are used only in private code:\n"
+                "  Dependency='foo'\n"
+                "  Dependency='baz'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {},
+  "unused_dependencies": [],
+  "deps_which_should_be_private": [
+    "foo",
+    "baz"
+  ]
+}
+""".lstrip(),
+        )
 
 
 class TestEvaluateIncludes(unittest.TestCase):
