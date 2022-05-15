@@ -1,9 +1,19 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.2.0
     hooks:
-      - id: trailing-whitespace
+      # Repository hygene
+      - id: check-added-large-files
+      # Sane files
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-json
+      # Code style
       - id: end-of-file-fixer
+      - id: trailing-whitespace
+      # Python code quality
+      - id: debug-statements
 
   - repo: local
     hooks:
