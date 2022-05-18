@@ -1,6 +1,6 @@
 import subprocess
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from distutils.dir_util import copy_tree
 from pathlib import Path
 from typing import List, Set
@@ -22,8 +22,12 @@ class TestCase:
     name: str
     path: str
     target: str
+    # List of dependencies which the target shall have after performing the fix
     expected_deps: List[str]
-    extra_args: str = ""
+    apply_fixes_extra_args: str = field(default_factory=list)
+    dwyu_extra_args: str = field(default_factory=list)
+    # The test is supposed to fail and this substring shall be part of the exception description
+    expected_exception: str = ""
 
 
 @dataclass
@@ -40,7 +44,7 @@ def get_current_workspace() -> Path:
     return Path(process.stdout.strip())
 
 
-def setup_test_workspace(test: TestCase, workspace: Path, verbose: bool) -> None:
+def setup_test_workspace(test: TestCase, workspace: Path, extra_args: List[str], verbose: bool) -> None:
     current_workspace = get_current_workspace()
     test_sources = current_workspace / Path(test.path)
 
@@ -49,18 +53,12 @@ def setup_test_workspace(test: TestCase, workspace: Path, verbose: bool) -> None
         ws_file.write(WORKSPACE_TEMPLATE.format(dwyu_repo=current_workspace))
 
     # create report file as input for the applying fixes script
-    subprocess.run(
-        [
-            "bazel",
-            "build",
-            "--aspects=//:aspect.bzl%dwyu_default_aspect",
-            "--output_groups=cc_dwyu_output",
-            test.target,
-        ],
-        cwd=workspace,
-        capture_output=(not verbose),
-        check=False,  # Detecting problems causes a red build
-    )
+    cmd = ["bazel", "build", "--aspects=//:aspect.bzl%dwyu_default_aspect", "--output_groups=cc_dwyu_output"]
+    if extra_args:
+        cmd.extend(extra_args)
+    cmd.append(test.target)
+    # Detecting problems causes a red build, thus don't check results
+    subprocess.run(cmd, cwd=workspace, capture_output=(not verbose), check=False)
 
 
 def apply_automatic_fix(workspace: Path, extra_args: List[str], verbose: bool) -> None:
@@ -85,8 +83,8 @@ def execute_test(test: TestCase, verbose: bool) -> Result:
     result = Result(test=test.name)
     with tempfile.TemporaryDirectory() as test_workspace:
         try:
-            setup_test_workspace(test=test, workspace=test_workspace, verbose=verbose)
-            apply_automatic_fix(workspace=test_workspace, extra_args=test.extra_args, verbose=verbose)
+            setup_test_workspace(test=test, workspace=test_workspace, extra_args=test.dwyu_extra_args, verbose=verbose)
+            apply_automatic_fix(workspace=test_workspace, extra_args=test.apply_fixes_extra_args, verbose=verbose)
 
             deps_after_fix = query_test_target_dependencies(
                 workspace=test_workspace, target=test.target, verbose=verbose
@@ -99,7 +97,11 @@ def execute_test(test: TestCase, verbose: bool) -> Result:
 
         # pylint: disable=broad-except
         except Exception as ex:
-            result.error = f"Exception: {ex}"
+            if test.expected_exception:
+                if test.expected_exception not in str(ex):
+                    result.error = f"Unexpected Exception description: {ex}"
+            else:
+                result.error = f"Exception: {ex}"
 
         # Make sure the bazel cache dir is no swamped with dead test workspaces
         subprocess.run(["bazel", "clean", "--expunge"], cwd=test_workspace, capture_output=True, check=True)
