@@ -82,6 +82,15 @@ def main(args: Any) -> int:
         print(f"Bazel-bin directory: '{bin_dir}'")
 
     reports = gather_reports(bin_dir)
+    if not reports:
+        print("ERROR: Did not find any DWYU report files.")
+        print("Did you forget to run DWYU beforehand?")
+        print(
+            "By default this tool looks for DWYU report files in the output directory for a 'fastbuild' DWYU execution."
+            " If you want to use another output directory, have a look at the apply_fixes CLI options via '--help'."
+        )
+        return 1
+
     for report in reports:
         if args.verbose:
             print(f"Report File '{report}'")

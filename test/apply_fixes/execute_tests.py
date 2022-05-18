@@ -16,8 +16,17 @@ TESTS = [
         name="dry_run_ignores_the_unused_dependecy",
         path="test/apply_fixes/unused_dependencies",
         target="//:main",
-        extra_args=["--dry-run"],
+        apply_fixes_extra_args=["--dry-run"],
         expected_deps=["//:unused", "//:used"],
+    ),
+    TestCase(
+        name="fail_on_missing_report_files",
+        path="test/apply_fixes/unused_dependencies",
+        target="//:main",
+        # Skip the report generation
+        dwyu_extra_args=["--nobuild"],
+        expected_deps=[],
+        expected_exception="returned non-zero exit status 1",
     ),
 ]
 
