@@ -12,7 +12,16 @@ def cli():
         "--workspace",
         metavar="PATH",
         required=True,
-        help="Workspace for which DWYU reports are gathered and fixes are applied to the source code.",
+        help="Workspace for which DWYU reports are gathered and fixes are applied to the source code."
+        " If no output directory is provided via '--bazel-bin', the bazel-bin directory is deduced automatically."
+        " This deduction assumes the DWYU reports have been generated with the fastbuild compilation mode",
+    )
+    parser.add_argument(
+        "--bazel-bin",
+        metavar="PATH",
+        help="Path to the bazel-bin directory inside which the DWYU reports are located. Use this option when you have"
+        " to generate the report files with another compilation mode than fastbuild or when you use a custom output"
+        " base.",
     )
     parser.add_argument(
         "--buildozer",
@@ -77,7 +86,7 @@ def main(args: Any) -> int:
     """
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
-    bin_dir = get_bazel_bin_dir(args.workspace)
+    bin_dir = Path(args.bazel_bin) if args.bazel_bin else get_bazel_bin_dir(args.workspace)
     if args.verbose:
         print(f"Bazel-bin directory: '{bin_dir}'")
 

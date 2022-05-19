@@ -25,6 +25,7 @@ class TestCase:
     # List of dependencies which the target shall have after performing the fix
     expected_deps: List[str]
     apply_fixes_extra_args: str = field(default_factory=list)
+    dwyu_extra_startup_args: str = field(default_factory=list)
     dwyu_extra_args: str = field(default_factory=list)
     # The test is supposed to fail and this substring shall be part of the exception description
     expected_exception: str = ""
@@ -44,7 +45,9 @@ def get_current_workspace() -> Path:
     return Path(process.stdout.strip())
 
 
-def setup_test_workspace(test: TestCase, workspace: Path, extra_args: List[str], verbose: bool) -> None:
+def setup_test_workspace(
+    test: TestCase, workspace: Path, startup_args: List[str], extra_args: List[str], verbose: bool
+) -> None:
     current_workspace = get_current_workspace()
     test_sources = current_workspace / Path(test.path)
 
@@ -53,7 +56,10 @@ def setup_test_workspace(test: TestCase, workspace: Path, extra_args: List[str],
         ws_file.write(WORKSPACE_TEMPLATE.format(dwyu_repo=current_workspace))
 
     # create report file as input for the applying fixes script
-    cmd = ["bazel", "build", "--aspects=//:aspect.bzl%dwyu_default_aspect", "--output_groups=cc_dwyu_output"]
+    cmd = ["bazel"]
+    if startup_args:
+        cmd.extend(startup_args)
+    cmd.extend(["build", "--aspects=//:aspect.bzl%dwyu_default_aspect", "--output_groups=cc_dwyu_output"])
     if extra_args:
         cmd.extend(extra_args)
     cmd.append(test.target)
@@ -83,7 +89,13 @@ def execute_test(test: TestCase, verbose: bool) -> Result:
     result = Result(test=test.name)
     with tempfile.TemporaryDirectory() as test_workspace:
         try:
-            setup_test_workspace(test=test, workspace=test_workspace, extra_args=test.dwyu_extra_args, verbose=verbose)
+            setup_test_workspace(
+                test=test,
+                workspace=test_workspace,
+                startup_args=test.dwyu_extra_startup_args,
+                extra_args=test.dwyu_extra_args,
+                verbose=verbose,
+            )
             apply_automatic_fix(workspace=test_workspace, extra_args=test.apply_fixes_extra_args, verbose=verbose)
 
             deps_after_fix = query_test_target_dependencies(
