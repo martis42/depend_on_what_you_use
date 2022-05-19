@@ -4,6 +4,8 @@ from argparse import ArgumentParser
 
 from execute_tests_impl import TestCase, main
 
+CUSTOM_OUTPUT_BASE = "/tmp/dwyu/apply_fixes_tests/custom_output_base"
+
 TESTS = [
     TestCase(
         name="remove_unused_dependency",
@@ -27,6 +29,14 @@ TESTS = [
         dwyu_extra_args=["--nobuild"],
         expected_deps=[],
         expected_exception="returned non-zero exit status 1",
+    ),
+    TestCase(
+        name="use_custom_output_base",
+        path="test/apply_fixes/unused_dependencies",
+        target="//:main",
+        dwyu_extra_startup_args=[f"--output_base={CUSTOM_OUTPUT_BASE}"],
+        apply_fixes_extra_args=[f"--bazel-bin={CUSTOM_OUTPUT_BASE}"],
+        expected_deps=["//:used"],
     ),
 ]
 
