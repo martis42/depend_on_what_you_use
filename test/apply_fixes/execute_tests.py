@@ -39,11 +39,19 @@ TESTS = [
         expected_deps=["//:used"],
     ),
     TestCase(
-        name="use_convenience_symlinks",
+        name="utilize_bazel_info",
         path="test/apply_fixes/unused_dependencies",
         target="//:main",
-        dwyu_extra_args=["--compilation_mode=dbg"],
-        apply_fixes_extra_args=["--use-convenience-symlinks"],
+        dwyu_extra_args=["--noexperimental_convenience_symlinks"],
+        apply_fixes_extra_args=["--use-bazel-info"],
+        expected_deps=["//:used"],
+    ),
+    TestCase(
+        name="utilize_bazel_info_with_custom_compilation_mode",
+        path="test/apply_fixes/unused_dependencies",
+        target="//:main",
+        dwyu_extra_args=["--noexperimental_convenience_symlinks", "--compilation_mode=opt"],
+        apply_fixes_extra_args=["--use-bazel-info=opt"],
         expected_deps=["//:used"],
     ),
 ]
