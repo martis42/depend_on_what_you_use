@@ -17,25 +17,31 @@ def cli():
         metavar="PATH",
         help="""
         Workspace for which DWYU reports are gathered and fixes are applied to the source code. If no dedicated
-        workspace is provided, we assume we are running from within the workspace for which the DWYU report have been
+        workspace is provided, we assume we are running from within the workspace for which the DWYU reports have been
         generated and determine the workspace root automatically.
-        If neither '--use-convenience-symlinks' nor '--bazel-bin' are provided, the bazel-bin directory is deduced
-        automatically. This deduction assumes the DWYU reports have been generated with the fastbuild compilation mode.
-        """,
+        By default the Bazel output directory containing the DWYU report files is deduced by following the 'bazel-bin'
+        convenience symlink.""",
     )
     parser.add_argument(
-        "--use-convenience-symlinks",
-        action="store_true",
+        "--use-bazel-info",
+        const="fastbuild",
+        choices=["dbg", "fastbuild", "opt"],
+        nargs="?",
         help="""
-        Follow the convenience symlinks at the workspace root to find the output directory containing the DWYU reports.
-        """,
+        Don't follow the convenience symlinks to reach the Bazel output directory containing the DWYU reports. Instead,
+        use 'bazel info' to deduce the output directory.
+        This option accepts an optional argument specifying the compilation mode which was used to generate the DWYU
+        report files.
+        Using this option is recommended if the convenience symlinks do not exist, don't follow the default
+        naming scheme or do not point to the Bazel output directory containing the DWYU reports.""",
     )
     parser.add_argument(
         "--bazel-bin",
         metavar="PATH",
         help="""
-        Path to the bazel-bin directory inside which the DWYU reports are located. Use this option when you have to
-        generate the report files with another compilation mode than fastbuild or when you use a custom output base.""",
+        Path to the bazel-bin directory inside which the DWYU reports are located.
+        Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
+        deduce the Bazel output directory containing the DWYU report files.""",
     )
     parser.add_argument(
         "--buildozer",
@@ -71,22 +77,22 @@ def get_bazel_bin_dir(main_args: Any, workspace_root: Path) -> Path:
     if main_args.bazel_bin:
         return Path(main_args.bazel_bin)
 
-    if main_args.use_convenience_symlinks:
-        bazel_bin_link = workspace_root / "bazel-bin"
-        if not bazel_bin_link.is_symlink():
-            print(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
-            sys.exit(1)
-        return bazel_bin_link.resolve()
+    if main_args.use_bazel_info:
+        process = subprocess.run(
+            ["bazel", "info", f"--compilation_mode={main_args.use_bazel_info}", "bazel-bin"],
+            cwd=workspace_root,
+            check=True,
+            encoding="utf-8",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return Path(process.stdout.strip())
 
-    process = subprocess.run(
-        ["bazel", "info", "bazel-bin"],
-        cwd=workspace_root,
-        check=True,
-        encoding="utf-8",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    return Path(process.stdout.strip())
+    bazel_bin_link = workspace_root / "bazel-bin"
+    if not bazel_bin_link.is_symlink():
+        print(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
+        sys.exit(1)
+    return bazel_bin_link.resolve()
 
 
 def gather_reports(bazel_bin: Path) -> List[Path]:
