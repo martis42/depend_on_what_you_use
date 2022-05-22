@@ -2,8 +2,12 @@ import json
 import subprocess
 import sys
 from argparse import ArgumentParser
+from os import environ
 from pathlib import Path
 from typing import Any, List
+
+# Bazel sets this environment for 'bazel run' to document the workspace root
+WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 
 
 def cli():
@@ -11,9 +15,10 @@ def cli():
     parser.add_argument(
         "--workspace",
         metavar="PATH",
-        required=True,
         help="""
-        Workspace for which DWYU reports are gathered and fixes are applied to the source code.
+        Workspace for which DWYU reports are gathered and fixes are applied to the source code. If no dedicated
+        workspace is provided, we assume we are running from within the workspace for which the DWYU report have been
+        generated and determine the workspace root automatically.
         If neither '--use-convenience-symlinks' nor '--bazel-bin' are provided, the bazel-bin directory is deduced
         automatically. This deduction assumes the DWYU reports have been generated with the fastbuild compilation mode.
         """,
@@ -49,20 +54,33 @@ def cli():
     return parser.parse_args()
 
 
-def get_bazel_bin_dir(main_args: Any) -> Path:
+def get_workspace(main_args: Any) -> Path:
+    if main_args.workspace:
+        return Path(main_args.workspace)
+
+    workspace_root = environ.get(WORKSPACE_ENV_VAR)
+    if not workspace_root:
+        print(
+            "ERROR:"
+            f" No workspace was explicitly provided and environment variable '{WORKSPACE_ENV_VAR}' is not available."
+        )
+    return Path(workspace_root)
+
+
+def get_bazel_bin_dir(main_args: Any, workspace_root: Path) -> Path:
     if main_args.bazel_bin:
         return Path(main_args.bazel_bin)
 
     if main_args.use_convenience_symlinks:
-        bazel_bin_link = Path(main_args.workspace) / "bazel-bin"
+        bazel_bin_link = workspace_root / "bazel-bin"
         if not bazel_bin_link.is_symlink():
             print(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
-            sys.exit(2)
+            sys.exit(1)
         return bazel_bin_link.resolve()
 
     process = subprocess.run(
         ["bazel", "info", "bazel-bin"],
-        cwd=main_args.workspace,
+        cwd=workspace_root,
         check=True,
         encoding="utf-8",
         stdout=subprocess.PIPE,
@@ -105,7 +123,11 @@ def main(args: Any) -> int:
     """
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
-    bin_dir = get_bazel_bin_dir(args)
+    workspace = get_workspace(args)
+    if args.verbose:
+        print(f"Workspace: '{workspace}'")
+
+    bin_dir = get_bazel_bin_dir(main_args=args, workspace_root=workspace)
     if args.verbose:
         print(f"Bazel-bin directory: '{bin_dir}'")
 
@@ -122,9 +144,9 @@ def main(args: Any) -> int:
     for report in reports:
         if args.verbose:
             print(f"Report File '{report}'")
-        perform_fixes(
-            workspace=args.workspace, report=report, buildozer=buildozer, dry=args.dry_run, verbose=args.verbose
-        )
+        perform_fixes(workspace=workspace, report=report, buildozer=buildozer, dry=args.dry_run, verbose=args.verbose)
+
+    return 0
 
 
 if __name__ == "__main__":
