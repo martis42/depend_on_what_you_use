@@ -12,22 +12,32 @@ def cli():
         "--workspace",
         metavar="PATH",
         required=True,
-        help="Workspace for which DWYU reports are gathered and fixes are applied to the source code."
-        " If no output directory is provided via '--bazel-bin', the bazel-bin directory is deduced automatically."
-        " This deduction assumes the DWYU reports have been generated with the fastbuild compilation mode",
+        help="""
+        Workspace for which DWYU reports are gathered and fixes are applied to the source code.
+        If neither '--use-convenience-symlinks' nor '--bazel-bin' are provided, the bazel-bin directory is deduced
+        automatically. This deduction assumes the DWYU reports have been generated with the fastbuild compilation mode.
+        """,
+    )
+    parser.add_argument(
+        "--use-convenience-symlinks",
+        action="store_true",
+        help="""
+        Follow the convenience symlinks at the workspace root to find the output directory containing the DWYU reports.
+        """,
     )
     parser.add_argument(
         "--bazel-bin",
         metavar="PATH",
-        help="Path to the bazel-bin directory inside which the DWYU reports are located. Use this option when you have"
-        " to generate the report files with another compilation mode than fastbuild or when you use a custom output"
-        " base.",
+        help="""
+        Path to the bazel-bin directory inside which the DWYU reports are located. Use this option when you have to
+        generate the report files with another compilation mode than fastbuild or when you use a custom output base.""",
     )
     parser.add_argument(
         "--buildozer",
         metavar="PATH",
-        help="buildozer binary which shall be used by this script. "
-        "If none is provided, it is expected to find buildozer on PATH.",
+        help="""
+        buildozer binary which shall be used by this script. If none is provided, it is expected to find buildozer on
+        PATH.""",
     )
     parser.add_argument(
         "--dry-run",
@@ -39,16 +49,25 @@ def cli():
     return parser.parse_args()
 
 
-def get_bazel_bin_dir(workspace: Path) -> Path:
+def get_bazel_bin_dir(main_args: Any) -> Path:
+    if main_args.bazel_bin:
+        return Path(main_args.bazel_bin)
+
+    if main_args.use_convenience_symlinks:
+        bazel_bin_link = Path(main_args.workspace) / "bazel-bin"
+        if not bazel_bin_link.is_symlink():
+            print(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
+            sys.exit(2)
+        return bazel_bin_link.resolve()
+
     process = subprocess.run(
         ["bazel", "info", "bazel-bin"],
-        cwd=workspace,
+        cwd=main_args.workspace,
         check=True,
         encoding="utf-8",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-
     return Path(process.stdout.strip())
 
 
@@ -86,7 +105,7 @@ def main(args: Any) -> int:
     """
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
-    bin_dir = Path(args.bazel_bin) if args.bazel_bin else get_bazel_bin_dir(args.workspace)
+    bin_dir = get_bazel_bin_dir(args)
     if args.verbose:
         print(f"Bazel-bin directory: '{bin_dir}'")
 

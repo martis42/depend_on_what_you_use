@@ -38,6 +38,14 @@ TESTS = [
         apply_fixes_extra_args=[f"--bazel-bin={CUSTOM_OUTPUT_BASE}"],
         expected_deps=["//:used"],
     ),
+    TestCase(
+        name="use_convenience_symlinks",
+        path="test/apply_fixes/unused_dependencies",
+        target="//:main",
+        dwyu_extra_args=["--compilation_mode=dbg"],
+        apply_fixes_extra_args=["--use-convenience-symlinks"],
+        expected_deps=["//:used"],
+    ),
 ]
 
 
