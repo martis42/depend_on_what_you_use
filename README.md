@@ -186,12 +186,15 @@ DWYU offers a tool to automatically fix detected problems.
 
 The workflow is the following:
 1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems for
-   each analyzed target.
-2. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --workspace=<path_to_the_workspace_used_in_step_1>`.
-   This tool discovers the report files generated in the previous step and gathers the problems for which a fix is available.
-   The tool then utilizes [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) to
-   adapt the BUILDS files in your workspace.
+   each analyzed target in the Bazel output directory.
+2. Execute `bazel run @depend_on_what_you_use//:apply_fixes`. The tool discovers the report files generated in the
+   previous step and gathers the problems for which a fix is available. Then [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md)
+   is utilized to adapt the BUILDS files in your workspace.
 
+If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience
+symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the
+report files.
+The `apply_fixes` tool offers options to control how the output directory is discovered.<br/>
 Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover the whole CLI interface of the tool.
 
 Currently only unused dependencies can be automatically fixed. However, more automatic fixes are planned and will be
