@@ -149,7 +149,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("file4"), include="self/own_header.h"),
             ],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="self", hdrs=[AvailableInclude("self/own_header.h")]),
+                own_hdrs=[AvailableInclude("self/own_header.h")],
                 public=[
                     AvailableDependency(
                         name="foo_pkg", hdrs=[AvailableInclude("foo.h"), AvailableInclude("foo/bar.h")]
@@ -169,9 +169,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[Include(file=Path("foo.h"), include="bar.h")],
             private_includes=[],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[AvailableInclude("foo.h"), AvailableInclude("bar.h")]),
-                public=[],
-                private=[],
+                own_hdrs=[AvailableInclude("foo.h"), AvailableInclude("bar.h")], public=[], private=[]
             ),
             ensure_private_deps=True,
         )
@@ -187,14 +185,11 @@ class TestEvaluateIncludes(unittest.TestCase):
             ],
             private_includes=[],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(
-                    name="self",
-                    hdrs=[
-                        AvailableInclude("nested/dir/foo.h"),
-                        AvailableInclude("nested/dir/bar.h"),
-                        AvailableInclude("nested/dir/sub/baz.h"),
-                    ],
-                ),
+                own_hdrs=[
+                    AvailableInclude("nested/dir/foo.h"),
+                    AvailableInclude("nested/dir/bar.h"),
+                    AvailableInclude("nested/dir/sub/baz.h"),
+                ],
                 public=[],
                 private=[],
             ),
@@ -209,9 +204,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[Include(file=Path("nested/dir/foo.h"), include="bar.h")],
             private_includes=[],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(
-                    name="self", hdrs=[AvailableInclude("nested/dir/foo.h"), AvailableInclude("some/other/dir/bar.h")]
-                ),
+                own_hdrs=[AvailableInclude("nested/dir/foo.h"), AvailableInclude("some/other/dir/bar.h")],
                 public=[],
                 private=[],
             ),
@@ -237,7 +230,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="bar/bar.h"),
             ],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[]),
+                own_hdrs=[],
                 public=[AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")])],
                 private=[AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")])],
             ),
@@ -259,7 +252,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[]),
+                own_hdrs=[],
                 public=[
                     AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
                     AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")]),
@@ -292,7 +285,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[]),
+                own_hdrs=[],
                 public=[
                     AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
                     AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
@@ -319,7 +312,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
             dependencies=AvailableDependencies(
-                self=AvailableDependency(name="", hdrs=[]),
+                own_hdrs=[],
                 public=[
                     AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
                     AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),

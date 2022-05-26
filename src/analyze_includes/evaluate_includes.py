@@ -7,6 +7,7 @@ from typing import List
 from src.analyze_includes.get_dependencies import (
     AvailableDependencies,
     AvailableDependency,
+    AvailableInclude,
     IncludeUsage,
 )
 from src.analyze_includes.parse_source import Include
@@ -65,7 +66,7 @@ class Result:
 
 def _check_for_invalid_includes_impl(
     includes: List[Include],
-    self: AvailableDependency,
+    own_headers: List[AvailableInclude],
     dependencies: List[AvailableDependency],
     usage: IncludeUsage,
 ) -> List[str]:
@@ -80,11 +81,11 @@ def _check_for_invalid_includes_impl(
                     break
         if not legal:
             # Might be a file from the target under inspection
-            legal = any(inc.include == sh.hdr for sh in self.hdrs)
+            legal = any(inc.include == sh.hdr for sh in own_headers)
         if not legal:
             # Might be a file from the target under inspection with a relative include
             curr_dir = inc.file.parent
-            for source in self.hdrs:
+            for source in own_headers:
                 try:
                     rel_path = Path(source.hdr).relative_to(curr_dir)
                     if rel_path == Path(inc.include):
@@ -104,14 +105,14 @@ def _check_for_invalid_includes(
 
     invalid_includes = _check_for_invalid_includes_impl(
         includes=public_includes,
-        self=dependencies.self,
+        own_headers=dependencies.own_hdrs,
         dependencies=dependencies.public,
         usage=IncludeUsage.PUBLIC,
     )
     invalid_includes.extend(
         _check_for_invalid_includes_impl(
             includes=private_includes,
-            self=dependencies.self,
+            own_headers=dependencies.own_hdrs,
             dependencies=dependencies.public + dependencies.private,
             usage=IncludeUsage.PRIVATE,
         )
@@ -146,7 +147,7 @@ def _filter_empty_dependencies(deps: AvailableDependencies) -> AvailableDependen
     dependencies.
     """
     return AvailableDependencies(
-        self=deps.self,
+        own_hdrs=deps.own_hdrs,
         public=[pub for pub in deps.public if pub.hdrs],
         private=[pri for pri in deps.private if pri.hdrs],
     )

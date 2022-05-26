@@ -87,9 +87,8 @@ class TestGetAvailableDependencies(unittest.TestCase):
             deps.public[1].hdrs, [AvailableInclude("public/dep/bar_a.h"), AvailableInclude("public/dep/bar_b.h")]
         )
 
-        self.assertEqual(deps.self.name, "//:baz")
-        self.assertEqual(len(deps.self.hdrs), 2)
-        self.assertEqual(deps.self.hdrs, [AvailableInclude("self/a.h"), AvailableInclude("self/b.h")])
+        self.assertEqual(len(deps.own_hdrs), 2)
+        self.assertEqual(deps.own_hdrs, [AvailableInclude("self/a.h"), AvailableInclude("self/b.h")])
 
     def test_load_empty_file(self):
         deps = get_available_dependencies(Path("src/analyze_includes/test/data/deps_info_empty.json"))
@@ -97,8 +96,7 @@ class TestGetAvailableDependencies(unittest.TestCase):
         self.assertEqual(len(deps.private), 0)
         self.assertEqual(len(deps.public), 0)
 
-        self.assertEqual(deps.self.name, "//:foo")
-        self.assertEqual(len(deps.self.hdrs), 0)
+        self.assertEqual(len(deps.own_hdrs), 0)
 
 
 if __name__ == "__main__":
