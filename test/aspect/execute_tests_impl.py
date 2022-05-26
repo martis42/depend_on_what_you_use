@@ -193,7 +193,7 @@ def execute_tests(
             process = sb.run(
                 make_cmd(test_cmd=test.cmd, extra_args=extra_args),
                 env=test_env,
-                text=True,
+                encoding="utf-8",
                 stdout=sb.PIPE,
                 stderr=sb.STDOUT,
                 check=False,
