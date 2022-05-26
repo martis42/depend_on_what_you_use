@@ -1,4 +1,9 @@
-# Design Decisions
+# Design Decisions <!-- omit in toc -->
+
+- [Design: Why use a multi step automatic fixes workflow](#design-why-use-a-multi-step-automatic-fixes-workflow)
+- [Rejected: Includes parsing via .d files](#rejected-includes-parsing-via-d-files)
+- [Platforms: Why is Bazel < 4.0.0 not supported](#platforms-why-is-bazel--400-not-supported)
+- [Platforms: Why is Python < 3.6 not supported](#platforms-why-is-python--36-not-supported)
 
 ## Design: Why use a multi step automatic fixes workflow
 
@@ -54,11 +59,11 @@ However, it makes the `.d` file impractical for DWYU.
 We need to know if header `a.h` was included directly in `c.cpp` or is used transitively by `b.h`.
 Without this distinction we cannot compare the include statements to the list of direct dependencies.
 
-## Platforms: Why are older Bazel version not supported
+## Platforms: Why is Bazel < 4.0.0 not supported
 
 The aspect implementation is not compatible to old Bazel versions due to:
 - Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
-- Before 4.0.0 the global json module is not available in Starlark
+- Before 4.0.0 the global `json` module is not available in Starlark
 
 ## Platforms: Why is Python < 3.6 not supported
 
