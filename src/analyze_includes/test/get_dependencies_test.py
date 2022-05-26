@@ -14,6 +14,17 @@ class TestAvailableInclude(unittest.TestCase):
 
         self.assertEqual(unit.used, IncludeUsage.NONE)
 
+    def test_equality(self):
+        unit_a = AvailableInclude(hdr="hdr_1", used=IncludeUsage.PUBLIC)
+        unit_b = AvailableInclude(hdr="hdr_1", used=IncludeUsage.PUBLIC)
+        unit_c = AvailableInclude(hdr="hdr_1", used=IncludeUsage.PRIVATE)
+        unit_d = AvailableInclude(hdr="hdr_2", used=IncludeUsage.PUBLIC)
+
+        self.assertEqual(unit_a, unit_b)
+        self.assertNotEqual(unit_a, unit_c)
+        self.assertNotEqual(unit_a, unit_d)
+        self.assertNotEqual(unit_c, unit_d)
+
     def test_make_public(self):
         unit = AvailableInclude(hdr="hdr", used=IncludeUsage.NONE)
         unit.update_usage(IncludeUsage.PUBLIC)

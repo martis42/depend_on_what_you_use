@@ -1,5 +1,4 @@
 import json
-from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 from typing import Dict, List
@@ -14,12 +13,15 @@ class IncludeUsage(Enum):
     PUBLIC_AND_PRIVATE = auto()
 
 
-@dataclass
 class AvailableInclude:
     """Include path provided by a dependency"""
 
-    hdr: str
-    used: IncludeUsage = IncludeUsage.NONE
+    def __init__(self, hdr: str, used: IncludeUsage = IncludeUsage.NONE) -> None:
+        self.hdr = hdr
+        self.used = used
+
+    def __eq__(self, other: object) -> bool:
+        return self.hdr == other.hdr and self.used == other.used
 
     def update_usage(self, usage: IncludeUsage) -> None:
         if usage == IncludeUsage.NONE:
