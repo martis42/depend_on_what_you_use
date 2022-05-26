@@ -68,6 +68,10 @@ The aspect implementation is not compatible to old Bazel versions due to:
 ## Platforms: Why is Python < 3.6 not supported
 
 As a rule of thumb, we aim to only support Python versions which are not EOL. Using a modern Python version enables
-us to write clean code utilizing modern Python features. <br/>
+us to write clean code utilizing modern Python features.
+
 Nevertheless, we support Python 3.6 although it is already EOL. This version is the default for Ubuntu 18.04, which
-still a lot of users are still using. Thus, we make an exception for Python 3.6.
+a lot of users are still using. Thus, we make an exception for Python 3.6.
+
+We are not making this exception for even older versions. Especially given we make extensive use of the features
+_formatting string literals_ and _type annotations_, which are at not available in older versions.
