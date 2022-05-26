@@ -1,9 +1,8 @@
 import subprocess as sb
 import tempfile
-from dataclasses import dataclass, field
 from distutils.dir_util import copy_tree
 from pathlib import Path
-from typing import List, Set
+from typing import List, Optional, Set
 
 WORKSPACE_TEMPLATE = """
 local_repository(
@@ -17,24 +16,34 @@ dwyu_public_dependencies()
 """
 
 
-@dataclass
 class TestCase:
-    name: str
-    path: str
-    target: str
-    # List of dependencies which the target shall have after performing the fix
-    expected_deps: List[str]
-    apply_fixes_extra_args: str = field(default_factory=list)
-    dwyu_extra_startup_args: str = field(default_factory=list)
-    dwyu_extra_args: str = field(default_factory=list)
-    # The test is supposed to fail and this substring shall be part of the exception description
-    expected_exception: str = ""
+    def __init__(
+        self,
+        name: str,
+        path: str,
+        target: str,
+        expected_deps: List[str],
+        apply_fixes_extra_args: Optional[List[str]] = None,
+        dwyu_extra_startup_args: Optional[List[str]] = None,
+        dwyu_extra_args: Optional[List[str]] = None,
+        expected_exception: str = "",
+    ) -> None:
+        self.name = name
+        self.path = path
+        self.target = target
+        # List of dependencies which the target shall have after performing the fix
+        self.expected_deps = expected_deps
+        self.apply_fixes_extra_args = apply_fixes_extra_args if apply_fixes_extra_args else []
+        self.dwyu_extra_startup_args = dwyu_extra_startup_args if dwyu_extra_startup_args else []
+        self.dwyu_extra_args = dwyu_extra_args if dwyu_extra_args else []
+        # The test is supposed to fail and this substring shall be part of the exception description
+        self.expected_exception = expected_exception
 
 
-@dataclass
 class Result:
-    test: str
-    error: str = ""
+    def __init__(self, test: str, error: str = "") -> None:
+        self.test = test
+        self.error = error
 
     def is_success(self) -> bool:
         return len(self.error) == 0
