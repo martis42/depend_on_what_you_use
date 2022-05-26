@@ -1,4 +1,4 @@
-import subprocess
+import subprocess as sb
 import tempfile
 from dataclasses import dataclass, field
 from distutils.dir_util import copy_tree
@@ -41,7 +41,7 @@ class Result:
 
 
 def get_current_workspace() -> Path:
-    process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
+    process = sb.run(["bazel", "info", "workspace"], check=True, encoding="utf-8", stdout=sb.PIPE, stderr=sb.PIPE)
     return Path(process.stdout.strip())
 
 
@@ -64,19 +64,30 @@ def setup_test_workspace(
         cmd.extend(extra_args)
     cmd.append(test.target)
     # Detecting problems causes a red build, thus don't check results
-    subprocess.run(cmd, cwd=workspace, capture_output=(not verbose), check=False)
+    if verbose:
+        sb.run(cmd, cwd=workspace, check=False)
+    else:
+        sb.run(cmd, cwd=workspace, stdout=sb.PIPE, stderr=sb.PIPE, check=False)
 
 
 def apply_automatic_fix(workspace: Path, extra_args: List[str], verbose: bool) -> None:
     cmd = ["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={workspace}"]
     if extra_args:
         cmd.extend(extra_args)
-    subprocess.run(cmd, capture_output=(not verbose), check=True)
+    if verbose:
+        sb.run(cmd, check=True)
+    else:
+        sb.run(cmd, stdout=sb.PIPE, stderr=sb.PIPE, check=True)
 
 
 def query_test_target_dependencies(workspace: Path, target: str, verbose: bool) -> Set["str"]:
-    process = subprocess.run(
-        ["bazel", "query", f"labels(deps, {target})"], cwd=workspace, check=True, capture_output=True, text=True
+    process = sb.run(
+        ["bazel", "query", f"labels(deps, {target})"],
+        cwd=workspace,
+        check=True,
+        encoding="utf-8",
+        stdout=sb.PIPE,
+        stderr=sb.PIPE,
     )
     if verbose:
         print(process.stdout)
@@ -116,7 +127,13 @@ def execute_test(test: TestCase, verbose: bool) -> Result:
                 result.error = f"Exception: {ex}"
 
         # Make sure the bazel cache dir is no swamped with dead test workspaces
-        subprocess.run(["bazel", "clean", "--expunge"], cwd=test_workspace, capture_output=True, check=True)
+        sb.run(
+            ["bazel", "clean", "--expunge"],
+            cwd=test_workspace,
+            stdout=sb.PIPE,
+            stderr=sb.PIPE,
+            check=True,
+        )
 
     if not result.is_success():
         print(result.error)
