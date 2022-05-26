@@ -10,6 +10,17 @@ from src.analyze_includes.parse_source import (
 
 
 class TestInclude(unittest.TestCase):
+    def test_equality(self):
+        unit_a = Include(file=Path("foo"), include="foo.h")
+        unit_b = Include(file=Path("foo"), include="foo.h")
+        unit_c = Include(file=Path("bar"), include="foo.h")
+        unit_d = Include(file=Path("foo"), include="bar.h")
+
+        self.assertEqual(unit_a, unit_b)
+        self.assertNotEqual(unit_a, unit_c)
+        self.assertNotEqual(unit_a, unit_d)
+        self.assertNotEqual(unit_c, unit_d)
+
     def test_in(self):
         unit = [Include(file=Path("foo"), include="foo.h"), Include(file=Path("bar"), include="bar.h")]
 

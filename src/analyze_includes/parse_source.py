@@ -1,15 +1,17 @@
 import re
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Union
 
 
-@dataclass
 class Include:
     """Single include statement in a specific file"""
 
-    file: Path
-    include: str
+    def __init__(self, file: Path, include: str) -> None:
+        self.file = file
+        self.include = include
+
+    def __eq__(self, other: object) -> bool:
+        return self.file == other.file and self.include == other.include
 
     def __hash__(self) -> int:
         return hash(str(self.file) + self.include)
