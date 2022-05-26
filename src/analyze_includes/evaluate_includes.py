@@ -1,8 +1,7 @@
 from collections import defaultdict
-from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from src.analyze_includes.get_dependencies import (
     AvailableDependencies,
@@ -13,12 +12,18 @@ from src.analyze_includes.get_dependencies import (
 from src.analyze_includes.parse_source import Include
 
 
-@dataclass
 class Result:
-    target: str
-    invalid_includes: List[Include] = field(default_factory=list)
-    unused_deps: List[str] = field(default_factory=list)
-    deps_which_should_be_private: List[str] = field(default_factory=list)
+    def __init__(
+        self,
+        target: str,
+        invalid_includes: Optional[List[Include]] = None,
+        unused_deps: Optional[List[str]] = None,
+        deps_which_should_be_private: Optional[List[str]] = None,
+    ) -> None:
+        self.target = target
+        self.invalid_includes = invalid_includes if invalid_includes else []
+        self.unused_deps = unused_deps if unused_deps else []
+        self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
 
     def is_ok(self) -> bool:
         return (
