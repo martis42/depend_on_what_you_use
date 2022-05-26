@@ -38,12 +38,12 @@ class AvailableInclude:
             self.used = IncludeUsage.PUBLIC_AND_PRIVATE
 
 
-@dataclass
 class AvailableDependency:
     """A dependency and the header files it provides"""
 
-    name: str
-    hdrs: List[AvailableInclude]
+    def __init__(self, name: str, hdrs: List[AvailableInclude]) -> None:
+        self.name = name
+        self.hdrs = hdrs
 
 
 class AvailableDependencies:
