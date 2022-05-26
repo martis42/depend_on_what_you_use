@@ -10,6 +10,7 @@
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
+- [Versioning](#versioning)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -208,6 +209,12 @@ added over time.
 | Python           | Minimum version is 3.6. Tests are currently running based on Python 3.8.                         |
 | Bazel            | Minimum version is 4.0.0. Multiple versions are tested.                                          |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
+
+# Versioning
+
+This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
+Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases
+can contain breaking changes.
 
 # Contributing
 
