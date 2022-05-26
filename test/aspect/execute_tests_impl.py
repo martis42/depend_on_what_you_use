@@ -1,8 +1,7 @@
 import argparse
 import os
 import subprocess as sb
-from dataclasses import dataclass, field
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 # Each line in the output corresponding to an error is expected to start with this
 ERRORS_PREFIX = " " * 2
@@ -14,24 +13,30 @@ CATEGORY_NON_PRIVATE_DEPS = "Public dependencies which are used only in private 
 CATEGORY_UNUSED_DEPS = "Unused dependencies (none of their headers are referenced)"
 
 
-@dataclass
 class TestCmd:
-    target: str
-    aspect: str = ""
-    extra_args: List[str] = field(default_factory=list)
+    def __init__(self, target: str, aspect: str = "", extra_args: Optional[List[str]] = None) -> None:
+        self.target = target
+        self.aspect = aspect
+        self.extra_args = extra_args if extra_args else []
 
 
-@dataclass
 class ExpectedResult:
     """
     Encapsulates an expected result of a DWYU analysis and offers functions
     to compare a given output to the expectations.
     """
 
-    success: bool
-    invalid_includes: List[str] = field(default_factory=list)
-    unused_deps: List[str] = field(default_factory=list)
-    deps_which_should_be_private: List[str] = field(default_factory=list)
+    def __init__(
+        self,
+        success: bool,
+        invalid_includes: Optional[List[str]] = None,
+        unused_deps: Optional[List[str]] = None,
+        deps_which_should_be_private: Optional[List[str]] = None,
+    ) -> None:
+        self.success = success
+        self.invalid_includes = invalid_includes if invalid_includes else []
+        self.unused_deps = unused_deps if unused_deps else []
+        self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
 
     def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
         if not self._has_correct_status(return_code=return_code, output=dwyu_output):
@@ -110,24 +115,30 @@ class ExpectedResult:
         return True
 
 
-@dataclass
 class CompatibleVersions:
-    min: str = ""
-    max: str = ""
+    def __init__(self, min: str = "", max: str = "") -> None:
+        self.min = min
+        self.max = max
 
 
-@dataclass
 class TestCase:
-    name: str
-    cmd: TestCmd
-    expected: ExpectedResult
-    compatible_versions: CompatibleVersions = CompatibleVersions()
+    def __init__(
+        self,
+        name: str,
+        cmd: TestCmd,
+        expected: ExpectedResult,
+        compatible_versions: Optional[CompatibleVersions] = None,
+    ) -> None:
+        self.name = name
+        self.cmd = cmd
+        self.expected = expected
+        self.compatible_versions = compatible_versions if compatible_versions else CompatibleVersions()
 
 
-@dataclass
 class FailedTest:
-    name: str
-    version: str
+    def __init__(self, name: str, version: str) -> None:
+        self.name = name
+        self.version = version
 
 
 def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> bool:
