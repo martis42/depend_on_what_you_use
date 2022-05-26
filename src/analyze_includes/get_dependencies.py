@@ -46,16 +46,18 @@ class AvailableDependency:
     hdrs: List[AvailableInclude]
 
 
-@dataclass
 class AvailableDependencies:
     """All sources for headers the target under inspection can include"""
 
-    # header files from target under inspection
-    self: AvailableDependency
-    # corresponds to targets from 'deps'
-    public: List[AvailableDependency]
-    # corresponds to targets from 'implementation_deps'
-    private: List[AvailableDependency]
+    def __init__(
+        self, own_hdrs: List[AvailableInclude], public: List[AvailableDependency], private: List[AvailableDependency]
+    ) -> None:
+        # Header files from target under inspection
+        self.own_hdrs = own_hdrs
+        # Dependecies which are available to downstream dependencies of the target under inspection
+        self.public = public
+        # Dependecies which are NOT available to downstream dependencies of the target under inspection
+        self.private = private
 
 
 def _make_available_dependency(info: Dict) -> AvailableDependency:
@@ -77,7 +79,7 @@ def get_available_dependencies(allowed_includes_file: Path) -> AvailableDependen
     with open(allowed_includes_file, encoding="utf-8") as fin:
         loaded = json.load(fin)
         return AvailableDependencies(
-            self=_make_available_dependency(loaded["self"]),
+            own_hdrs=_make_available_dependency(loaded["self"]).hdrs,
             public=_get_available_dependencies_impl(loaded["public_deps"]),
             private=_get_available_dependencies_impl(loaded["private_deps"]),
         )
