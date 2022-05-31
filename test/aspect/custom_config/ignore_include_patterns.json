@@ -1,0 +1,9 @@
+{
+    "ignore_include_paths": [
+        "foo/.*"
+    ],
+    "extra_ignore_include_paths": [
+        "bar/.*",
+        "./ignored_sub_path/.*"
+    ]
+}

@@ -109,6 +109,12 @@ You can exclude a custom set of header files by providing a config file in json 
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
+You can either provide an own set of headers, which should be ignored, or provide a set of headers which should be
+ignored in addition to the standard library hedaers.
+To be ignored headers have to be specified with their full include path.
+Alternatively you can provide a regex pattern conforming to the Python [re](https://docs.python.org/3/library/re.html#regular-expression-syntax)
+module syntax to specify include statements which should be ignored.
+
 Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
 
 ## Recursion
