@@ -53,6 +53,14 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
+        name="custom_config_ignore_include_patterns",
+        cmd=TestCmd(
+            target="//test/aspect/custom_config:use_ignored_patterns",
+            aspect="//test/aspect/custom_config:aspect.bzl%extra_ignore_include_patterns_aspect",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
         name="unused_dep",
         cmd=TestCmd(target="//test/aspect/unused_dep:main", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=False, unused_deps=["//test/aspect/unused_dep:foo"]),

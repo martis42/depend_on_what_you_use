@@ -42,7 +42,7 @@ class TestInclude(unittest.TestCase):
 
 
 class TestFilterIncludes(unittest.TestCase):
-    def test_filter_includes(self):
+    def test_filter_includes_for_file_paths(self):
         result = filter_includes(
             includes=[
                 Include(file=Path("file1"), include="hiho.h"),
@@ -56,6 +56,22 @@ class TestFilterIncludes(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertTrue(Include(file=Path("file1"), include="hiho.h") in result)
         self.assertTrue(Include(file=Path("file3"), include="some/deep/path.h") in result)
+
+    def test_filter_includes_for_patterns(self):
+        result = filter_includes(
+            includes=[
+                Include(file=Path("file1"), include="hiho.h"),
+                Include(file=Path("file2"), include="foo.h"),
+                Include(file=Path("file3"), include="foo/bar.h"),
+                Include(file=Path("file4"), include="foo/nested/bar.h"),
+                Include(file=Path("file4"), include="baz_some_partial_name.h"),
+            ],
+            ignored_includes={"foo/.*", ".*some_partial_name.h"},
+        )
+
+        self.assertEqual(len(result), 2)
+        self.assertTrue(Include(file=Path("file1"), include="hiho.h") in result)
+        self.assertTrue(Include(file=Path("file2"), include="foo.h") in result)
 
 
 class TestGetIncludesFromFile(unittest.TestCase):

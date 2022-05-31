@@ -69,10 +69,14 @@ def get_includes_from_file(file: Path) -> List[Include]:
 def filter_includes(includes: List[Include], ignored_includes: set) -> List[Include]:
     """
     - deduplicate list entries
-    - throw away unintersting includes (e.g. from standard library)
+    - throw away unintersting includes (e.g. from standard library or ignored includes provided by the user)
     """
     unique_includes = set(includes)
-    return [ui for ui in unique_includes if not ui.include in ignored_includes]
+    return [
+        include
+        for include in unique_includes
+        if not any(re.search(ignore, include.include) for ignore in ignored_includes)
+    ]
 
 
 def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: set) -> List[Include]:
