@@ -204,8 +204,8 @@ report files.
 The `apply_fixes` tool offers options to control how the output directory is discovered.<br/>
 Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover the whole CLI interface of the tool.
 
-Currently only unused dependencies can be automatically fixed. However, more automatic fixes are planned and will be
-added over time.
+There are limitations on what can be automatically fixed due to constrraints of `buildozer`. For more details
+see the doc string of the [apply fixes main function](src/apply_fixes/main.py).
 
 # Supported Platforms
 
