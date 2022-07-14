@@ -93,7 +93,7 @@ Unused dependencies (none of their headers are referenced):
 ### Create a rule invoking the aspect.
 
 You can invoke the aspect from within a rule. This can be useful to make the execution part of a bazel build (e.g.
-`bazel build //...`) without having to execute the longish manual aspect build command.
+`bazel build //...`) without having to manually execute the longish aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 A concrete example for doing so for the DWYU aspect can be found in [a rule in the recursion test cases](test/aspect/recursion/rule.bzl).
@@ -146,7 +146,7 @@ private files, but not put into the private dependency attribute.
 :warning: **`implementation_deps` is being removed again with Bazel 6.0.0**.
 See [Interface_deps](#Interface_deps) for the forward path, which is however as well only in experimental stage.
 
-Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/main/be/c-cpp.html#cc_library.implementation_deps)
+Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/5.0.0/be/c-cpp.html#cc_library.implementation_deps
 for `cc_library`. In short, this enables you to specify dependencies which are only relevant for your `srcs` files and
 are not made available to users of the library.
 
