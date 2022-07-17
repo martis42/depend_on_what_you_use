@@ -1,6 +1,7 @@
 # Documentation of noteworthy project design decisions <!-- omit in toc -->
 
 - [General](#general)
+  - [Why use Python](#why-use-python)
   - [Why use a multi step automatic fixes workflow](#why-use-a-multi-step-automatic-fixes-workflow)
 - [Platforms](#platforms)
   - [Why is Bazel < 4.0.0 not supported](#why-is-bazel--400-not-supported)
@@ -10,6 +11,17 @@
 
 
 # General
+
+## Why use Python
+
+There are many programming languages avalable which could be used to implement DWYU. Why use Python because:
+- It is well established tool many develoeprs are familiar with.
+- Most platforms support Python well and developer setups often have an interpreter pre-installed.
+- There is a wide range of well established third-party libraries.
+- There is no need to deploy pre compiled binaries for a wide range of platforms.
+- It is well suited for scripting tasks and testing.
+- The task done by DWYU does not require many resources. Thus, efficiency and perfomance are secondary.
+- The project maintainer is experienced with Python.
 
 ## Why use a multi step automatic fixes workflow
 
@@ -34,6 +46,7 @@ A tool being executed like this can access any part of the host system.
 The aspect implementation is not compatible to old Bazel versions due to:
 - Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
 - Before 4.0.0 the global `json` module is not available in Starlark
+- Bazel 4.0.0 is the first LTS version
 
 ## Why is Python < 3.6 not supported
 
@@ -85,3 +98,5 @@ This makes sense, after all the compiler requires all used headers to compile `c
 However, it makes the `.d` file impractical for DWYU.
 We need to know if header `a.h` was included directly in `c.cpp` or is used transitively by `b.h`.
 Without this distinction we cannot compare the include statements to the list of direct dependencies.
+
+At the time of writing this no way could be found to configure GCC to generate `.d` files matching our requirements.
