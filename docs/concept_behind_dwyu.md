@@ -1,4 +1,4 @@
-# Design Philosophy
+# Concept Behind "Depend On What You Use"
 
 Depend On What You Use (DWYU) has been inspired by [Include What You Use (IWYU)](https://github.com/include-what-you-use/include-what-you-use).
 Essentially DWYU applies the idea behind IWYU to the relationship between C++ include statements and dependencies.
@@ -17,7 +17,7 @@ in the Bazel sandbox and are part of the include path for compiling A.
 Adhering to this design principle has several advantages:
 
 - One follows the Bazel dependency modeling best practices. Bazel is not yet generally enforcing its depndency rules,
-  but this can  change at any time. For more details see:
+  but this can change at any time. For more details see:
   - `cc_library` design [regarding include paths](https://bazel.build/reference/be/c-cpp#hdrs).
   - Dependencies concept [documentation](https://bazel.build/concepts/dependencies#actual-and-declared-dependencies).
   - Dependency management [documentation](https://bazel.build/basics/dependencies). Note that Bazel is already enforcing
