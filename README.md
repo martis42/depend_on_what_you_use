@@ -10,6 +10,7 @@
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
+- [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
 - [License](#license)
@@ -215,6 +216,15 @@ see the doc string of the [apply fixes main function](src/apply_fixes/main.py).
 | Python           | Minimum version is 3.6. Tests are currently running based on Python 3.8.                         |
 | Bazel            | Minimum version is 4.0.0. Multiple versions are tested.                                          |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
+
+# Alternatives to DWYU
+
+If you are mostly interested in making sure no headers from transitive dependecies are used by your C++ targets, you
+might want to look into the `layering_check` feature.
+It causes the compilation to fail on using headers from transitive dependencies.<br/>
+At the time of writing this, I could not find detailed documentation about this feature.
+It was introduced in [this PR](https://github.com/bazelbuild/bazel/pull/11440) and is mentioned in the [unix_cc_toolchain_config.bzl](https://github.com/bazelbuild/bazel/blob/master/tools/cpp/unix_cc_toolchain_config.bzl).<br/>
+As far as I can tell this feature is only available with the clang compiler and while using modules.
 
 # Versioning
 
