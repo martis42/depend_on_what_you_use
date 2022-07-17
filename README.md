@@ -28,7 +28,7 @@ The main features are:
   private dependencies for `cc_library`. For more details see
   [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
 
-More information about the DWYU design principle is available in [the docs](docs/design_principle.md).
+More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs/).
 
 # Getting started
 
