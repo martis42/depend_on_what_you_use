@@ -86,7 +86,7 @@ DWYU analyzing: '<analyzed_target>'
 
 Result: Failure
 
-Unused dependencies (none of their headers are referenced):
+Unused dependencies in 'deps' (none of their headers are referenced):
   Dependency='//some/target/with_an_unused:dependency'
 ===============================================================================
 ```

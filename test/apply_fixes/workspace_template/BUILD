@@ -1,18 +1,27 @@
 cc_library(
-    name = "used",
-    hdrs = ["used.h"],
+    name = "lib_a",
+    hdrs = ["lib_a.h"],
 )
 
 cc_library(
-    name = "unused",
-    hdrs = ["unused.h"],
+    name = "lib_b",
+    hdrs = ["lib_b.h"],
 )
 
-cc_binary(
-    name = "main",
-    srcs = ["main.cpp"],
+cc_library(
+    name = "unused_public_dep",
+    srcs = ["using_lib_a.cpp"],
     deps = [
-        ":unused",
-        ":used",
+        ":lib_a",
+        ":lib_b",  # unused
+    ],
+)
+
+cc_library(
+    name = "unused_private_dep",
+    srcs = ["using_lib_a.cpp"],
+    implementation_deps = [
+        ":lib_a",
+        ":lib_b",  # unused
     ],
 )

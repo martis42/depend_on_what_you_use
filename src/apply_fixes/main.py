@@ -55,6 +55,7 @@ def cli():
         action="store_true",
         help="Don't apply fixes. Report the buildozer commands and print the adapted BUILD files to stdout.",
     )
+    # TODO extra buildozer args to control flags like '-delete_with_comments' or '-shorten_labels'
     parser.add_argument("--verbose", action="store_true", help="Announce intermediate steps.")
 
     return parser.parse_args()
@@ -159,21 +160,30 @@ def make_base_cmd(buildozer: str, dry: bool) -> List[str]:
     return cmd
 
 
+def execute_cmd(cmd: List[str], workspace: Path, summary: Summary, dry: bool, verbose: bool) -> None:
+    if dry or verbose:
+        print(f"Executing buildozer command: {cmd}")
+    process = subprocess.run(cmd, cwd=workspace, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    summary.add_command(cmd=cmd, buildozer_result=process.returncode)
+
+
 def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = False, verbose: bool = False) -> Summary:
     summary = Summary()
 
     with open(report, encoding="utf-8") as report_in:
         content = json.load(report_in)
         target = content["analyzed_target"]
-        unused_deps = content["unused_dependencies"]
+        unused_public_deps = content["unused_public_dependencies"]
+        unused_private_deps = content["unused_private_dependencies"]
         base_cmd = make_base_cmd(buildozer=buildozer, dry=dry)
-        if unused_deps:
-            deps_str = " ".join(unused_deps)
+        if unused_public_deps:
+            deps_str = " ".join(unused_public_deps)
             cmd = base_cmd + [f"remove deps {deps_str}", target]
-            if dry or verbose:
-                print(f"Executing buildozer command: {cmd}")
-            process = subprocess.run(cmd, cwd=workspace, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            summary.add_command(cmd=cmd, buildozer_result=process.returncode)
+            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry, verbose=verbose)
+        if unused_private_deps:
+            deps_str = " ".join(unused_private_deps)
+            cmd = base_cmd + [f"remove implementation_deps {deps_str}", target]
+            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry, verbose=verbose)
 
     return summary
 

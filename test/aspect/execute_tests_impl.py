@@ -10,7 +10,8 @@ ERRORS_PREFIX = " " * 2
 DWYU_FAILURE = "Result: FAILURE"
 CATEGORY_INVALID_INCLUDES = "Includes which are not available from the direct dependencies"
 CATEGORY_NON_PRIVATE_DEPS = "Public dependencies which are used only in private code"
-CATEGORY_UNUSED_DEPS = "Unused dependencies (none of their headers are referenced)"
+CATEGORY_UNUSED_PUBLIC_DEPS = "Unused dependencies in 'deps' (none of their headers are referenced)"
+CATEGORY_UNUSED_PRIVATE_DEPS = "Unused dependencies in 'implementation_deps' (none of their headers are referenced)"
 
 
 class TestCmd:
@@ -30,12 +31,15 @@ class ExpectedResult:
         self,
         success: bool,
         invalid_includes: Optional[List[str]] = None,
-        unused_deps: Optional[List[str]] = None,
+        unused_public_deps: Optional[List[str]] = None,
+        unused_private_deps: Optional[List[str]] = None,
         deps_which_should_be_private: Optional[List[str]] = None,
     ) -> None:
         self.success = success
         self.invalid_includes = invalid_includes if invalid_includes else []
-        self.unused_deps = unused_deps if unused_deps else []
+
+        self.unused_public_deps = unused_public_deps if unused_public_deps else []
+        self.unused_private_deps = unused_private_deps if unused_private_deps else []
         self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
 
     def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
@@ -50,8 +54,14 @@ class ExpectedResult:
         ):
             return False
         if not ExpectedResult._has_expected_errors(
-            expected_errors=self.unused_deps,
-            error_category=CATEGORY_UNUSED_DEPS,
+            expected_errors=self.unused_public_deps,
+            error_category=CATEGORY_UNUSED_PUBLIC_DEPS,
+            output=output_lines,
+        ):
+            return False
+        if not ExpectedResult._has_expected_errors(
+            expected_errors=self.unused_private_deps,
+            error_category=CATEGORY_UNUSED_PRIVATE_DEPS,
             output=output_lines,
         ):
             return False

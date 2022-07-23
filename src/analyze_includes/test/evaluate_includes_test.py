@@ -32,7 +32,8 @@ class TestResult(unittest.TestCase):
 {
   "analyzed_target": "//foo:bar",
   "invalid_includes": {},
-  "unused_dependencies": [],
+  "unused_public_dependencies": [],
+  "unused_private_dependencies": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
@@ -73,21 +74,22 @@ class TestResult(unittest.TestCase):
       "missing_3"
     ]
   },
-  "unused_dependencies": [],
+  "unused_public_dependencies": [],
+  "unused_private_dependencies": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_unused_deps(self):
-        unit = Result(target="//foo:bar", unused_deps=["foo", "baz"])
+    def test_is_ok_fails_due_to_unused_public_deps(self):
+        unit = Result(target="//foo:bar", unused_public_deps=["foo", "baz"])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
             unit.to_str(),
             self._expected_msg(
                 target="//foo:bar",
-                errors="Unused dependencies (none of their headers are referenced):\n"
+                errors="Unused dependencies in 'deps' (none of their headers are referenced):\n"
                 "  Dependency='foo'\n"
                 "  Dependency='baz'",
             ),
@@ -98,8 +100,69 @@ class TestResult(unittest.TestCase):
 {
   "analyzed_target": "//foo:bar",
   "invalid_includes": {},
-  "unused_dependencies": [
+  "unused_public_dependencies": [
     "foo",
+    "baz"
+  ],
+  "unused_private_dependencies": [],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_due_to_unused_private_deps(self):
+        unit = Result(target="//foo:bar", unused_private_deps=["foo", "baz"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Unused dependencies in 'implementation_deps' (none of their headers are referenced):\n"
+                "  Dependency='foo'\n"
+                "  Dependency='baz'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {},
+  "unused_public_dependencies": [],
+  "unused_private_dependencies": [
+    "foo",
+    "baz"
+  ],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_due_to_unused_public_and_private_deps(self):
+        unit = Result(target="//foo:bar", unused_public_deps=["foo"], unused_private_deps=["baz"])
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Unused dependencies in 'deps' (none of their headers are referenced):\n"
+                "  Dependency='foo'\n"
+                "Unused dependencies in 'implementation_deps' (none of their headers are referenced):\n"
+                "  Dependency='baz'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "invalid_includes": {},
+  "unused_public_dependencies": [
+    "foo"
+  ],
+  "unused_private_dependencies": [
     "baz"
   ],
   "deps_which_should_be_private": []
@@ -126,7 +189,8 @@ class TestResult(unittest.TestCase):
 {
   "analyzed_target": "//foo:bar",
   "invalid_includes": {},
-  "unused_dependencies": [],
+  "unused_public_dependencies": [],
+  "unused_private_dependencies": [],
   "deps_which_should_be_private": [
     "foo",
     "baz"
@@ -212,7 +276,8 @@ class TestEvaluateIncludes(unittest.TestCase):
         )
 
         self.assertFalse(result.is_ok())
-        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.unused_public_deps, [])
+        self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(result.invalid_includes, [Include(file=Path("nested/dir/foo.h"), include="bar.h")])
 
@@ -238,7 +303,8 @@ class TestEvaluateIncludes(unittest.TestCase):
         )
 
         self.assertFalse(result.is_ok())
-        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.unused_public_deps, [])
+        self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(len(result.invalid_includes), 4)
         self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.invalid_includes)
@@ -270,11 +336,12 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertFalse(result.is_ok())
         self.assertEqual(result.invalid_includes, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(len(result.unused_deps), 4)
-        self.assertTrue("foo" in result.unused_deps)
-        self.assertTrue("bar" in result.unused_deps)
-        self.assertTrue("impl_foo" in result.unused_deps)
-        self.assertTrue("impl_bar" in result.unused_deps)
+        self.assertEqual(len(result.unused_public_deps), 2)
+        self.assertEqual(len(result.unused_private_deps), 2)
+        self.assertTrue("foo" in result.unused_public_deps)
+        self.assertTrue("bar" in result.unused_public_deps)
+        self.assertTrue("impl_foo" in result.unused_private_deps)
+        self.assertTrue("impl_bar" in result.unused_private_deps)
 
     def test_public_dependencies_which_should_be_private(self):
         result = evaluate_includes(
@@ -298,7 +365,8 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.invalid_includes, [])
-        self.assertEqual(result.unused_deps, [])
+        self.assertEqual(result.unused_public_deps, [])
+        self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(len(result.deps_which_should_be_private), 2)
         self.assertTrue("foo" in result.deps_which_should_be_private)
         self.assertTrue("bar" in result.deps_which_should_be_private)
