@@ -5,7 +5,7 @@ from src.test_case import TestCaseBase
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:main"
+        return "//:unused_public_dep"
 
     def execute_test_logic(self) -> Result:
         self._create_reports(extra_args=["--nobuild"])

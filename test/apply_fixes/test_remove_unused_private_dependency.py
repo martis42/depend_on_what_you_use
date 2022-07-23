@@ -5,12 +5,14 @@ from src.test_case import TestCaseBase
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:unused_public_dep"
+        return "//:unused_private_dep"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports(extra_args=["--noexperimental_convenience_symlinks", "--compilation_mode=opt"])
-        self._run_automatic_fix(extra_args=["--use-bazel-info=opt"])
-        target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
+        self._create_reports(
+            aspect="use_implementation_deps_aspect", extra_args=["--experimental_cc_implementation_deps"]
+        )
+        self._run_automatic_fix()
+        target_deps = self._get_target_attribute(target=self.test_target, attribute="implementation_deps")
 
         if target_deps == {"//:lib_a"}:
             return Success()

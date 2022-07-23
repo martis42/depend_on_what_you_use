@@ -63,7 +63,17 @@ TESTS = [
     TestCase(
         name="unused_dep",
         cmd=TestCmd(target="//test/aspect/unused_dep:main", aspect=DEFAULT_ASPECT),
-        expected=ExpectedResult(success=False, unused_deps=["//test/aspect/unused_dep:foo"]),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/unused_dep:foo"]),
+    ),
+    TestCase(
+        name="unused_private_dep",
+        compatible_versions=CompatibleVersions(min="5.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/unused_dep/implementation_deps:implementation_deps_lib",
+            aspect="//test/aspect/unused_dep:aspect.bzl%implementation_deps_aspect",
+            extra_args=["--experimental_cc_implementation_deps"],
+        ),
+        expected=ExpectedResult(success=False, unused_private_deps=["//test/aspect/unused_dep:foo"]),
     ),
     TestCase(
         name="use_transitive_deps",
@@ -91,7 +101,7 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
-        name="superfluous public_dep",
+        name="superfluous_public_dep",
         compatible_versions=CompatibleVersions(min="5.0.0", max="5.9.9"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:superfluous_public_dep",
@@ -153,7 +163,7 @@ TESTS = [
         cmd=TestCmd(
             target="//test/aspect/recursion:main", aspect="//test/aspect/recursion:aspect.bzl%recursive_aspect"
         ),
-        expected=ExpectedResult(success=False, unused_deps=["//test/aspect/recursion:e"]),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/recursion:e"]),
     ),
     TestCase(
         name="rule_direct_success",
@@ -163,7 +173,7 @@ TESTS = [
     TestCase(
         name="rule_recursive_failure",
         cmd=TestCmd(target="//test/aspect/recursion:dwyu_recursive_main"),
-        expected=ExpectedResult(success=False, unused_deps=["//test/aspect/recursion:e"]),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/recursion:e"]),
     ),
     TestCase(
         name="complex_includes",
@@ -194,7 +204,7 @@ TESTS = [
         name="unused_dependency_through_alias",
         cmd=TestCmd(target="//test/aspect/alias:unused_dependency", aspect=DEFAULT_ASPECT),
         # The aspect does not see the alias, but only the resolved actual dependency
-        expected=ExpectedResult(success=False, unused_deps=["//test/aspect/alias:lib_a"]),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/alias:lib_a"]),
     ),
     TestCase(
         name="dependency_through_alias",

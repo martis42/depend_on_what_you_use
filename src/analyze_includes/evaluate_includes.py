@@ -17,18 +17,21 @@ class Result:
         self,
         target: str,
         invalid_includes: Optional[List[Include]] = None,
-        unused_deps: Optional[List[str]] = None,
+        unused_public_deps: Optional[List[str]] = None,
+        unused_private_deps: Optional[List[str]] = None,
         deps_which_should_be_private: Optional[List[str]] = None,
     ) -> None:
         self.target = target
         self.invalid_includes = invalid_includes if invalid_includes else []
-        self.unused_deps = unused_deps if unused_deps else []
+        self.unused_public_deps = unused_public_deps if unused_public_deps else []
+        self.unused_private_deps = unused_private_deps if unused_private_deps else []
         self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
 
     def is_ok(self) -> bool:
         return (
             len(self.invalid_includes) == 0
-            and len(self.unused_deps) == 0
+            and len(self.unused_public_deps) == 0
+            and len(self.unused_private_deps) == 0
             and len(self.deps_which_should_be_private) == 0
         )
 
@@ -42,9 +45,12 @@ class Result:
         if self.invalid_includes:
             msg += "\nIncludes which are not available from the direct dependencies:\n"
             msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)
-        if self.unused_deps:
-            msg += "\nUnused dependencies (none of their headers are referenced):\n"
-            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
+        if self.unused_public_deps:
+            msg += "\nUnused dependencies in 'deps' (none of their headers are referenced):\n"
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_public_deps)
+        if self.unused_private_deps:
+            msg += "\nUnused dependencies in 'implementation_deps' (none of their headers are referenced):\n"
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_private_deps)
         if self.deps_which_should_be_private:
             msg += "\nPublic dependencies which are used only in private code:\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
@@ -57,7 +63,8 @@ class Result:
         content = {
             "analyzed_target": self.target,
             "invalid_includes": invalid_includes_mapping,
-            "unused_dependencies": self.unused_deps,
+            "unused_public_dependencies": self.unused_public_deps,
+            "unused_private_dependencies": self.unused_private_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
         }
         return dumps(content, indent=2) + "\n"
@@ -125,14 +132,8 @@ def _check_for_invalid_includes(
     return invalid_includes
 
 
-def _check_for_unused_dependencies_impl(dependencies: List[AvailableDependency]) -> List[str]:
+def _check_for_unused_dependencies(dependencies: List[AvailableDependency]) -> List[str]:
     return [dep.name for dep in dependencies if not any(hdr.used != IncludeUsage.NONE for hdr in dep.hdrs)]
-
-
-def _check_for_unused_dependencies(dependencies: AvailableDependencies) -> List[str]:
-    unused_public_deps = _check_for_unused_dependencies_impl(dependencies.public)
-    unused_private_deps = _check_for_unused_dependencies_impl(dependencies.private)
-    return unused_public_deps + unused_private_deps
 
 
 def _check_for_public_deps_which_should_be_private(dependencies: AvailableDependencies) -> List[str]:
@@ -171,7 +172,10 @@ def evaluate_includes(
     result.invalid_includes = _check_for_invalid_includes(
         public_includes=public_includes, private_includes=private_includes, dependencies=dependencies
     )
-    result.unused_deps = _check_for_unused_dependencies(dependencies)
+
+    result.unused_public_deps = _check_for_unused_dependencies(dependencies.public)
+    result.unused_private_deps = _check_for_unused_dependencies(dependencies.private)
+
     if ensure_private_deps:
         result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(dependencies)
 

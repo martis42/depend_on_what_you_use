@@ -43,14 +43,19 @@ class TestCaseBase(ABC):
         self._workspace = workspace
         return self.execute_test_logic()
 
-    def _create_reports(self, startup_args: Optional[List[str]] = None, extra_args: Optional[List[str]] = None) -> None:
+    def _create_reports(
+        self,
+        aspect: str = "default_aspect",
+        startup_args: Optional[List[str]] = None,
+        extra_args: Optional[List[str]] = None,
+    ) -> None:
         """
         Create report files as input for the applying fixes script
         """
         cmd = ["bazel"]
         if startup_args:
             cmd.extend(startup_args)
-        cmd.extend(["build", "--aspects=//:aspect.bzl%dwyu_default_aspect", "--output_groups=cc_dwyu_output"])
+        cmd.extend(["build", f"--aspects=//:aspect.bzl%{aspect}", "--output_groups=cc_dwyu_output"])
         if extra_args:
             cmd.extend(extra_args)
         cmd.append(self.test_target)
@@ -77,12 +82,13 @@ class TestCaseBase(ABC):
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             subprocess.run(cmd, cwd=self._workspace, **kwargs)
         else:
-            subprocess.run(cmd, cwd=self._workspace, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(cmd, cwd=self._workspace, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
 
     def _run_and_capture_cmd(self, cmd: List[str], **kwargs) -> subprocess.CompletedProcess:
         logging.debug(f"Executing command: {cmd}")
         process = subprocess.run(
-            cmd, cwd=self._workspace, **kwargs, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            cmd, cwd=self._workspace, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs
         )
         logging.debug(process.stdout)
+        logging.debug(process.stderr)
         return process
