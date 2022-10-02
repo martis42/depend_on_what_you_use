@@ -6,7 +6,7 @@
 - [Features](#features)
   - [Custom header ignore list](#custom-header-ignore-list)
   - [Recursion](#recursion)
-  - [Ensure a proper split between public and private dependencies](#ensure-a-proper-split-between-public-and-private-dependencies)
+  - [Implementation_deps](#implementation_deps)
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
@@ -133,25 +133,15 @@ Also it can be a convenience to analyze specific fraction of your stack without 
 
 Examples for this can be seen at the [recursion test cases](test/aspect/recursion).
 
-## Ensure a proper split between public and private dependencies
+## Implementation_deps
 
-Starting with version 5.0.0 Bazel offers experimental features to distinguish between public (aka interface) and
-private (aka implementation) dependencies for `cc_library`.
-The private dependencies are not made available to users of the library to trim down dependency trees.
+Starting with version 5.0.0 Bazel offers experimental feature [`implementation_deps`](https://docs.bazel.build/versions/5.0.0/be/c-cpp.html#cc_library.implementation_deps)
+to distinguish between public (aka interface) and private (aka implementation) dependencies for `cc_library`.
+Headers from the private dependencies are not made available to users of the library to trim down dependency trees.
 
 DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in
-private files, but not put into the private dependency attribute.
-
-### Implementation_deps
-
-:warning: **`implementation_deps` is being removed again with Bazel 6.0.0**.
-See [Interface_deps](#Interface_deps) for the forward path, which is however as well only in experimental stage.
-
-Bazel 5.0.0 introduces the experimental feature [`implementation_deps`](https://docs.bazel.build/versions/5.0.0/be/c-cpp.html#cc_library.implementation_deps
-for `cc_library`. In short, this enables you to specify dependencies which are only relevant for your `srcs` files and
-are not made available to users of the library.
-
-DWYU can report dependencies which are only used in private sources and should be moved from `deps` to `implementation_deps`.
+private files, but not put into the private dependency attribute. Meaning, it can find dependencies which should be
+move from `deps` to `implementation_deps`.
 
 Activate this behavior via:
 ```
@@ -159,26 +149,6 @@ your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
 Examples for this can be seen at the [implementation_deps test cases](test/aspect/implementation_deps).
-
-### Interface_deps
-
-Bazel 6.0.0 introduces the experimental feature [`interface_deps`](https://github.com/bazelbuild/bazel/commit/56409448dfd7507f551f65283b4214020754c25c)
-for `cc_library`. In short, this enables you to specify dependencies which are only relevant for your `srcs` files and
-whose headers are not made available to users of the library.
-Activate this experimental feature with flag `--experimental_cc_interface_deps`.
-
-A word of warning, this feature is a breaking change. Enabling it changes the semantic of the `deps` attribute.
-Headers provided by dependencies listed in `deps` are no longer available to users of the library.
-The new attribute `interface_deps` has to be used for dependencies, whose headers are available to users of the library.
-
-DWYU can report `interface_deps` which are used only in private sources and should be moved from `interface_deps` to `deps`.
-
-Activate this behavior via:
-```
-your_aspect = dwyu_aspect_factory(use_interface_deps = True)
-```
-
-Examples for this can be seen at the [interface_deps test cases](test/aspect/interface_deps/).
 
 ## Known limitations
 

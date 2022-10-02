@@ -201,26 +201,6 @@ TESTS = [
         cmd=TestCmd(target="//test/aspect/alias:use_a_directly", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
-    TestCase(
-        name="valid_interface_dep",
-        compatible_versions=CompatibleVersions(min="6.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/interface_deps:valid_deps",
-            aspect="//test/aspect/interface_deps:aspect.bzl%interface_deps_aspect",
-            extra_args=["--experimental_cc_interface_deps"],
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="invalid_interface_dep",
-        compatible_versions=CompatibleVersions(min="6.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/interface_deps:invalid_deps",
-            aspect="//test/aspect/interface_deps:aspect.bzl%interface_deps_aspect",
-            extra_args=["--experimental_cc_interface_deps"],
-        ),
-        expected=ExpectedResult(success=False, deps_which_should_be_private=["//test/aspect/interface_deps:b"]),
-    ),
 ]
 
 if __name__ == "__main__":
