@@ -135,13 +135,8 @@ def dwyu_aspect_impl(target, ctx):
     if not CcInfo in target:
         return []
 
-    ensure_private_deps = (ctx.attr._use_implementation_deps or ctx.attr._use_interface_deps)
-    if ctx.attr._use_interface_deps:
-        public_deps = ctx.rule.attr.interface_deps if hasattr(ctx.rule.attr, "interface_deps") else []
-        private_deps = ctx.rule.attr.deps
-    else:
-        public_deps = ctx.rule.attr.deps
-        private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
+    public_deps = ctx.rule.attr.deps
+    private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
 
     public_files, private_files = _parse_sources(ctx.rule.attr)
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(_label_to_name(target.label)))
@@ -156,7 +151,7 @@ def dwyu_aspect_impl(target, ctx):
         private_files = private_files,
         report_file = report_file,
         headers_info_file = headers_info_file,
-        ensure_private_deps = ensure_private_deps,
+        ensure_private_deps = ctx.attr._use_implementation_deps,
     )
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
