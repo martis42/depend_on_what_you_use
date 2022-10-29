@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import logging
 from argparse import ArgumentParser
 from sys import exit
 
 from src.test_execution import main
+
+logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def cli():
@@ -13,7 +16,7 @@ def cli():
         "--test",
         "-t",
         nargs="+",
-        help="Run the specified test cases. Can provide substrings which will match against all strings including them.",
+        help="Run the specified test cases. Substrings will match against all test names including them.",
     )
     args = parser.parse_args()
     return args
@@ -21,4 +24,6 @@ def cli():
 
 if __name__ == "__main__":
     args = cli()
-    exit(main(requested_tests=args.test, list_tests=args.list, verbose=args.verbose))
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    exit(main(requested_tests=args.test, list_tests=args.list))

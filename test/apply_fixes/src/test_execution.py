@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from distutils.dir_util import copy_tree
 from importlib.machinery import SourceFileLoader
@@ -55,32 +56,27 @@ def cleanup(test_workspace: Path) -> None:
     rmtree(output_base)
 
 
-def execute_test(test: TestCaseBase, origin_workspace: Path, verbose: bool) -> bool:
-    print(f">>> Executing '{test.name}'")
+def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
+    logging.info(f">>> Executing '{test.name}'")
     succeeded = False
     result = None
 
     with TemporaryDirectory() as test_workspace:
         try:
             setup_test_workspace(origin_workspace=origin_workspace, test_workspace=Path(test_workspace))
-            result = test.execute_test(workspace=Path(test_workspace), verbose=verbose)
-        except Exception as ex:
-            import traceback
-
-            print("Test failed due to exception:")
-            # TODO if we would use logging, investigate 'log.exception'
-            print("".join(traceback.format_exception(None, ex, ex.__traceback__)))
+            result = test.execute_test(Path(test_workspace))
+        except Exception:
+            logging.exception("Test failed due to exception:")
 
         cleanup(test_workspace)
 
     if result is not None:
         if not result.is_success():
-            print(result.error)
+            logging.info(result.error)
         else:
             succeeded = True
 
-    status = "OK" if succeeded else "FAILURE"
-    print(f"<<< {status}\n")
+    logging.info(f'<<< {"OK" if succeeded else "FAILURE"}\n')
 
     return succeeded
 
@@ -96,15 +92,15 @@ def file_to_test_name(test_file: Path) -> str:
     return test_file.stem.replace("test_", "", 1)
 
 
-def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False, verbose: bool = False) -> int:
+def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) -> int:
     current_workspace = get_current_workspace()
     tests_search_dir = current_workspace / TEST_CASES_DIR
     test_files = [Path(x) for x in tests_search_dir.glob("test_*.py")]
 
     if list_tests:
         test_names = [file_to_test_name(test) for test in test_files]
-        print("Available test cases:")
-        print("\n".join(f"- {t}" for t in sorted(test_names)))
+        logging.info("Available test cases:")
+        logging.info("\n".join(f"- {t}" for t in sorted(test_names)))
         return 0
 
     tests = []
@@ -116,15 +112,14 @@ def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False, 
 
     failed_tests = []
     for test in tests:
-        succeeded = execute_test(test=test, origin_workspace=current_workspace, verbose=verbose)
+        succeeded = execute_test(test=test, origin_workspace=current_workspace)
         if not succeeded:
             failed_tests.append(test.name)
 
-    status = "FAILED" if failed_tests else "SUCCEEDED"
-    print(f"Running tests {status}")
+    logging.info(f'Running tests {"FAILED" if failed_tests else "SUCCEEDED"}')
     if failed_tests:
-        print("\nFailed tests:")
-        print("\n".join(f"- '{test}'" for test in failed_tests))
+        logging.info("\nFailed tests:")
+        logging.info("\n".join(f"- '{test}'" for test in failed_tests))
         return 1
 
     return 0
