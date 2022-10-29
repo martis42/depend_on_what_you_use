@@ -12,10 +12,10 @@ from execute_tests_impl import (
 
 BAZEL_VERSIONS = [
     "4.0.0",
-    "4.2.2",
+    "4.2.3",
     "5.0.0",
-    "5.3.1",
-    "6.0.0-pre.20220922.1",
+    "5.3.2",
+    "6.0.0rc1",
 ]
 
 VERSION_SPECIFIC_ARGS = {
