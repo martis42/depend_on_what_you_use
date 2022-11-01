@@ -66,6 +66,8 @@ class TestCaseBase(ABC):
         Execute the applying fixes script for the Bazel target associated with the test case
         """
         cmd = ["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={self._workspace}"]
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            cmd.append("--verbose")
         if extra_args:
             cmd.extend(extra_args)
         self._run_cmd(cmd=cmd, check=True)
