@@ -1,10 +1,13 @@
 import json
+import logging
 import subprocess
 import sys
 from argparse import ArgumentParser
 from os import environ
 from pathlib import Path
 from typing import Any, List
+
+logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 # Bazel sets this environment for 'bazel run' to document the workspace root
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
@@ -160,14 +163,13 @@ def make_base_cmd(buildozer: str, dry: bool) -> List[str]:
     return cmd
 
 
-def execute_cmd(cmd: List[str], workspace: Path, summary: Summary, dry: bool, verbose: bool) -> None:
-    if dry or verbose:
-        print(f"Executing buildozer command: {cmd}")
+def execute_cmd(cmd: List[str], workspace: Path, summary: Summary, dry: bool) -> None:
+    logging.log(logging.INFO if dry else logging.DEBUG, f"Executing buildozer command: {cmd}")
     process = subprocess.run(cmd, cwd=workspace, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary.add_command(cmd=cmd, buildozer_result=process.returncode)
 
 
-def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = False, verbose: bool = False) -> Summary:
+def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = False) -> Summary:
     summary = Summary()
 
     with open(report, encoding="utf-8") as report_in:
@@ -179,11 +181,11 @@ def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = Fal
         if unused_public_deps:
             deps_str = " ".join(unused_public_deps)
             cmd = base_cmd + [f"remove deps {deps_str}", target]
-            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry, verbose=verbose)
+            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry)
         if unused_private_deps:
             deps_str = " ".join(unused_private_deps)
             cmd = base_cmd + [f"remove implementation_deps {deps_str}", target]
-            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry, verbose=verbose)
+            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry)
 
     return summary
 
@@ -204,15 +206,16 @@ def main(args: Any) -> int:
 
     The script expects "bazel" to be available on PATH.
     """
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
     workspace = get_workspace(args)
-    if args.verbose:
-        print(f"Workspace: '{workspace}'")
+    logging.debug(f"Workspace: '{workspace}'")
 
     bin_dir = get_bazel_bin_dir(main_args=args, workspace_root=workspace)
-    if args.verbose:
-        print(f"Bazel-bin directory: '{bin_dir}'")
+    logging.debug(f"Bazel-bin directory: '{bin_dir}'")
 
     reports = gather_reports(bin_dir)
     if not reports:
@@ -226,11 +229,8 @@ def main(args: Any) -> int:
 
     overall_summary = Summary()
     for report in reports:
-        if args.verbose:
-            print(f"Processing report file '{report}'")
-        summary = perform_fixes(
-            workspace=workspace, report=report, buildozer=buildozer, dry=args.dry_run, verbose=args.verbose
-        )
+        logging.debug(f"Processing report file '{report}'")
+        summary = perform_fixes(workspace=workspace, report=report, buildozer=buildozer, dry=args.dry_run)
         overall_summary.extend(summary)
 
     overall_summary.print_summary()
