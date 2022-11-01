@@ -177,15 +177,21 @@ def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = Fal
         target = content["analyzed_target"]
         unused_public_deps = content["unused_public_dependencies"]
         unused_private_deps = content["unused_private_dependencies"]
+        deps_which_should_be_private = content["deps_which_should_be_private"]
+
         base_cmd = make_base_cmd(buildozer=buildozer, dry=dry)
         if unused_public_deps:
             deps_str = " ".join(unused_public_deps)
-            cmd = base_cmd + [f"remove deps {deps_str}", target]
-            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry)
+            remove_deps = base_cmd + [f"remove deps {deps_str}", target]
+            execute_cmd(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
         if unused_private_deps:
             deps_str = " ".join(unused_private_deps)
-            cmd = base_cmd + [f"remove implementation_deps {deps_str}", target]
-            execute_cmd(cmd=cmd, workspace=workspace, summary=summary, dry=dry)
+            remove_deps = base_cmd + [f"remove implementation_deps {deps_str}", target]
+            execute_cmd(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
+        if deps_which_should_be_private:
+            deps_str = " ".join(deps_which_should_be_private)
+            move_deps = base_cmd + [f"move deps implementation_deps {deps_str}", target]
+            execute_cmd(cmd=move_deps, workspace=workspace, summary=summary, dry=dry)
 
     return summary
 

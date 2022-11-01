@@ -25,3 +25,13 @@ cc_library(
         ":lib_b",  # unused
     ],
 )
+
+cc_library(
+    name = "public_dependency_with_private_use",
+    srcs = ["using_lib_a.cpp"],
+    hdrs = ["using_lib_b.h"],
+    deps = [
+        ":lib_a",
+        ":lib_b",
+    ],
+)
