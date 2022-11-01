@@ -15,8 +15,8 @@ class TestCase(TestCaseBase):
         target_public_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
         target_private_deps = self._get_target_attribute(target=self.test_target, attribute="implementation_deps")
 
-        if target_public_deps == {"//:lib_b"}:
-            if target_private_deps == {"//:lib_a"}:
+        if target_public_deps == {"//:lib_c"}:
+            if target_private_deps == {"//:lib_a", "//:lib_b"}:
                 return Success()
             else:
                 return Error(

@@ -9,11 +9,17 @@ cc_library(
 )
 
 cc_library(
+    name = "lib_c",
+    hdrs = ["lib_c.h"],
+)
+
+cc_library(
     name = "unused_public_dep",
     srcs = ["using_lib_a.cpp"],
     deps = [
         ":lib_a",
         ":lib_b",  # unused
+        ":lib_c",  # unused
     ],
 )
 
@@ -23,15 +29,20 @@ cc_library(
     implementation_deps = [
         ":lib_a",
         ":lib_b",  # unused
+        ":lib_c",  # unused
     ],
 )
 
 cc_library(
     name = "public_dependency_with_private_use",
-    srcs = ["using_lib_a.cpp"],
-    hdrs = ["using_lib_b.h"],
+    srcs = [
+        "using_lib_a.cpp",
+        "using_lib_b.cpp",
+    ],
+    hdrs = ["using_lib_c.h"],
     deps = [
-        ":lib_a",
-        ":lib_b",
+        ":lib_a",  # only used privately
+        ":lib_b",  # only used privately
+        ":lib_c",
     ],
 )
