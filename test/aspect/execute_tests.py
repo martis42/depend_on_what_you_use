@@ -92,7 +92,7 @@ TESTS = [
     ),
     TestCase(
         name="proper implementation_deps",
-        compatible_versions=CompatibleVersions(min="5.0.0", max="5.9.9"),
+        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:proper_private_deps",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -102,7 +102,7 @@ TESTS = [
     ),
     TestCase(
         name="superfluous_public_dep",
-        compatible_versions=CompatibleVersions(min="5.0.0", max="5.9.9"),
+        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:superfluous_public_dep",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
