@@ -2,7 +2,7 @@ import json
 import logging
 import subprocess
 import sys
-from argparse import ArgumentParser
+from argparse import REMAINDER, ArgumentParser
 from os import environ
 from pathlib import Path
 from typing import Any, List
@@ -58,8 +58,12 @@ def cli():
         action="store_true",
         help="Don't apply fixes. Report the buildozer commands and print the adapted BUILD files to stdout.",
     )
-    # TODO extra buildozer args to control flags like '-delete_with_comments' or '-shorten_labels'
     parser.add_argument("--verbose", action="store_true", help="Announce intermediate steps.")
+    parser.add_argument(
+        "--buildozer-args",
+        nargs=REMAINDER,
+        help="Forward arguments to buildozer. Has to be the last option in the command line.",
+    )
 
     return parser.parse_args()
 
@@ -156,8 +160,10 @@ def gather_reports(bazel_bin: Path) -> List[Path]:
     return list(bazel_bin.glob("**/*_dwyu_report.json"))
 
 
-def make_base_cmd(buildozer: str, dry: bool) -> List[str]:
+def make_base_cmd(buildozer: str, dry: bool, buildozer_args: List[str]) -> List[str]:
     cmd = [buildozer]
+    if buildozer_args:
+        cmd.extend(buildozer_args)
     if dry:
         cmd.append("-stdout")
     return cmd
@@ -169,7 +175,7 @@ def execute_cmd(cmd: List[str], workspace: Path, summary: Summary, dry: bool) ->
     summary.add_command(cmd=cmd, buildozer_result=process.returncode)
 
 
-def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = False) -> Summary:
+def perform_fixes(workspace: Path, report: Path, buildozer: str, buildozer_args: List[str], dry: bool) -> Summary:
     summary = Summary()
 
     with open(report, encoding="utf-8") as report_in:
@@ -179,7 +185,7 @@ def perform_fixes(workspace: Path, report: Path, buildozer: str, dry: bool = Fal
         unused_private_deps = content["unused_private_dependencies"]
         deps_which_should_be_private = content["deps_which_should_be_private"]
 
-        base_cmd = make_base_cmd(buildozer=buildozer, dry=dry)
+        base_cmd = make_base_cmd(buildozer=buildozer, buildozer_args=buildozer_args, dry=dry)
         if unused_public_deps:
             deps_str = " ".join(unused_public_deps)
             remove_deps = base_cmd + [f"remove deps {deps_str}", target]
@@ -236,7 +242,13 @@ def main(args: Any) -> int:
     overall_summary = Summary()
     for report in reports:
         logging.debug(f"Processing report file '{report}'")
-        summary = perform_fixes(workspace=workspace, report=report, buildozer=buildozer, dry=args.dry_run)
+        summary = perform_fixes(
+            workspace=workspace,
+            report=report,
+            buildozer=buildozer,
+            buildozer_args=args.buildozer_args,
+            dry=args.dry_run,
+        )
         overall_summary.extend(summary)
 
     overall_summary.print_summary()
