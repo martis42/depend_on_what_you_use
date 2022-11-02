@@ -75,7 +75,7 @@ your_dywu_aspect = dwyu_aspect_factory()
 ### Use the aspect
 
 Invoke the aspect through the command line on a target:<br/>
-`bazel build <target_pattern> --aspects=//:aspect.bzl%your_dywu_aspect --output_groups=cc_dwyu_output`
+`bazel build <target_pattern> --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=cc_dwyu_output`
 
 If no problem is found, the command will exit with `INFO: Build completed successfully`.<br/>
 If a problem is detected, the build command will fail with an error and a description of the problem will be printed in
