@@ -31,7 +31,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {},
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [],
   "unused_private_dependencies": [],
   "deps_which_should_be_private": []
@@ -39,10 +40,10 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_invalid_includes(self):
+    def test_is_ok_fails_due_to_invalid_private_includes(self):
         unit = Result(
             target="//foo:bar",
-            invalid_includes=[
+            private_includes_without_dep=[
                 Include(file=Path("foo"), include="missing_1"),
                 Include(file=Path("bar"), include="missing_2"),
                 Include(file=Path("bar"), include="missing_3"),
@@ -65,7 +66,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {
     "foo": [
       "missing_1"
     ],
@@ -74,6 +76,49 @@ class TestResult(unittest.TestCase):
       "missing_3"
     ]
   },
+  "unused_public_dependencies": [],
+  "unused_private_dependencies": [],
+  "deps_which_should_be_private": []
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_due_to_invalid_public_includes(self):
+        unit = Result(
+            target="//foo:bar",
+            public_includes_without_dep=[
+                Include(file=Path("foo"), include="missing_1"),
+                Include(file=Path("bar"), include="missing_2"),
+                Include(file=Path("bar"), include="missing_3"),
+            ],
+        )
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Includes which are not available from the direct dependencies:\n"
+                "  File='foo', include='missing_1'\n"
+                "  File='bar', include='missing_2'\n"
+                "  File='bar', include='missing_3'",
+            ),
+        )
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "public_includes_without_dep": {
+    "foo": [
+      "missing_1"
+    ],
+    "bar": [
+      "missing_2",
+      "missing_3"
+    ]
+  },
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [],
   "unused_private_dependencies": [],
   "deps_which_should_be_private": []
@@ -99,7 +144,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {},
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [
     "foo",
     "baz"
@@ -128,7 +174,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {},
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [],
   "unused_private_dependencies": [
     "foo",
@@ -158,7 +205,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {},
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [
     "foo"
   ],
@@ -188,7 +236,8 @@ class TestResult(unittest.TestCase):
             """
 {
   "analyzed_target": "//foo:bar",
-  "invalid_includes": {},
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
   "unused_public_dependencies": [],
   "unused_private_dependencies": [],
   "deps_which_should_be_private": [
@@ -265,10 +314,16 @@ class TestEvaluateIncludes(unittest.TestCase):
     def test_invalid_includes_missing_internal_include(self):
         result = evaluate_includes(
             target="foo",
-            public_includes=[Include(file=Path("nested/dir/foo.h"), include="bar.h")],
-            private_includes=[],
+            public_includes=[Include(file=Path("some/dir/foo.h"), include="tick.h")],
+            private_includes=[Include(file=Path("some/dir/bar.h"), include="tock.h")],
+            # Make sure files with the required name which are at the wrong location are ignored
             dependencies=AvailableDependencies(
-                own_hdrs=[AvailableInclude("nested/dir/foo.h"), AvailableInclude("some/other/dir/bar.h")],
+                own_hdrs=[
+                    AvailableInclude("some/dir/foo.h"),
+                    AvailableInclude("some/dir/bar.h"),
+                    AvailableInclude("unrelated/dir/tick.h"),
+                    AvailableInclude("unrelated/dir/tock.h"),
+                ],
                 public=[],
                 private=[],
             ),
@@ -279,7 +334,8 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertEqual(result.unused_public_deps, [])
         self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(result.invalid_includes, [Include(file=Path("nested/dir/foo.h"), include="bar.h")])
+        self.assertEqual(result.public_includes_without_dep, [Include(file=Path("some/dir/foo.h"), include="tick.h")])
+        self.assertEqual(result.private_includes_without_dep, [Include(file=Path("some/dir/bar.h"), include="tock.h")])
 
     def test_missing_includes_from_dependencies(self):
         result = evaluate_includes(
@@ -306,11 +362,12 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertEqual(result.unused_public_deps, [])
         self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
-        self.assertEqual(len(result.invalid_includes), 4)
-        self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.invalid_includes)
-        self.assertTrue(Include(file=Path("public_file"), include="foo/bar.h") in result.invalid_includes)
-        self.assertTrue(Include(file=Path("private_file"), include="bar/foo.h") in result.invalid_includes)
-        self.assertTrue(Include(file=Path("private_file"), include="bar/bar.h") in result.invalid_includes)
+        self.assertEqual(len(result.public_includes_without_dep), 2)
+        self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.public_includes_without_dep)
+        self.assertTrue(Include(file=Path("public_file"), include="foo/bar.h") in result.public_includes_without_dep)
+        self.assertEqual(len(result.private_includes_without_dep), 2)
+        self.assertTrue(Include(file=Path("private_file"), include="bar/foo.h") in result.private_includes_without_dep)
+        self.assertTrue(Include(file=Path("private_file"), include="bar/bar.h") in result.private_includes_without_dep)
 
     def test_unused_dependencies(self):
         result = evaluate_includes(
@@ -334,7 +391,8 @@ class TestEvaluateIncludes(unittest.TestCase):
         )
 
         self.assertFalse(result.is_ok())
-        self.assertEqual(result.invalid_includes, [])
+        self.assertEqual(result.public_includes_without_dep, [])
+        self.assertEqual(result.private_includes_without_dep, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(len(result.unused_public_deps), 2)
         self.assertEqual(len(result.unused_private_deps), 2)
@@ -364,7 +422,8 @@ class TestEvaluateIncludes(unittest.TestCase):
         )
 
         self.assertFalse(result.is_ok())
-        self.assertEqual(result.invalid_includes, [])
+        self.assertEqual(result.public_includes_without_dep, [])
+        self.assertEqual(result.private_includes_without_dep, [])
         self.assertEqual(result.unused_public_deps, [])
         self.assertEqual(result.unused_private_deps, [])
         self.assertEqual(len(result.deps_which_should_be_private), 2)

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from json import dumps
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from src.analyze_includes.get_dependencies import (
     AvailableDependencies,
@@ -16,20 +16,23 @@ class Result:
     def __init__(
         self,
         target: str,
-        invalid_includes: Optional[List[Include]] = None,
+        public_includes_without_dep: Optional[List[Include]] = None,
+        private_includes_without_dep: Optional[List[Include]] = None,
         unused_public_deps: Optional[List[str]] = None,
         unused_private_deps: Optional[List[str]] = None,
         deps_which_should_be_private: Optional[List[str]] = None,
     ) -> None:
         self.target = target
-        self.invalid_includes = invalid_includes if invalid_includes else []
+        self.public_includes_without_dep = public_includes_without_dep if public_includes_without_dep else []
+        self.private_includes_without_dep = private_includes_without_dep if private_includes_without_dep else []
         self.unused_public_deps = unused_public_deps if unused_public_deps else []
         self.unused_private_deps = unused_private_deps if unused_private_deps else []
         self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
 
     def is_ok(self) -> bool:
         return (
-            len(self.invalid_includes) == 0
+            len(self.public_includes_without_dep) == 0
+            and len(self.private_includes_without_dep) == 0
             and len(self.unused_public_deps) == 0
             and len(self.unused_private_deps) == 0
             and len(self.deps_which_should_be_private) == 0
@@ -42,9 +45,9 @@ class Result:
             return self._framed_msg(msg)
 
         msg += "Result: FAILURE\n"
-        if self.invalid_includes:
+        if self.public_includes_without_dep or self.private_includes_without_dep:
             msg += "\nIncludes which are not available from the direct dependencies:\n"
-            msg += "\n".join(f"  {inc}" for inc in self.invalid_includes)
+            msg += "\n".join(f"  {inc}" for inc in self.public_includes_without_dep + self.private_includes_without_dep)
         if self.unused_public_deps:
             msg += "\nUnused dependencies in 'deps' (none of their headers are referenced):\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_public_deps)
@@ -57,17 +60,22 @@ class Result:
         return self._framed_msg(msg)
 
     def to_json(self) -> str:
-        invalid_includes_mapping = defaultdict(list)
-        for x in self.invalid_includes:
-            invalid_includes_mapping[str(x.file)].append(x.include)
         content = {
             "analyzed_target": self.target,
-            "invalid_includes": invalid_includes_mapping,
+            "public_includes_without_dep": self._make_includes_map(self.public_includes_without_dep),
+            "private_includes_without_dep": self._make_includes_map(self.private_includes_without_dep),
             "unused_public_dependencies": self.unused_public_deps,
             "unused_private_dependencies": self.unused_private_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
         }
         return dumps(content, indent=2) + "\n"
+
+    @staticmethod
+    def _make_includes_map(includes: List[Include]) -> Dict[str, str]:
+        includes_mapping = defaultdict(list)
+        for inc in includes:
+            includes_mapping[str(inc.file)].append(inc.include)
+        return includes_mapping
 
     @staticmethod
     def _framed_msg(msg: str) -> str:
@@ -76,7 +84,7 @@ class Result:
         return border + "\n" + msg + "\n" + border
 
 
-def _check_for_invalid_includes_impl(
+def _check_for_invalid_includes(
     includes: List[Include],
     own_headers: List[AvailableInclude],
     dependencies: List[AvailableDependency],
@@ -107,28 +115,6 @@ def _check_for_invalid_includes_impl(
                     pass
         if not legal:
             invalid_includes.append(inc)
-    return invalid_includes
-
-
-def _check_for_invalid_includes(
-    public_includes: List[Include], private_includes: List[Include], dependencies: AvailableDependencies
-) -> List[Include]:
-    """Iterate through all include statements and determine if they correspond to an available dependency"""
-
-    invalid_includes = _check_for_invalid_includes_impl(
-        includes=public_includes,
-        own_headers=dependencies.own_hdrs,
-        dependencies=dependencies.public,
-        usage=IncludeUsage.PUBLIC,
-    )
-    invalid_includes.extend(
-        _check_for_invalid_includes_impl(
-            includes=private_includes,
-            own_headers=dependencies.own_hdrs,
-            dependencies=dependencies.public + dependencies.private,
-            usage=IncludeUsage.PRIVATE,
-        )
-    )
     return invalid_includes
 
 
@@ -169,8 +155,17 @@ def evaluate_includes(
     result = Result(target)
     dependencies = _filter_empty_dependencies(dependencies)
 
-    result.invalid_includes = _check_for_invalid_includes(
-        public_includes=public_includes, private_includes=private_includes, dependencies=dependencies
+    result.public_includes_without_dep = _check_for_invalid_includes(
+        includes=public_includes,
+        own_headers=dependencies.own_hdrs,
+        dependencies=dependencies.public,
+        usage=IncludeUsage.PUBLIC,
+    )
+    result.private_includes_without_dep = _check_for_invalid_includes(
+        includes=private_includes,
+        own_headers=dependencies.own_hdrs,
+        dependencies=dependencies.public + dependencies.private,
+        usage=IncludeUsage.PRIVATE,
     )
 
     result.unused_public_deps = _check_for_unused_dependencies(dependencies.public)
