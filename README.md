@@ -69,7 +69,7 @@ load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
 # Provide no arguments for the default behavior
 # Or set a custom value for the various attributes
-your_dywu_aspect = dwyu_aspect_factory()
+your_dwyu_aspect = dwyu_aspect_factory()
 ```
 
 ### Use the aspect
