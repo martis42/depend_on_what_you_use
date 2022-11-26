@@ -64,8 +64,8 @@ class Result:
             "analyzed_target": self.target,
             "public_includes_without_dep": self._make_includes_map(self.public_includes_without_dep),
             "private_includes_without_dep": self._make_includes_map(self.private_includes_without_dep),
-            "unused_public_dependencies": self.unused_public_deps,
-            "unused_private_dependencies": self.unused_private_deps,
+            "unused_public_deps": self.unused_public_deps,
+            "unused_private_deps": self.unused_private_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
         }
         return dumps(content, indent=2) + "\n"

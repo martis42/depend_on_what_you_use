@@ -33,8 +33,8 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [],
-  "unused_private_dependencies": [],
+  "unused_public_deps": [],
+  "unused_private_deps": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
@@ -76,8 +76,8 @@ class TestResult(unittest.TestCase):
       "missing_3"
     ]
   },
-  "unused_public_dependencies": [],
-  "unused_private_dependencies": [],
+  "unused_public_deps": [],
+  "unused_private_deps": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
@@ -119,8 +119,8 @@ class TestResult(unittest.TestCase):
     ]
   },
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [],
-  "unused_private_dependencies": [],
+  "unused_public_deps": [],
+  "unused_private_deps": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
@@ -146,11 +146,11 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [
+  "unused_public_deps": [
     "foo",
     "baz"
   ],
-  "unused_private_dependencies": [],
+  "unused_private_deps": [],
   "deps_which_should_be_private": []
 }
 """.lstrip(),
@@ -176,8 +176,8 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [],
-  "unused_private_dependencies": [
+  "unused_public_deps": [],
+  "unused_private_deps": [
     "foo",
     "baz"
   ],
@@ -207,10 +207,10 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [
+  "unused_public_deps": [
     "foo"
   ],
-  "unused_private_dependencies": [
+  "unused_private_deps": [
     "baz"
   ],
   "deps_which_should_be_private": []
@@ -238,8 +238,8 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
-  "unused_public_dependencies": [],
-  "unused_private_dependencies": [],
+  "unused_public_deps": [],
+  "unused_private_deps": [],
   "deps_which_should_be_private": [
     "foo",
     "baz"
