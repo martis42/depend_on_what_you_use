@@ -181,8 +181,8 @@ def perform_fixes(workspace: Path, report: Path, buildozer: str, buildozer_args:
     with open(report, encoding="utf-8") as report_in:
         content = json.load(report_in)
         target = content["analyzed_target"]
-        unused_public_deps = content["unused_public_dependencies"]
-        unused_private_deps = content["unused_private_dependencies"]
+        unused_public_deps = content["unused_public_deps"]
+        unused_private_deps = content["unused_private_deps"]
         deps_which_should_be_private = content["deps_which_should_be_private"]
 
         base_cmd = make_base_cmd(buildozer=buildozer, buildozer_args=buildozer_args, dry=dry)
