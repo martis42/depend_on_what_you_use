@@ -29,14 +29,6 @@ DEFAULT_ASPECT = "//test/aspect:aspect.bzl%dwyu_default_aspect"
 
 TESTS = [
     TestCase(
-        name="custom_config_full",
-        cmd=TestCmd(
-            target="//test/aspect/custom_config:use_multiple_arcane_headers",
-            aspect="//test/aspect/custom_config:aspect.bzl%full_custom_config_aspect",
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
         name="custom_config_extra_ignore_include_paths",
         cmd=TestCmd(
             target="//test/aspect/custom_config:use_arcane_header_and_vector",
@@ -45,9 +37,9 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
-        name="custom_config_ignore_include_paths",
+        name="custom_config_custom_ignore_include_paths",
         cmd=TestCmd(
-            target="//test/aspect/custom_config:use_arcane_header",
+            target="//test/aspect/custom_config:use_multiple_arcane_headers",
             aspect="//test/aspect/custom_config:aspect.bzl%ignore_include_paths_aspect",
         ),
         expected=ExpectedResult(success=True),
