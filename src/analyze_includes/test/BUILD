@@ -20,8 +20,10 @@ py_test(
     name = "parse_config_test",
     srcs = ["parse_config_test.py"],
     data = [
-        "data/config.json",
-        "data/config_empty.json",
+        "data/config/empty.json",
+        "data/config/extra_ignore_paths.json",
+        "data/config/ignore_patterns.json",
+        "data/config/overwrite_default_ignore_paths.json",
     ],
     deps = ["//src/analyze_includes:lib"],
 )

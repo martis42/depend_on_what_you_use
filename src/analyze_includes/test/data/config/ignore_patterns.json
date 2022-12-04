@@ -1,0 +1,6 @@
+{
+    "ignore_include_patterns": [
+        "foo",
+        "bar"
+    ]
+}

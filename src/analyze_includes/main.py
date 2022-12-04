@@ -1,16 +1,11 @@
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Any
 
 from src.analyze_includes.evaluate_includes import evaluate_includes
 from src.analyze_includes.get_dependencies import get_available_dependencies
-from src.analyze_includes.parse_config import load_config
-from src.analyze_includes.parse_source import (
-    IgnoredIncludes,
-    get_relevant_includes_from_files,
-)
-from src.analyze_includes.std_header import STD_HEADER
+from src.analyze_includes.parse_config import get_ignored_includes
+from src.analyze_includes.parse_source import get_relevant_includes_from_files
 
 
 def cli():
@@ -25,10 +20,11 @@ def cli():
     parser.add_argument(
         "--headers-info", metavar="PATH", help="Json file containing information about all relevant header files."
     )
-    parser.add_argument("--report", metavar="FILE", help="Report result into this file.")
+    parser.add_argument("--report", metavar="FILE", type=Path, help="Report result into this file.")
     parser.add_argument(
         "--ignored-includes-config",
         metavar="FILE",
+        type=Path,
         help="Config file in Json format specifying which include paths and patterns shall be ignored by the analysis.",
     )
     parser.add_argument(
@@ -47,23 +43,8 @@ def cli():
     return args
 
 
-def _get_ignored_includes(args: Any) -> IgnoredIncludes:
-    ignored_paths = STD_HEADER
-    ignored_patterns = []
-    if args.ignored_includes_config:
-        config_paths, config_extra_paths, config_patterns = load_config(Path(args.ignored_includes_config))
-        if config_paths:
-            ignored_paths = set(config_paths)
-        if config_extra_paths:
-            ignored_paths = ignored_paths.union(set(config_extra_paths))
-        if config_patterns:
-            ignored_patterns = config_patterns
-
-    return IgnoredIncludes(paths=list(ignored_paths), patterns=ignored_patterns)
-
-
-def main(args: Any) -> int:
-    ignored_includes = _get_ignored_includes(args)
+def main(args: Namespace) -> int:
+    ignored_includes = get_ignored_includes(args.ignored_includes_config)
 
     all_includes_from_public = get_relevant_includes_from_files(
         files=args.public_files, ignored_includes=ignored_includes
@@ -82,9 +63,8 @@ def main(args: Any) -> int:
         ensure_private_deps=args.implementation_deps_available,
     )
 
-    out = Path(args.report)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with open(out, mode="w", encoding="utf-8") as report:
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    with open(args.report, mode="w", encoding="utf-8") as report:
         report.write(result.to_json())
 
     if not result.is_ok():
