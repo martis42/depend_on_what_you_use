@@ -1,4 +1,5 @@
 {
     "ignore_include_paths": [],
-    "extra_ignore_include_paths": []
+    "extra_ignore_include_paths": [],
+    "ignore_include_patterns": []
 }

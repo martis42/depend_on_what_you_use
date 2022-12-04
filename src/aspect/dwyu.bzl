@@ -27,7 +27,7 @@ def _make_args(ctx, target, public_files, private_files, report_file, headers_in
     args.add("--report", report_file)
 
     if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
-        args.add("--config", ctx.file._config)
+        args.add("--ignored-includes-config", ctx.file._config)
 
     if ensure_private_deps:
         args.add("--implementation-deps-available")
