@@ -20,6 +20,22 @@ class Include:
         return f"File='{self.file}', include='{self.include}'"
 
 
+class IgnoredIncludes:
+    """
+    We ignore some include statements during analysis. For example header from the standard library, but also paths
+    or headers chosen by the user.
+    """
+
+    def __init__(self, paths: List[str], patterns: List[str]) -> None:
+        self.paths = paths
+        self.patterns = patterns
+
+    def is_ignored(self, include: str) -> bool:
+        is_ignored_path = include in self.paths
+        is_ignored_pattern = any(re.search(pattern, include) for pattern in self.patterns)
+        return is_ignored_path or is_ignored_pattern
+
+
 def get_includes_from_file(file: Path) -> List[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
@@ -66,20 +82,16 @@ def get_includes_from_file(file: Path) -> List[Include]:
     return includes
 
 
-def filter_includes(includes: List[Include], ignored_includes: set) -> List[Include]:
+def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) -> List[Include]:
     """
     - deduplicate list entries
     - throw away unintersting includes (e.g. from standard library or ignored includes provided by the user)
     """
     unique_includes = set(includes)
-    return [
-        include
-        for include in unique_includes
-        if not any(re.search(ignore, include.include) for ignore in ignored_includes)
-    ]
+    return [include for include in unique_includes if not ignored_includes.is_ignored(include.include)]
 
 
-def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: set) -> List[Include]:
+def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: IgnoredIncludes) -> List[Include]:
     all_includes = []
     if files:
         for file in files:

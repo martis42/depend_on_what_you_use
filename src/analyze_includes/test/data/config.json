@@ -6,5 +6,9 @@
     "extra_ignore_include_paths": [
         "wup",
         "wupwup"
+    ],
+    "ignore_include_patterns": [
+        ".*some_pattern.*",
+        "a_sub_string"
     ]
 }

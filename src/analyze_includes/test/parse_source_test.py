@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from src.analyze_includes.parse_source import (
+    IgnoredIncludes,
     Include,
     filter_includes,
     get_includes_from_file,
@@ -47,15 +48,17 @@ class TestFilterIncludes(unittest.TestCase):
             includes=[
                 Include(file=Path("file1"), include="hiho.h"),
                 Include(file=Path("file2"), include="foo"),
-                Include(file=Path("file3"), include="some/deep/path.h"),
-                Include(file=Path("file4"), include="bar/baz.h"),
+                Include(file=Path("file3"), include="foo_no_substring_match"),
+                Include(file=Path("file4"), include="some/other/baz.h"),
+                Include(file=Path("file5"), include="bar/baz.h"),
             ],
-            ignored_includes={"foo", "bar/baz.h"},
+            ignored_includes=IgnoredIncludes(paths=["foo", "bar/baz.h"], patterns=[]),
         )
 
-        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result), 3)
         self.assertTrue(Include(file=Path("file1"), include="hiho.h") in result)
-        self.assertTrue(Include(file=Path("file3"), include="some/deep/path.h") in result)
+        self.assertTrue(Include(file=Path("file3"), include="foo_no_substring_match") in result)
+        self.assertTrue(Include(file=Path("file4"), include="some/other/baz.h") in result)
 
     def test_filter_includes_for_patterns(self):
         result = filter_includes(
@@ -65,8 +68,9 @@ class TestFilterIncludes(unittest.TestCase):
                 Include(file=Path("file3"), include="foo/bar.h"),
                 Include(file=Path("file4"), include="foo/nested/bar.h"),
                 Include(file=Path("file4"), include="baz_some_partial_name.h"),
+                Include(file=Path("file5"), include="match_substring"),
             ],
-            ignored_includes={"foo/.*", ".*some_partial_name.h"},
+            ignored_includes=IgnoredIncludes(paths=[], patterns=["foo/.*", ".*some_partial_name.h", "substring"]),
         )
 
         self.assertEqual(len(result), 2)
@@ -118,7 +122,7 @@ class TestGetRelevantIncludesFromFiles(unittest.TestCase):
     def test_get_relevant_includes_from_files(self):
         result = get_relevant_includes_from_files(
             files=["src/analyze_includes/test/data/some_header.h", "src/analyze_includes/test/data/another_header.h"],
-            ignored_includes={"vector"},
+            ignored_includes=IgnoredIncludes(paths=["vector"], patterns=[]),
         )
 
         self.assertEqual(len(result), 4)

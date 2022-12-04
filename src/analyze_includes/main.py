@@ -6,7 +6,10 @@ from typing import Any
 from src.analyze_includes.evaluate_includes import evaluate_includes
 from src.analyze_includes.get_dependencies import get_available_dependencies
 from src.analyze_includes.parse_config import load_config
-from src.analyze_includes.parse_source import get_relevant_includes_from_files
+from src.analyze_includes.parse_source import (
+    IgnoredIncludes,
+    get_relevant_includes_from_files,
+)
 from src.analyze_includes.std_header import STD_HEADER
 
 
@@ -24,31 +27,16 @@ def cli():
     )
     parser.add_argument("--report", metavar="FILE", help="Report result into this file.")
     parser.add_argument(
-        "--config",
+        "--ignored-includes-config",
         metavar="FILE",
-        help="Config file in Json format overriting the attributes '--ignore-include-paths' "
-        "and '--extra-ignore-include-paths'.",
+        help="Config file in Json format specifying which include paths and patterns shall be ignored by the analysis.",
     )
     parser.add_argument(
         "--implementation-deps-available",
         action="store_true",
-        help="If this Bazel 5.0 feature is vailable, then check if some dependencies "
-        "could be private instead of public. Meaning headers from them are only used in the private files.",
-    )
-    parser.add_argument(
-        "--ignore-include-paths",
-        metavar="PATH",
-        nargs="*",
-        help="By default all headers of the standard library are ignored. "
-        "You can however also provide your own list of include paths to be ignored.",
-    )
-    parser.add_argument(
-        "--extra-ignore-include-paths",
-        metavar="PATH",
-        nargs="+",
-        help="By default all headers of the standard library are ignored. "
-        "If you want to ignore further include paths, you can specify them here. "
-        "If you provided a custom ignore list, the include paths here are added to it.",
+        help="""
+        If this Bazel 5.0 feature is vailable, then check if some dependencies could be private instead of public.
+        Meaning headers from them are only used in the private files.""",
     )
 
     args = parser.parse_args()
@@ -56,25 +44,22 @@ def cli():
         print("You have to provide at least one of the arguments '--public-files' and '--private-files'")
         sys.exit(1)
 
-    if args.config and (args.ignore_include_paths or args.extra_ignore_include_paths):
-        print("'--config' overwrites 'ignore-include-paths' and 'extra-ignore-include-paths'. Don't combine them")
-        sys.exit(1)
-
     return args
 
 
-def _get_ignored_includes(args: Any) -> set:
-    ignored_includes = STD_HEADER if not args.ignore_include_paths else {args.ignore_include_paths}
-    extra_ignored_includes = {args.extra_ignore_include_paths} if args.extra_ignore_include_paths else {}
+def _get_ignored_includes(args: Any) -> IgnoredIncludes:
+    ignored_paths = STD_HEADER
+    ignored_patterns = []
+    if args.ignored_includes_config:
+        config_paths, config_extra_paths, config_patterns = load_config(Path(args.ignored_includes_config))
+        if config_paths:
+            ignored_paths = set(config_paths)
+        if config_extra_paths:
+            ignored_paths = ignored_paths.union(set(config_extra_paths))
+        if config_patterns:
+            ignored_patterns = config_patterns
 
-    if args.config:
-        config_ignored_includes, config_extra_ignored_includes = load_config(Path(args.config))
-        if config_ignored_includes:
-            ignored_includes = set(config_ignored_includes)
-        if config_extra_ignored_includes:
-            extra_ignored_includes = set(config_extra_ignored_includes)
-
-    return ignored_includes.union(extra_ignored_includes)
+    return IgnoredIncludes(paths=list(ignored_paths), patterns=ignored_patterns)
 
 
 def main(args: Any) -> int:
