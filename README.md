@@ -39,21 +39,19 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 
 ## Get a specific commit
 
-Put the following into your `WORKSPACE` file:
+Put the following into your `WORKSPACE` file to use a specific DWYU commit:
 ```sh
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-dwyu_version = "<git_commit_sha>"
-
+dwyu_version = "<git_commit_hash>"
 http_archive(
     name = "depend_on_what_you_use",
-    sha256 = "<archive_checksum>",
+    sha256 = "<archive_checksum>",  # optional
     strip_prefix = "depend_on_what_you_use-{}".format(dwyu_version),
-    url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.zip".format(dwyu_version),
+    url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.tar.gz".format(dwyu_version),
 )
 
 load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
-
 dwyu_dependencies()
 ```
 
