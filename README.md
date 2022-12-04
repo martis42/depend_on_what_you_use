@@ -40,7 +40,7 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 ## Get a specific commit
 
 Put the following into your `WORKSPACE` file to use a specific DWYU commit:
-```sh
+```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 dwyu_version = "<git_commit_hash>"
@@ -62,7 +62,7 @@ dwyu_dependencies()
 Configure an aspect with the desired behavior.
 The features which can be configured trough the the aspect factory attributes are documented at [Features](#features).
 Put the following inside a `aspect.bzl` file (file name is exemplary):
-```sh
+```python
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
 # Provide no arguments for the default behavior
@@ -105,7 +105,7 @@ By default DWYU ignores all header from the standard library when comparing incl
 This list of headers can be seen in [std_header.py](src/analyze_includes/std_header.py).
 
 You can exclude a custom set of header files by providing a config file in json format to the aspect:
-```
+```python
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
@@ -126,7 +126,7 @@ By default DWYU analyzes only the target it is being applied to.
 
 You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is
 being applied to:
-```
+```python
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
 
@@ -146,7 +146,7 @@ private files, but not put into the private dependency attribute. Meaning, it ca
 move from `deps` to `implementation_deps`.
 
 Activate this behavior via:
-```
+```python
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
