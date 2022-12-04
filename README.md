@@ -6,7 +6,7 @@
 - [Features](#features)
   - [Custom header ignore list](#custom-header-ignore-list)
   - [Recursion](#recursion)
-  - [Implementation_deps](#implementation_deps)
+  - [Implementation\_deps](#implementation_deps)
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
@@ -104,17 +104,21 @@ A concrete example for doing so for the DWYU aspect can be found in [a rule in t
 ## Custom header ignore list
 
 By default DWYU ignores all header from the standard library when comparing include statements to the dependencies.
+This list of headers can be seen in [std_header.py](src/analyze_includes/std_header.py).
 
 You can exclude a custom set of header files by providing a config file in json format to the aspect:
 ```
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
-You can either provide an own set of headers, which should be ignored, or provide a set of headers which should be
-ignored in addition to the standard library hedaers.
-To be ignored headers have to be specified with their full include path.
-Alternatively you can provide a regex pattern conforming to the Python [re](https://docs.python.org/3/library/re.html#regular-expression-syntax)
-module syntax to specify include statements which should be ignored.
+The config file can contain these fields which should be lists of strings. All fields are optional:
+
+| Field                        | Description                                                                                                                                                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ignore_include_paths`       | List of include paths which are ignored by the analysis. Setting this **disables ignoring the standard library include paths**.                                                                                                  |
+| `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended. |
+| `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [re](https://docs.python.org/3/library/re.html#regular-expression-syntax).                                        |
+
 
 Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
 
