@@ -18,6 +18,6 @@ cc_library(
 
 cc_library(
     name = "use_complex_includes_from_extern",
-    srcs = ["use_complex_includes_from_extern.cpp"],
+    srcs = ["use_complex_includes.cpp"],
     deps = ["@complex_includes_repo//:complex_includes"],
 )

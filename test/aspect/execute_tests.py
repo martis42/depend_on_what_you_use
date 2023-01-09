@@ -171,13 +171,13 @@ TESTS = [
     TestCase(
         name="complex_includes",
         compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
-        cmd=TestCmd(target="//test/aspect/complex_includes:all"),
+        cmd=TestCmd(target="//test/aspect/complex_includes:all", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
         name="complex_includes_in_ext_repo",
         compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
-        cmd=TestCmd(target="@complex_includes_repo//..."),
+        cmd=TestCmd(target="@complex_includes_repo//...", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
