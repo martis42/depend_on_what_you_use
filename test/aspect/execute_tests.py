@@ -182,7 +182,7 @@ TESTS = [
     ),
     TestCase(
         name="incompatible_platforms",
-        cmd=TestCmd(target="//test/aspect/platforms/..."),
+        cmd=TestCmd(target="//test/aspect/platforms/...", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
