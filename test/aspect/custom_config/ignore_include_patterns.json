@@ -2,6 +2,6 @@
     "ignore_include_patterns": [
         "foo/.*",
         "bar/.*",
-        "./ignored_sub_path/.*"
+        "\\w+/ignored_sub_path/.*"
     ]
 }
