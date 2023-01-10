@@ -60,7 +60,7 @@ dwyu_dependencies()
 ### Configure the aspect
 
 Configure an aspect with the desired behavior.
-The features which can be configured trough the the aspect factory attributes are documented at [Features](#features).
+The features which can be configured through the the aspect factory attributes are documented at [Features](#features).
 Put the following inside a `aspect.bzl` file (file name is exemplary):
 ```python
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
@@ -191,7 +191,7 @@ see the doc string of the [apply fixes main function](src/apply_fixes/main.py).
 
 # Alternatives to DWYU
 
-If you are mostly interested in making sure no headers from transitive dependecies are used by your C++ targets, you
+If you are mostly interested in making sure no headers from transitive dependencies are used by your C++ targets, you
 might want to look into the `layering_check` feature.
 It causes the compilation to fail on using headers from transitive dependencies.<br/>
 At the time of writing this, I could not find detailed documentation about this feature.

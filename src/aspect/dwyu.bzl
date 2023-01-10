@@ -130,7 +130,7 @@ def dwyu_aspect_impl(target, ctx):
         return []
 
     # Skip incompatible targets
-    # Ideally we should check for the existance of "IncompatiblePlatformProvider".
+    # Ideally we should check for the existence of "IncompatiblePlatformProvider".
     # However, this provider is not available in Starlark
     if not CcInfo in target:
         return []

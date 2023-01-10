@@ -44,7 +44,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
     - Only a single include statement can exist per line. If multiple include statement exist, the compiler ignores all
       after the first one.
     - Only whitespace and commented code shall exist between the line start and the include statement.
-    - One can concatinate multiple comment block openings "/*", but one cannot concatinate comment block ends "*/".
+    - One can concatenate multiple comment block openings "/*", but one cannot concatenate comment block ends "*/".
       An appearing comment block end closes all existing comment block openings.
 
     Known limitations:
@@ -85,7 +85,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
 def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) -> List[Include]:
     """
     - deduplicate list entries
-    - throw away unintersting includes (e.g. from standard library or ignored includes provided by the user)
+    - throw away uninteresting includes (e.g. from standard library or ignored includes provided by the user)
     """
     unique_includes = set(includes)
     return [include for include in unique_includes if not ignored_includes.is_ignored(include.include)]

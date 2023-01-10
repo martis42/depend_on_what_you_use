@@ -31,7 +31,7 @@ def cli():
         "--implementation-deps-available",
         action="store_true",
         help="""
-        If this Bazel 5.0 feature is vailable, then check if some dependencies could be private instead of public.
+        If this Bazel 5.0 feature is available, then check if some dependencies could be private instead of public.
         Meaning headers from them are only used in the private files.""",
     )
 

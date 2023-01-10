@@ -14,13 +14,13 @@
 
 ## Why use Python
 
-There are many programming languages avalable which could be used to implement DWYU. Why use Python because:
+There are many programming languages available which could be used to implement DWYU. Why use Python because:
 - It is well established tool many develoeprs are familiar with.
 - Most platforms support Python well and developer setups often have an interpreter pre-installed.
 - There is a wide range of well established third-party libraries.
 - There is no need to deploy pre compiled binaries for a wide range of platforms.
 - It is well suited for scripting tasks and testing.
-- The task done by DWYU does not require many resources. Thus, efficiency and perfomance are secondary.
+- The task done by DWYU does not require many resources. Thus, efficiency and performance are secondary.
 - The project maintainer is experienced with Python.
 
 ## Why use a multi step automatic fixes workflow
