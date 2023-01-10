@@ -113,7 +113,7 @@ def _make_headers_info(target, public_deps, private_deps):
     )
 
 def _label_to_name(label):
-    return str(label).replace("//", "").replace("/", "_").replace(":", "_")
+    return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
 
 def dwyu_aspect_impl(target, ctx):
     """
@@ -139,8 +139,9 @@ def dwyu_aspect_impl(target, ctx):
     private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
 
     public_files, private_files = _parse_sources(ctx.rule.attr)
-    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(_label_to_name(target.label)))
-    headers_info_file = ctx.actions.declare_file("{}_deps_info.json".format(_label_to_name(target.label)))
+    target_name = _label_to_name(target.label)
+    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target_name))
+    headers_info_file = ctx.actions.declare_file("{}_deps_info.json".format(target_name))
     headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps)
     ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
 
