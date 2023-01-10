@@ -84,7 +84,7 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
-        name="proper implementation_deps",
+        name="proper_implementation_deps",
         compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:proper_private_deps",
