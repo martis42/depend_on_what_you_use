@@ -16,8 +16,8 @@ class TestCase(TestCaseBase):
         except Exception as ex:
             catched_exception = True
             if not "returned non-zero exit status 1" in str(ex):
-                return Error(f"Expected an exception, but none occured")
+                return Error(f"Expected an exception, but none occurred")
         if not catched_exception:
-            return Error(f"Expected an exception, but none occured")
+            return Error(f"Expected an exception, but none occurred")
 
         return Success()

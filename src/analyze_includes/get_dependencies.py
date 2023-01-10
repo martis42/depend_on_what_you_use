@@ -56,9 +56,9 @@ class AvailableDependencies:
     ) -> None:
         # Header files from target under inspection
         self.own_hdrs = own_hdrs
-        # Dependecies which are available to downstream dependencies of the target under inspection
+        # Dependencies which are available to downstream dependencies of the target under inspection
         self.public = public
-        # Dependecies which are NOT available to downstream dependencies of the target under inspection
+        # Dependencies which are NOT available to downstream dependencies of the target under inspection
         self.private = private
 
 
