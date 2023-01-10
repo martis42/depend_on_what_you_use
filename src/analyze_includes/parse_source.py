@@ -35,7 +35,7 @@ class IgnoredIncludes:
 
     def is_ignored(self, include: str) -> bool:
         is_ignored_path = include in self.paths
-        is_ignored_pattern = any(re.search(pattern, include) for pattern in self.patterns)
+        is_ignored_pattern = any(re.match(pattern, include) for pattern in self.patterns)
         return is_ignored_path or is_ignored_pattern
 
 
