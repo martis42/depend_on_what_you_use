@@ -36,6 +36,10 @@ class TestInclude(unittest.TestCase):
         self.assertTrue(Include(file=Path("foo"), include="bar") in unit)
         self.assertTrue(Include(file=Path("bar"), include="foo") in unit)
 
+    def test_repr(self):
+        unit = Include(file=Path("foo"), include="bar")
+        self.assertEqual(repr(unit), "Include(file='foo', include='bar')")
+
     def test_str(self):
         unit = Include(file=Path("foo"), include="bar")
 
