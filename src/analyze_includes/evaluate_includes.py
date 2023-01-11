@@ -119,7 +119,7 @@ def _check_for_invalid_includes(
 
 
 def _check_for_unused_dependencies(dependencies: List[AvailableDependency]) -> List[str]:
-    return [dep.name for dep in dependencies if not any(hdr.used != IncludeUsage.NONE for hdr in dep.hdrs)]
+    return [dep.name for dep in dependencies if all(hdr.used == IncludeUsage.NONE for hdr in dep.hdrs)]
 
 
 def _check_for_public_deps_which_should_be_private(dependencies: AvailableDependencies) -> List[str]:
