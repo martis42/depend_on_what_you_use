@@ -23,6 +23,9 @@ class AvailableInclude:
     def __eq__(self, other: object) -> bool:
         return self.hdr == other.hdr and self.used == other.used
 
+    def __repr__(self) -> str:
+        return f"AvailableInclude(hdr='{self.hdr}', used='{self.used.name}')"
+
     def update_usage(self, usage: IncludeUsage) -> None:
         if usage == IncludeUsage.NONE:
             raise Exception("Resetting the include usage is not supported")
@@ -46,6 +49,9 @@ class AvailableDependency:
     def __init__(self, name: str, hdrs: List[AvailableInclude]) -> None:
         self.name = name
         self.hdrs = hdrs
+
+    def __repr__(self) -> str:
+        return f"AvailableDependency(name='{self.name}', hdrs={self.hdrs})"
 
 
 class AvailableDependencies:

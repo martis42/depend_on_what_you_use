@@ -16,6 +16,9 @@ class Include:
     def __hash__(self) -> int:
         return hash(str(self.file) + self.include)
 
+    def __repr__(self) -> str:
+        return f"Include(file='{self.file}', include='{self.include}')"
+
     def __str__(self) -> str:
         return f"File='{self.file}', include='{self.include}'"
 
