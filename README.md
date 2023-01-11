@@ -26,8 +26,7 @@ The main features are:
 - Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
 - Finding unused dependencies.
 - Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and
-  private dependencies for `cc_library`. For more details see
-  [Ensure a proper split between public and private dependencies](#Ensure-a-proper-split-between-public-and-private-dependencies).
+  private dependencies for `cc_library`. For more details see [features chapter Implementation_deps](#Implementation_deps).
 
 More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs/).
 
