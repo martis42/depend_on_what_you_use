@@ -58,7 +58,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
         inside_comment_block = False
         for line in fin.readlines():
             if not inside_comment_block and "/*" in line:
-                if not "*/" in line:
+                if "*/" not in line:
                     inside_comment_block = True
                     continue
                 while "*/" in line:
@@ -66,7 +66,7 @@ def get_includes_from_file(file: Path) -> List[Include]:
                 if "/*" in line:
                     inside_comment_block = True
                     continue
-            if inside_comment_block and not "*/" in line:
+            if inside_comment_block and "*/" not in line:
                 continue
             if inside_comment_block and "*/" in line:
                 inside_comment_block = False
