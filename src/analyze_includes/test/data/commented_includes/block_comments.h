@@ -16,3 +16,9 @@
 /*
 */
 #include "active_e.h"
+
+#include "active_f.h" /* commented */
+
+/* some text */#include <active_g.h>/* some other text */
+
+#include "active_h.h" /* #include "inactive_h.h" */
