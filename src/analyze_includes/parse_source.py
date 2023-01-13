@@ -56,27 +56,31 @@ def get_includes_from_file(file: Path) -> List[Include]:
       sure only a subset of headers is used for compilation.
     - Include paths utilizing '../' are not resolved.
     """
-    includes = []
+    includes, inside_comment_block = [], False
     with open(file, encoding="utf-8") as fin:
-        inside_comment_block = False
-        for line in fin.readlines():
-            if not inside_comment_block and "/*" in line:
-                if "*/" not in line:
+        for line in fin:
+            line = line.rstrip()
+            i, n, line_without_comments = 0, len(line), ""
+            while i < n:
+                curr, j = line[i], i + 1
+                if not inside_comment_block and curr == "/" and line[j] == "/":
+                    break
+                elif not inside_comment_block and j < n and curr == "/" and line[j] == "*":
                     inside_comment_block = True
-                    continue
-                while "*/" in line:
-                    line = line.partition("*/")[2]
-                if "/*" in line:
-                    inside_comment_block = True
-                    continue
-            if inside_comment_block and "*/" not in line:
-                continue
-            if inside_comment_block and "*/" in line:
-                inside_comment_block = False
-                line = line.partition("*/")[2]
+                    i = j
+                elif inside_comment_block and j < n and curr == "*" and line[j] == "/":
+                    inside_comment_block = False
+                    i = j
+                elif not inside_comment_block:
+                    line_without_comments += curr
+                i = i + 1
 
-            if line.strip().startswith("#include"):
-                include = re.findall(r'#include\s*["<](.+)[">]', line)
+            if (
+                not inside_comment_block
+                and line_without_comments
+                and line_without_comments.lstrip().startswith("#include")
+            ):
+                include = re.findall(r'#include\s*["<](.+)[">]', line_without_comments)
                 if not include:
                     raise Exception(f"Did not find any include path in file '{file}' in line '{line}'")
                 if len(include) > 1:

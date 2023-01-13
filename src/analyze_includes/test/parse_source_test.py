@@ -109,12 +109,15 @@ class TestGetIncludesFromFile(unittest.TestCase):
         test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
         result = get_includes_from_file(test_file)
 
-        self.assertEqual(len(result), 5)
+        self.assertEqual(len(result), 8)
         self.assertTrue(Include(file=test_file, include="active_a.h") in result)
         self.assertTrue(Include(file=test_file, include="active_b.h") in result)
         self.assertTrue(Include(file=test_file, include="active_c.h") in result)
         self.assertTrue(Include(file=test_file, include="active_d.h") in result)
         self.assertTrue(Include(file=test_file, include="active_e.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_f.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_g.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_h.h") in result)
 
     def test_commented_includes_mixed_style(self):
         test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
