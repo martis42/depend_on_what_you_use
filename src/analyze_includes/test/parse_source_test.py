@@ -67,20 +67,34 @@ class TestFilterIncludes(unittest.TestCase):
     def test_filter_includes_for_patterns(self):
         result = filter_includes(
             includes=[
-                Include(file=Path("file1"), include="hiho.h"),
+                Include(file=Path("file1"), include="some_header.h"),
                 Include(file=Path("file2"), include="foo.h"),
                 Include(file=Path("file3"), include="foo/bar.h"),
                 Include(file=Path("file4"), include="foo/nested/bar.h"),
                 Include(file=Path("file4"), include="baz_some_partial_name.h"),
-                Include(file=Path("file5"), include="match_substring_not_sufficient"),
+                Include(file=Path("file5"), include="bar/match_something_inside_include.h"),
+                Include(file=Path("file6"), include="matching_begin_works_without_regex"),
+                Include(file=Path("file7"), include="without_regex_no_substring_match"),
+                Include(file=Path("file8"), include="without_regex_no_matching_end"),
             ],
-            ignored_includes=IgnoredIncludes(paths=[], patterns=["foo/.*", ".*some_partial_name.h", "substring"]),
+            ignored_includes=IgnoredIncludes(
+                paths=[],
+                patterns=[
+                    "foo/.*",
+                    ".*_partial_name.h",
+                    ".*_something_inside_.*",
+                    "substring",
+                    "matching_begin",
+                    "matching_end",
+                ],
+            ),
         )
 
-        self.assertEqual(len(result), 3)
-        self.assertTrue(Include(file=Path("file1"), include="hiho.h") in result)
+        self.assertEqual(len(result), 4)
+        self.assertTrue(Include(file=Path("file1"), include="some_header.h") in result)
         self.assertTrue(Include(file=Path("file2"), include="foo.h") in result)
-        self.assertTrue(Include(file=Path("file5"), include="match_substring_not_sufficient") in result)
+        self.assertTrue(Include(file=Path("file7"), include="without_regex_no_substring_match") in result)
+        self.assertTrue(Include(file=Path("file8"), include="without_regex_no_matching_end") in result)
 
 
 class TestGetIncludesFromFile(unittest.TestCase):
