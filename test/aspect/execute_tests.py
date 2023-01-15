@@ -54,6 +54,19 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
+        name="custom_config_include_not_covered_by_patterns",
+        cmd=TestCmd(
+            target="//test/aspect/custom_config:use_not_ignored_header",
+            aspect="//test/aspect/custom_config:aspect.bzl%extra_ignore_include_patterns_aspect",
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='test/aspect/custom_config/use_not_ignored_header.h', include='example_substring_matching_does_not_work_here.h'"
+            ],
+        ),
+    ),
+    TestCase(
         name="unused_dep",
         cmd=TestCmd(target="//test/aspect/unused_dep:main", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/unused_dep:foo"]),

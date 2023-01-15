@@ -21,3 +21,9 @@ cc_library(
     name = "use_ignored_patterns",
     hdrs = ["use_ignored_patterns.h"],
 )
+
+# Has an invalid include which is not filtered out by the ignored patterns
+cc_library(
+    name = "use_not_ignored_header",
+    hdrs = ["use_not_ignored_header.h"],
+)

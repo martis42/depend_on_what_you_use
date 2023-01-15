@@ -1,7 +1,9 @@
 {
     "ignore_include_patterns": [
         "foo/.*",
-        "bar/.*",
-        "\\w+/ignored_sub_path/.*"
+        ".*_match_include_end.h",
+        "\\w+/ignored_sub_path/.*",
+        "matching_begin_without_regex_works",
+        "substring_matching_does_not_work"
     ]
 }
