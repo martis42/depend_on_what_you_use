@@ -60,20 +60,24 @@ def get_includes_from_file(file: Path) -> List[Include]:
     with open(file, encoding="utf-8") as fin:
         for line in fin:
             line = line.rstrip()
-            i, n, line_without_comments = 0, len(line), ""
-            while i < n:
-                curr, j = line[i], i + 1
-                if not inside_comment_block and curr == "/" and line[j] == "/":
+            line_without_comments = ""
+            i = 0
+            while i < len(line) - 1:
+                curr = line[i : i + 2]
+                if not inside_comment_block and curr == "//":
+                    i = len(line)
                     break
-                elif not inside_comment_block and j < n and curr == "/" and line[j] == "*":
+                elif not inside_comment_block and curr == "/*":
                     inside_comment_block = True
-                    i = j
-                elif inside_comment_block and j < n and curr == "*" and line[j] == "/":
+                    i += 1
+                elif inside_comment_block and curr == "*/":
                     inside_comment_block = False
-                    i = j
+                    i += 1
                 elif not inside_comment_block:
-                    line_without_comments += curr
-                i = i + 1
+                    line_without_comments += line[i]
+                i += 1
+            if line and not inside_comment_block and i < len(line):
+                line_without_comments += line[-1]
 
             if (
                 not inside_comment_block

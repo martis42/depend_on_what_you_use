@@ -117,7 +117,9 @@ class TestGetIncludesFromFile(unittest.TestCase):
         test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
         result = get_includes_from_file(test_file)
 
-        self.assertEqual(result, [Include(file=test_file, include="active.h")])
+        self.assertEqual(len(result), 2)
+        self.assertTrue(Include(file=test_file, include="active_a.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_b.h") in result)
 
     def test_commented_includes_block_comments(self):
         test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
