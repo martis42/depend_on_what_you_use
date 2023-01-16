@@ -102,7 +102,7 @@ class TestAvailableDependency(unittest.TestCase):
 
 class TestGetAvailableDependencies(unittest.TestCase):
     def test_load_full_file(self):
-        deps = get_available_dependencies(Path("src/analyze_includes/test/data/deps_info_full.json"))
+        deps = get_available_dependencies(Path("src/analyze_includes/test/data/headers_info_full.json"))
 
         self.assertEqual(len(deps.private), 2)
         self.assertEqual(len(deps.public), 2)
@@ -129,7 +129,7 @@ class TestGetAvailableDependencies(unittest.TestCase):
         self.assertEqual(deps.own_hdrs, [AvailableInclude("self/a.h"), AvailableInclude("self/b.h")])
 
     def test_load_empty_file(self):
-        deps = get_available_dependencies(Path("src/analyze_includes/test/data/deps_info_empty.json"))
+        deps = get_available_dependencies(Path("src/analyze_includes/test/data/headers_info_empty.json"))
 
         self.assertEqual(len(deps.private), 0)
         self.assertEqual(len(deps.public), 0)
