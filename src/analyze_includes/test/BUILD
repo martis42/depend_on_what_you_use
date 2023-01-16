@@ -10,8 +10,8 @@ py_test(
     name = "get_dependencies_test",
     srcs = ["get_dependencies_test.py"],
     data = [
-        "data/deps_info_empty.json",
-        "data/deps_info_full.json",
+        "data/headers_info_empty.json",
+        "data/headers_info_full.json",
     ],
     deps = ["//src/analyze_includes:lib"],
 )

@@ -141,7 +141,7 @@ def dwyu_aspect_impl(target, ctx):
     public_files, private_files = _parse_sources(ctx.rule.attr)
     target_name = _label_to_name(target.label)
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target_name))
-    headers_info_file = ctx.actions.declare_file("{}_deps_info.json".format(target_name))
+    headers_info_file = ctx.actions.declare_file("{}_headers_info.json".format(target_name))
     headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps)
     ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
 
