@@ -107,6 +107,26 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
+        name="binary_with_implementation_deps_activated",
+        compatible_versions=CompatibleVersions(min="5.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/implementation_deps:binary_using_foo",
+            aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
+            extra_args=["--experimental_cc_implementation_deps"],
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="test_with_implementation_deps_activated",
+        compatible_versions=CompatibleVersions(min="5.0.0", max="6.9.9"),
+        cmd=TestCmd(
+            target="//test/aspect/implementation_deps:test_using_foo",
+            aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
+            extra_args=["--experimental_cc_implementation_deps"],
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
         name="superfluous_public_dep",
         compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
