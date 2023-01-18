@@ -17,7 +17,14 @@ def _parse_sources(attr):
 
     return public_files, private_files
 
-def _make_args(ctx, target, public_files, private_files, report_file, headers_info_file, ensure_private_deps):
+def _do_ensure_private_deps(ctx):
+    """
+    The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
+    and cc_test a separation between public and private files exists.
+    """
+    return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
+
+def _make_args(ctx, target, public_files, private_files, report_file, headers_info_file):
     args = ctx.actions.args()
 
     args.add_all("--public-files", [pf.path for pf in public_files])
@@ -29,7 +36,7 @@ def _make_args(ctx, target, public_files, private_files, report_file, headers_in
     if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
         args.add("--ignored-includes-config", ctx.file._config)
 
-    if ensure_private_deps:
+    if _do_ensure_private_deps(ctx):
         args.add("--implementation-deps-available")
 
     return args
@@ -152,7 +159,6 @@ def dwyu_aspect_impl(target, ctx):
         private_files = private_files,
         report_file = report_file,
         headers_info_file = headers_info_file,
-        ensure_private_deps = ctx.attr._use_implementation_deps,
     )
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,

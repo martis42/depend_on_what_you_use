@@ -25,3 +25,15 @@ cc_library(
         ":foo",
     ],
 )
+
+cc_binary(
+    name = "binary_using_foo",
+    srcs = ["binary_using_foo.cpp"],
+    deps = [":foo"],
+)
+
+cc_test(
+    name = "test_using_foo",
+    srcs = ["binary_using_foo.cpp"],
+    deps = [":foo"],
+)
