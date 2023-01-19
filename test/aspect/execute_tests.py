@@ -237,6 +237,11 @@ TESTS = [
         cmd=TestCmd(target="//test/aspect/alias:use_a_directly", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="no_public_or_private_files_binary_link_shared",
+        cmd=TestCmd(target="//test/aspect/shared_library:libfoo.so", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
