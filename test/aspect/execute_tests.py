@@ -242,6 +242,11 @@ TESTS = [
         cmd=TestCmd(target="//test/aspect/shared_library:libfoo.so", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="relative_includes",
+        cmd=TestCmd(target="//test/aspect/relative_includes/...", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
