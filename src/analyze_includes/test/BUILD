@@ -7,16 +7,6 @@ py_test(
 )
 
 py_test(
-    name = "get_dependencies_test",
-    srcs = ["get_dependencies_test.py"],
-    data = [
-        "data/headers_info_empty.json",
-        "data/headers_info_full.json",
-    ],
-    deps = ["//src/analyze_includes:lib"],
-)
-
-py_test(
     name = "parse_config_test",
     srcs = ["parse_config_test.py"],
     data = [
@@ -37,6 +27,16 @@ py_test(
         "data/commented_includes/mixed_style.h",
         "data/commented_includes/single_line_comments.h",
         "data/some_header.h",
+    ],
+    deps = ["//src/analyze_includes:lib"],
+)
+
+py_test(
+    name = "system_under_inspection_test",
+    srcs = ["system_under_inspection_test.py"],
+    data = [
+        "data/headers_info_empty.json",
+        "data/headers_info_full.json",
     ],
     deps = ["//src/analyze_includes:lib"],
 )

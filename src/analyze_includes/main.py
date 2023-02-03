@@ -3,14 +3,13 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from src.analyze_includes.evaluate_includes import evaluate_includes
-from src.analyze_includes.get_dependencies import get_available_dependencies
 from src.analyze_includes.parse_config import get_ignored_includes
 from src.analyze_includes.parse_source import get_relevant_includes_from_files
+from src.analyze_includes.system_under_inspection import get_system_under_inspection
 
 
 def cli():
     parser = ArgumentParser()
-    parser.add_argument("--target", help="Target which is being analyzed.")
     parser.add_argument(
         "--public-files", metavar="PATH", nargs="+", help="All public files of the target under inspection."
     )
@@ -53,13 +52,10 @@ def main(args: Namespace) -> int:
         files=args.private_files, ignored_includes=ignored_includes
     )
 
-    allowed_includes = get_available_dependencies(args.headers_info)
-
     result = evaluate_includes(
-        target=args.target,
         public_includes=all_includes_from_public,
         private_includes=all_includes_from_private,
-        dependencies=allowed_includes,
+        system_under_inspection=get_system_under_inspection(args.headers_info),
         ensure_private_deps=args.implementation_deps_available,
     )
 

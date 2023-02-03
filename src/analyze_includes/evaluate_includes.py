@@ -1,15 +1,14 @@
 from collections import defaultdict
 from json import dumps
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, DefaultDict, List, Optional
 
-from src.analyze_includes.get_dependencies import (
-    AvailableDependencies,
-    AvailableDependency,
-    AvailableInclude,
-    IncludeUsage,
-)
 from src.analyze_includes.parse_source import Include
+from src.analyze_includes.system_under_inspection import (
+    CcTarget,
+    SystemUnderInspection,
+    UsageStatus,
+)
 
 
 class Result:
@@ -71,7 +70,7 @@ class Result:
         return dumps(content, indent=2) + "\n"
 
     @staticmethod
-    def _make_includes_map(includes: List[Include]) -> Dict[str, str]:
+    def _make_includes_map(includes: List[Include]) -> DefaultDict[Any, List[str]]:
         includes_mapping = defaultdict(list)
         for inc in includes:
             includes_mapping[str(inc.file)].append(inc.include)
@@ -86,30 +85,37 @@ class Result:
 
 def _check_for_invalid_includes(
     includes: List[Include],
-    own_headers: List[AvailableInclude],
-    dependencies: List[AvailableDependency],
-    usage: IncludeUsage,
-) -> List[str]:
+    dependencies: List[CcTarget],
+    usage: UsageStatus,
+    target_under_inspection: CcTarget,
+) -> List[Include]:
     invalid_includes = []
+
+    all_header_files = []
+    all_header_files.extend(target_under_inspection.header_files)
+    for deb in dependencies:
+        all_header_files.extend(deb.header_files)
+
     for inc in includes:
         legal = False
         for dep in dependencies:
-            for dep_hdr in dep.hdrs:
-                if inc.include == dep_hdr.hdr:
+            for dep_hdr in dep.include_paths:
+                if inc.include == dep_hdr.path:
                     legal = True
-                    dep_hdr.update_usage(usage)
+                    dep_hdr.usage.update(usage)
                     break
         if not legal:
             # Might be a file from the target under inspection
-            legal = any(inc.include == sh.hdr for sh in own_headers)
+            legal = any(inc.include == sh.path for sh in target_under_inspection.include_paths)
         if not legal:
-            # Might be a file from the target under inspection with a relative include
+            # Might be a relative include
             curr_dir = inc.file.parent
-            for source in own_headers:
+            for hf in all_header_files:
                 try:
-                    rel_path = Path(source.hdr).relative_to(curr_dir)
+                    rel_path = Path(hf.path).relative_to(curr_dir)
                     if rel_path == Path(inc.include):
                         legal = True
+                        hf.usage.update(usage)
                         break
                 except ValueError:
                     pass
@@ -118,60 +124,65 @@ def _check_for_invalid_includes(
     return invalid_includes
 
 
-def _check_for_unused_dependencies(dependencies: List[AvailableDependency]) -> List[str]:
-    return [dep.name for dep in dependencies if all(hdr.used == IncludeUsage.NONE for hdr in dep.hdrs)]
+def _check_for_unused_dependencies(dependencies: List[CcTarget]) -> List[str]:
+    unused_deps = []
+    for dep in dependencies:
+        if all(not hdr.usage.is_used() for hdr in dep.include_paths) and all(
+            not hdr.usage.is_used() for hdr in dep.header_files
+        ):
+            unused_deps.append(dep.name)
+    return unused_deps
 
 
-def _check_for_public_deps_which_should_be_private(dependencies: AvailableDependencies) -> List[str]:
+def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> List[str]:
     should_be_private = []
-    for dep in dependencies.public:
-        if all(hdr.used in (IncludeUsage.NONE, IncludeUsage.PRIVATE) for hdr in dep.hdrs) and any(
-            hdr.used != IncludeUsage.NONE for hdr in dep.hdrs
+    for dep in dependencies.public_deps:
+        if all(hdr.usage in (UsageStatus.NONE, UsageStatus.PRIVATE) for hdr in dep.include_paths) and any(
+            hdr.usage.is_used() for hdr in dep.include_paths
         ):
             should_be_private.append(dep.name)
     return should_be_private
 
 
-def _filter_empty_dependencies(deps: AvailableDependencies) -> AvailableDependencies:
+def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -> SystemUnderInspection:
     """
     Some dependencies contain no headers and provide only libraries to link against. Since our analysis is based on
     includes we are not interested in those and throw them away to prevent them raising findings regarding unused
     dependencies.
     """
-    return AvailableDependencies(
-        own_hdrs=deps.own_hdrs,
-        public=[pub for pub in deps.public if pub.hdrs],
-        private=[pri for pri in deps.private if pri.hdrs],
+    return SystemUnderInspection(
+        public_deps=[pub for pub in system_under_inspection.public_deps if pub.include_paths],
+        private_deps=[pri for pri in system_under_inspection.private_deps if pri.include_paths],
+        target_under_inspection=system_under_inspection.target_under_inspection,
     )
 
 
 def evaluate_includes(
-    target: str,
     public_includes: List[Include],
     private_includes: List[Include],
-    dependencies: AvailableDependencies,
+    system_under_inspection: SystemUnderInspection,
     ensure_private_deps: bool,
 ) -> Result:
-    result = Result(target)
-    dependencies = _filter_empty_dependencies(dependencies)
+    result = Result(system_under_inspection.target_under_inspection.name)
+    system_under_inspection = _filter_empty_dependencies(system_under_inspection)
 
     result.public_includes_without_dep = _check_for_invalid_includes(
         includes=public_includes,
-        own_headers=dependencies.own_hdrs,
-        dependencies=dependencies.public,
-        usage=IncludeUsage.PUBLIC,
+        dependencies=system_under_inspection.public_deps,
+        usage=UsageStatus.PUBLIC,
+        target_under_inspection=system_under_inspection.target_under_inspection,
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
-        own_headers=dependencies.own_hdrs,
-        dependencies=dependencies.public + dependencies.private,
-        usage=IncludeUsage.PRIVATE,
+        dependencies=system_under_inspection.public_deps + system_under_inspection.private_deps,
+        usage=UsageStatus.PRIVATE,
+        target_under_inspection=system_under_inspection.target_under_inspection,
     )
 
-    result.unused_public_deps = _check_for_unused_dependencies(dependencies.public)
-    result.unused_private_deps = _check_for_unused_dependencies(dependencies.private)
+    result.unused_public_deps = _check_for_unused_dependencies(system_under_inspection.public_deps)
+    result.unused_private_deps = _check_for_unused_dependencies(system_under_inspection.private_deps)
 
     if ensure_private_deps:
-        result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(dependencies)
+        result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(system_under_inspection)
 
     return result
