@@ -1,8 +1,9 @@
 {
-    "private_deps": [],
-    "public_deps": [],
-    "self": {
-        "headers": [],
-        "target": "//:foo"
-    }
+  "private_deps": [],
+  "public_deps": [],
+  "self": {
+    "include_paths": [],
+    "header_files": [],
+    "target": "//:foo"
+  }
 }

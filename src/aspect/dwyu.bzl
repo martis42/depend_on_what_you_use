@@ -24,13 +24,12 @@ def _do_ensure_private_deps(ctx):
     """
     return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
 
-def _make_args(ctx, target, public_files, private_files, report_file, headers_info_file):
+def _make_args(ctx, public_files, private_files, report_file, headers_info_file):
     args = ctx.actions.args()
 
     args.add_all("--public-files", [pf.path for pf in public_files])
     args.add_all("--private-files", [pf.path for pf in private_files])
     args.add("--headers-info", headers_info_file)
-    args.add("--target", target)
     args.add("--report", report_file)
 
     if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
@@ -41,7 +40,7 @@ def _make_args(ctx, target, public_files, private_files, report_file, headers_in
 
     return args
 
-def _get_available_include_paths(label, system_includes, header_file):
+def _get_include_paths(label, system_includes, header_file):
     """
     Get all paths at which a header file is available to code using it.
 
@@ -72,46 +71,67 @@ def _get_available_include_paths(label, system_includes, header_file):
     # Default case for single header in workspace target without any special attributes
     return [header_file.short_path]
 
+def _extract_header_files(target):
+    """
+    The file location of the headers is used by DWYU to resolve relative include statements.
+    We support only relative includes to files from the own workspace. Thus, we ignore header files from external
+    workspaces
+    """
+    header_files = []
+    if not target.label.workspace_root.startswith("external"):
+        header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_public_headers])
+        header_files.extend([thdr.short_path for thdr in target[CcInfo].compilation_context.direct_textual_headers])
+    return header_files
+
 def _make_target_info(target):
-    includes = []
+    include_paths = []
     for hdr in target[CcInfo].compilation_context.direct_headers:
-        inc = _get_available_include_paths(
+        inc = _get_include_paths(
             label = target.label,
             system_includes = target[CcInfo].compilation_context.system_includes,
             header_file = hdr,
         )
-        includes.extend(inc)
+        include_paths.extend(inc)
 
-    return struct(target = str(target.label), headers = [inc for inc in includes])
+    return struct(
+        target = str(target.label),
+        include_paths = include_paths,
+        header_files = _extract_header_files(target),
+    )
 
 def _make_dep_info(dep):
-    includes = []
+    include_paths = []
     for hdr in dep[CcInfo].compilation_context.direct_public_headers:
-        inc = _get_available_include_paths(
+        inc = _get_include_paths(
             label = dep.label,
             system_includes = dep[CcInfo].compilation_context.system_includes,
             header_file = hdr,
         )
-        includes.extend(inc)
+        include_paths.extend(inc)
 
     for hdr in dep[CcInfo].compilation_context.direct_textual_headers:
-        inc = _get_available_include_paths(
+        inc = _get_include_paths(
             label = dep.label,
             system_includes = dep[CcInfo].compilation_context.system_includes,
             header_file = hdr,
         )
-        includes.extend(inc)
+        include_paths.extend(inc)
 
-    return struct(target = str(dep.label), headers = [inc for inc in includes])
+    return struct(
+        target = str(dep.label),
+        include_paths = include_paths,
+        header_files = _extract_header_files(dep),
+    )
 
 def _make_headers_info(target, public_deps, private_deps):
     """
-    Create a struct summarizing all information about the target and the dependency headers required for DWYU.
+    Create a struct summarizing all information about the target and the dependencies required for executing the
+    DWYU logic.
 
     Args:
         target: Current target under inspection
         public_deps: Direct public dependencies of target under inspection
-        private_deps: Direct pribate dependencies of target under inspection
+        private_deps: Direct private dependencies of target under inspection
     """
     return struct(
         self = _make_target_info(target),
@@ -157,7 +177,6 @@ def dwyu_aspect_impl(target, ctx):
 
     args = _make_args(
         ctx = ctx,
-        target = target.label,
         public_files = public_files,
         private_files = private_files,
         report_file = report_file,

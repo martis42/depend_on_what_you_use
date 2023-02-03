@@ -1,41 +1,61 @@
 {
-    "private_deps": [
-        {
-            "headers": [
-                "private/dep/foo_a.h",
-                "private/dep/foo_b.h"
-            ],
-            "target": "//private/dep:foo"
-        },
-        {
-            "headers": [
-                "private/dep/bar_a.h",
-                "private/dep/bar_b.h"
-            ],
-            "target": "//private/dep:bar"
-        }
-    ],
-    "public_deps": [
-        {
-            "headers": [
-                "public/dep/foo_a.h",
-                "public/dep/foo_b.h"
-            ],
-            "target": "//public/dep:foo"
-        },
-        {
-            "headers": [
-                "public/dep/bar_a.h",
-                "public/dep/bar_b.h"
-            ],
-            "target": "//public/dep:bar"
-        }
-    ],
-    "self": {
-        "headers": [
-            "self/a.h",
-            "self/b.h"
-        ],
-        "target": "//:baz"
+  "private_deps": [
+    {
+      "include_paths": [
+        "private/dep/foo_a.h",
+        "private/dep/foo_b.h"
+      ],
+      "header_files": [
+        "private/dep/foo_1.h",
+        "private/dep/foo_2.h"
+      ],
+      "target": "//private/dep:foo"
+    },
+    {
+      "include_paths": [
+        "private/dep/bar_a.h",
+        "private/dep/bar_b.h"
+      ],
+      "header_files": [
+        "private/dep/bar_1.h",
+        "private/dep/bar_2.h"
+      ],
+      "target": "//private/dep:bar"
     }
+  ],
+  "public_deps": [
+    {
+      "include_paths": [
+        "public/dep/foo_a.h",
+        "public/dep/foo_b.h"
+      ],
+      "header_files": [
+        "public/dep/foo_1.h",
+        "public/dep/foo_2.h"
+      ],
+      "target": "//public/dep:foo"
+    },
+    {
+      "include_paths": [
+        "public/dep/bar_a.h",
+        "public/dep/bar_b.h"
+      ],
+      "header_files": [
+        "public/dep/bar_1.h",
+        "public/dep/bar_2.h"
+      ],
+      "target": "//public/dep:bar"
+    }
+  ],
+  "self": {
+    "include_paths": [
+      "self/a.h",
+      "self/b.h"
+    ],
+    "header_files": [
+      "self/header_1.h",
+      "self/header_2.h"
+    ],
+    "target": "//:baz"
+  }
 }

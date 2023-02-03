@@ -244,7 +244,47 @@ TESTS = [
     ),
     TestCase(
         name="relative_includes",
+        compatible_versions=CompatibleVersions(min="4.1.0"),
         cmd=TestCmd(target="//test/aspect/relative_includes/...", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
+    # Bazel 4.0.0 does not include the source files in the header file lists in CcInfo. Only the generated files at the
+    # virtual paths are included, which does not suffice for our relative include logic. This has been fixed with Bazel
+    # 4.1.0
+    TestCase(
+        name="relative_includes_for_bazel_400_part_1",
+        compatible_versions=CompatibleVersions(max="4.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/relative_includes:normal_include",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="relative_includes_for_bazel_400_part_2",
+        compatible_versions=CompatibleVersions(max="4.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/relative_includes:system_include",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="relative_includes_for_bazel_400_part_3",
+        compatible_versions=CompatibleVersions(max="4.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/relative_includes:use_normal_include",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="relative_includes_for_bazel_400_part_4",
+        compatible_versions=CompatibleVersions(max="4.0.0"),
+        cmd=TestCmd(
+            target="//test/aspect/relative_includes:use_system_include",
+            aspect=DEFAULT_ASPECT,
+        ),
         expected=ExpectedResult(success=True),
     ),
 ]

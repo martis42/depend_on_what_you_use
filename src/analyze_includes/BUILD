@@ -4,10 +4,10 @@ py_library(
     name = "lib",
     srcs = [
         "evaluate_includes.py",
-        "get_dependencies.py",
         "parse_config.py",
         "parse_source.py",
         "std_header.py",
+        "system_under_inspection.py",
     ],
     visibility = [":__subpackages__"],
 )

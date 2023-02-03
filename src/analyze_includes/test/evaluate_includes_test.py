@@ -1,13 +1,15 @@
 import unittest
 from pathlib import Path
+from typing import List
 
 from src.analyze_includes.evaluate_includes import Result, evaluate_includes
-from src.analyze_includes.get_dependencies import (
-    AvailableDependencies,
-    AvailableDependency,
-    AvailableInclude,
-)
 from src.analyze_includes.parse_source import Include
+from src.analyze_includes.system_under_inspection import (
+    CcTarget,
+    HeaderFile,
+    IncludePath,
+    SystemUnderInspection,
+)
 
 
 class TestResult(unittest.TestCase):
@@ -250,9 +252,18 @@ class TestResult(unittest.TestCase):
 
 
 class TestEvaluateIncludes(unittest.TestCase):
-    def test_success_for_valid_external_dependencies(self):
+    @staticmethod
+    def make_cc_target(name: str, files: List[str]) -> CcTarget:
+        """
+        In most test cases available include paths and files are identical since they only differ if a target uses
+        virtual includes or system includes.
+        """
+        return CcTarget(
+            name=name, include_paths=[IncludePath(f) for f in files], header_files=[HeaderFile(f) for f in files]
+        )
+
+    def test_success_for_valid_dependencies(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[
                 Include(file=Path("file1"), include="foo.h"),
                 Include(file=Path("file2"), include="foo/bar.h"),
@@ -261,50 +272,71 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("file3"), include="baz.h"),
                 Include(file=Path("file4"), include="self/own_header.h"),
             ],
-            dependencies=AvailableDependencies(
-                own_hdrs=[AvailableInclude("self/own_header.h")],
-                public=[
-                    AvailableDependency(
-                        name="foo_pkg", hdrs=[AvailableInclude("foo.h"), AvailableInclude("foo/bar.h")]
-                    ),
-                    AvailableDependency(name="lib_without_hdrs_purely_for_linking", hdrs=[]),
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=["self/own_header.h"]),
+                public_deps=[
+                    self.make_cc_target(name="foo_pkg", files=["foo.h", "foo/bar.h"]),
+                    self.make_cc_target(name="lib_without_hdrs_purely_for_linking", files=[]),
                 ],
-                private=[AvailableDependency(name="baz_pkg", hdrs=[AvailableInclude("baz.h")])],
+                private_deps=[self.make_cc_target(name="baz_pkg", files=["baz.h"])],
             ),
             ensure_private_deps=True,
         )
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_target_internal_includes_with_flat_structure(self):
+    def test_success_for_internal_relative_includes_with_flat_structure(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[Include(file=Path("foo.h"), include="bar.h")],
             private_includes=[],
-            dependencies=AvailableDependencies(
-                own_hdrs=[AvailableInclude("foo.h"), AvailableInclude("bar.h")], public=[], private=[]
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=["foo.h", "bar.h"]),
+                public_deps=[],
+                private_deps=[],
             ),
             ensure_private_deps=True,
         )
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_target_internal_includes_with_nested_structure(self):
+    def test_success_for_internal_relative_includes_with_nested_structure(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[
                 Include(file=Path("nested/dir/foo.h"), include="bar.h"),
-                Include(file=Path("nested/dir/foo.h"), include="sub/baz.h"),
+                Include(file=Path("nested/dir/foo.h"), include="sub/tick.h"),
+                Include(file=Path("nested/dir/sub/tick.h"), include="tock.h"),
             ],
             private_includes=[],
-            dependencies=AvailableDependencies(
-                own_hdrs=[
-                    AvailableInclude("nested/dir/foo.h"),
-                    AvailableInclude("nested/dir/bar.h"),
-                    AvailableInclude("nested/dir/sub/baz.h"),
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(
+                    name="foo",
+                    files=["nested/dir/foo.h", "nested/dir/bar.h", "nested/dir/sub/tick.h", "nested/dir/sub/tock.h"],
+                ),
+                public_deps=[],
+                private_deps=[],
+            ),
+            ensure_private_deps=True,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_success_for_relative_includes_to_dependency(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("foo.h"), include="bar/dir/bar.h"),
+                Include(file=Path("bar/dir/bar.h"), include="sub/tick.h"),
+                Include(file=Path("bar/dir/sub/tick.h"), include="tock.h"),
+            ],
+            private_includes=[],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=["foo.h"]),
+                public_deps=[
+                    self.make_cc_target(
+                        name="bar",
+                        files=["bar/dir/bar.h", "bar/dir/sub/tick.h", "bar/dir/sub/tock.h"],
+                    )
                 ],
-                public=[],
-                private=[],
+                private_deps=[],
             ),
             ensure_private_deps=True,
         )
@@ -313,19 +345,16 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_invalid_includes_missing_internal_include(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[Include(file=Path("some/dir/foo.h"), include="tick.h")],
             private_includes=[Include(file=Path("some/dir/bar.h"), include="tock.h")],
             # Make sure files with the required name which are at the wrong location are ignored
-            dependencies=AvailableDependencies(
-                own_hdrs=[
-                    AvailableInclude("some/dir/foo.h"),
-                    AvailableInclude("some/dir/bar.h"),
-                    AvailableInclude("unrelated/dir/tick.h"),
-                    AvailableInclude("unrelated/dir/tock.h"),
-                ],
-                public=[],
-                private=[],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(
+                    name="foo",
+                    files=["some/dir/foo.h", "some/dir/bar.h", "unrelated/dir/tick.h", "unrelated/dir/tock.h"],
+                ),
+                public_deps=[],
+                private_deps=[],
             ),
             ensure_private_deps=True,
         )
@@ -339,7 +368,6 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_missing_includes_from_dependencies(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[
                 Include(file=Path("public_file"), include="foo.h"),
                 Include(file=Path("public_file"), include="foo/foo.h"),
@@ -350,10 +378,10 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="bar/foo.h"),
                 Include(file=Path("private_file"), include="bar/bar.h"),
             ],
-            dependencies=AvailableDependencies(
-                own_hdrs=[],
-                public=[AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")])],
-                private=[AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")])],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                public_deps=[self.make_cc_target(name="foo", files=["foo.h"])],
+                private_deps=[self.make_cc_target(name="bar", files=["bar.h"])],
             ),
             ensure_private_deps=True,
         )
@@ -371,20 +399,19 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_unused_dependencies(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
-            dependencies=AvailableDependencies(
-                own_hdrs=[],
-                public=[
-                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
-                    AvailableDependency(name="foo", hdrs=[AvailableInclude("foo.h")]),
-                    AvailableDependency(name="bar", hdrs=[AvailableInclude("bar.h")]),
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                public_deps=[
+                    self.make_cc_target(name="foobar", files=["foobar.h"]),
+                    self.make_cc_target(name="foo", files=["foo.h"]),
+                    self.make_cc_target(name="bar", files=["bar.h"]),
                 ],
-                private=[
-                    AvailableDependency(name="impl_dep", hdrs=[AvailableInclude("impl_dep.h")]),
-                    AvailableDependency(name="impl_foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
-                    AvailableDependency(name="impl_bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+                private_deps=[
+                    self.make_cc_target(name="impl_dep", files=["impl_dep.h"]),
+                    self.make_cc_target(name="impl_foo", files=["impl_dep_foo.h"]),
+                    self.make_cc_target(name="impl_bar", files=["impl_dep_bar.h"]),
                 ],
             ),
             ensure_private_deps=True,
@@ -403,20 +430,19 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_public_dependencies_which_should_be_private(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[
                 Include(file=Path("private_file"), include="impl_dep_foo.h"),
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
-            dependencies=AvailableDependencies(
-                own_hdrs=[],
-                public=[
-                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
-                    AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
-                    AvailableDependency(name="bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                public_deps=[
+                    self.make_cc_target(name="foobar", files=["foobar.h"]),
+                    self.make_cc_target(name="foo", files=["impl_dep_foo.h"]),
+                    self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
                 ],
-                private=[],
+                private_deps=[],
             ),
             ensure_private_deps=True,
         )
@@ -432,20 +458,19 @@ class TestEvaluateIncludes(unittest.TestCase):
 
     def test_public_dependencies_which_should_be_private_disabled(self):
         result = evaluate_includes(
-            target="foo",
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[
                 Include(file=Path("private_file"), include="impl_dep_foo.h"),
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
-            dependencies=AvailableDependencies(
-                own_hdrs=[],
-                public=[
-                    AvailableDependency(name="foobar", hdrs=[AvailableInclude("foobar.h")]),
-                    AvailableDependency(name="foo", hdrs=[AvailableInclude("impl_dep_foo.h")]),
-                    AvailableDependency(name="bar", hdrs=[AvailableInclude("impl_dep_bar.h")]),
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                public_deps=[
+                    self.make_cc_target(name="foobar", files=["foobar.h"]),
+                    self.make_cc_target(name="foo", files=["impl_dep_foo.h"]),
+                    self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
                 ],
-                private=[],
+                private_deps=[],
             ),
             ensure_private_deps=False,
         )
