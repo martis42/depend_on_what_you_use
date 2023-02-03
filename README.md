@@ -10,6 +10,7 @@
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
+- [Preconditions](#preconditions)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
@@ -178,6 +179,18 @@ Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover 
 
 There are limitations on what can be automatically fixed due to constrraints of `buildozer`. For more details
 see the doc string of the [apply fixes main function](src/apply_fixes/main.py).
+
+# Preconditions
+
+**The code has to be compilable** </br>
+DWYY is not performing a compilation itself. It works by statically analyzing the source code and build tree. However,
+non compiling code can contain errors which infringe the assumptions DWYU is based on. For example, including header
+files which do not exist at the expected path.
+
+**Include paths have to be unambiguous` </br>
+In other words, there shall not be multiple header files in the dependency tree of a target matching an
+include statement. Even if analysing the code works initially, it might break at any time if the ordering of paths in
+the analysis changes.
 
 # Supported Platforms
 
