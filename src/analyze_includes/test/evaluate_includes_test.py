@@ -304,6 +304,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[
                 Include(file=Path("nested/dir/foo.h"), include="bar.h"),
                 Include(file=Path("nested/dir/foo.h"), include="sub/tick.h"),
+                Include(file=Path("nested/dir/foo.h"), include="../../nested/dir/sub/tick.h"),
                 Include(file=Path("nested/dir/sub/tick.h"), include="tock.h"),
             ],
             private_includes=[],
@@ -325,6 +326,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[
                 Include(file=Path("foo.h"), include="bar/dir/bar.h"),
                 Include(file=Path("bar/dir/bar.h"), include="sub/tick.h"),
+                Include(file=Path("bar/dir/bar.h"), include="../dir/sub/tick.h"),
                 Include(file=Path("bar/dir/sub/tick.h"), include="tock.h"),
             ],
             private_includes=[],

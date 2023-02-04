@@ -1,9 +1,10 @@
 // relatively including header from own target
 #include "some/virtual_strip.h"
 #include "some/sub/dir/bar.h"
+#include "some/sub/dir/../dir2/baz.h"
 // include from virtually stripped path
 #include "sub/dir/foo.h"
 
 int main() {
-    return useVirtualStrip() + doBar();
+    return useVirtualStrip() + doBar() + doBaz();
 }
