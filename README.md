@@ -158,7 +158,7 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 - Defines are ignored.
   No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected
   through the `defines = [...]` attribute of the `cc_` rules.
-- Include statements utilizing `..` to go up the directory tree are not resolved.
+- Include statements utilizing `..` are not recognized if they are used on virtual or system include paths.
 
 ## Applying automatic fixes
 

@@ -111,14 +111,11 @@ def _check_for_invalid_includes(
             # Might be a relative include
             curr_dir = inc.file.parent
             for hf in all_header_files:
-                try:
-                    rel_path = Path(hf.path).relative_to(curr_dir)
-                    if rel_path == Path(inc.include):
-                        legal = True
-                        hf.usage.update(usage)
-                        break
-                except ValueError:
-                    pass
+                path_matching_include_statement = (curr_dir / inc.include).resolve()
+                if path_matching_include_statement == Path(hf.path).resolve():
+                    legal = True
+                    hf.usage.update(usage)
+                    break
         if not legal:
             invalid_includes.append(inc)
     return invalid_includes

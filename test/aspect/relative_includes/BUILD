@@ -5,6 +5,7 @@ cc_library(
         "normal_include.h",
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
+        "some/sub/dir2/baz.h",
     ],
 )
 
@@ -14,6 +15,7 @@ cc_library(
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
+        "some/sub/dir2/baz.h",
         "system_include.h",
     ],
     includes = ["some"],
@@ -25,6 +27,7 @@ cc_library(
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
+        "some/sub/dir2/baz.h",
         "some/virtual_strip.h",
     ],
     strip_include_prefix = "some",
@@ -36,6 +39,7 @@ cc_library(
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
+        "some/sub/dir2/baz.h",
         "virtual_prefix.h",
     ],
     include_prefix = "custom/prefix",
