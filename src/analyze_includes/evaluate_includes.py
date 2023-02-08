@@ -70,7 +70,7 @@ class Result:
         return dumps(content, indent=2) + "\n"
 
     @staticmethod
-    def _make_includes_map(includes: List[Include]) -> DefaultDict[Any, List[str]]:
+    def _make_includes_map(includes: List[Include]) -> DefaultDict[str, List[str]]:
         includes_mapping = defaultdict(list)
         for inc in includes:
             includes_mapping[str(inc.file)].append(inc.include)
@@ -93,12 +93,14 @@ def _check_for_invalid_includes(
 
     all_header_files = []
     all_header_files.extend(target_under_inspection.header_files)
-    for deb in dependencies:
-        all_header_files.extend(deb.header_files)
+    for dep in dependencies:
+        all_header_files.extend(dep.header_files)
 
     for inc in includes:
         legal = False
         for dep in dependencies:
+            if legal:
+                break
             for dep_hdr in dep.include_paths:
                 if inc.include == dep_hdr.path:
                     legal = True
