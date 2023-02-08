@@ -1,3 +1,6 @@
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
+load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
+
 def _parse_sources_impl(sources, out_files):
     for src in sources:
         file = src.files.to_list()[0]
@@ -125,7 +128,7 @@ def _make_dep_info(dep):
         header_files = _extract_header_files(target = dep, is_target_under_inspection = False),
     )
 
-def _make_headers_info(target, public_deps, private_deps):
+def _make_headers_info(target, public_deps, private_deps, compile_flags):
     """
     Create a struct summarizing all information about the target and the dependencies required for executing the
     DWYU logic.
@@ -139,10 +142,56 @@ def _make_headers_info(target, public_deps, private_deps):
         self = _make_target_info(target),
         public_deps = [_make_dep_info(dep) for dep in public_deps],
         private_deps = [_make_dep_info(dep) for dep in private_deps],
+        compile_flags = compile_flags,
     )
 
 def _label_to_name(label):
     return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
+
+def _toolchain_flags(ctx):
+    # NOTE(storypku):
+    # Here, we didn't take into account pure C target and [conlyopts](https://bazel.build/rules/lib/cpp#conlyopts).
+    cc_toolchain = find_cpp_toolchain(ctx)
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+    compile_variables = cc_common.create_compile_variables(
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        user_compile_flags = ctx.fragments.cpp.cxxopts + ctx.fragments.cpp.copts,
+    )
+    flags = cc_common.get_memory_inefficient_command_line(
+        feature_configuration = feature_configuration,
+        action_name = CPP_COMPILE_ACTION_NAME,
+        variables = compile_variables,
+    )
+    return flags
+
+def _rule_flags(target, ctx):
+    result = []
+    if hasattr(ctx.rule.attr, "copts"):
+        result.extend(ctx.rule.attr.copts)
+
+    compilation_context = target[CcInfo].compilation_context
+    for define in compilation_context.defines.to_list():
+        result.append("-D{}".format(define))
+
+    for define in compilation_context.local_defines.to_list():
+        result.append("-D{}".format(define))
+
+    for inc in compilation_context.includes.to_list():
+        result.append("-I{}".format(inc))
+
+    for inc in compilation_context.quote_includes.to_list():
+        result.extend(["-iquote", inc])
+
+    for inc in compilation_context.system_includes.to_list():
+        result.extend(["-isystem", inc])
+
+    return result
 
 def dwyu_aspect_impl(target, ctx):
     """
@@ -171,10 +220,19 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
+    toolchain_flags = _toolchain_flags(ctx)
+    rule_flags = _rule_flags(target, ctx)
+
     target_name = _label_to_name(target.label)
+
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target_name))
     headers_info_file = ctx.actions.declare_file("{}_headers_info.json".format(target_name))
-    headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps)
+    headers_info = _make_headers_info(
+        target = target,
+        public_deps = public_deps,
+        private_deps = private_deps,
+        compile_flags = toolchain_flags + rule_flags,
+    )
     ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
 
     args = _make_args(
