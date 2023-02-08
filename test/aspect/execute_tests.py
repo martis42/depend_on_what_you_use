@@ -287,6 +287,20 @@ TESTS = [
         ),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="simple_defines_use_foo_or_bar_default",
+        cmd=TestCmd(target="//test/aspect/simple_defines:use_foo_or_bar", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="simple_defines_use_foo_or_bar_enable_foo",
+        cmd=TestCmd(
+            target="//test/aspect/simple_defines:use_foo_or_bar",
+            aspect=DEFAULT_ASPECT,
+            extra_args=["--//test/aspect/simple_defines:enable_foo"],
+        ),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
