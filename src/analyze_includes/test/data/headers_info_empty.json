@@ -5,5 +5,6 @@
     "include_paths": [],
     "header_files": [],
     "target": "//:foo"
-  }
+  },
+  "compile_flags": []
 }

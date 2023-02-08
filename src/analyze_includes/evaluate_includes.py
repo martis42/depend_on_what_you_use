@@ -153,6 +153,7 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
         public_deps=[pub for pub in system_under_inspection.public_deps if pub.include_paths],
         private_deps=[pri for pri in system_under_inspection.private_deps if pri.include_paths],
         target_under_inspection=system_under_inspection.target_under_inspection,
+        compile_flags=system_under_inspection.compile_flags,
     )
 
 

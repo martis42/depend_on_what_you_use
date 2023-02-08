@@ -57,5 +57,10 @@
       "self/header_2.h"
     ],
     "target": "//:baz"
-  }
+  },
+  "compile_flags": [
+      "-DFOO",
+      "-DBAR",
+      "-UBAZ"
+  ]
 }

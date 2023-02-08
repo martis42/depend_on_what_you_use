@@ -127,8 +127,15 @@ class TestGetSystemUnderInspection(unittest.TestCase):
             self.assertEqual(hf.path, expected_file)
             self.assertEqual(hf.usage.usage, UsageStatus.NONE)
 
+    def check_compile_flags(self, actual_flags: List[str], expected_flags: List[str]) -> None:
+        self.assertEqual(len(actual_flags), len(expected_flags))
+        for actual_flag, expected_flag in zip(actual_flags, expected_flags):
+            self.assertEqual(actual_flag, expected_flag)
+
     def test_load_full_file(self):
         sui = get_system_under_inspection(Path("src/analyze_includes/test/data/headers_info_full.json"))
+
+        self.check_compile_flags(actual_flags=sui.compile_flags, expected_flags=["-DFOO", "-DBAR", "-UBAZ"])
 
         self.assertEqual(len(sui.private_deps), 2)
         self.check_target(
@@ -167,6 +174,7 @@ class TestGetSystemUnderInspection(unittest.TestCase):
 
     def test_load_empty_file(self):
         sui = get_system_under_inspection(Path("src/analyze_includes/test/data/headers_info_empty.json"))
+        self.check_compile_flags(actual_flags=sui.compile_flags, expected_flags=[])
 
         self.assertEqual(len(sui.private_deps), 0)
         self.assertEqual(len(sui.public_deps), 0)

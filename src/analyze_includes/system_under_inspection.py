@@ -85,6 +85,7 @@ class SystemUnderInspection:
         public_deps: List[CcTarget],
         private_deps: List[CcTarget],
         target_under_inspection: CcTarget,
+        compile_flags: List[str],
     ) -> None:
         # Dependencies which are available to downstream dependencies of the target under inspection
         self.public_deps = public_deps
@@ -92,6 +93,8 @@ class SystemUnderInspection:
         self.private_deps = private_deps
         # Target under inspection
         self.target_under_inspection = target_under_inspection
+        # Compile flags for this target
+        self.compile_flags = compile_flags
 
 
 def _make_cc_target(info: Dict) -> CcTarget:
@@ -105,6 +108,34 @@ def _make_cc_target(info: Dict) -> CcTarget:
     return dep
 
 
+def _extract_preprocessing_flags(compile_flags: List[str]) -> List[str]:
+    compile_flags = iter(compile_flags)
+
+    result = []
+    for flag in compile_flags:
+        flag = flag.strip()
+        # ["-DFOO"], ["-DFOO=1"], ["-D", "FOO"], ["-D", "FOO=1"] are supported
+        if flag.startswith("-D"):
+            result.append(flag)
+            if flag == "-D":
+                result.append(next(compile_flags))
+        # ["-UBAR"], ["-U", "BAR"] are supported
+        elif flag.startswith("-U"):
+            result.append(flag)
+            if flag == "-U":
+                result.append(next(compile_flags))
+        # FIXME(storypku):
+        # Some predefined macros are c++ standard related,
+        #   Ref: https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros)
+        # However, enabling the -std=X option seems to cause many integration tests fails w/ exception raised:
+        #   raise TranslationUnitLoadError("Error parsing translation unit.")
+        # So we disable it for now.
+        #
+        # elif flag.startswith("-std=") or flag.startswith("--std="):
+        #    result.append(flag)
+    return result
+
+
 def get_system_under_inspection(allowed_includes_file: Path) -> SystemUnderInspection:
     with open(allowed_includes_file, encoding="utf-8") as fin:
         loaded = json.load(fin)
@@ -112,4 +143,5 @@ def get_system_under_inspection(allowed_includes_file: Path) -> SystemUnderInspe
             public_deps=[_make_cc_target(dep) for dep in loaded["public_deps"]],
             private_deps=[_make_cc_target(dep) for dep in loaded["private_deps"]],
             target_under_inspection=_make_cc_target(loaded["self"]),
+            compile_flags=_extract_preprocessing_flags(loaded["compile_flags"]),
         )

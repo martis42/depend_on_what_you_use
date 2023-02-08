@@ -44,18 +44,23 @@ def cli():
 
 def main(args: Namespace) -> int:
     ignored_includes = get_ignored_includes(args.ignored_includes_config)
+    system_under_inspection = get_system_under_inspection(args.headers_info)
 
     all_includes_from_public = get_relevant_includes_from_files(
-        files=args.public_files, ignored_includes=ignored_includes
+        files=args.public_files,
+        ignored_includes=ignored_includes,
+        compile_flags=system_under_inspection.compile_flags,
     )
     all_includes_from_private = get_relevant_includes_from_files(
-        files=args.private_files, ignored_includes=ignored_includes
+        files=args.private_files,
+        ignored_includes=ignored_includes,
+        compile_flags=system_under_inspection.compile_flags,
     )
 
     result = evaluate_includes(
         public_includes=all_includes_from_public,
         private_includes=all_includes_from_private,
-        system_under_inspection=get_system_under_inspection(args.headers_info),
+        system_under_inspection=system_under_inspection,
         ensure_private_deps=args.implementation_deps_available,
     )
 

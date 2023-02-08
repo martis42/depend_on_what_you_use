@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 from typing import List, Union
 
+from clang.cindex import CursorKind, TranslationUnit
+
 
 class Include:
     """Single include statement in a specific file"""
@@ -39,7 +41,7 @@ class IgnoredIncludes:
         return is_ignored_path or is_ignored_pattern
 
 
-def get_includes_from_file(file: Path) -> List[Include]:
+def get_includes_from_file(file: Path, compile_flags: Union[List[str], None] = None) -> List[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
 
@@ -52,44 +54,21 @@ def get_includes_from_file(file: Path) -> List[Include]:
 
     Known limitations:
     - Include statements which are added through a macro are not detected.
-    - Defines are inored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
-      sure only a subset of headers is used for compilation.
     - Include paths utilizing '../' are not resolved.
     """
-    includes, inside_comment_block = [], False
-    with open(file, encoding="utf-8") as fin:
-        for line in fin:
-            line = line.rstrip()
-            line_without_comments = ""
-            i = 0
-            while i < len(line) - 1:
-                curr = line[i : i + 2]
-                if not inside_comment_block and curr == "//":
-                    i = len(line)
-                    break
-                elif not inside_comment_block and curr == "/*":
-                    inside_comment_block = True
-                    i += 1
-                elif inside_comment_block and curr == "*/":
-                    inside_comment_block = False
-                    i += 1
-                elif not inside_comment_block:
-                    line_without_comments += line[i]
-                i += 1
-            if line and not inside_comment_block and i < len(line):
-                line_without_comments += line[-1]
 
-            if (
-                not inside_comment_block
-                and line_without_comments
-                and line_without_comments.lstrip().startswith("#include")
-            ):
-                include = re.findall(r'#include\s*["<](.+)[">]', line_without_comments)
-                if not include:
-                    raise Exception(f"Did not find any include path in file '{file}' in line '{line}'")
-                if len(include) > 1:
-                    raise Exception(f"Found unexpectedly multiple include paths in file '{file}' in line '{line}'")
-                includes.append(Include(file=file, include=include[0]))
+    # NOTE(storypku): Why parsing w/ the PARSE_DETAILED_PROCESSING_RECORD option?
+    # 1. Indicates that the parser should construct a detailed preprocessing record,
+    #    including all macro definitions and instantiations
+    # 2. Required to retrieve `CursorKind.INCLUSION_DIRECTIVE`
+    includes = []
+
+    parse_options = TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD | TranslationUnit.PARSE_SKIP_FUNCTION_BODIES
+    translation_unit = TranslationUnit.from_source(file, compile_flags, None, parse_options, None)
+    for child in translation_unit.cursor.get_children():
+        if child.kind == CursorKind.INCLUSION_DIRECTIVE and child.location.file.name == str(file):
+            includes.append(Include(file=file, include=child.spelling))
+
     return includes
 
 
@@ -102,10 +81,14 @@ def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) 
     return [include for include in unique_includes if not ignored_includes.is_ignored(include.include)]
 
 
-def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: IgnoredIncludes) -> List[Include]:
+def get_relevant_includes_from_files(
+    files: Union[List[str], None],
+    ignored_includes: IgnoredIncludes,
+    compile_flags: Union[List[str], None] = None,
+) -> List[Include]:
     all_includes = []
     if files:
         for file in files:
-            includes = get_includes_from_file(Path(file))
+            includes = get_includes_from_file(Path(file), compile_flags)
             all_includes.extend(includes)
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)

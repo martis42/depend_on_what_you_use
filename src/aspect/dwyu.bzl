@@ -182,15 +182,6 @@ def _rule_flags(target, ctx):
     for define in compilation_context.local_defines.to_list():
         result.append("-D{}".format(define))
 
-    for inc in compilation_context.includes.to_list():
-        result.append("-I{}".format(inc))
-
-    for inc in compilation_context.quote_includes.to_list():
-        result.extend(["-iquote", inc])
-
-    for inc in compilation_context.system_includes.to_list():
-        result.extend(["-isystem", inc])
-
     return result
 
 def dwyu_aspect_impl(target, ctx):
