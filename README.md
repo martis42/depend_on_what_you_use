@@ -48,11 +48,14 @@ http_archive(
     name = "depend_on_what_you_use",
     sha256 = "<archive_checksum>",  # optional
     strip_prefix = "depend_on_what_you_use-{}".format(dwyu_version),
-    url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.tar.gz".format(dwyu_version),
+    url = "https://github.com/storypku/depend_on_what_you_use/archive/{}.tar.gz".format(dwyu_version),
 )
 
 load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
 dwyu_dependencies()
+
+load("@depend_on_what_you_use//:extra_deps.bzl", "dwyu_extra_deps")
+dwyu_extra_deps()
 ```
 
 ## Use DWYU
@@ -155,9 +158,7 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 ## Known limitations
 
 - If includes are added through a macro, this is invisible to DWYU.
-- Defines are ignored.
-  No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected
-  through the `defines = [...]` attribute of the `cc_` rules.
+- Defines are OK except few corner cases, e.g., if they are from the dependencies([example](test/aspect/complex_defines)).
 - Include statements utilizing `..` are not recognized if they are used on virtual or system include paths.
 
 ## Applying automatic fixes
@@ -197,7 +198,7 @@ the analysis changes.
 | Platform         | Constraints                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------ |
 | Operating system | No constraints. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
-| Python           | Minimum version is 3.6. Tests are currently running based on Python 3.8.                         |
+| Python           | Minimum version is 3.7. Tests are currently running based on Python 3.8.                         |
 | Bazel            | Minimum version is 4.0.0. Multiple versions are tested.                                          |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
 

@@ -21,6 +21,10 @@ local_repository(
 load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
 
 dwyu_dependencies()
+
+load("@depend_on_what_you_use//:extra_deps.bzl", "dwyu_extra_deps")
+
+dwyu_extra_deps()
 """
 
 

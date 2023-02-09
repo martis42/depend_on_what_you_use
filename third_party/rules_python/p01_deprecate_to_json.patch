@@ -1,0 +1,29 @@
+diff --git a/python/pip_install/pip_repository.bzl b/python/pip_install/pip_repository.bzl
+index d9888a2..fe44332 100644
+--- a/python/pip_install/pip_repository.bzl
++++ b/python/pip_install/pip_repository.bzl
+@@ -92,13 +92,13 @@ def _parse_optional_attrs(rctx, args):
+     if rctx.attr.extra_pip_args != None:
+         args += [
+             "--extra_pip_args",
+-            struct(arg = rctx.attr.extra_pip_args).to_json(),
++            json.encode(struct(arg = rctx.attr.extra_pip_args)),
+         ]
+
+     if rctx.attr.pip_data_exclude != None:
+         args += [
+             "--pip_data_exclude",
+-            struct(arg = rctx.attr.pip_data_exclude).to_json(),
++            json.encode(struct(arg = rctx.attr.pip_data_exclude)),
+         ]
+
+     if rctx.attr.enable_implicit_namespace_pkgs:
+@@ -107,7 +107,7 @@ def _parse_optional_attrs(rctx, args):
+     if rctx.attr.environment != None:
+         args += [
+             "--environment",
+-            struct(arg = rctx.attr.environment).to_json(),
++            json.encode(struct(arg = rctx.attr.environment)),
+         ]
+
+     return args

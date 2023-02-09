@@ -1,4 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("//:requirements.bzl", "requirement")
 
 py_library(
     name = "lib",
@@ -10,6 +11,9 @@ py_library(
         "system_under_inspection.py",
     ],
     visibility = [":__subpackages__"],
+    deps = [
+        requirement("libclang"),
+    ],
 )
 
 py_binary(
