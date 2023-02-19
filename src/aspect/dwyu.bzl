@@ -71,16 +71,18 @@ def _get_include_paths(label, system_includes, header_file):
     # Default case for single header in workspace target without any special attributes
     return [header_file.short_path]
 
-def _extract_header_files(target):
+def _extract_header_files(target, is_target_under_inspection):
     """
     The file location of the headers is used by DWYU to resolve relative include statements.
     We support only relative includes to files from the own workspace. Thus, we ignore header files from external
-    workspaces
+    workspaces.
     """
     header_files = []
     if not target.label.workspace_root.startswith("external"):
         header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_public_headers])
-        header_files.extend([thdr.short_path for thdr in target[CcInfo].compilation_context.direct_textual_headers])
+        header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_textual_headers])
+        if is_target_under_inspection:
+            header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_private_headers])
     return header_files
 
 def _make_target_info(target):
@@ -96,7 +98,7 @@ def _make_target_info(target):
     return struct(
         target = str(target.label),
         include_paths = include_paths,
-        header_files = _extract_header_files(target),
+        header_files = _extract_header_files(target = target, is_target_under_inspection = True),
     )
 
 def _make_dep_info(dep):
@@ -120,7 +122,7 @@ def _make_dep_info(dep):
     return struct(
         target = str(dep.label),
         include_paths = include_paths,
-        header_files = _extract_header_files(dep),
+        header_files = _extract_header_files(target = dep, is_target_under_inspection = False),
     )
 
 def _make_headers_info(target, public_deps, private_deps):
