@@ -1,21 +1,25 @@
 cc_library(
     name = "normal_include",
-    srcs = ["normal_include.cpp"],
+    srcs = [
+        "normal_include.cpp",
+        "some/sub/dir2/baz.h",
+    ],
     hdrs = [
         "normal_include.h",
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
-        "some/sub/dir2/baz.h",
     ],
 )
 
 cc_library(
     name = "system_include",
-    srcs = ["system_include.cpp"],
+    srcs = [
+        "some/sub/dir2/baz.h",
+        "system_include.cpp",
+    ],
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
-        "some/sub/dir2/baz.h",
         "system_include.h",
     ],
     includes = ["some"],
@@ -23,7 +27,10 @@ cc_library(
 
 cc_library(
     name = "virtual_strip",
-    srcs = ["virtual_strip.cpp"],
+    srcs = [
+        "other/other.h",
+        "virtual_strip.cpp",
+    ],
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
@@ -35,7 +42,10 @@ cc_library(
 
 cc_library(
     name = "virtual_prefix",
-    srcs = ["virtual_prefix.cpp"],
+    srcs = [
+        "other/other.h",
+        "virtual_prefix.cpp",
+    ],
     hdrs = [
         "some/sub/dir/bar.h",
         "some/sub/dir/foo.h",
