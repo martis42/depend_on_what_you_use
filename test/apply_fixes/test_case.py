@@ -4,12 +4,13 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Set
 
-from src.result import Result
+from result import Result
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, test_sources: Path) -> None:
         self._name = name
+        self._test_sources = test_sources
         self._workspace = None
 
     #
@@ -20,7 +21,7 @@ class TestCaseBase(ABC):
     @abstractmethod
     def test_target(self) -> str:
         """
-        Bazel target used in test case implementation
+        Bazel target from workspace under test used in test case implementation
         """
         pass
 
@@ -38,6 +39,10 @@ class TestCaseBase(ABC):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def test_sources(self) -> Path:
+        return self._test_sources
 
     def execute_test(self, workspace: Path) -> Result:
         self._workspace = workspace

@@ -3,7 +3,7 @@ import logging
 from argparse import ArgumentParser
 from sys import exit
 
-from src.test_execution import main
+from execution_logic import main
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
