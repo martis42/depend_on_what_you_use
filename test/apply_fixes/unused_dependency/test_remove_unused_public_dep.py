@@ -1,5 +1,5 @@
-from src.result import Error, Result, Success
-from src.test_case import TestCaseBase
+from result import Error, Result, Success
+from test_case import TestCaseBase
 
 
 class TestCase(TestCaseBase):
@@ -8,8 +8,8 @@ class TestCase(TestCaseBase):
         return "//:unused_public_dep"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports(extra_args=["--noexperimental_convenience_symlinks", "--compilation_mode=opt"])
-        self._run_automatic_fix(extra_args=["--use-bazel-info=opt"])
+        self._create_reports()
+        self._run_automatic_fix()
         target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
 
         if target_deps == {"//:lib_a"}:

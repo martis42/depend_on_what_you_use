@@ -7,10 +7,10 @@ from shutil import rmtree
 from tempfile import TemporaryDirectory
 from typing import List, Optional
 
-from src.test_case import TestCaseBase
+from test_case import TestCaseBase
 
 TEST_CASES_DIR = Path("test/apply_fixes")
-WORKSPACE_TEMPLATE_DIR = TEST_CASES_DIR / "workspace_template"
+TEST_WORKSPACES_DIR = TEST_CASES_DIR / "workspaces"
 
 WORKSPACE_FILE_TEMPLATE = """
 local_repository(
@@ -24,10 +24,9 @@ dwyu_dependencies()
 """
 
 
-def setup_test_workspace(origin_workspace: Path, test_workspace: Path) -> None:
-    test_sources = origin_workspace / WORKSPACE_TEMPLATE_DIR
-    copy_tree(src=test_sources, dst=str(test_workspace))
-    with open(test_workspace / "WORKSPACE", mode="wt", encoding="utf-8") as ws_file:
+def setup_test_workspace(origin_workspace: Path, test_sources: Path, temporary_workspace: Path) -> None:
+    copy_tree(src=test_sources, dst=str(temporary_workspace))
+    with open(temporary_workspace / "WORKSPACE", mode="wt", encoding="utf-8") as ws_file:
         ws_file.write(WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace))
 
 
@@ -61,14 +60,18 @@ def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
     succeeded = False
     result = None
 
-    with TemporaryDirectory() as test_workspace:
+    with TemporaryDirectory() as temporary_workspace:
         try:
-            setup_test_workspace(origin_workspace=origin_workspace, test_workspace=Path(test_workspace))
-            result = test.execute_test(Path(test_workspace))
+            setup_test_workspace(
+                origin_workspace=origin_workspace,
+                test_sources=test.test_sources,
+                temporary_workspace=Path(temporary_workspace),
+            )
+            result = test.execute_test(Path(temporary_workspace))
         except Exception:
             logging.exception("Test failed due to exception:")
 
-        cleanup(test_workspace)
+        cleanup(temporary_workspace)
 
     if result is not None:
         if not result.is_success():
@@ -95,7 +98,8 @@ def file_to_test_name(test_file: Path) -> str:
 def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) -> int:
     current_workspace = get_current_workspace()
     tests_search_dir = current_workspace / TEST_CASES_DIR
-    test_files = [Path(x) for x in tests_search_dir.glob("test_*.py")]
+    src_dir = tests_search_dir / "src"
+    test_files = [Path(x) for x in tests_search_dir.glob("*/test_*.py") if x.parent != src_dir]
 
     if list_tests:
         test_names = [file_to_test_name(test) for test in test_files]
@@ -108,7 +112,7 @@ def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) 
         name = file_to_test_name(test)
         if (requested_tests and any(requested in name for requested in requested_tests)) or (not requested_tests):
             module = SourceFileLoader("", str(test.resolve())).load_module()
-            tests.append(module.TestCase(name))
+            tests.append(module.TestCase(name=name, test_sources=test.parent / "workspace"))
 
     failed_tests = []
     for test in tests:

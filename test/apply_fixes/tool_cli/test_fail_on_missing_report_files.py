@@ -1,11 +1,11 @@
-from src.result import Error, Result, Success
-from src.test_case import TestCaseBase
+from result import Error, Result, Success
+from test_case import TestCaseBase
 
 
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:unused_public_dep"
+        return "//:binary"
 
     def execute_test_logic(self) -> Result:
         self._create_reports(extra_args=["--nobuild"])

@@ -1,5 +1,5 @@
-from src.result import Error, Result, Success
-from src.test_case import TestCaseBase
+from result import Error, Result, Success
+from test_case import TestCaseBase
 
 
 class TestCase(TestCaseBase):

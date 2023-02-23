@@ -1,6 +1,5 @@
 #include "lib_a.h"
 
-int usingLibA()
-{
+int usingA() {
     return 0;
 }
