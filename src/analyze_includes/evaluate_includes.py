@@ -20,6 +20,7 @@ class Result:
         unused_public_deps: Optional[List[str]] = None,
         unused_private_deps: Optional[List[str]] = None,
         deps_which_should_be_private: Optional[List[str]] = None,
+        use_implementation_deps=False,
     ) -> None:
         self.target = target
         self.public_includes_without_dep = public_includes_without_dep if public_includes_without_dep else []
@@ -27,6 +28,7 @@ class Result:
         self.unused_public_deps = unused_public_deps if unused_public_deps else []
         self.unused_private_deps = unused_private_deps if unused_private_deps else []
         self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
+        self.use_implementation_deps = use_implementation_deps
 
     def is_ok(self) -> bool:
         return (
@@ -66,6 +68,7 @@ class Result:
             "unused_public_deps": self.unused_public_deps,
             "unused_private_deps": self.unused_private_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
+            "use_implementation_deps": self.use_implementation_deps,
         }
         return dumps(content, indent=2) + "\n"
 
@@ -183,5 +186,6 @@ def evaluate_includes(
 
     if ensure_private_deps:
         result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(system_under_inspection)
+        result.use_implementation_deps = True
 
     return result

@@ -37,7 +37,8 @@ class TestResult(unittest.TestCase):
   "private_includes_without_dep": {},
   "unused_public_deps": [],
   "unused_private_deps": [],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -80,7 +81,8 @@ class TestResult(unittest.TestCase):
   },
   "unused_public_deps": [],
   "unused_private_deps": [],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -123,7 +125,8 @@ class TestResult(unittest.TestCase):
   "private_includes_without_dep": {},
   "unused_public_deps": [],
   "unused_private_deps": [],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -153,7 +156,8 @@ class TestResult(unittest.TestCase):
     "baz"
   ],
   "unused_private_deps": [],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -183,7 +187,8 @@ class TestResult(unittest.TestCase):
     "foo",
     "baz"
   ],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -215,7 +220,8 @@ class TestResult(unittest.TestCase):
   "unused_private_deps": [
     "baz"
   ],
-  "deps_which_should_be_private": []
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
@@ -245,10 +251,30 @@ class TestResult(unittest.TestCase):
   "deps_which_should_be_private": [
     "foo",
     "baz"
-  ]
+  ],
+  "use_implementation_deps": false
 }
 """.lstrip(),
         )
+
+
+def test_set_use_implementation_deps(self):
+    unit = Result(use_implementation_deps=True)
+
+    self.assertEqual(
+        unit.to_json(),
+        """
+{
+"analyzed_target": "",
+"public_includes_without_dep": {},
+"private_includes_without_dep": {},
+"unused_public_deps": [],
+"unused_private_deps": [],
+"deps_which_should_be_private": [],
+"use_implementation_deps": false
+}
+""".lstrip(),
+    )
 
 
 class TestEvaluateIncludes(unittest.TestCase):
