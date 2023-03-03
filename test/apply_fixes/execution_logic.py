@@ -92,14 +92,13 @@ def get_current_workspace() -> Path:
 
 
 def file_to_test_name(test_file: Path) -> str:
-    return test_file.stem.replace("test_", "", 1)
+    return test_file.parent.name + "/" + test_file.stem.replace("test_", "", 1)
 
 
 def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) -> int:
     current_workspace = get_current_workspace()
     tests_search_dir = current_workspace / TEST_CASES_DIR
-    src_dir = tests_search_dir / "src"
-    test_files = [Path(x) for x in tests_search_dir.glob("*/test_*.py") if x.parent != src_dir]
+    test_files = [Path(x) for x in tests_search_dir.glob("*/test_*.py")]
 
     if list_tests:
         test_names = [file_to_test_name(test) for test in test_files]
