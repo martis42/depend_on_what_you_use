@@ -5,7 +5,7 @@ import sys
 from argparse import REMAINDER, ArgumentParser
 from os import environ
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Dict, List
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -45,6 +45,14 @@ def cli():
         Path to the bazel-bin directory inside which the DWYU reports are located.
         Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
         deduce the Bazel output directory containing the DWYU report files.""",
+    )
+    parser.add_argument(
+        "--add-missing-deps",
+        action="store_true",
+        help="""
+        Given an include is detected which is not provided by a direct dependency, try to find and add the proper
+        dependency. This fix is based on heuristics and can fail due to various reasons. Thus, you have to explicitly
+        activate it.""",
     )
     parser.add_argument(
         "--buildozer",
@@ -169,13 +177,147 @@ def make_base_cmd(buildozer: str, dry: bool, buildozer_args: List[str]) -> List[
     return cmd
 
 
-def execute_cmd(cmd: List[str], workspace: Path, summary: Summary, dry: bool) -> None:
+def execute_buildozer(cmd: List[str], workspace: Path, summary: Summary, dry: bool) -> None:
     logging.log(logging.INFO if dry else logging.DEBUG, f"Executing buildozer command: {cmd}")
     process = subprocess.run(cmd, cwd=workspace, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     summary.add_command(cmd=cmd, buildozer_result=process.returncode)
 
 
-def perform_fixes(workspace: Path, report: Path, buildozer: str, buildozer_args: List[str], dry: bool) -> Summary:
+def get_file_name(include: str) -> str:
+    return include.split("/")[-1]
+
+
+def dep_to_file(dep: str) -> str:
+    tmp = dep.split(":")[-1]
+    return get_file_name(tmp)
+
+
+def dep_to_package(dep: str) -> str:
+    return dep.split(":")[0]
+
+
+def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: Dict[str, List[str]]) -> List[str]:
+    process = subprocess.run(
+        ["bazel", "query", "--noimplicit_deps", f'kind("file", deps({target}) except deps({target}, 1))'],
+        cwd=workspace,
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+    )
+
+    discovered_dependencies = []
+
+    files = [line for line in process.stdout.splitlines()]
+
+    all_invalid_includes = []
+    for _, includes in includes_without_direct_dep.items():
+        all_invalid_includes.extend(includes)
+
+    for include in all_invalid_includes:
+        include_file = get_file_name(include)
+        sources_for_include = [file for file in files if dep_to_file(file) == include_file]
+        if not sources_for_include:
+            logging.warning(
+                f"Could not find a file matching invalid include '{include}' in the transitive dependencies of target '{target}'"
+            )
+            continue
+
+        possible_deps = []
+        for x in sources_for_include:
+            pkg = dep_to_package(x)
+            cmd = ["bazel", "query", f"attr('hdrs', {include_file}, {pkg}:all)"]
+            process2 = subprocess.run(
+                cmd,
+                cwd=workspace,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+            )
+            possible_deps.extend(process2.stdout.splitlines())
+
+        if not possible_deps:
+            logging.warning(
+                f"""
+Could not find a proper dependency for invalid include '{include}' of target '{target}'.
+Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
+                """.strip()
+            )
+            continue
+
+        if len(possible_deps) > 1:
+            logging.warning(
+                f"""
+Found multiple targets which potentially can provide include '{include}' of target '{target}'.
+Please fix this manually. Candidates which have been discovered:
+                """.strip()
+            )
+            logging.warning("\n".join(f"- {dep}" for dep in possible_deps))
+            continue
+
+        discovered_dependencies.append(possible_deps[0])
+
+    return discovered_dependencies
+
+
+def add_deps(
+    deps: List[str],
+    target: str,
+    workspace: Path,
+    buildozer_base_cmd: List[str],
+    deps_attribute: str,
+    summary: Summary,
+    dry: bool,
+) -> None:
+    if deps:
+        deps = list(set(deps))
+        add_deps_cmd = buildozer_base_cmd + [f"add {deps_attribute} {' '.join(deps)}", target]
+        execute_buildozer(cmd=add_deps_cmd, workspace=workspace, summary=summary, dry=dry)
+
+
+def add_discovered_deps(
+    discovered_public_deps: List[str],
+    discovered_private_deps: List[str],
+    target: str,
+    workspace: Path,
+    summary: Summary,
+    buildozer_base_cmd: List[str],
+    use_implementation_deps: bool,
+    dry: bool,
+) -> None:
+    add_to_deps = discovered_public_deps
+    add_to_implementation_deps = []
+    if use_implementation_deps:
+        for dep in discovered_private_deps:
+            if dep not in add_to_deps:
+                add_to_implementation_deps.append(dep)
+    else:
+        add_to_deps.extend(discovered_private_deps)
+
+    add_deps(
+        deps=add_to_deps,
+        target=target,
+        workspace=workspace,
+        buildozer_base_cmd=buildozer_base_cmd,
+        deps_attribute="deps",
+        summary=summary,
+        dry=dry,
+    )
+    add_deps(
+        deps=add_to_implementation_deps,
+        target=target,
+        workspace=workspace,
+        buildozer_base_cmd=buildozer_base_cmd,
+        deps_attribute="implementation_deps",
+        summary=summary,
+        dry=dry,
+    )
+
+
+def perform_fixes(
+    workspace: Path, report: Path, buildozer: str, buildozer_args: List[str], add_missing_deps: bool, dry: bool
+) -> Summary:
     summary = Summary()
 
     with open(report, encoding="utf-8") as report_in:
@@ -189,15 +331,39 @@ def perform_fixes(workspace: Path, report: Path, buildozer: str, buildozer_args:
         if unused_public_deps:
             deps_str = " ".join(unused_public_deps)
             remove_deps = base_cmd + [f"remove deps {deps_str}", target]
-            execute_cmd(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
+            execute_buildozer(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
         if unused_private_deps:
             deps_str = " ".join(unused_private_deps)
             remove_deps = base_cmd + [f"remove implementation_deps {deps_str}", target]
-            execute_cmd(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
+            execute_buildozer(cmd=remove_deps, workspace=workspace, summary=summary, dry=dry)
         if deps_which_should_be_private:
             deps_str = " ".join(deps_which_should_be_private)
             move_deps = base_cmd + [f"move deps implementation_deps {deps_str}", target]
-            execute_cmd(cmd=move_deps, workspace=workspace, summary=summary, dry=dry)
+            execute_buildozer(cmd=move_deps, workspace=workspace, summary=summary, dry=dry)
+        if add_missing_deps:
+            invalid_public_includes = content["public_includes_without_dep"]
+            invalid_private_includes = content["private_includes_without_dep"]
+            use_implementation_deps = content["use_implementation_deps"]
+            discovered_public_deps = []
+            discovered_private_deps = []
+            if invalid_public_includes:
+                discovered_public_deps = search_missing_deps(
+                    workspace=workspace, target=target, includes_without_direct_dep=invalid_public_includes
+                )
+            if invalid_private_includes:
+                discovered_private_deps = search_missing_deps(
+                    workspace=workspace, target=target, includes_without_direct_dep=invalid_private_includes
+                )
+            add_discovered_deps(
+                discovered_public_deps=discovered_public_deps,
+                discovered_private_deps=discovered_private_deps,
+                target=target,
+                workspace=workspace,
+                summary=summary,
+                buildozer_base_cmd=base_cmd,
+                use_implementation_deps=use_implementation_deps,
+                dry=dry,
+            )
 
     return summary
 
@@ -216,7 +382,7 @@ def main(args: Any) -> int:
     - The DWYU aspect runs after alias expansion and thus reports the actual names instead of the alias names. However,
       only the alias name is visible to buildozer in a BUILD file in the dependencies of a target.
 
-    The script expects "bazel" to be available on PATH.
+    The script expects 'bazel' to be available on PATH.
     """
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -247,6 +413,7 @@ def main(args: Any) -> int:
             report=report,
             buildozer=buildozer,
             buildozer_args=args.buildozer_args,
+            add_missing_deps=args.add_missing_deps,
             dry=args.dry_run,
         )
         overall_summary.extend(summary)
