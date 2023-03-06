@@ -177,7 +177,10 @@ report files.
 The `apply_fixes` tool offers options to control how the output directory is discovered.<br/>
 Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover the whole CLI interface of the tool.
 
-There are limitations on what can be automatically fixed due to constrraints of `buildozer`. For more details
+Fixing missing direct dependencies by searching them in the dependency tree of a target is disabled by default, since it
+is based on a heuristic, which can fail in multiple ways. Activate this fix by adding `--add-missing-deps`.
+
+There are limitations on what can be automatically fixed due to constraints of `buildozer`. For more details
 see the doc string of the [apply fixes main function](src/apply_fixes/main.py).
 
 # Preconditions
