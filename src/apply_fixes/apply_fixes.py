@@ -14,6 +14,11 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 
 
+def execute_and_capture(cmd: List[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+    logging.debug(f"Executing command: {cmd}")
+    return subprocess.run(cmd, cwd=cwd, check=check, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
 def get_workspace(main_args: Any) -> Path:
     if main_args.workspace:
         return Path(main_args.workspace)
@@ -32,13 +37,8 @@ def get_bazel_bin_dir(main_args: Any, workspace_root: Path) -> Path:
         return Path(main_args.bazel_bin)
 
     if main_args.use_bazel_info:
-        process = subprocess.run(
-            ["bazel", "info", f"--compilation_mode={main_args.use_bazel_info}", "bazel-bin"],
-            cwd=workspace_root,
-            check=True,
-            encoding="utf-8",
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        process = execute_and_capture(
+            cmd=["bazel", "info", f"--compilation_mode={main_args.use_bazel_info}", "bazel-bin"], cwd=workspace_root
         )
         return Path(process.stdout.strip())
 
@@ -62,23 +62,17 @@ def dep_to_file(dep: str) -> str:
     return get_file_name(tmp)
 
 
-def dep_to_package(dep: str) -> str:
+def target_to_package(dep: str) -> str:
     return dep.split(":")[0]
 
 
 def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: Dict[str, List[str]]) -> List[str]:
-    process = subprocess.run(
-        ["bazel", "query", "--noimplicit_deps", f'kind("file", deps({target}) except deps({target}, 1))'],
+    discover_files_process = execute_and_capture(
+        cmd=["bazel", "query", "--noimplicit_deps", f'kind("file", deps({target}) except deps({target}, 1))'],
         cwd=workspace,
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        encoding="utf-8",
     )
-
     discovered_dependencies = []
-
-    files = [line for line in process.stdout.splitlines()]
+    files = [line for line in discover_files_process.stdout.splitlines()]
 
     all_invalid_includes = []
     for _, includes in includes_without_direct_dep.items():
@@ -94,18 +88,12 @@ def search_missing_deps(workspace: Path, target: str, includes_without_direct_de
             continue
 
         possible_deps = []
-        for x in sources_for_include:
-            pkg = dep_to_package(x)
-            cmd = ["bazel", "query", f"attr('hdrs', {include_file}, {pkg}:all)"]
-            process2 = subprocess.run(
-                cmd,
-                cwd=workspace,
-                check=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                encoding="utf-8",
+        for file in sources_for_include:
+            pkg = target_to_package(file)
+            header_deps_process = execute_and_capture(
+                cmd=["bazel", "query", f"attr('hdrs', {include_file}, {pkg}:all)"], cwd=workspace
             )
-            possible_deps.extend(process2.stdout.splitlines())
+            possible_deps.extend(header_deps_process.stdout.splitlines())
 
         if not possible_deps:
             logging.warning(
