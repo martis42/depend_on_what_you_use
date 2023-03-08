@@ -57,7 +57,8 @@ def get_file_name(include: str) -> str:
     return include.split("/")[-1]
 
 
-def dep_to_file(dep: str) -> str:
+def target_to_file(dep: str) -> str:
+    """Extract the file name from a Bazel target label"""
     tmp = dep.split(":")[-1]
     return get_file_name(tmp)
 
@@ -80,7 +81,7 @@ def search_missing_deps(workspace: Path, target: str, includes_without_direct_de
 
     for include in all_invalid_includes:
         include_file = get_file_name(include)
-        sources_for_include = [file for file in files if dep_to_file(file) == include_file]
+        sources_for_include = [file for file in files if target_to_file(file) == include_file]
         if not sources_for_include:
             logging.warning(
                 f"Could not find a file matching invalid include '{include}' in the transitive dependencies of target '{target}'"
