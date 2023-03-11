@@ -8,23 +8,15 @@ class TestCase(TestCaseBase):
         return "//:binary"
 
     def execute_test_logic(self) -> Result:
-        # Don't create report files to trigger a failure by the apply_fixes script.
+        self._create_reports()
 
         process = self._run_and_capture_cmd(
-            cmd=[
-                "bazel",
-                "run",
-                "@depend_on_what_you_use//:apply_fixes",
-                "--",
-                f"--workspace={self._workspace}",
-                "--fix-all",
-            ],
+            cmd=["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={self._workspace}"],
             check=False,
         )
-
         if process.returncode == 0:
             return Error(f"Expected an exception, but none occurred")
-        if "ERROR: Did not find any DWYU report files." not in process.stderr:
+        if "Please choose at least of onf the 'fix-..' options" not in process.stderr:
             return Error("Unexpected error output:\n" + process.stderr)
 
         return Success()

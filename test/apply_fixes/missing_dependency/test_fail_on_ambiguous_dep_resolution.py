@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
 
     def execute_test_logic(self) -> Result:
         self._create_reports()
-        self._run_automatic_fix(extra_args=["--add-missing-deps"])
+        self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         process = self._run_and_capture_cmd(
             cmd=[
@@ -17,7 +17,7 @@ class TestCase(TestCaseBase):
                 "run",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
-                "--add-missing-deps",
+                "--fix-missing-deps",
                 f"--workspace={self._workspace}",
             ],
             check=True,

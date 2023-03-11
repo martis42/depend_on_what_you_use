@@ -162,26 +162,43 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 
 ## Applying automatic fixes
 
-DWYU offers a tool to automatically fix detected problems.
+DWYU offers a tool to automatically fix some detected problems.
+
+&#9888;
+Please note that **the tool cannot guarantee that your build is not being broken** by the changes. Always make sure your
+project is still valid after the changes and review the performed changes.
 
 The workflow is the following:
-1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems for
-   each analyzed target in the Bazel output directory.
-2. Execute `bazel run @depend_on_what_you_use//:apply_fixes`. The tool discovers the report files generated in the
-   previous step and gathers the problems for which a fix is available. Then [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md)
-   is utilized to adapt the BUILDS files in your workspace.
+
+1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems in the
+   Bazel output directory for each analyzed target.
+2. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`. The tool discovers the report files
+   generated in the previous step and gathers the problems for which a fix is available. Then,
+   [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) is utilized to adapt the BUILDS
+   files in your workspace.
+
+The `apply_fixes` tool requires you to explicitly choose which kind or errors you want to be fixed. You can see the full
+command line interface and more information about the script behavior and limitations by executing:<br>
+`bazel run @depend_on_what_you_use//:apply_fixes -- --help`
 
 If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience
 symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the
-report files.
-The `apply_fixes` tool offers options to control how the output directory is discovered.<br/>
-Execute `bazel run @depend_on_what_you_use//:apply_fixes -- --help` to discover the whole CLI interface of the tool.
+report files. The tool offers options to control how the output directory is discovered.
 
-Fixing missing direct dependencies by searching them in the dependency tree of a target is disabled by default, since it
-is based on a heuristic, which can fail in multiple ways. Activate this fix by adding `--add-missing-deps`.
+Unfortunately, the tool cannot promise perfect results due to various constraints:
 
-There are limitations on what can be automatically fixed due to constraints of `buildozer`. More details are explained
-in the script description: `bazel run @depend_on_what_you_use//:apply_fixes -- --help`.
+- If alias targets are involved, this cannot be processed properly. Alias targets are resolved to their actual target
+  before the DWY aspect is running. Thus, the DWYU report file contains the actual targets in its report and buildozer
+  is not able to modify the BUILD files containing the alias name.
+- Buildozer is working on the plain BUILD files as a user would see them in the editor. Meaning without alias resolution
+  or macro expansion. Consequently, buildozer cannot work on targets which are generated inside a macro or whose name
+  is constructed in a list comprehension.
+- Generally the fixes should not break your build. But there are edge cases. For example a dependency X might be unused
+  in library A, but the downstream user of library A transitively depends on it. Removing the unused dependency from
+  library A will break the build as the downstream dependency no longer finds dependency X.
+- Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency. Also
+  analyzing the visibility of potential direct dependencies is not yet implemented, which can cause a broken build if
+  a target without the proper visibility is chosen.
 
 # Preconditions
 

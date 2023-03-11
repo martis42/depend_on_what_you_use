@@ -11,7 +11,7 @@ class TestCase(TestCaseBase):
         self._create_reports(
             aspect="use_implementation_deps_aspect", extra_args=["--experimental_cc_implementation_deps"]
         )
-        self._run_automatic_fix()
+        self._run_automatic_fix(extra_args=["--fix-deps-which-should-be-private"])
         target_public_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
         target_private_deps = self._get_target_attribute(target=self.test_target, attribute="implementation_deps")
 

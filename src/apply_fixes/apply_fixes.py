@@ -14,6 +14,13 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 
 
+class RequestedFixes:
+    def __init__(self, main_args: Any) -> None:
+        self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
+        self.move_private_deps_to_implementation_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
+        self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
+
+
 def execute_and_capture(cmd: List[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
     logging.debug(f"Executing command: {cmd}")
     return subprocess.run(cmd, cwd=cwd, check=check, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -144,23 +151,27 @@ def add_discovered_deps(
         )
 
 
-def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, add_missing_deps: bool) -> None:
+def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, requested_fixes: RequestedFixes) -> None:
     with open(report, encoding="utf-8") as report_in:
         content = json.load(report_in)
         target = content["analyzed_target"]
-        unused_public_deps = content["unused_public_deps"]
-        unused_private_deps = content["unused_private_deps"]
-        deps_which_should_be_private = content["deps_which_should_be_private"]
 
-        if unused_public_deps:
-            buildozer.execute(task=f"remove deps {' '.join(unused_public_deps)}", target=target)
-        if unused_private_deps:
-            buildozer.execute(task=f"remove implementation_deps {' '.join(unused_private_deps)}", target=target)
-        if deps_which_should_be_private:
-            buildozer.execute(
-                task=f"move deps implementation_deps {' '.join(deps_which_should_be_private)}", target=target
-            )
-        if add_missing_deps:
+        if requested_fixes.remove_unused_deps:
+            unused_public_deps = content["unused_public_deps"]
+            if unused_public_deps:
+                buildozer.execute(task=f"remove deps {' '.join(unused_public_deps)}", target=target)
+            unused_private_deps = content["unused_private_deps"]
+            if unused_private_deps:
+                buildozer.execute(task=f"remove implementation_deps {' '.join(unused_private_deps)}", target=target)
+
+        if requested_fixes.move_private_deps_to_implementation_deps:
+            deps_which_should_be_private = content["deps_which_should_be_private"]
+            if deps_which_should_be_private:
+                buildozer.execute(
+                    task=f"move deps implementation_deps {' '.join(deps_which_should_be_private)}", target=target
+                )
+
+        if requested_fixes.add_missing_deps:
             invalid_public_includes = content["public_includes_without_dep"]
             invalid_private_includes = content["private_includes_without_dep"]
             use_implementation_deps = content["use_implementation_deps"]
@@ -197,7 +208,7 @@ def main(args: Any) -> int:
 
     reports = gather_reports(bin_dir)
     if not reports:
-        print(
+        logging.error(
             """
 ERROR: Did not find any DWYU report files.
 Did you forget to run DWYU beforehand?
@@ -213,7 +224,7 @@ to use another output directory, have a look at the apply_fixes CLI options via 
     for report in reports:
         logging.debug(f"Processing report file '{report}'")
         perform_fixes(
-            workspace=workspace, report=report, buildozer=buildozer_executor, add_missing_deps=args.add_missing_deps
+            workspace=workspace, report=report, buildozer=buildozer_executor, requested_fixes=RequestedFixes(args)
         )
     buildozer_executor.summary.print_summary()
 
