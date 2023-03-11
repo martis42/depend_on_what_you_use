@@ -58,12 +58,26 @@ The script expects 'bazel' to be available on PATH.
         deduce the Bazel output directory containing the DWYU report files.""",
     )
     parser.add_argument(
-        "--add-missing-deps",
+        "--fix-unused-deps",
+        action="store_true",
+        help="Automatically remove unused dependencies.",
+    )
+    parser.add_argument(
+        "--fix-deps-which-should-be-private",
+        action="store_true",
+        help="Automatically move 'deps' to 'implementation_deps'.",
+    )
+    parser.add_argument(
+        "--fix-missing-deps",
         action="store_true",
         help="""
-        Given an include is detected which is not provided by a direct dependency, try to find and add the proper
-        dependency. This fix is based on heuristics and can fail due to various reasons. Thus, you have to explicitly
-        activate it.""",
+        Automatically search and add dependencies providing headers for which a direct dependency is missing. This is
+        based on a heuristic and thus is not guaranteed to work.""",
+    )
+    parser.add_argument(
+        "--fix-all",
+        action="store_true",
+        help="Perform all available automatic fixes.",
     )
     parser.add_argument(
         "--buildozer",
@@ -77,14 +91,25 @@ The script expects 'bazel' to be available on PATH.
         action="store_true",
         help="Don't apply fixes. Report the buildozer commands and print the adapted BUILD files to stdout.",
     )
-    parser.add_argument("--verbose", action="store_true", help="Announce intermediate steps.")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Announce intermediate steps.",
+    )
     parser.add_argument(
         "--buildozer-args",
         nargs=REMAINDER,
         help="Forward arguments to buildozer. Has to be the last option in the command line.",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    has_explicit_fix_option = any((args.fix_unused_deps, args.fix_deps_which_should_be_private, args.fix_missing_deps))
+    if not has_explicit_fix_option and not args.fix_all:
+        logging.error("Please choose at least of onf the 'fix-..' options")
+        sys.exit(1)
+
+    return args
 
 
 if __name__ == "__main__":

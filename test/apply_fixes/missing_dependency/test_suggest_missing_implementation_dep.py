@@ -11,7 +11,7 @@ class TestCase(TestCaseBase):
         self._create_reports(
             aspect="use_implementation_deps_aspect", extra_args=["--experimental_cc_implementation_deps"]
         )
-        self._run_automatic_fix(extra_args=["--add-missing-deps"])
+        self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         target_deps = self._get_target_attribute(target=self.test_target, attribute="implementation_deps")
         if target_deps == {"//:libs_provider", "//libs:foo", "//libs:bar", "//:root_file_lib"}:

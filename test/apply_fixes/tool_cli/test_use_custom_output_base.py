@@ -12,7 +12,7 @@ class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         with TemporaryDirectory() as output_base:
             self._create_reports(startup_args=[f"--output_base={output_base}"])
-            self._run_automatic_fix(extra_args=[f"--bazel-bin={output_base}"])
+            self._run_automatic_fix(extra_args=["--fix-unused", f"--bazel-bin={output_base}"])
 
             target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
             if target_deps == set():

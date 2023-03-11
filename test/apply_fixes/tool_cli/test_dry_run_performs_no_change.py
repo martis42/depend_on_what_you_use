@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
 
     def execute_test_logic(self) -> Result:
         self._create_reports()
-        self._run_automatic_fix(extra_args=["--dry-run"])
+        self._run_automatic_fix(extra_args=["--fix-unused", "--dry-run"])
         target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
 
         if target_deps == {"//:lib"}:
