@@ -32,6 +32,13 @@ class TestCaseBase(ABC):
         """
         pass
 
+    @property
+    def extra_workspace_file_content(self) -> str:
+        """
+        Overwrite this to append extra content to the WORKSPACE file template
+        """
+        return ""
+
     #
     # Base Implementation
     #

@@ -26,6 +26,12 @@ cc_binary(
     deps = [":generated_code_provider"],
 )
 
+cc_binary(
+    name = "use_external_dep",
+    srcs = ["use_external_dep.cpp"],
+    deps = [":external_dep_provider"],
+)
+
 cc_library(
     name = "use_libs_privately",
     srcs = ["use_libs.cpp"],
@@ -72,6 +78,15 @@ cc_library(
     name = "generated_code_provider",
     srcs = ["dummy.h"],
     deps = ["//generate_code:foo"],
+)
+
+cc_library(
+    name = "external_dep_provider",
+    srcs = ["dummy.h"],
+    deps = [
+        "@external_dep//:foo",
+        "@external_dep//sub/dir:bar",
+    ],
 )
 
 cc_library(

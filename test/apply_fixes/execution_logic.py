@@ -19,15 +19,20 @@ local_repository(
 )
 
 load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
-
 dwyu_dependencies()
+
+{extra_content}
 """
 
 
-def setup_test_workspace(origin_workspace: Path, test_sources: Path, temporary_workspace: Path) -> None:
+def setup_test_workspace(
+    origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
+) -> None:
     copy_tree(src=test_sources, dst=str(temporary_workspace))
     with open(temporary_workspace / "WORKSPACE", mode="wt", encoding="utf-8") as ws_file:
-        ws_file.write(WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace))
+        ws_file.write(
+            WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
+        )
 
 
 def cleanup(test_workspace: Path) -> None:
@@ -65,6 +70,7 @@ def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
             setup_test_workspace(
                 origin_workspace=origin_workspace,
                 test_sources=test.test_sources,
+                extra_workspace_file_content=test.extra_workspace_file_content,
                 temporary_workspace=Path(temporary_workspace),
             )
             result = test.execute_test(Path(temporary_workspace))
