@@ -2,6 +2,8 @@ import json
 import logging
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
+from itertools import chain
 from os import environ
 from pathlib import Path
 from typing import Any, Dict, List
@@ -70,40 +72,54 @@ def target_to_file(dep: str) -> str:
     return get_file_name(tmp)
 
 
-def target_to_package(dep: str) -> str:
-    return dep.split(":")[0]
+class Dependency:
+    def __init__(self, target: str, hdrs=List[str]):
+        self.target = target
+        self.hdrs = hdrs
+
+    def __repr__(self):
+        return f"Dependency(target={self.target}, hdrs={self.hdrs})"
+
+
+def get_dependencies(workspace: Path, target: str) -> List[Dependency]:
+    """
+    Extract dependencies from a given target together with further information about those dependencies.
+    """
+    process = execute_and_capture(
+        cmd=[
+            "bazel",
+            "query",
+            "--output=xml",
+            "--noimplicit_deps",
+            f'attr("hdrs", "", deps({target}) except deps({target}, 1))',
+        ],
+        cwd=workspace,
+    )
+    return [
+        Dependency(
+            target=dep.attrib["name"],
+            hdrs=[target_to_file(hdr.attrib["value"]) for hdr in dep.findall(".//*[@name='hdrs']/label")],
+        )
+        for dep in ET.fromstring(process.stdout)
+    ]
 
 
 def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: Dict[str, List[str]]) -> List[str]:
-    discover_files_process = execute_and_capture(
-        cmd=["bazel", "query", "--noimplicit_deps", f'kind("file", deps({target}) except deps({target}, 1))'],
-        cwd=workspace,
-    )
+    """
+    Search for targets providing header files matching the include statements without matching direct dependency in the
+    transitive dependencies of the target under inspection.
+    """
+    if not includes_without_direct_dep:
+        return []
+
+    target_deps = get_dependencies(workspace=workspace, target=target)
+    all_invalid_includes = list(chain(*includes_without_direct_dep.values()))
     discovered_dependencies = []
-    files = [line for line in discover_files_process.stdout.splitlines()]
-
-    all_invalid_includes = []
-    for _, includes in includes_without_direct_dep.items():
-        all_invalid_includes.extend(includes)
-
     for include in all_invalid_includes:
         include_file = get_file_name(include)
-        sources_for_include = [file for file in files if target_to_file(file) == include_file]
-        if not sources_for_include:
-            logging.warning(
-                f"Could not find a file matching invalid include '{include}' in the transitive dependencies of target '{target}'"
-            )
-            continue
+        potential_deps = [dep.target for dep in target_deps if include_file in dep.hdrs]
 
-        possible_deps = []
-        for file in sources_for_include:
-            pkg = target_to_package(file)
-            header_deps_process = execute_and_capture(
-                cmd=["bazel", "query", f"attr('hdrs', {include_file}, {pkg}:all)"], cwd=workspace
-            )
-            possible_deps.extend(header_deps_process.stdout.splitlines())
-
-        if not possible_deps:
+        if not potential_deps:
             logging.warning(
                 f"""
 Could not find a proper dependency for invalid include '{include}' of target '{target}'.
@@ -112,17 +128,17 @@ Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' 
             )
             continue
 
-        if len(possible_deps) > 1:
+        if len(potential_deps) > 1:
             logging.warning(
                 f"""
 Found multiple targets which potentially can provide include '{include}' of target '{target}'.
 Please fix this manually. Candidates which have been discovered:
                 """.strip()
             )
-            logging.warning("\n".join(f"- {dep}" for dep in possible_deps))
+            logging.warning("\n".join(f"- {dep}" for dep in potential_deps))
             continue
 
-        discovered_dependencies.append(possible_deps[0])
+        discovered_dependencies.append(potential_deps[0])
 
     return discovered_dependencies
 
@@ -172,25 +188,18 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
                 )
 
         if requested_fixes.add_missing_deps:
-            invalid_public_includes = content["public_includes_without_dep"]
-            invalid_private_includes = content["private_includes_without_dep"]
-            use_implementation_deps = content["use_implementation_deps"]
-            discovered_public_deps = []
-            discovered_private_deps = []
-            if invalid_public_includes:
-                discovered_public_deps = search_missing_deps(
-                    workspace=workspace, target=target, includes_without_direct_dep=invalid_public_includes
-                )
-            if invalid_private_includes:
-                discovered_private_deps = search_missing_deps(
-                    workspace=workspace, target=target, includes_without_direct_dep=invalid_private_includes
-                )
+            discovered_public_deps = search_missing_deps(
+                workspace=workspace, target=target, includes_without_direct_dep=content["public_includes_without_dep"]
+            )
+            discovered_private_deps = search_missing_deps(
+                workspace=workspace, target=target, includes_without_direct_dep=content["private_includes_without_dep"]
+            )
             add_discovered_deps(
                 discovered_public_deps=discovered_public_deps,
                 discovered_private_deps=discovered_private_deps,
                 target=target,
                 buildozer=buildozer,
-                use_implementation_deps=use_implementation_deps,
+                use_implementation_deps=content["use_implementation_deps"],
             )
 
 

@@ -46,7 +46,10 @@ cc_library(
 cc_library(
     name = "ambiguous_lib_provider",
     srcs = ["dummy.h"],
-    deps = ["//ambiguous_lib:lib_b"],
+    deps = [
+        "//ambiguous_lib:lib_a",
+        "//ambiguous_lib:lib_b",
+    ],
 )
 
 cc_library(
