@@ -4,17 +4,17 @@
   - [Why use Python](#why-use-python)
   - [Why use a multi step automatic fixes workflow](#why-use-a-multi-step-automatic-fixes-workflow)
 - [Platforms](#platforms)
-  - [Why is Bazel < 4.0.0 not supported](#why-is-bazel--400-not-supported)
-  - [Why is Python < 3.6 not supported](#why-is-python--36-not-supported)
+  - [Why is Bazel \< 4.0.0 not supported](#why-is-bazel--400-not-supported)
+  - [Why is Python \< 3.6 not supported](#why-is-python--36-not-supported)
 - [Rejected Concepts](#rejected-concepts)
   - [Includes parsing via .d files](#includes-parsing-via-d-files)
-
 
 # General
 
 ## Why use Python
 
 There are many programming languages available which could be used to implement DWYU. Why use Python because:
+
 - It is well established tool many develoeprs are familiar with.
 - Most platforms support Python well and developer setups often have an interpreter pre-installed.
 - There is a wide range of well established third-party libraries.
@@ -28,6 +28,7 @@ There are many programming languages available which could be used to implement 
 Having to execute a separate tool to apply fixes seems bothersome. Ideally, DWYU would perform fixes
 while analyzing the problems.<br/>
 However, given DWYU is implemented as a Bazel aspect, there are limitations to what we can do in a single step:
+
 - The DWYU aspect is analyzing the dependencies of the targets. Changing the dependencies while analyzing them would
   invalidate the dependency graph and require rebuilding the graph after each fix before continuing to
   analyze more targets. There is no standard feature of Bazel aspects allowing this.
@@ -41,14 +42,15 @@ A tool being executed like this can access any part of the host system.
 
 # Platforms
 
-## Why is Bazel < 4.0.0 not supported
+## Why is Bazel \< 4.0.0 not supported
 
 The aspect implementation is not compatible to old Bazel versions due to:
+
 - Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
 - Before 4.0.0 the global `json` module is not available in Starlark
 - Bazel 4.0.0 is the first LTS version
 
-## Why is Python < 3.6 not supported
+## Why is Python \< 3.6 not supported
 
 As a rule of thumb, we aim to only support Python versions which are not EOL. Using a modern Python version enables
 us to write clean code utilizing modern Python features.
@@ -75,11 +77,13 @@ required for compiling a source file.
 For example, given the 3 target `A`, `B` and `C` with the files:
 
 `a.h`
+
 ```c++
 void doA() { ... };
 ```
 
 `b.h`
+
 ```c++
 #include "a.h"
 
@@ -87,6 +91,7 @@ void doB() { doA(); };
 ```
 
 `c.cpp`
+
 ```c++
 #include "b.h"
 
