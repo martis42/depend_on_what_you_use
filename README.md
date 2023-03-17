@@ -6,7 +6,7 @@
 - [Features](#features)
   - [Custom header ignore list](#custom-header-ignore-list)
   - [Recursion](#recursion)
-  - [Implementation\_deps](#implementation_deps)
+  - [Implementation_deps](#implementation_deps)
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
@@ -24,6 +24,7 @@ DWYUs enforces the design principle:<br/>
 **A `cc_*` target X shall depend directly on the targets providing the header files which are included in the source code of X.**
 
 The main features are:
+
 - Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
 - Finding unused dependencies.
 - Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and
@@ -40,6 +41,7 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 ## Get a specific commit
 
 Put the following into your `WORKSPACE` file to use a specific DWYU commit:
+
 ```python
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -62,6 +64,7 @@ dwyu_dependencies()
 Configure an aspect with the desired behavior.
 The features which can be configured through the the aspect factory attributes are documented at [Features](#features).
 Put the following inside a `aspect.bzl` file (file name is exemplary):
+
 ```python
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
@@ -78,6 +81,7 @@ Invoke the aspect through the command line on a target:<br/>
 If no problem is found, the command will exit with `INFO: Build completed successfully`.<br/>
 If a problem is detected, the build command will fail with an error and a description of the problem will be printed in
 the terminal. For example:
+
 ```
 ================================================================================
 DWYU analyzing: '<analyzed_target>'
@@ -105,6 +109,7 @@ By default DWYU ignores all header from the standard library when comparing incl
 This list of headers can be seen in [std_header.py](src/analyze_includes/std_header.py).
 
 You can exclude a custom set of header files by providing a config file in json format to the aspect:
+
 ```python
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
@@ -117,7 +122,6 @@ The config file can contain these fields which should be lists of strings. All f
 | `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended.                                                                              |
 | `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns, |
 
-
 Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
 
 ## Recursion
@@ -126,6 +130,7 @@ By default DWYU analyzes only the target it is being applied to.
 
 You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is
 being applied to:
+
 ```python
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
@@ -146,6 +151,7 @@ private files, but not put into the private dependency attribute. Meaning, it ca
 move from `deps` to `implementation_deps`.
 
 Activate this behavior via:
+
 ```python
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
@@ -164,7 +170,7 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 
 DWYU offers a tool to automatically fix some detected problems.
 
-&#9888;
+⚠
 Please note that **the tool cannot guarantee that your build is not being broken** by the changes. Always make sure your
 project is still valid after the changes and review the performed changes.
 
@@ -172,7 +178,7 @@ The workflow is the following:
 
 1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems in the
    Bazel output directory for each analyzed target.
-2. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`. The tool discovers the report files
+1. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`. The tool discovers the report files
    generated in the previous step and gathers the problems for which a fix is available. Then,
    [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) is utilized to adapt the BUILDS
    files in your workspace.
