@@ -229,12 +229,21 @@ the analysis changes.
 
 # Alternatives to DWYU
 
-If you are mostly interested in making sure no headers from transitive dependencies are used by your C++ targets, you
-might want to look into the `layering_check` feature.
-It causes the compilation to fail on using headers from transitive dependencies.<br/>
-At the time of writing this, I could not find detailed documentation about this feature.
-It was introduced in [this PR](https://github.com/bazelbuild/bazel/pull/11440) and is mentioned in the [unix_cc_toolchain_config.bzl](https://github.com/bazelbuild/bazel/blob/master/tools/cpp/unix_cc_toolchain_config.bzl).<br/>
-As far as I can tell this feature is only available with the clang compiler and while using modules.
+To make sure no headers from transitive dependencies or private headers from dependencies are used you can use
+[Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
+This approach has some benefits over DWYU:
+
+- Directly integrated into Bazel without need for further tooling.
+- Is able to overcome [the known DWYU limitations](#known-limitations).
+
+Still, there are reasons to use DWYU instead of or in addition to layering_check:
+
+- DWYU Does not require a compiler, it works purely by text parsing.
+  This is the reason for some of its [the known DWYU limitations](#known-limitations).
+  However, this also makes the tool more flexible and independent of your platform.
+  For example when using a recent clang version is not possible for you.
+- DWYU allows optimizing [implementation_deps](#implementation_deps).
+- DWYU offers automatic fixes for detected issues.
 
 # Versioning
 
