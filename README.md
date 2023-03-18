@@ -242,6 +242,7 @@ Still, there are reasons to use DWYU instead of or in addition to layering_check
   This is the reason for some of its [the known DWYU limitations](#known-limitations).
   However, this also makes the tool more flexible and independent of your platform.
   For example when using a recent clang version is not possible for you.
+- DWYU detects unused dependencies.
 - DWYU allows optimizing [implementation_deps](#implementation_deps).
 - DWYU offers automatic fixes for detected issues.
 
