@@ -119,7 +119,7 @@ TESTS = [
     ),
     TestCase(
         name="test_with_implementation_deps_activated",
-        compatible_versions=CompatibleVersions(min="5.0.0", max="6.9.9"),
+        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:test_using_foo",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
