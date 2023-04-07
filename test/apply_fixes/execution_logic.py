@@ -1,9 +1,8 @@
 import logging
 import subprocess
-from distutils.dir_util import copy_tree
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from shutil import rmtree
+from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import List, Optional
 
@@ -28,7 +27,7 @@ dwyu_dependencies()
 def setup_test_workspace(
     origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
 ) -> None:
-    copy_tree(src=test_sources, dst=str(temporary_workspace))
+    copytree(src=test_sources, dst=str(temporary_workspace), dirs_exist_ok=True)
     with open(temporary_workspace / "WORKSPACE", mode="wt", encoding="utf-8") as ws_file:
         ws_file.write(
             WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
