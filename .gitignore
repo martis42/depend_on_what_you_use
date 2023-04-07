@@ -2,7 +2,7 @@
 
 # Bazel
 bazel-*
-.bazelrc.user
+user.bazelrc
 
 # Python
 __pycache__
