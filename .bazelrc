@@ -10,5 +10,8 @@ common --incompatible_visibility_private_attributes_at_definition
 build --incompatible_default_to_explicit_init_py
 build --incompatible_use_platforms_repo_for_constraints
 
+# Always tell why tests fail
+test --test_output=errors
+
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc
