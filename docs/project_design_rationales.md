@@ -15,7 +15,7 @@
 
 There are many programming languages available which could be used to implement DWYU. Why use Python because:
 
-- It is well established tool many develoeprs are familiar with.
+- It is well established tool many developers are familiar with.
 - Most platforms support Python well and developer setups often have an interpreter pre-installed.
 - There is a wide range of well established third-party libraries.
 - There is no need to deploy pre compiled binaries for a wide range of platforms.
@@ -55,7 +55,7 @@ The aspect implementation is not compatible to old Bazel versions due to:
 As a rule of thumb, we aim to only support Python versions which are not EOL. Using a modern Python version enables
 us to write clean code utilizing modern Python features.
 
-Nevertheless, we support Python 3.6 although it is already EOL. This version is the default for Ubuntu 18.04, which
+Nevertheless, we support Python 3.6, although it is already EOL. This version is the default for Ubuntu 18.04, which
 a lot of users are still using. Thus, we make an exception for Python 3.6.
 
 We are not making this exception for even older versions. Especially given we make extensive use of the features
