@@ -1,28 +1,16 @@
 workspace(name = "depend_on_what_you_use")
 
-#
-# Dependencies
-#
+load("//:setup_step_1.bzl", "setup_step_1")
 
-load("//:dependencies.bzl", "private_dependencies", "public_dependencies")
+setup_step_1()
 
-public_dependencies()
+load("//:setup_step_2.bzl", "setup_step_2")
 
-private_dependencies()
+setup_step_2()
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+load("//:setup_step_3.bzl", "setup_step_3")
 
-bazel_skylib_workspace()
-
-#
-# Project
-#
-
-load("@bazel_skylib//lib:versions.bzl", "versions")
-
-versions.check(
-    minimum_bazel_version = "4.0.0",
-)
+setup_step_3()
 
 #
 # Testing

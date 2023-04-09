@@ -17,8 +17,14 @@ local_repository(
     path = "{dwyu_path}",
 )
 
-load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
-dwyu_dependencies()
+load("@depend_on_what_you_use//:setup_step_1.bzl", "setup_step_1")
+setup_step_1()
+
+load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
+setup_step_2()
+
+load("@depend_on_what_you_use//:setup_step_3.bzl", "setup_step_3")
+setup_step_3()
 
 {extra_content}
 """

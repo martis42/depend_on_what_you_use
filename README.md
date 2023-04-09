@@ -53,8 +53,14 @@ http_archive(
     url = "https://github.com/martis42/depend_on_what_you_use/archive/{}.tar.gz".format(dwyu_version),
 )
 
-load("@depend_on_what_you_use//:dependencies.bzl", dwyu_dependencies = "public_dependencies")
-dwyu_dependencies()
+load("@depend_on_what_you_use//:setup_step_1.bzl", dwyu_setup_step_1 = "setup_step_1")
+dwyu_setup_step_1()
+
+load("@depend_on_what_you_use//:setup_step_2.bzl", dwyu_setup_step_2 = "setup_step_2")
+dwyu_setup_step_2()
+
+load("@depend_on_what_you_use//:setup_step_3.bzl", dwyu_setup_step_3 = "setup_step_3")
+dwyu_setup_step_3()
 ```
 
 ## Use DWYU
@@ -265,5 +271,8 @@ See [Contributing](CONTRIBUTING.md).
 
 # License
 
-Copyright © 2022-present, [Martin Medler](https://github.com/martis42). \
+Copyright © 2022-present, [Martin Medler](https://github.com/martis42). </br>
 This project licensed under the [MIT](https://opensource.org/licenses/MIT) license.
+
+This projects references several other projects which each have individual licenses.
+See the content of [third_party](third_party) for all references to other projects.
