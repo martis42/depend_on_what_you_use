@@ -6,7 +6,7 @@
 - [Features](#features)
   - [Custom header ignore list](#custom-header-ignore-list)
   - [Recursion](#recursion)
-  - [Implementation_deps](#implementation_deps)
+  - [Implementation_deps](#Implementation_deps)
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Supported Platforms](#supported-platforms)
@@ -42,7 +42,7 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 
 Put the following into your `WORKSPACE` file to use a specific DWYU commit:
 
-```python
+```starlark
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 dwyu_version = "<git_commit_hash>"
@@ -62,10 +62,10 @@ dwyu_dependencies()
 ### Configure the aspect
 
 Configure an aspect with the desired behavior.
-The features which can be configured through the the aspect factory attributes are documented at [Features](#features).
+The features which can be configured through the aspect factory attributes are documented at [Features](#features).
 Put the following inside a `aspect.bzl` file (file name is exemplary):
 
-```python
+```starlark
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
 # Provide no arguments for the default behavior
@@ -105,12 +105,12 @@ A concrete example for doing so for the DWYU aspect can be found in [a rule in t
 
 ## Custom header ignore list
 
-By default DWYU ignores all header from the standard library when comparing include statements to the dependencies.
+By default, DWYU ignores all header from the standard library when comparing include statements to the dependencies.
 This list of headers can be seen in [std_header.py](src/analyze_includes/std_header.py).
 
 You can exclude a custom set of header files by providing a config file in json format to the aspect:
 
-```python
+```starlark
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
@@ -126,17 +126,17 @@ Examples and the correct format can be seen at the [custom config test cases](te
 
 ## Recursion
 
-By default DWYU analyzes only the target it is being applied to.
+By default, DWYU analyzes only the target it is being applied to.
 
 You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is
 being applied to:
 
-```python
+```starlark
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
 
 This can be used to create a rule invoking DWYU on a target and all its dependencies as part of a normal build command.
-Also it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
+Also, it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
 
 Examples for this can be seen at the [recursion test cases](test/aspect/recursion).
 
@@ -148,11 +148,11 @@ Headers from the private dependencies are not made available to users of the lib
 
 DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in
 private files, but not put into the private dependency attribute. Meaning, it can find dependencies which should be
-move from `deps` to `implementation_deps`.
+moved from `deps` to `implementation_deps`.
 
 Activate this behavior via:
 
-```python
+```starlark
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
@@ -239,7 +239,7 @@ This approach has some benefits over DWYU:
 Still, there are reasons to use DWYU instead of or in addition to layering_check:
 
 - DWYU Does not require a compiler, it works purely by text parsing.
-  This is the reason for some of its [the known DWYU limitations](#known-limitations).
+  This is the reason for some of it's [the known DWYU limitations](#known-limitations).
   However, this also makes the tool more flexible and independent of your platform.
   For example when using a recent clang version is not possible for you.
 - DWYU detects unused dependencies.
@@ -251,6 +251,13 @@ Still, there are reasons to use DWYU instead of or in addition to layering_check
 This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases
 can contain breaking changes.
+
+The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
+Changing their content is not considered a breaking change.
+You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts
+also for minor version updates.
+
+Also, how to include DWYU in your WORKSPACE file might change at any time.
 
 # Contributing
 
