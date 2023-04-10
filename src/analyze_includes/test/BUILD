@@ -26,6 +26,7 @@ py_test(
         "data/commented_includes/block_comments.h",
         "data/commented_includes/mixed_style.h",
         "data/commented_includes/single_line_comments.h",
+        "data/empty_header.h",
         "data/some_header.h",
     ],
     deps = ["//src/analyze_includes:lib"],
