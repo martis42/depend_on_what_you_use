@@ -1,6 +1,29 @@
 import re
+from io import StringIO
 from pathlib import Path
 from typing import List, Union
+
+from pcpp import Preprocessor
+
+
+class SimpleParsingPreprocessor(Preprocessor):
+    """
+    This preprocessor configuration is used to prune commented code and to resolve preprocessor statements for defines
+    which are injected through Bazel. We do not resolve include statements. Meaning each file is analyzed only for
+    itself.
+    """
+
+    def on_file_open(self, _, __):
+        """
+        Raising here prevents include statements being resolved
+        """
+        raise OSError("Do not open file")
+
+    def on_error(self, _, __, ___):
+        """
+        Since unresolved include statements cause errors we silence error reporting
+        """
+        pass
 
 
 class Include:
@@ -43,54 +66,22 @@ def get_includes_from_file(file: Path) -> List[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
 
-    Constraints on include statements which are used to simplify the logic:
-    - Only a single include statement can exist per line. If multiple include statement exist, the compiler ignores all
-      after the first one.
-    - Only whitespace and commented code shall exist between the line start and the include statement.
-    - One can concatenate multiple comment block openings "/*", but one cannot concatenate comment block ends "*/".
-      An appearing comment block end closes all existing comment block openings.
-
     Known limitations:
     - Include statements which are added through a macro are not detected.
-    - Defines are inored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
+    - Defines are ignored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
       sure only a subset of headers is used for compilation.
-    - Include paths utilizing '../' are not resolved.
     """
-    includes, inside_comment_block = [], False
     with open(file, encoding="utf-8") as fin:
-        for line in fin:
-            line = line.rstrip()
-            line_without_comments = ""
-            i = 0
-            while i < len(line) - 1:
-                curr = line[i : i + 2]
-                if not inside_comment_block and curr == "//":
-                    i = len(line)
-                    break
-                elif not inside_comment_block and curr == "/*":
-                    inside_comment_block = True
-                    i += 1
-                elif inside_comment_block and curr == "*/":
-                    inside_comment_block = False
-                    i += 1
-                elif not inside_comment_block:
-                    line_without_comments += line[i]
-                i += 1
-            if line and not inside_comment_block and i < len(line):
-                line_without_comments += line[-1]
+        pre_processor = SimpleParsingPreprocessor()
+        output_sink = StringIO()
 
-            if (
-                not inside_comment_block
-                and line_without_comments
-                and line_without_comments.lstrip().startswith("#include")
-            ):
-                include = re.findall(r'#include\s*["<](.+)[">]', line_without_comments)
-                if not include:
-                    raise Exception(f"Did not find any include path in file '{file}' in line '{line}'")
-                if len(include) > 1:
-                    raise Exception(f"Found unexpectedly multiple include paths in file '{file}' in line '{line}'")
-                includes.append(Include(file=file, include=include[0]))
-    return includes
+        pre_processor.parse(fin.read())
+        pre_processor.write(output_sink)
+
+        return [
+            Include(file=file, include=include)
+            for include in re.findall(r'^\s*#include\s*["<](.+)[">]', output_sink.getvalue(), re.MULTILINE)
+        ]
 
 
 def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) -> List[Include]:

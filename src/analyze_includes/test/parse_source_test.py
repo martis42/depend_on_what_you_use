@@ -98,6 +98,12 @@ class TestFilterIncludes(unittest.TestCase):
 
 
 class TestGetIncludesFromFile(unittest.TestCase):
+    def test_empty_header(self):
+        test_file = Path("src/analyze_includes/test/data/empty_header.h")
+        result = get_includes_from_file(test_file)
+
+        self.assertEqual(result, [])
+
     def test_single_include(self):
         test_file = Path("src/analyze_includes/test/data/another_header.h")
         result = get_includes_from_file(test_file)
