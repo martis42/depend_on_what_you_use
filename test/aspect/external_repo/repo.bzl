@@ -1,3 +1,4 @@
+# buildifier: disable=unnamed-macro
 def load_external_repo():
     native.local_repository(
         name = "ext_repo",

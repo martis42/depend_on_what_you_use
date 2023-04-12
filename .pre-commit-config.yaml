@@ -1,8 +1,8 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.4.0
     hooks:
-      # Repository hygene
+      # Repository hygiene
       - id: check-added-large-files
       # Sane files
       - id: check-executables-have-shebangs
@@ -21,6 +21,14 @@ repos:
         # Optionally add plugins
         additional_dependencies:
           - mdformat-gfm
+  - repo: https://github.com/keith/pre-commit-buildifier
+    rev: 6.1.0
+    define: &buildifier_warnings '--warnings=+out-of-order-load,+unsorted-dict-items,+native-py,-module-docstring,-function-docstring,-function-docstring-header,-print'
+    hooks:
+      - id: buildifier
+        args: [ *buildifier_warnings ]
+      - id: buildifier-lint
+        args: [ "--diff_command='diff'", *buildifier_warnings ]
 
   - repo: local
     hooks:

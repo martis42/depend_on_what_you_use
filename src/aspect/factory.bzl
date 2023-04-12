@@ -25,6 +25,10 @@ def dwyu_aspect_factory(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
         attrs = {
+            "_config": attr.label(
+                default = config,
+                allow_single_file = [".json"],
+            ),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
                 allow_files = True,
@@ -32,10 +36,6 @@ def dwyu_aspect_factory(
                 cfg = "exec",
                 doc = "Tool Analyzing the include statement in the source code under inspection" +
                       " and comparing them to the available dependencies.",
-            ),
-            "_config": attr.label(
-                default = config,
-                allow_single_file = [".json"],
             ),
             "_recursive": attr.bool(
                 default = recursive,
