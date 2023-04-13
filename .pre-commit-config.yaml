@@ -23,12 +23,14 @@ repos:
           - mdformat-gfm
   - repo: https://github.com/keith/pre-commit-buildifier
     rev: 6.1.0
-    define: &buildifier_warnings '--warnings=+out-of-order-load,+unsorted-dict-items,+native-py,-module-docstring,-function-docstring,-function-docstring-header,-print'
     hooks:
       - id: buildifier
-        args: [ *buildifier_warnings ]
+        args: [ "--warnings=+out-of-order-load,+unsorted-dict-items,+native-py" ]
       - id: buildifier-lint
-        args: [ "--diff_command='diff'", *buildifier_warnings ]
+        args: [
+          "--diff_command='diff'",
+          "--warnings=-module-docstring,-function-docstring,-function-docstring-header,-print"
+        ]
 
   - repo: local
     hooks:
