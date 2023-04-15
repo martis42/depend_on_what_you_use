@@ -288,6 +288,14 @@ TESTS = [
         ),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="in_file_defines",
+        cmd=TestCmd(
+            target="//test/aspect/defines:in_file_defines",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
