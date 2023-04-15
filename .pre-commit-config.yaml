@@ -15,10 +15,9 @@ repos:
       # Python code quality
       - id: debug-statements
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.16  # Use the ref you want to point at
+    rev: 0.7.16
     hooks:
       - id: mdformat
-        # Optionally add plugins
         additional_dependencies:
           - mdformat-gfm
   - repo: https://github.com/keith/pre-commit-buildifier
