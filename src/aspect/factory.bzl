@@ -24,7 +24,12 @@ def dwyu_aspect_factory(
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
+        fragments = ["cpp"],
+        toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
         attrs = {
+            "_cc_toolchain": attr.label(
+                default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
+            ),
             "_config": attr.label(
                 default = config,
                 allow_single_file = [".json"],

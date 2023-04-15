@@ -4,9 +4,11 @@ load("//:setup_step_1.bzl", "setup_step_1")
 
 setup_step_1()
 
-load("//:setup_step_2.bzl", "setup_step_2")
+load("//:setup_step_2.bzl", "dev_setup_step_2", "setup_step_2")
 
 setup_step_2()
+
+dev_setup_step_2()
 
 load("//:setup_step_3.bzl", "setup_step_3")
 
