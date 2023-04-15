@@ -1,3 +1,6 @@
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
+load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
+
 def _parse_sources_impl(sources, out_files):
     for src in sources:
         file = src.files.to_list()[0]
@@ -125,7 +128,7 @@ def _make_dep_info(dep):
         header_files = _extract_header_files(target = dep, is_target_under_inspection = False),
     )
 
-def _make_headers_info(target, public_deps, private_deps):
+def _make_headers_info(target, public_deps, private_deps, defines):
     """
     Create a struct summarizing all information about the target and the dependencies required for executing the
     DWYU logic.
@@ -134,15 +137,72 @@ def _make_headers_info(target, public_deps, private_deps):
         target: Current target under inspection
         public_deps: Direct public dependencies of target under inspection
         private_deps: Direct private dependencies of target under inspection
+        defines: Defines relevant for the preprocessor
     """
     return struct(
         self = _make_target_info(target),
         public_deps = [_make_dep_info(dep) for dep in public_deps],
         private_deps = [_make_dep_info(dep) for dep in private_deps],
+        defines = defines,
     )
 
 def _label_to_name(label):
     return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
+
+def extract_defines_from_compiler_flags(compiler_flags):
+    """
+    We extract the relevant defines from the compiler command line flags. We utilize the compiler flags since the
+    toolchain can set defines which are not available through CcInfo or the cpp fragments. Furthermore, defines
+    potentially overwrite or deactivate each other depending on the order in which they appear in the compiler
+    command. Thus, this is the only way to make sure DWYU analyzes what would actually happen during compilation.
+
+    Args:
+        compiler_flags: List of flags making up the compilation command
+    Returns:
+        List of defines
+    """
+    defines = {}
+
+    for cflag in compiler_flags:
+        if cflag.startswith("-U"):
+            undefine = cflag[2:]
+            undefine_name = undefine.split("=", 1)[0]
+            if undefine_name in defines.keys():
+                defines.pop(undefine_name)
+        if cflag.startswith("-D"):
+            define = cflag[2:]
+            define_name = define.split("=", 1)[0]
+            defines[define_name] = define
+
+    return defines.values()
+
+def _gather_defines(ctx, target_compilation_context):
+    cc_toolchain = find_cpp_toolchain(ctx)
+
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+    compile_variables = cc_common.create_compile_variables(
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        user_compile_flags = ctx.rule.attr.copts + ctx.fragments.cpp.cxxopts + ctx.fragments.cpp.copts,
+        preprocessor_defines = depset(transitive = [
+            target_compilation_context.defines,
+            target_compilation_context.local_defines,
+        ]),
+    )
+
+    # We cannot directly work with 'compile_variables' in Starlark, thus we translate them into string representation
+    compiler_command_line_flags = cc_common.get_memory_inefficient_command_line(
+        feature_configuration = feature_configuration,
+        action_name = CPP_COMPILE_ACTION_NAME,
+        variables = compile_variables,
+    )
+
+    return extract_defines_from_compiler_flags(compiler_command_line_flags)
 
 def dwyu_aspect_impl(target, ctx):
     """
@@ -164,17 +224,18 @@ def dwyu_aspect_impl(target, ctx):
     if not CcInfo in target:
         return []
 
-    public_deps = ctx.rule.attr.deps
-    private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
-
     public_files, private_files = _parse_sources(ctx.rule.attr)
     if not public_files and not private_files:
         return []
 
+    public_deps = ctx.rule.attr.deps
+    private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
+    defines = _gather_defines(ctx, target[CcInfo].compilation_context)
+
     target_name = _label_to_name(target.label)
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target_name))
     headers_info_file = ctx.actions.declare_file("{}_headers_info.json".format(target_name))
-    headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps)
+    headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps, defines = defines)
     ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
 
     args = _make_args(
