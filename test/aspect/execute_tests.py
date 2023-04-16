@@ -296,6 +296,22 @@ TESTS = [
         ),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="defines_from_bazel_target",
+        cmd=TestCmd(
+            target="//test/aspect/defines:defines_from_bazel_target",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="transitive_defines_from_bazel_target",
+        cmd=TestCmd(
+            target="//test/aspect/defines:transitive_defines_from_bazel_target",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":
