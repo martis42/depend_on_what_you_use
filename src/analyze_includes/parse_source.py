@@ -62,20 +62,17 @@ class IgnoredIncludes:
         return is_ignored_path or is_ignored_pattern
 
 
-def get_includes_from_file(file: Path) -> List[Include]:
+def get_includes_from_file(file: Path, defines: List[str]) -> List[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
-
-    Known limitations:
-    - Include statements which are added through a macro are not detected.
-    - Defines are ignored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
-      sure only a subset of headers is used for compilation.
     """
     with open(file, encoding="utf-8") as fin:
         pre_processor = SimpleParsingPreprocessor()
-        output_sink = StringIO()
-
+        for define in defines:
+            pre_processor.define(define)
         pre_processor.parse(fin.read())
+
+        output_sink = StringIO()
         pre_processor.write(output_sink)
 
         return [
@@ -93,10 +90,12 @@ def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) 
     return [include for include in unique_includes if not ignored_includes.is_ignored(include.include)]
 
 
-def get_relevant_includes_from_files(files: Union[List[str], None], ignored_includes: IgnoredIncludes) -> List[Include]:
+def get_relevant_includes_from_files(
+    files: Union[List[str], None], ignored_includes: IgnoredIncludes, defines: List[str]
+) -> List[Include]:
     all_includes = []
     if files:
         for file in files:
-            includes = get_includes_from_file(Path(file))
+            includes = get_includes_from_file(file=Path(file), defines=defines)
             all_includes.extend(includes)
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)

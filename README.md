@@ -167,9 +167,11 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 ## Known limitations
 
 - If includes are added through a macro, this is invisible to DWYU.
-- Defines are ignored.
-  No matter if they are defined directly inside the header under inspection, headers from the dependencies or injected
-  through the `defines = [...]` attribute of the `cc_` rules.
+- Fundamental support for processing preprocessor defines is present.
+  However, if header A specifies a define X and is included in header B, header B is not aware of X from header A.
+  Right now only defines specified through Bazel (e.g. toolchain or `cc_*` target attributes) or defines specified
+  inside a file itself are used to process a file and discover include statements.
+  We aim to resolve this limitation in a future release.
 - Include statements utilizing `..` are not recognized if they are used on virtual or system include paths.
 
 ## Applying automatic fixes

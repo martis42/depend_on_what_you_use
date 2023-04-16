@@ -84,12 +84,15 @@ class SystemUnderInspection:
         self,
         public_deps: List[CcTarget],
         private_deps: List[CcTarget],
+        defines: List[str],
         target_under_inspection: CcTarget,
     ) -> None:
         # Dependencies which are available to downstream dependencies of the target under inspection
         self.public_deps = public_deps
         # Dependencies which are NOT available to downstream dependencies of the target under inspection
         self.private_deps = private_deps
+        # Defines influencing the preprocessor
+        self.defines = defines
         # Target under inspection
         self.target_under_inspection = target_under_inspection
 
@@ -111,5 +114,6 @@ def get_system_under_inspection(allowed_includes_file: Path) -> SystemUnderInspe
         return SystemUnderInspection(
             public_deps=[_make_cc_target(dep) for dep in loaded["public_deps"]],
             private_deps=[_make_cc_target(dep) for dep in loaded["private_deps"]],
+            defines=loaded["defines"],
             target_under_inspection=_make_cc_target(loaded["self"]),
         )

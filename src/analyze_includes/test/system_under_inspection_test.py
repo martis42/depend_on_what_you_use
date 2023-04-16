@@ -158,6 +158,8 @@ class TestGetSystemUnderInspection(unittest.TestCase):
             expected_files=["public/dep/bar_1.h", "public/dep/bar_2.h"],
         )
 
+        self.assertEqual(sui.defines, ["SOME_DEFINE", "ANOTHER_DEFINE=42"])
+
         self.check_target(
             actual=sui.target_under_inspection,
             expected_name="//:baz",
