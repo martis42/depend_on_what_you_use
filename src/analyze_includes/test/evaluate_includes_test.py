@@ -305,6 +305,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     self.make_cc_target(name="lib_without_hdrs_purely_for_linking", files=[]),
                 ],
                 private_deps=[self.make_cc_target(name="baz_pkg", files=["baz.h"])],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -319,6 +320,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 target_under_inspection=self.make_cc_target(name="foo", files=["foo.h", "bar.h"]),
                 public_deps=[],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -341,6 +343,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 ),
                 public_deps=[],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -365,6 +368,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     )
                 ],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -383,6 +387,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 ),
                 public_deps=[],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -410,6 +415,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                 target_under_inspection=self.make_cc_target(name="foo", files=[]),
                 public_deps=[self.make_cc_target(name="foo", files=["foo.h"])],
                 private_deps=[self.make_cc_target(name="bar", files=["bar.h"])],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -441,6 +447,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     self.make_cc_target(name="impl_foo", files=["impl_dep_foo.h"]),
                     self.make_cc_target(name="impl_bar", files=["impl_dep_bar.h"]),
                 ],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -471,6 +478,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
                 ],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=True,
         )
@@ -499,6 +507,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
                 ],
                 private_deps=[],
+                defines=[],
             ),
             ensure_private_deps=False,
         )

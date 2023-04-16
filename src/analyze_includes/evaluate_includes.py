@@ -1,7 +1,7 @@
 from collections import defaultdict
 from json import dumps
 from pathlib import Path
-from typing import Any, DefaultDict, List, Optional
+from typing import DefaultDict, List, Optional
 
 from src.analyze_includes.parse_source import Include
 from src.analyze_includes.system_under_inspection import (
@@ -155,6 +155,7 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
     return SystemUnderInspection(
         public_deps=[pub for pub in system_under_inspection.public_deps if pub.include_paths],
         private_deps=[pri for pri in system_under_inspection.private_deps if pri.include_paths],
+        defines=system_under_inspection.defines,
         target_under_inspection=system_under_inspection.target_under_inspection,
     )
 

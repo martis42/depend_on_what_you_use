@@ -47,6 +47,10 @@
       "target": "//public/dep:bar"
     }
   ],
+  "defines": [
+    "SOME_DEFINE",
+    "ANOTHER_DEFINE=42"
+  ],
   "self": {
     "include_paths": [
       "self/a.h",

@@ -23,7 +23,11 @@ def _extract_defines_from_compiler_flags_test_impl(ctx):
     asserts.equals(env, ["Foo=42"], extract_defines_from_compiler_flags(["-UFoo", "-DFoo=42"]))
 
     # Define with complex value
-    asserts.equals(env, ["Foo=BAR=42"], extract_defines_from_compiler_flags(["-DFoo=BAR=42"]))
+    asserts.equals(
+        env,
+        ["Foo=BAR=42", "Tick 42", 'Riff "Raff"'],
+        extract_defines_from_compiler_flags(["-DFoo=BAR=42", "-DTick 42", '-DRiff "Raff"']),
+    )
 
     return unittest.end(env)
 
