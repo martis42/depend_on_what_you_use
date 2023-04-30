@@ -1,7 +1,8 @@
 from collections import defaultdict
+from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
-from typing import DefaultDict, List, Optional
+from typing import DefaultDict, List
 
 from src.analyze_includes.parse_source import Include
 from src.analyze_includes.system_under_inspection import (
@@ -11,24 +12,15 @@ from src.analyze_includes.system_under_inspection import (
 )
 
 
+@dataclass
 class Result:
-    def __init__(
-        self,
-        target: str,
-        public_includes_without_dep: Optional[List[Include]] = None,
-        private_includes_without_dep: Optional[List[Include]] = None,
-        unused_public_deps: Optional[List[str]] = None,
-        unused_private_deps: Optional[List[str]] = None,
-        deps_which_should_be_private: Optional[List[str]] = None,
-        use_implementation_deps=False,
-    ) -> None:
-        self.target = target
-        self.public_includes_without_dep = public_includes_without_dep if public_includes_without_dep else []
-        self.private_includes_without_dep = private_includes_without_dep if private_includes_without_dep else []
-        self.unused_public_deps = unused_public_deps if unused_public_deps else []
-        self.unused_private_deps = unused_private_deps if unused_private_deps else []
-        self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
-        self.use_implementation_deps = use_implementation_deps
+    target: str
+    public_includes_without_dep: List[Include] = field(default_factory=list)
+    private_includes_without_dep: List[Include] = field(default_factory=list)
+    unused_public_deps: List[str] = field(default_factory=list)
+    unused_private_deps: List[str] = field(default_factory=list)
+    deps_which_should_be_private: List[str] = field(default_factory=list)
+    use_implementation_deps: bool = False
 
     def is_ok(self) -> bool:
         return (

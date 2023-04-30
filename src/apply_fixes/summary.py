@@ -1,15 +1,16 @@
+from dataclasses import dataclass, field
 from typing import List
 
 
+@dataclass
 class Summary:
-    def __init__(self) -> None:
-        self.succesful_fixes = []
-        self.failed_fixes = []
-        self.fixes_without_effect = []
+    successful_fixes: List[List[str]] = field(default_factory=list)
+    failed_fixes: List[List[str]] = field(default_factory=list)
+    fixes_without_effect: List[List[str]] = field(default_factory=list)
 
     def add_command(self, cmd: List[str], buildozer_result: int) -> None:
         if buildozer_result == 0:
-            self.succesful_fixes.append(cmd)
+            self.successful_fixes.append(cmd)
         elif buildozer_result == 2:
             self.failed_fixes.append(cmd)
         elif buildozer_result == 3:
@@ -20,7 +21,7 @@ class Summary:
             )
 
     def print_summary(self) -> None:
-        print(f"\nSuccesful fixes: {len(self.succesful_fixes)}")
+        print(f"\nSuccessful fixes: {len(self.successful_fixes)}")
 
         if self.failed_fixes:
             print(

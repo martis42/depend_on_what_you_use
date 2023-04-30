@@ -228,10 +228,16 @@ the analysis changes.
 
 # Supported Platforms
 
+TODO 3.8
+
+- Assignment expressions
+- f-strings support = for self-documenting expressions and debugging
+- shlex useful?
+
 | Platform         | Constraints                                                                                      |
 | ---------------- | ------------------------------------------------------------------------------------------------ |
 | Operating system | No constraints. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
-| Python           | Minimum version is 3.6. Tests are currently running based on Python 3.8.                         |
+| Python           | Minimum version is 3.8. Tests are currenntly only performed with 3.8.                            |
 | Bazel            | Minimum version is 4.0.0. Multiple versions are tested.                                          |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
 

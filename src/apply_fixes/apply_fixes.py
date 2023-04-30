@@ -3,10 +3,12 @@ import logging
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from argparse import Namespace
+from dataclasses import dataclass
 from itertools import chain
 from os import environ
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
 
@@ -17,7 +19,7 @@ WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 
 
 class RequestedFixes:
-    def __init__(self, main_args: Any) -> None:
+    def __init__(self, main_args: Namespace) -> None:
         self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
         self.move_private_deps_to_implementation_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
@@ -25,10 +27,10 @@ class RequestedFixes:
 
 def execute_and_capture(cmd: List[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
     logging.debug(f"Executing command: {cmd}")
-    return subprocess.run(cmd, cwd=cwd, check=check, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return subprocess.run(cmd, cwd=cwd, check=check, capture_output=True, text=True)
 
 
-def get_workspace(main_args: Any) -> Path:
+def get_workspace(main_args: Namespace) -> Path:
     if main_args.workspace:
         return Path(main_args.workspace)
 
@@ -41,7 +43,7 @@ def get_workspace(main_args: Any) -> Path:
     return Path(workspace_root)
 
 
-def get_bazel_bin_dir(main_args: Any, workspace_root: Path) -> Path:
+def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
     if main_args.bazel_bin:
         return Path(main_args.bazel_bin)
 
@@ -72,10 +74,10 @@ def target_to_file(dep: str) -> str:
     return get_file_name(tmp)
 
 
+@dataclass
 class Dependency:
-    def __init__(self, target: str, hdrs=List[str]):
-        self.target = target
-        self.hdrs = hdrs
+    target: str
+    hdrs: List[str]
 
     def __repr__(self):
         return f"Dependency(target={self.target}, hdrs={self.hdrs})"
@@ -203,7 +205,7 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
             )
 
 
-def main(args: Any) -> int:
+def main(args: Namespace) -> int:
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 

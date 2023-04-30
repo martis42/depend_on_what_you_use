@@ -259,13 +259,13 @@ class TestResult(unittest.TestCase):
 
 
 def test_set_use_implementation_deps(self):
-    unit = Result(use_implementation_deps=True)
+    unit = Result(target="//:foo", use_implementation_deps=True)
 
     self.assertEqual(
         unit.to_json(),
         """
 {
-"analyzed_target": "",
+"analyzed_target": "//:foo",
 "public_includes_without_dep": {},
 "private_includes_without_dep": {},
 "unused_public_deps": [],

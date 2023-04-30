@@ -1,7 +1,8 @@
-import argparse
 import os
 import subprocess as sb
-from typing import Dict, List, Optional, Union
+from argparse import ArgumentParser, Namespace
+from dataclasses import dataclass, field
+from typing import Dict, List, Union
 
 # Each line in the output corresponding to an error is expected to start with this
 ERRORS_PREFIX = " " * 2
@@ -14,33 +15,25 @@ CATEGORY_UNUSED_PUBLIC_DEPS = "Unused dependencies in 'deps' (none of their head
 CATEGORY_UNUSED_PRIVATE_DEPS = "Unused dependencies in 'implementation_deps' (none of their headers are referenced)"
 
 
+@dataclass
 class TestCmd:
-    def __init__(self, target: str, aspect: str = "", extra_args: Optional[List[str]] = None) -> None:
-        self.target = target
-        self.aspect = aspect
-        self.extra_args = extra_args if extra_args else []
+    target: str
+    aspect: str = ""
+    extra_args: List[str] = field(default_factory=list)
 
 
+@dataclass
 class ExpectedResult:
     """
     Encapsulates an expected result of a DWYU analysis and offers functions
     to compare a given output to the expectations.
     """
 
-    def __init__(
-        self,
-        success: bool,
-        invalid_includes: Optional[List[str]] = None,
-        unused_public_deps: Optional[List[str]] = None,
-        unused_private_deps: Optional[List[str]] = None,
-        deps_which_should_be_private: Optional[List[str]] = None,
-    ) -> None:
-        self.success = success
-        self.invalid_includes = invalid_includes if invalid_includes else []
-
-        self.unused_public_deps = unused_public_deps if unused_public_deps else []
-        self.unused_private_deps = unused_private_deps if unused_private_deps else []
-        self.deps_which_should_be_private = deps_which_should_be_private if deps_which_should_be_private else []
+    success: bool
+    invalid_includes: List[str] = field(default_factory=list)
+    unused_public_deps: List[str] = field(default_factory=list)
+    unused_private_deps: List[str] = field(default_factory=list)
+    deps_which_should_be_private: List[str] = field(default_factory=list)
 
     def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
         if not self._has_correct_status(return_code=return_code, output=dwyu_output):
@@ -125,30 +118,24 @@ class ExpectedResult:
         return True
 
 
+@dataclass
 class CompatibleVersions:
-    def __init__(self, min: str = "", max: str = "") -> None:
-        self.min = min
-        self.max = max
+    min: str = ""
+    max: str = ""
 
 
+@dataclass
 class TestCase:
-    def __init__(
-        self,
-        name: str,
-        cmd: TestCmd,
-        expected: ExpectedResult,
-        compatible_versions: Optional[CompatibleVersions] = None,
-    ) -> None:
-        self.name = name
-        self.cmd = cmd
-        self.expected = expected
-        self.compatible_versions = compatible_versions if compatible_versions else CompatibleVersions()
+    name: str
+    cmd: TestCmd
+    expected: ExpectedResult
+    compatible_versions: CompatibleVersions = CompatibleVersions()
 
 
+@dataclass
 class FailedTest:
-    def __init__(self, name: str, version: str) -> None:
-        self.name = name
-        self.version = version
+    name: str
+    version: str
 
 
 def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> bool:
@@ -176,14 +163,8 @@ def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
 
 
 def is_compatible_version(version: str, compatible_versions: CompatibleVersions) -> bool:
-    comply_with_min_version = True
-    if compatible_versions.min:
-        comply_with_min_version = version >= compatible_versions.min
-
-    comply_with_max_version = True
-    if compatible_versions.max:
-        comply_with_max_version = version <= compatible_versions.max
-
+    comply_with_min_version = version >= compatible_versions.min if compatible_versions.min else True
+    comply_with_max_version = version <= compatible_versions.max if compatible_versions.max else True
     return comply_with_min_version and comply_with_max_version
 
 
@@ -227,15 +208,14 @@ def execute_tests(
 
 
 def cli():
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
     parser.add_argument("--bazel", "-b", metavar="VERSION", help="Run tests with the specified Bazel version.")
     parser.add_argument("--test", "-t", nargs="+", help="Run the specified test cases.")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
-def main(args: argparse.Namespace, test_cases: List[TestCase], test_versions: List[str], version_specific_args: Dict):
+def main(args: Namespace, test_cases: List[TestCase], test_versions: List[str], version_specific_args: Dict):
     bazel_versions = [args.bazel] if args.bazel else test_versions
     if args.test:
         active_tests = [tc for tc in test_cases if tc.name in args.test]

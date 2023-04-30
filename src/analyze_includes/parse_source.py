@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from typing import List, Union
@@ -26,12 +27,12 @@ class SimpleParsingPreprocessor(Preprocessor):
         pass
 
 
+@dataclass
 class Include:
     """Single include statement in a specific file"""
 
-    def __init__(self, file: Path, include: str) -> None:
-        self.file = file
-        self.include = include
+    file: Path
+    include: str
 
     def __eq__(self, other: object) -> bool:
         return self.file == other.file and self.include == other.include
@@ -46,15 +47,15 @@ class Include:
         return f"File='{self.file}', include='{self.include}'"
 
 
+@dataclass
 class IgnoredIncludes:
     """
     We ignore some include statements during analysis. For example header from the standard library, but also paths
     or headers chosen by the user.
     """
 
-    def __init__(self, paths: List[str], patterns: List[str]) -> None:
-        self.paths = paths
-        self.patterns = patterns
+    paths: List[str]
+    patterns: List[str]
 
     def is_ignored(self, include: str) -> bool:
         is_ignored_path = include in self.paths

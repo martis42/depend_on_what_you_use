@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 from typing import Dict, List
@@ -65,36 +66,30 @@ class IncludePath:
         return f"IncludePath(path='{self.path}', usage='{self.usage}')"
 
 
+@dataclass
 class CcTarget:
     """A cc_* rule target and the available information associated with it."""
 
-    def __init__(self, name: str, include_paths: List[IncludePath], header_files: List[HeaderFile]) -> None:
-        self.name = name
-        self.include_paths = include_paths
-        self.header_files = header_files
+    name: str
+    include_paths: List[IncludePath]
+    header_files: List[HeaderFile]
 
     def __repr__(self) -> str:
         return f"CcTarget(name='{self.name}', include_paths={self.include_paths}, header_files={self.header_files})"
 
 
+@dataclass
 class SystemUnderInspection:
     """A target whose include statements are analyzed and its dependencies."""
 
-    def __init__(
-        self,
-        public_deps: List[CcTarget],
-        private_deps: List[CcTarget],
-        defines: List[str],
-        target_under_inspection: CcTarget,
-    ) -> None:
-        # Dependencies which are available to downstream dependencies of the target under inspection
-        self.public_deps = public_deps
-        # Dependencies which are NOT available to downstream dependencies of the target under inspection
-        self.private_deps = private_deps
-        # Defines influencing the preprocessor
-        self.defines = defines
-        # Target under inspection
-        self.target_under_inspection = target_under_inspection
+    # Dependencies which are available to downstream dependencies of the target under inspection
+    public_deps: List[CcTarget]
+    # Dependencies which are NOT available to downstream dependencies of the target under inspection
+    private_deps: List[CcTarget]
+    # Defines influencing the preprocessor
+    defines: List[str]
+    # Target under inspection
+    target_under_inspection: CcTarget
 
 
 def _make_cc_target(info: Dict) -> CcTarget:
