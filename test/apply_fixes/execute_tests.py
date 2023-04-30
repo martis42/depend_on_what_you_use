@@ -18,8 +18,7 @@ def cli():
         nargs="+",
         help="Run the specified test cases. Substrings will match against all test names including them.",
     )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

@@ -50,12 +50,7 @@ def cleanup(test_workspace: Path) -> None:
     system.
     """
     process = subprocess.run(
-        ["bazel", "info", "output_base"],
-        cwd=test_workspace,
-        check=True,
-        encoding="utf-8",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        ["bazel", "info", "output_base"], cwd=test_workspace, check=True, capture_output=True, text=True
     )
     output_base = process.stdout.strip()
 
@@ -96,9 +91,7 @@ def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
 
 
 def get_current_workspace() -> Path:
-    process = subprocess.run(
-        ["bazel", "info", "workspace"], check=True, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
     return Path(process.stdout.strip())
 
 
@@ -124,12 +117,7 @@ def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) 
             module = SourceFileLoader("", str(test.resolve())).load_module()
             tests.append(module.TestCase(name=name, test_sources=test.parent / "workspace"))
 
-    failed_tests = []
-    for test in tests:
-        succeeded = execute_test(test=test, origin_workspace=current_workspace)
-        if not succeeded:
-            failed_tests.append(test.name)
-
+    failed_tests = [test.name for test in tests if not execute_test(test=test, origin_workspace=current_workspace)]
     logging.info(f'Running tests {"FAILED" if failed_tests else "SUCCEEDED"}')
     if failed_tests:
         logging.info("\nFailed tests:")

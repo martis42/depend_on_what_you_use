@@ -7,7 +7,7 @@ class TestSummary(unittest.TestCase):
     def test_add_succeeding_command(self):
         unit = Summary()
         unit.add_command(cmd=["foo", "bar"], buildozer_result=0)
-        self.assertEqual(unit.succesful_fixes, [["foo", "bar"]])
+        self.assertEqual(unit.successful_fixes, [["foo", "bar"]])
 
     def test_add_command_without_effect(self):
         unit = Summary()

@@ -48,6 +48,6 @@ repos:
       - id: pyupgrade
         name: pyupgrade
         entry: poetry run pyupgrade
-        args: [ --py36-plus ]
+        args: [ --py38-plus ]
         language: system
         types: [ python ]
