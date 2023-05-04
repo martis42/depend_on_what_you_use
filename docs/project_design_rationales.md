@@ -42,13 +42,15 @@ A tool being executed like this can access any part of the host system.
 
 # Platforms
 
-## Why is Bazel \< 4.0.0 not supported
+## Why is Bazel \< 5.0.0 not supported
 
-The aspect implementation is not compatible to old Bazel versions due to:
+The DWYU aspect is incompatible to Bazel \< 4.0.0.
+Bazel 4.x is not tested, but should still work.
 
-- Before 3.3.0 `CcInfo` compilation_context has a structure which is not supported by the aspect
-- Before 4.0.0 the global `json` module is not available in Starlark
-- Bazel 4.0.0 is the first LTS version
+We officially support and test only Bazel 5.0.0 and later.
+One major feature of DWYU is ensuring the proper usage of `implementation_deps`, which is a feature which is only
+available starting from Bazel 5.0.0.
+Furthermore, many Bazel rule sets already rely on Bazel 5.x as well.
 
 ## Why is Python \< 3.8 not supported
 

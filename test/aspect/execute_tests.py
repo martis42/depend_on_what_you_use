@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 import sys
 
-from execute_tests_impl import (
-    CompatibleVersions,
-    ExpectedResult,
-    TestCase,
-    TestCmd,
-    cli,
-    main,
-)
+from execute_tests_impl import ExpectedResult, TestCase, TestCmd, cli, main
 
 BAZEL_VERSIONS = [
-    "4.0.0",
-    "4.2.3",
     "5.0.0",
     "5.4.0",
     "6.0.0",
@@ -74,7 +65,6 @@ TESTS = [
     ),
     TestCase(
         name="unused_private_dep",
-        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/unused_dep/implementation_deps:implementation_deps_lib",
             aspect="//test/aspect/unused_dep:aspect.bzl%implementation_deps_aspect",
@@ -99,7 +89,6 @@ TESTS = [
     ),
     TestCase(
         name="proper_implementation_deps",
-        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:proper_private_deps",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -109,7 +98,6 @@ TESTS = [
     ),
     TestCase(
         name="binary_with_implementation_deps_activated",
-        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:binary_using_foo",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -119,7 +107,6 @@ TESTS = [
     ),
     TestCase(
         name="test_with_implementation_deps_activated",
-        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:test_using_foo",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -129,7 +116,6 @@ TESTS = [
     ),
     TestCase(
         name="superfluous_public_dep",
-        compatible_versions=CompatibleVersions(min="5.0.0"),
         cmd=TestCmd(
             target="//test/aspect/implementation_deps:superfluous_public_dep",
             aspect="//test/aspect/implementation_deps:aspect.bzl%implementation_deps_aspect",
@@ -204,13 +190,11 @@ TESTS = [
     ),
     TestCase(
         name="complex_includes",
-        compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
         cmd=TestCmd(target="//test/aspect/complex_includes:all", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
         name="complex_includes_in_ext_repo",
-        compatible_versions=CompatibleVersions(min="4.1.0"),  # Does not compile with 4.0.0
         cmd=TestCmd(target="@complex_includes_repo//...", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
@@ -245,47 +229,7 @@ TESTS = [
     ),
     TestCase(
         name="relative_includes",
-        compatible_versions=CompatibleVersions(min="4.1.0"),
         cmd=TestCmd(target="//test/aspect/relative_includes/...", aspect=DEFAULT_ASPECT),
-        expected=ExpectedResult(success=True),
-    ),
-    # Bazel 4.0.0 does not include the source files in the header file lists in CcInfo. Only the generated files at the
-    # virtual paths are included, which does not suffice for our relative include logic. This has been fixed with Bazel
-    # 4.1.0
-    TestCase(
-        name="relative_includes_for_bazel_400_part_1",
-        compatible_versions=CompatibleVersions(max="4.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/relative_includes:normal_include",
-            aspect=DEFAULT_ASPECT,
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="relative_includes_for_bazel_400_part_2",
-        compatible_versions=CompatibleVersions(max="4.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/relative_includes:system_include",
-            aspect=DEFAULT_ASPECT,
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="relative_includes_for_bazel_400_part_3",
-        compatible_versions=CompatibleVersions(max="4.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/relative_includes:use_normal_include",
-            aspect=DEFAULT_ASPECT,
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="relative_includes_for_bazel_400_part_4",
-        compatible_versions=CompatibleVersions(max="4.0.0"),
-        cmd=TestCmd(
-            target="//test/aspect/relative_includes:use_system_include",
-            aspect=DEFAULT_ASPECT,
-        ),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
