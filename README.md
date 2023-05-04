@@ -238,7 +238,7 @@ TODO 3.8
 | ---------------- | ------------------------------------------------------------------------------------------------ |
 | Operating system | No constraints. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
 | Python           | Minimum version is 3.8. Tests are currenntly only performed with 3.8.                            |
-| Bazel            | Minimum version is 4.0.0. Multiple versions are tested.                                          |
+| Bazel            | Minimum version is 5.0.0. Multiple versions are tested.                                          |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                      |
 
 # Alternatives to DWYU
