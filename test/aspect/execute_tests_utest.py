@@ -10,7 +10,6 @@ from execute_tests_impl import (
     CompatibleVersions,
     ExpectedResult,
     TestCmd,
-    is_compatible_version,
     make_cmd,
 )
 
@@ -189,24 +188,22 @@ class TestMakeCmd(unittest.TestCase):
 
 class TestIsCompatibleVersion(unittest.TestCase):
     def test_no_limits(self):
-        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions()))
+        self.assertTrue(CompatibleVersions().is_compatible_to("1.0.0"))
 
     def test_above_min_version(self):
-        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="0.9.9")))
+        self.assertTrue(CompatibleVersions(min="0.9.9").is_compatible_to("1.0.0"))
 
     def test_below_min_version(self):
-        self.assertFalse(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="1.1.0")))
+        self.assertFalse(CompatibleVersions(min="1.1.9").is_compatible_to("1.0.0"))
 
     def test_below_max_version(self):
-        self.assertTrue(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(max="1.1.0")))
+        self.assertTrue(CompatibleVersions(max="1.1.0").is_compatible_to("1.0.0"))
 
     def test_above_max_version(self):
-        self.assertFalse(is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(max="0.9.0")))
+        self.assertFalse(CompatibleVersions(max="0.9.0").is_compatible_to("1.0.0"))
 
     def test_inside_interval(self):
-        self.assertTrue(
-            is_compatible_version(version="1.0.0", compatible_versions=CompatibleVersions(min="0.9.0", max="1.1.0"))
-        )
+        self.assertTrue(CompatibleVersions(min="0.9.0", max="1.1.0").is_compatible_to("1.0.0"))
 
 
 if __name__ == "__main__":

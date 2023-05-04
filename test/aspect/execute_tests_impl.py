@@ -123,6 +123,11 @@ class CompatibleVersions:
     min: str = ""
     max: str = ""
 
+    def is_compatible_to(self, version: str) -> bool:
+        comply_with_min_version = version >= self.min if self.min else True
+        comply_with_max_version = version <= self.max if self.max else True
+        return comply_with_min_version and comply_with_max_version
+
 
 @dataclass
 class TestCase:
@@ -162,14 +167,11 @@ def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
     return cmd
 
 
-def is_compatible_version(version: str, compatible_versions: CompatibleVersions) -> bool:
-    comply_with_min_version = version >= compatible_versions.min if compatible_versions.min else True
-    comply_with_max_version = version <= compatible_versions.max if compatible_versions.max else True
-    return comply_with_min_version and comply_with_max_version
-
-
 def execute_tests(
-    versions: List[str], tests: List[TestCase], version_specific_args: Dict, verbose: bool = False
+    versions: List[str],
+    tests: List[TestCase],
+    version_specific_args: Dict[str, CompatibleVersions],
+    verbose: bool = False,
 ) -> List[FailedTest]:
     failed_tests = []
 
@@ -177,20 +179,21 @@ def execute_tests(
     test_env["HOME"] = os.getenv("HOME")  # Required by Bazel to determine bazel-out
     test_env["PATH"] = os.getenv("PATH")  # Access to bazelisk
 
-    for version in versions:
-        test_env["USE_BAZEL_VERSION"] = version
+    for bazel_version in versions:
+        test_env["USE_BAZEL_VERSION"] = bazel_version
 
-        extra_args = []
-        for args_version, args in version_specific_args.items():
-            if args_version <= version:
-                extra_args.extend(args)
+        extra_args = [
+            arg
+            for arg, valid_versions in version_specific_args.items()
+            if valid_versions.is_compatible_to(bazel_version)
+        ]
 
         for test in tests:
-            if not is_compatible_version(version=version, compatible_versions=test.compatible_versions):
-                print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{version}'")
+            if not test.compatible_versions.is_compatible_to(bazel_version):
+                print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{bazel_version}'")
                 continue
 
-            print(f"\n>>> Execute '{test.name}' with Bazel '{version}'")
+            print(f"\n>>> Execute '{test.name}' with Bazel '{bazel_version}'")
 
             process = sb.run(
                 make_cmd(test_cmd=test.cmd, extra_args=extra_args),
@@ -202,7 +205,7 @@ def execute_tests(
             )
 
             if not verify_test(test=test, process=process, verbose=verbose):
-                failed_tests.append(FailedTest(name=test.name, version=version))
+                failed_tests.append(FailedTest(name=test.name, version=bazel_version))
 
     return failed_tests
 
@@ -215,7 +218,12 @@ def cli():
     return parser.parse_args()
 
 
-def main(args: Namespace, test_cases: List[TestCase], test_versions: List[str], version_specific_args: Dict):
+def main(
+    args: Namespace,
+    test_cases: List[TestCase],
+    test_versions: List[str],
+    version_specific_args: Dict[str, CompatibleVersions],
+):
     bazel_versions = [args.bazel] if args.bazel else test_versions
     if args.test:
         active_tests = [tc for tc in test_cases if tc.name in args.test]
