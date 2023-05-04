@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 import sys
 
-from execute_tests_impl import ExpectedResult, TestCase, TestCmd, cli, main
+from execute_tests_impl import (
+    CompatibleVersions,
+    ExpectedResult,
+    TestCase,
+    TestCmd,
+    cli,
+    main,
+)
 
 BAZEL_VERSIONS = [
     "5.0.0",
@@ -11,11 +18,28 @@ BAZEL_VERSIONS = [
     "7.0.0-pre.20230426.1",
 ]
 
+# When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
 VERSION_SPECIFIC_ARGS = {
-    "5.0.0": [
-        "--incompatible_enforce_config_setting_visibility",
-        "--incompatible_config_setting_private_default_visibility",
-    ]
+    "--incompatible_legacy_local_fallback=false": CompatibleVersions(min="5.0.0"),  # false is the forward path behavior
+    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(min="5.0.0"),
+    "--incompatible_config_setting_private_default_visibility": CompatibleVersions(min="5.0.0"),
+    "--incompatible_disable_target_provider_fields": CompatibleVersions(min="5.0.0"),
+    "--incompatible_struct_has_no_methods": CompatibleVersions(min="5.0.0"),
+    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(min="5.0.0"),
+    "--incompatible_disallow_empty_glob": CompatibleVersions(min="5.0.0"),
+    "--incompatible_existing_rules_immutable_view": CompatibleVersions(min="5.0.0"),
+    "--incompatible_no_implicit_file_export": CompatibleVersions(min="5.0.0"),
+    "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(min="5.0.0"),
+    "--incompatible_default_to_explicit_init_py": CompatibleVersions(min="5.0.0"),
+    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(min="5.0.0"),
+    "--incompatible_strict_action_env": CompatibleVersions(min="5.0.0"),
+    "--incompatible_disable_starlark_host_transitions": CompatibleVersions(min="6.0.0"),
+    "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(min="6.0.0"),
+    "--incompatible_check_testonly_for_output_files": CompatibleVersions(min="6.0.0"),
+    "--incompatible_check_visibility_for_toolchains": CompatibleVersions(min="7.0.0"),
+    # Theoretically interesting for our project, but Bazel itself does not adhere to it
+    # "--incompatible_python_disallow_native_rules": CompatibleVersions(min="7.0.0"),
+    # "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(min="7.0.0"),
 }
 
 DEFAULT_ASPECT = "//test/aspect:aspect.bzl%dwyu_default_aspect"
