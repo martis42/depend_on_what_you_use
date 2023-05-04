@@ -5,10 +5,10 @@ from execute_tests_impl import ExpectedResult, TestCase, TestCmd, cli, main
 
 BAZEL_VERSIONS = [
     "5.0.0",
-    "5.4.0",
+    "5.4.1",
     "6.0.0",
-    "6.1.1",
-    "7.0.0-pre.20230330.3",
+    "6.1.2",
+    "7.0.0-pre.20230426.1",
 ]
 
 VERSION_SPECIFIC_ARGS = {
