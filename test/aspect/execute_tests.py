@@ -88,6 +88,11 @@ TESTS = [
         expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/unused_dep:foo"]),
     ),
     TestCase(
+        name="unused_dep_skipped",
+        cmd=TestCmd(target="//test/aspect/unused_dep:main_skipped", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
         name="unused_private_dep",
         cmd=TestCmd(
             target="//test/aspect/unused_dep/implementation_deps:implementation_deps_lib",

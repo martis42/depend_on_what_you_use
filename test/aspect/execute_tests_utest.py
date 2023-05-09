@@ -1,4 +1,5 @@
 import unittest
+from shutil import which
 
 from execute_tests_impl import (
     CATEGORY_INVALID_INCLUDES,
@@ -166,7 +167,8 @@ class TestExpectedResult(unittest.TestCase):
 class TestMakeCmd(unittest.TestCase):
     @staticmethod
     def _base_cmd():
-        return ["bazelisk", "build", "--noshow_progress"]
+        bazel = which("bazelisk") or which("bazel")
+        return [bazel, "build", "--noshow_progress"]
 
     def test_basic_cmd(self):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[])

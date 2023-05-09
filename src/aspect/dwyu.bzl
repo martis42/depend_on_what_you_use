@@ -224,6 +224,10 @@ def dwyu_aspect_impl(target, ctx):
     if not CcInfo in target:
         return []
 
+    # Skip targets which explicitly opt-out
+    if "no-dwyu" in ctx.rule.attr.tags:
+        return []
+
     public_files, private_files = _parse_sources(ctx.rule.attr)
     if not public_files and not private_files:
         return []
