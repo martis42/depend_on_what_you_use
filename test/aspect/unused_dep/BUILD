@@ -25,3 +25,14 @@ cc_binary(
         ":foo",
     ],
 )
+
+# SUCCESS: This rule is skipped due to the tag `no-dwyu`.
+cc_binary(
+    name = "main_skipped",
+    srcs = [":using_bar"],
+    tags = ["no-dwyu"],
+    deps = [
+        ":bar",
+        ":foo",
+    ],
+)

@@ -2,6 +2,7 @@ import os
 import subprocess as sb
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass, field
+from shutil import which
 from typing import Dict, List, Union
 
 # Each line in the output corresponding to an error is expected to start with this
@@ -157,7 +158,8 @@ def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> 
 
 
 def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
-    cmd = ["bazelisk", "build", "--noshow_progress"]
+    bazel = which("bazelisk") or which("bazel")
+    cmd = [bazel, "build", "--noshow_progress"]
     if test_cmd.aspect:
         cmd.extend([f"--aspects={test_cmd.aspect}", "--output_groups=cc_dwyu_output"])
     cmd.extend(extra_args)
