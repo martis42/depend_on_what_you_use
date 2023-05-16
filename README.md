@@ -5,6 +5,7 @@
   - [Use DWYU](#use-dwyu)
 - [Features](#features)
   - [Custom header ignore list](#custom-header-ignore-list)
+  - [Skipping Targets](#skipping-targets)
   - [Recursion](#recursion)
   - [Implementation_deps](#Implementation_deps)
   - [Known limitations](#known-limitations)
@@ -129,6 +130,11 @@ The config file can contain these fields which should be lists of strings. All f
 | `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns, |
 
 Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
+
+## Skipping targets
+
+If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by
+setting the `no-dwyu` tag on those.
 
 ## Recursion
 
