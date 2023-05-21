@@ -10,7 +10,7 @@ def setup_step_2():
 
     # Fail early for incompatible Bazel versions instead of printing obscure errors from within our implementation
     versions.check(
-        minimum_bazel_version = "4.0.0",
+        minimum_bazel_version = "5.0.0",
     )
 
 def dev_setup_step_2():
