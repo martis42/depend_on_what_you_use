@@ -1,5 +1,10 @@
 # Always tell why tests fail
 test --test_output=errors
 
+# Mypy integration
+build:mypy --aspects=@mypy_integration//:mypy.bzl%mypy_aspect
+build:mypy --output_groups=mypy
+build:mypy --@mypy_integration//:mypy_config=//:mypy.ini
+
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc
