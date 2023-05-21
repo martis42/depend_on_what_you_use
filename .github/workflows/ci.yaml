@@ -21,6 +21,24 @@ jobs:
       - run: source .venv/bin/activate
       - uses: pre-commit/action@v2.0.3
 
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cache bazel
+        uses: actions/cache@v3
+        env:
+          cache-name: bazel-cache
+        with:
+          path: |
+            ~/.cache/bazelisk
+            ~/.cache/bazel
+          key: ${{ runner.os }}-${{ env.cache-name }}
+      - uses: actions/checkout@v3
+      - name: Build and test the code
+        run: bazel test //src/... //test/aspect:all
+      - name: Execute Mypy
+        run: bazel build --config=mypy //src/... //test/aspect:all
+
   # tests:
   #   runs-on: ubuntu-20.04
   #   steps:
