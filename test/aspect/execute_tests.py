@@ -14,8 +14,8 @@ BAZEL_VERSIONS = [
     "5.0.0",
     "5.4.1",
     "6.0.0",
-    "6.1.2",
-    "7.0.0-pre.20230426.1",
+    "6.2.0",
+    "7.0.0-pre.20230502.1",
 ]
 
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
