@@ -1,9 +1,10 @@
-import os
-import subprocess as sb
+import subprocess
 from argparse import ArgumentParser, Namespace
+from copy import deepcopy
 from dataclasses import dataclass, field
+from os import environ
 from shutil import which
-from typing import Dict, List, Union
+from typing import Dict, List, Optional
 
 # Each line in the output corresponding to an error is expected to start with this
 ERRORS_PREFIX = " " * 2
@@ -88,22 +89,22 @@ class ExpectedResult:
 
     @staticmethod
     def _has_expected_errors(expected_errors: List[str], error_category: str, output: List[str]) -> bool:
+        if not expected_errors:
+            return True
+
         idx_category = ExpectedResult._find_line_with(lines=output, val=error_category)
-        if expected_errors and idx_category is None:
-            return False
-        if expected_errors:
-            if not ExpectedResult._has_errors(
-                error_lines=ExpectedResult._get_error_lines(idx_category=idx_category, output=output),
-                expected_errors=expected_errors,
-            ):
-                return False
-        if not expected_errors and not idx_category is None:
+        if idx_category is None:
             return False
 
+        if not ExpectedResult._has_errors(
+            error_lines=ExpectedResult._get_error_lines(idx_category=idx_category, output=output),
+            expected_errors=expected_errors,
+        ):
+            return False
         return True
 
     @staticmethod
-    def _find_line_with(lines: List[str], val: str) -> Union[int, None]:
+    def _find_line_with(lines: List[str], val: str) -> Optional[int]:
         for idx, line in enumerate(lines):
             if val in line:
                 return idx
@@ -144,7 +145,7 @@ class FailedTest:
     version: str
 
 
-def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> bool:
+def verify_test(test: TestCase, process: subprocess.CompletedProcess, verbose: bool) -> bool:
     if test.expected.matches_expectation(return_code=process.returncode, dwyu_output=process.stdout):
         if verbose:
             print("\n" + process.stdout + "\n")
@@ -159,6 +160,8 @@ def verify_test(test: TestCase, process: sb.CompletedProcess, verbose: bool) -> 
 
 def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
     bazel = which("bazelisk") or which("bazel")
+    if not bazel:
+        raise Exception("No bazel or bazelisk binary available on your system")
     cmd = [bazel, "build", "--noshow_progress"]
     if test_cmd.aspect:
         cmd.extend([f"--aspects={test_cmd.aspect}", "--output_groups=cc_dwyu_output"])
@@ -176,11 +179,7 @@ def execute_tests(
     verbose: bool = False,
 ) -> List[FailedTest]:
     failed_tests = []
-
-    test_env = {}
-    test_env["HOME"] = os.getenv("HOME")  # Required by Bazel to determine bazel-out
-    test_env["PATH"] = os.getenv("PATH")  # Access to bazelisk
-
+    test_env = deepcopy(environ)
     for bazel_version in versions:
         test_env["USE_BAZEL_VERSION"] = bazel_version
 
@@ -197,12 +196,12 @@ def execute_tests(
 
             print(f"\n>>> Execute '{test.name}' with Bazel '{bazel_version}'")
 
-            process = sb.run(
+            process = subprocess.run(
                 make_cmd(test_cmd=test.cmd, extra_args=extra_args),
                 env=test_env,
                 encoding="utf-8",
-                stdout=sb.PIPE,
-                stderr=sb.STDOUT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 check=False,
             )
 

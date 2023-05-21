@@ -5,8 +5,13 @@ set -o nounset
 
 echo ""
 echo "Execute unit tests"
+echo ""
+bazel test //src/... //test/aspect:all
+
+echo ""
+echo "Executing mypy"
 echo
-bazel test "//src/..." "//test/aspect:all"
+bazel build --config=mypy //src/... //test/aspect:all
 
 echo ""
 echo "Execute acceptance tests - Aspect"

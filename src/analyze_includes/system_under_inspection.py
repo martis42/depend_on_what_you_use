@@ -41,9 +41,6 @@ class UsageStatusTracker:
     def is_used(self) -> bool:
         return self._usage != UsageStatus.NONE
 
-    def __eq__(self, other: UsageStatus) -> bool:
-        return self._usage == other
-
     def __repr__(self) -> str:
         return self._usage.name
 

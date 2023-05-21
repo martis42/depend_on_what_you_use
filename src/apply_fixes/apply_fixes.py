@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from itertools import chain
 from os import environ
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
 
@@ -30,16 +30,13 @@ def execute_and_capture(cmd: List[str], cwd: Path, check: bool = True) -> subpro
     return subprocess.run(cmd, cwd=cwd, check=check, capture_output=True, text=True)
 
 
-def get_workspace(main_args: Namespace) -> Path:
+def get_workspace(main_args: Namespace) -> Optional[Path]:
     if main_args.workspace:
         return Path(main_args.workspace)
 
     workspace_root = environ.get(WORKSPACE_ENV_VAR)
     if not workspace_root:
-        print(
-            "ERROR:"
-            f" No workspace was explicitly provided and environment variable '{WORKSPACE_ENV_VAR}' is not available."
-        )
+        return None
     return Path(workspace_root)
 
 
@@ -212,6 +209,12 @@ def main(args: Namespace) -> int:
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
     workspace = get_workspace(args)
+    if not workspace:
+        logging.fatal(
+            "ERROR: "
+            f"No workspace was explicitly provided and environment variable '{WORKSPACE_ENV_VAR}' is not available."
+        )
+        return 1
     logging.debug(f"Workspace: '{workspace}'")
 
     bin_dir = get_bazel_bin_dir(main_args=args, workspace_root=workspace)

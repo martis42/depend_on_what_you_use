@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional
 
 from pcpp import Preprocessor
 
@@ -35,6 +35,8 @@ class Include:
     include: str
 
     def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Include):
+            return NotImplemented
         return self.file == other.file and self.include == other.include
 
     def __hash__(self) -> int:
@@ -92,7 +94,7 @@ def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) 
 
 
 def get_relevant_includes_from_files(
-    files: Union[List[str], None], ignored_includes: IgnoredIncludes, defines: List[str]
+    files: Optional[List[str]], ignored_includes: IgnoredIncludes, defines: List[str]
 ) -> List[Include]:
     all_includes = []
     if files:

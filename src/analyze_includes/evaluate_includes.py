@@ -131,7 +131,7 @@ def _check_for_unused_dependencies(dependencies: List[CcTarget]) -> List[str]:
 def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> List[str]:
     should_be_private = []
     for dep in dependencies.public_deps:
-        if all(hdr.usage in (UsageStatus.NONE, UsageStatus.PRIVATE) for hdr in dep.include_paths) and any(
+        if all(hdr.usage.usage in (UsageStatus.NONE, UsageStatus.PRIVATE) for hdr in dep.include_paths) and any(
             hdr.usage.is_used() for hdr in dep.include_paths
         ):
             should_be_private.append(dep.name)

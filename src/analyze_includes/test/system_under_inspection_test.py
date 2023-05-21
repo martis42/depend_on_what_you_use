@@ -60,17 +60,6 @@ class TestUsageStatusTracker(unittest.TestCase):
         unit.update(UsageStatus.PUBLIC_AND_PRIVATE)
         self.assertEqual(unit.usage, UsageStatus.PUBLIC_AND_PRIVATE)
 
-    def test_equality(self):
-        unit_a = self.make_tracker_with_value(UsageStatus.PUBLIC)
-        unit_b = self.make_tracker_with_value(UsageStatus.PUBLIC)
-        unit_c = self.make_tracker_with_value(UsageStatus.PRIVATE)
-        unit_d = UsageStatusTracker()
-
-        self.assertEqual(unit_a, unit_b)
-        self.assertNotEqual(unit_a, unit_c)
-        self.assertNotEqual(unit_a, unit_d)
-        self.assertNotEqual(unit_c, unit_d)
-
     def test_repr(self):
         unit_a = UsageStatusTracker()
         self.assertEqual(repr(unit_a), "NONE")
