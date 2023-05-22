@@ -1,8 +1,8 @@
-load("//third_party:dependencies_step_3.bzl", "dependencies_step_3")
+load("@dwyu_py_deps//:requirements.bzl", install_py_deps = "install_deps")
 
 def setup_step_3():
     """
     Perform the third setup step.
     """
 
-    dependencies_step_3()
+    install_py_deps()
