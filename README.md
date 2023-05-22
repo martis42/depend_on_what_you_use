@@ -1,3 +1,5 @@
+[![CI](https://github.com/martis42/depend_on_what_you_use/actions/workflows/ci.yaml/badge.svg)](https://github.com/martis42/depend_on_what_you_use/actions/workflows/ci.yaml)
+
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
   - [Get a release](#get-a-release)
