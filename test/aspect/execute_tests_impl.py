@@ -3,6 +3,7 @@ from argparse import ArgumentParser, Namespace
 from copy import deepcopy
 from dataclasses import dataclass, field
 from os import environ
+from pathlib import Path
 from shutil import which
 from typing import Dict, List, Optional
 
@@ -158,11 +159,15 @@ def verify_test(test: TestCase, process: subprocess.CompletedProcess, verbose: b
     return False
 
 
-def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
+def bazel_binary() -> str:
     bazel = which("bazelisk") or which("bazel")
     if not bazel:
         raise Exception("No bazel or bazelisk binary available on your system")
-    cmd = [bazel, "build", "--noshow_progress"]
+    return bazel
+
+
+def make_cmd(test_cmd: TestCmd, startup_args: List[str], extra_args: List[str]) -> List[str]:
+    cmd = [bazel_binary()] + startup_args + ["build", "--noshow_progress"]
     if test_cmd.aspect:
         cmd.extend([f"--aspects={test_cmd.aspect}", "--output_groups=cc_dwyu_output"])
     cmd.extend(extra_args)
@@ -170,6 +175,11 @@ def make_cmd(test_cmd: TestCmd, extra_args: List[str]) -> List[str]:
     cmd.append("--")
     cmd.append(test_cmd.target)
     return cmd
+
+
+def current_workspace() -> Path:
+    process = subprocess.run([bazel_binary(), "info", "workspace"], capture_output=True, text=True, check=True)
+    return Path(process.stdout.strip())
 
 
 def execute_tests(
@@ -180,9 +190,12 @@ def execute_tests(
 ) -> List[FailedTest]:
     failed_tests = []
     test_env = deepcopy(environ)
+    workspace_path = current_workspace()
+    output_root = Path(environ["HOME"]) / ".cache" / "bazel" / workspace_path.relative_to("/")
     for bazel_version in versions:
         test_env["USE_BAZEL_VERSION"] = bazel_version
-
+        output_base = output_root / f"aspect_integration_tests_{bazel_version}"
+        output_base.mkdir(parents=True, exist_ok=True)
         extra_args = [
             arg
             for arg, valid_versions in version_specific_args.items()
@@ -193,11 +206,10 @@ def execute_tests(
             if not test.compatible_versions.is_compatible_to(bazel_version):
                 print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{bazel_version}'")
                 continue
-
             print(f"\n>>> Execute '{test.name}' with Bazel '{bazel_version}'")
 
             process = subprocess.run(
-                make_cmd(test_cmd=test.cmd, extra_args=extra_args),
+                make_cmd(test_cmd=test.cmd, startup_args=[f"--output_base={output_base}"], extra_args=extra_args),
                 env=test_env,
                 encoding="utf-8",
                 stdout=subprocess.PIPE,

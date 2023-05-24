@@ -166,26 +166,55 @@ class TestExpectedResult(unittest.TestCase):
 
 class TestMakeCmd(unittest.TestCase):
     @staticmethod
-    def _base_cmd():
+    def _base_cmd(startup_args=None):
         bazel = which("bazelisk") or which("bazel")
-        return [bazel, "build", "--noshow_progress"]
+        build_with_default_options = ["build", "--noshow_progress"]
+        if startup_args:
+            return [bazel] + startup_args + build_with_default_options
+        return [bazel] + build_with_default_options
 
     def test_basic_cmd(self):
-        cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[])
+        cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[], startup_args=[])
         self.assertEqual(cmd, self._base_cmd() + ["--", "//foo:bar"])
 
-    def test_with_aspect(self):
-        cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar", aspect="//some/aspect.bzl"), extra_args=[])
+    def test_complex_test_cmd(self):
+        cmd = make_cmd(
+            test_cmd=TestCmd(
+                target="//foo:bar",
+                aspect="//some/aspect.bzl",
+                extra_args=["--abc", "--cba"],
+            ),
+            extra_args=[],
+            startup_args=[],
+        )
         self.assertEqual(
             cmd,
-            self._base_cmd() + ["--aspects=//some/aspect.bzl", "--output_groups=cc_dwyu_output", "--", "//foo:bar"],
+            self._base_cmd()
+            + ["--aspects=//some/aspect.bzl", "--output_groups=cc_dwyu_output", "--abc", "--cba", "--", "//foo:bar"],
         )
 
-    def test_with_extra_args(self):
+    def test_extra_args_on_top_of_test_cmd(self):
         cmd = make_cmd(
-            test_cmd=TestCmd(target="//foo:bar", extra_args=["--abc", "--cba"]), extra_args=["--some_bazel_extra_arg"]
+            test_cmd=TestCmd(
+                target="//foo:bar",
+                aspect="//some/aspect.bzl",
+                extra_args=["--test_related_arg"],
+            ),
+            extra_args=["--outside_arg"],
+            startup_args=["--some_startup_arg"],
         )
-        self.assertEqual(cmd, self._base_cmd() + ["--some_bazel_extra_arg", "--abc", "--cba", "--", "//foo:bar"])
+        self.assertEqual(
+            cmd,
+            self._base_cmd(startup_args=["--some_startup_arg"])
+            + [
+                "--aspects=//some/aspect.bzl",
+                "--output_groups=cc_dwyu_output",
+                "--outside_arg",
+                "--test_related_arg",
+                "--",
+                "//foo:bar",
+            ],
+        )
 
 
 class TestIsCompatibleVersion(unittest.TestCase):
