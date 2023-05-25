@@ -38,6 +38,8 @@ jobs:
         run: bazel test //src/... //test/aspect:all
       - name: Execute Mypy
         run: bazel build --config=mypy //src/... //test/aspect:all
+      - name: Integration Tests
+        run: ./test/aspect/execute_tests.py
 
   # tests:
   #   runs-on: ubuntu-20.04
