@@ -6,16 +6,19 @@ from execute_tests_impl import (
     ExpectedResult,
     TestCase,
     TestCmd,
+    TestedVersions,
     cli,
     main,
 )
 
-BAZEL_VERSIONS = [
-    "5.0.0",
-    "5.4.1",
-    "6.0.0",
-    "6.2.0",
-    "7.0.0-pre.20230502.1",
+# Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
+# manually define pairs which make sure each Bazel and Python version we care about is used at least once.
+TESTED_VERSIONS = [
+    TestedVersions(bazel="5.0.0", python="3.8.15"),
+    TestedVersions(bazel="5.4.1", python="3.9.16"),
+    TestedVersions(bazel="6.0.0", python="3.10.9"),
+    TestedVersions(bazel="6.2.0", python="3.11.1"),
+    TestedVersions(bazel="7.0.0-pre.20230502.1", python="3.11.1"),
 ]
 
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
@@ -289,6 +292,8 @@ TESTS = [
 
 if __name__ == "__main__":
     args = cli()
+    if not args:
+        sys.exit(1)
     sys.exit(
-        main(args=args, test_cases=TESTS, test_versions=BAZEL_VERSIONS, version_specific_args=VERSION_SPECIFIC_ARGS)
+        main(args=args, test_cases=TESTS, tested_versions=TESTED_VERSIONS, version_specific_args=VERSION_SPECIFIC_ARGS)
     )
