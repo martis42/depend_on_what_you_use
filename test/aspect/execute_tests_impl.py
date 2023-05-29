@@ -19,6 +19,12 @@ CATEGORY_UNUSED_PRIVATE_DEPS = "Unused dependencies in 'implementation_deps' (no
 
 
 @dataclass
+class TestedVersions:
+    bazel: str
+    python: str
+
+
+@dataclass
 class TestCmd:
     target: str
     aspect: str = ""
@@ -143,7 +149,7 @@ class TestCase:
 @dataclass
 class FailedTest:
     name: str
-    version: str
+    version: TestedVersions
 
 
 def verify_test(test: TestCase, process: subprocess.CompletedProcess, verbose: bool) -> bool:
@@ -183,7 +189,7 @@ def current_workspace() -> Path:
 
 
 def execute_tests(
-    versions: List[str],
+    versions: List[TestedVersions],
     tests: List[TestCase],
     version_specific_args: Dict[str, CompatibleVersions],
     verbose: bool = False,
@@ -192,21 +198,22 @@ def execute_tests(
     test_env = deepcopy(environ)
     workspace_path = current_workspace()
     output_root = Path(environ["HOME"]) / ".cache" / "bazel" / workspace_path.relative_to("/")
-    for bazel_version in versions:
-        test_env["USE_BAZEL_VERSION"] = bazel_version
-        output_base = output_root / f"aspect_integration_tests_{bazel_version}"
+    for version in versions:
+        test_env["USE_BAZEL_VERSION"] = version.bazel
+        output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
         output_base.mkdir(parents=True, exist_ok=True)
         extra_args = [
             arg
             for arg, valid_versions in version_specific_args.items()
-            if valid_versions.is_compatible_to(bazel_version)
+            if valid_versions.is_compatible_to(version.bazel)
         ]
+        extra_args.append(f"--@rules_python//python/config_settings:python_version={version.python}")
 
         for test in tests:
-            if not test.compatible_versions.is_compatible_to(bazel_version):
-                print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{bazel_version}'")
+            if not test.compatible_versions.is_compatible_to(version.bazel):
+                print(f"\n--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'")
                 continue
-            print(f"\n>>> Execute '{test.name}' with Bazel '{bazel_version}'")
+            print(f"\n>>> Execute '{test.name}' with Bazel {version.bazel} and Python {version.python}")
 
             process = subprocess.run(
                 make_cmd(test_cmd=test.cmd, startup_args=[f"--output_base={output_base}"], extra_args=extra_args),
@@ -218,7 +225,8 @@ def execute_tests(
             )
 
             if not verify_test(test=test, process=process, verbose=verbose):
-                failed_tests.append(FailedTest(name=test.name, version=bazel_version))
+                # TODO clearer naming version -> bazel_version or take TestedVersions
+                failed_tests.append(FailedTest(name=test.name, version=version))
 
     return failed_tests
 
@@ -226,32 +234,56 @@ def execute_tests(
 def cli():
     parser = ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
-    parser.add_argument("--bazel", "-b", metavar="VERSION", help="Run tests with the specified Bazel version.")
+    parser.add_argument(
+        "--bazel",
+        "-b",
+        metavar="VERSION",
+        help="Run tests with the specified Bazel version. Also requires setting '--python'",
+    )
+    parser.add_argument(
+        "--python",
+        "-p",
+        metavar="VERSION",
+        help="Run tests with the specified Python version."
+        " Has to be one of the versions for which we register a hermetic toolchain. Also requires setting '--bazel'.",
+    )
     parser.add_argument("--test", "-t", nargs="+", help="Run the specified test cases.")
-    return parser.parse_args()
+
+    args = parser.parse_args()
+    if (args.bazel and not args.python) or (not args.bazel and args.python):
+        print("ERROR: '--bazel' and '--python' have to be used together")
+        return None
+
+    return args
 
 
 def main(
     args: Namespace,
     test_cases: List[TestCase],
-    test_versions: List[str],
+    tested_versions: List[TestedVersions],
     version_specific_args: Dict[str, CompatibleVersions],
 ):
-    bazel_versions = [args.bazel] if args.bazel else test_versions
+    if args.bazel and args.python:
+        versions = [TestedVersions(bazel=args.bazel, python=args.python)]
+    else:
+        versions = tested_versions
+
     if args.test:
         active_tests = [tc for tc in test_cases if tc.name in args.test]
     else:
         active_tests = test_cases
 
     failed_tests = execute_tests(
-        versions=bazel_versions, tests=active_tests, version_specific_args=version_specific_args, verbose=args.verbose
+        versions=versions, tests=active_tests, version_specific_args=version_specific_args, verbose=args.verbose
     )
 
     print("\n" + 30 * "#" + "  SUMMARY  " + 30 * "#" + "\n")
     if failed_tests:
         print("FAILURE\n")
         print("These tests failed:")
-        print("\n".join(f"- '{t.name} - for Bazel version '{t.version}'" for t in failed_tests))
+        print(
+            "\n".join(f"- '{t.name}' for Bazel {t.version.bazel} and Python {t.version.python}" for t in failed_tests)
+        )
         return 1
 
     print("SUCCESS\n")
