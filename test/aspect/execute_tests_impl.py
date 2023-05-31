@@ -231,7 +231,7 @@ def execute_tests(
     return failed_tests
 
 
-def cli():
+def cli() -> Optional[Namespace]:
     parser = ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
     parser.add_argument(
@@ -262,7 +262,7 @@ def main(
     test_cases: List[TestCase],
     tested_versions: List[TestedVersions],
     version_specific_args: Dict[str, CompatibleVersions],
-):
+) -> int:
     if args.bazel and args.python:
         versions = [TestedVersions(bazel=args.bazel, python=args.python)]
     else:
