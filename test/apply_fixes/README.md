@@ -1,4 +1,4 @@
-This directory contains the acceptance tests for the automatic fixing tool.
+This directory contains the integration tests for the automatic fixing tool.
 
 Each `test_*.py` file represents a test case. The `execute_test.py` is the entry point for the test suite.
 

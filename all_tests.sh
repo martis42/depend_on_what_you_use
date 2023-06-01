@@ -14,11 +14,11 @@ echo
 bazel build --config=mypy //src/... //test/aspect:all
 
 echo ""
-echo "Execute acceptance tests - Aspect"
+echo "Execute integration tests - Aspect"
 echo ""
 ./test/aspect/execute_tests.py
 
 echo ""
-echo "Execute acceptance tests - Applying fixes"
+echo "Execute interation tests - Applying fixes"
 echo ""
 ./test/apply_fixes/execute_tests.py

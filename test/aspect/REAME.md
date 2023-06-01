@@ -1,4 +1,4 @@
-This directory contains the acceptance tests for the DWYU aspect.
+This directory contains the integration tests for the DWYU aspect.
 
 The tests are executed with various supported Bazel versions.
 [bazelisk](https://github.com/bazelbuild/bazelisk) has to be available on `PATH`.

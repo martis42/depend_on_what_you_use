@@ -11,7 +11,7 @@ class BuildozerExecutor:
     Central entrypoint for executing buildozer.
 
     There are several options influencing how buildozer should be executed. To allow setting and processing them
-    centrally once  we use buildozer through the indirection of this class. Furthermore, this allows us to automatically
+    centrally once we use buildozer through the indirection of this class. Furthermore, this allows us to automatically
     build up a summary of all executed commands.
     """
 

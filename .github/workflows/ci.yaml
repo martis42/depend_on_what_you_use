@@ -1,6 +1,6 @@
 name: CI
 
-on: [pull_request]
+on: [ pull_request ]
 
 jobs:
   pre-commit:
@@ -21,16 +21,36 @@ jobs:
       - run: source .venv/bin/activate
       - uses: pre-commit/action@v3.0.0
 
-  test:
+  fast-tests:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: Build and test the code
+      - name: Unit tests
         run: bazel test //src/... //test/aspect:all
       - name: Execute Mypy
         run: bazel build --config=mypy //src/... //test/aspect:all
-      - name: Integration Tests
+
+  integration-tests-aspect:
+    runs-on: ubuntu-20.04
+    needs: [ pre-commit, fast-tests ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Integration tests - Aspect
         run: ./test/aspect/execute_tests.py
+
+  integration-tests-apply-fixes:
+    runs-on: ubuntu-20.04
+    needs: [ pre-commit, fast-tests ]
+    steps:
+      - run: |
+          mkdir --parents /tmp/bin
+          wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.1.2/buildozer-linux-amd64 -O /tmp/bin/buildozer
+          chmod +x /tmp/bin/buildozer
+      - uses: actions/checkout@v3
+      - name: Integration tests - Applying fixes
+        run: |
+          export PATH=/tmp/bin:$PATH
+          ./test/apply_fixes/execute_tests.py
 
   # tests:
   #   runs-on: ubuntu-20.04
