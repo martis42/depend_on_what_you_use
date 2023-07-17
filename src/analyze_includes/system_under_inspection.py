@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 
 class UsageStatus(Enum):
@@ -89,23 +89,31 @@ class SystemUnderInspection:
     target_under_inspection: CcTarget
 
 
-def _make_cc_target(info: Dict) -> CcTarget:
-    dep = CcTarget(
-        name=info["target"],
-        include_paths=[],
-        header_files=[HeaderFile(path=header_file) for header_file in info["header_files"]],
-    )
-    for hdr in info["include_paths"]:
-        dep.include_paths.append(IncludePath(hdr))
-    return dep
+def _make_cc_target(target_file: Path) -> CcTarget:
+    with open(target_file, encoding="utf-8") as target:
+        target_info = json.load(target)
+        cc_target = CcTarget(
+            name=target_info["target"],
+            include_paths=[],
+            header_files=[HeaderFile(path=file) for file in target_info["header_files"]],
+        )
+        for include_path in target_info["include_paths"]:
+            cc_target.include_paths.append(IncludePath(include_path))
+        return cc_target
 
 
-def get_system_under_inspection(allowed_includes_file: Path) -> SystemUnderInspection:
-    with open(allowed_includes_file, encoding="utf-8") as fin:
-        loaded = json.load(fin)
+def _cc_targets_from_deps(deps: List[Path]) -> List[CcTarget]:
+    return [_make_cc_target(dep) for dep in deps]
+
+
+def get_system_under_inspection(
+    target_under_inspection: Path, deps: List[Path], implementation_deps: List[Path]
+) -> SystemUnderInspection:
+    with open(target_under_inspection, encoding="utf-8") as target:
+        target_info = json.load(target)
         return SystemUnderInspection(
-            public_deps=[_make_cc_target(dep) for dep in loaded["public_deps"]],
-            private_deps=[_make_cc_target(dep) for dep in loaded["private_deps"]],
-            defines=loaded["defines"],
-            target_under_inspection=_make_cc_target(loaded["self"]),
+            public_deps=_cc_targets_from_deps(deps),
+            private_deps=_cc_targets_from_deps(implementation_deps),
+            defines=target_info["defines"],
+            target_under_inspection=_make_cc_target(target_under_inspection),
         )

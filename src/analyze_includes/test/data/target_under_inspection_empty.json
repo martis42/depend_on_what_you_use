@@ -1,0 +1,6 @@
+{
+  "defines": [],
+  "include_paths": [],
+  "header_files": [],
+  "target": "//:foo"
+}

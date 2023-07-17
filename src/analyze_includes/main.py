@@ -11,41 +11,70 @@ from src.analyze_includes.system_under_inspection import get_system_under_inspec
 def cli():
     parser = ArgumentParser()
     parser.add_argument(
-        "--public-files", metavar="PATH", nargs="+", help="All public files of the target under inspection."
+        "--public_files",
+        required=True,
+        metavar="FILE",
+        nargs="*",
+        help="All public source files of the target under inspection.",
     )
     parser.add_argument(
-        "--private-files", metavar="PATH", nargs="+", help="All private files of the target under inspection."
+        "--private_files",
+        required=True,
+        metavar="FILE",
+        nargs="*",
+        help="All private source files of the target under inspection.",
     )
     parser.add_argument(
-        "--headers-info", metavar="PATH", help="Json file containing information about all relevant header files."
+        "--target_under_inspection",
+        required=True,
+        metavar="FILE",
+        help="Information about target under inspection.",
     )
-    parser.add_argument("--report", metavar="FILE", type=Path, help="Report result into this file.")
     parser.add_argument(
-        "--ignored-includes-config",
+        "--deps",
+        required=True,
+        metavar="FILE",
+        nargs="*",
+        help="Information about dependencies.",
+    )
+    parser.add_argument(
+        "--implementation_deps",
+        required=True,
+        metavar="FILE",
+        nargs="*",
+        help="Information about implementation dependencies.",
+    )
+    parser.add_argument(
+        "--report",
+        required=True,
+        metavar="FILE",
+        type=Path,
+        help="Report result into this file.",
+    )
+    parser.add_argument(
+        "--ignored_includes_config",
         metavar="FILE",
         type=Path,
         help="Config file in Json format specifying which include paths and patterns shall be ignored by the analysis.",
     )
     parser.add_argument(
-        "--implementation-deps-available",
+        "--implementation_deps_available",
         action="store_true",
         help="""
         If this Bazel 5.0 feature is available, then check if some dependencies could be private instead of public.
         Meaning headers from them are only used in the private files.""",
     )
-
-    args = parser.parse_args()
-    if not args.public_files and not args.private_files:
-        print("You have to provide at least one of the arguments '--public-files' and '--private-files'")
-        sys.exit(1)
-
-    return args
+    return parser.parse_args()
 
 
 def main(args: Namespace) -> int:
     ignored_includes = get_ignored_includes(args.ignored_includes_config)
-    system_under_inspection = get_system_under_inspection(args.headers_info)
 
+    system_under_inspection = get_system_under_inspection(
+        target_under_inspection=args.target_under_inspection,
+        deps=args.deps,
+        implementation_deps=args.implementation_deps,
+    )
     all_includes_from_public = get_relevant_includes_from_files(
         files=args.public_files, ignored_includes=ignored_includes, defines=system_under_inspection.defines
     )
