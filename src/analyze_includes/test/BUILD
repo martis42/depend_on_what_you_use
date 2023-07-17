@@ -37,8 +37,12 @@ py_test(
     name = "system_under_inspection_test",
     srcs = ["system_under_inspection_test.py"],
     data = [
-        "data/headers_info_empty.json",
-        "data/headers_info_full.json",
+        "data/dep_info_bar.json",
+        "data/dep_info_foo.json",
+        "data/implementation_dep_info_bar.json",
+        "data/implementation_dep_info_foo.json",
+        "data/target_under_inspection.json",
+        "data/target_under_inspection_empty.json",
     ],
     deps = ["//src/analyze_includes:lib"],
 )

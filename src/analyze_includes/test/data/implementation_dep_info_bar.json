@@ -1,0 +1,11 @@
+{
+  "include_paths": [
+    "private/dep/bar_a.h",
+    "private/dep/bar_b.h"
+  ],
+  "header_files": [
+    "private/dep/bar_1.h",
+    "private/dep/bar_2.h"
+  ],
+  "target": "//private/dep:bar"
+}

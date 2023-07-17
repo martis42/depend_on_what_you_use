@@ -288,6 +288,28 @@ TESTS = [
         ),
         expected=ExpectedResult(success=True),
     ),
+    TestCase(
+        name="depend_on_tree_artifact",
+        cmd=TestCmd(
+            target="//test/aspect/tree_artifact:use_tree_artifact",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    # FIXMe this is a brittle test as it depends on '--compilation_mode'
+    TestCase(
+        name="analyze_tree_artifact",
+        cmd=TestCmd(
+            target="//test/aspect/tree_artifact:tree_artifact_library",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='bazel-out/k8-fastbuild/bin/test/aspect/tree_artifact/sources.cc/tree_lib.cc', include='test/aspect/tree_artifact/some_lib.h'"
+            ],
+        ),
+    ),
 ]
 
 if __name__ == "__main__":

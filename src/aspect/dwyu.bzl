@@ -1,153 +1,64 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 
-def _parse_sources_impl(sources, out_files):
-    for src in sources:
-        file = src.files.to_list()[0]
-        out_files.append(file)
+def _label_to_name(label):
+    return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
 
-def _parse_sources(attr):
-    """Split source files into public and private ones"""
+def _get_target_sources(rule):
     public_files = []
     private_files = []
 
-    if hasattr(attr, "srcs"):
-        _parse_sources_impl(sources = attr.srcs, out_files = private_files)
-    if hasattr(attr, "hdrs"):
-        _parse_sources_impl(sources = attr.hdrs, out_files = public_files)
-    if hasattr(attr, "textual_hdrs"):
-        _parse_sources_impl(sources = attr.textual_hdrs, out_files = public_files)
+    if hasattr(rule.attr, "srcs"):
+        private_files.extend(rule.files.srcs)
+    if hasattr(rule.attr, "hdrs"):
+        public_files.extend(rule.files.hdrs)
+    if hasattr(rule.attr, "textual_hdrs"):
+        public_files.extend(rule.files.textual_hdrs)
 
     return public_files, private_files
 
-def _do_ensure_private_deps(ctx):
-    """
-    The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
-    and cc_test a separation between public and private files exists.
-    """
-    return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
+def _get_relevant_header(target_context, is_target_under_inspection):
+    if is_target_under_inspection:
+        return target_context.direct_public_headers + target_context.direct_private_headers + target_context.direct_textual_headers
+    else:
+        return target_context.direct_public_headers + target_context.direct_textual_headers
 
-def _make_args(ctx, public_files, private_files, report_file, headers_info_file):
+def _process_target(ctx, target, defines, output_path, is_target_under_inspection, verbose):
+    processing_output = ctx.actions.declare_file(output_path)
+    cc_context = target[CcInfo].compilation_context
+    header_files = _get_relevant_header(
+        target_context = cc_context,
+        is_target_under_inspection = is_target_under_inspection,
+    )
+
     args = ctx.actions.args()
+    args.add("--target", str(target.label))
+    args.add("--output", processing_output)
+    args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
+    args.add_all("--system_includes", cc_context.system_includes, omit_if_empty = False)
+    args.add("--bin_dir", ctx.bin_dir.path)
+    args.add_all("--defines", defines)
+    if verbose:
+        args.add("--verbose")
 
-    args.add_all("--public-files", [pf.path for pf in public_files])
-    args.add_all("--private-files", [pf.path for pf in private_files])
-    args.add("--headers-info", headers_info_file)
-    args.add("--report", report_file)
-
-    if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
-        args.add("--ignored-includes-config", ctx.file._config)
-
-    if _do_ensure_private_deps(ctx):
-        args.add("--implementation-deps-available")
-
-    return args
-
-def _get_include_paths(label, system_includes, header_file):
-    """
-    Get all paths at which a header file is available to code using it.
-
-    Args:
-        label: Label of the target providing the header file
-        system_includes: system_include paths of the target providing the header file
-        header_file: Header file
-    """
-
-    # Paths at which headers are available from targets which utilize "include_prefix" or "strip_include_prefix"
-    if "_virtual_includes" in header_file.path:
-        return [header_file.path.partition("_virtual_includes" + "/" + label.name + "/")[2]]
-
-    # Paths at which headers are available from targets which utilize "includes = [...]"
-    includes = []
-    for si in system_includes.to_list():
-        si_path = si + "/"
-        if header_file.path.startswith(si_path):
-            includes.append(header_file.path.partition(si_path)[2])
-    if includes:
-        return includes
-
-    # Paths for headers from external repos are prefixed with the external repo root. But the headers are
-    # included relative to the external workspace root.
-    if header_file.owner.workspace_root != "":
-        return [header_file.path.replace(header_file.owner.workspace_root + "/", "")]
-
-    # Default case for single header in workspace target without any special attributes
-    return [header_file.short_path]
-
-def _extract_header_files(target, is_target_under_inspection):
-    """
-    The file location of the headers is used by DWYU to resolve relative include statements.
-    We support only relative includes to files from the own workspace. Thus, we ignore header files from external
-    workspaces.
-    """
-    header_files = []
-    if not target.label.workspace_root.startswith("external"):
-        header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_public_headers])
-        header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_textual_headers])
-        if is_target_under_inspection:
-            header_files.extend([hdr.short_path for hdr in target[CcInfo].compilation_context.direct_private_headers])
-    return header_files
-
-def _make_target_info(target):
-    include_paths = []
-    for hdr in target[CcInfo].compilation_context.direct_headers:
-        inc = _get_include_paths(
-            label = target.label,
-            system_includes = target[CcInfo].compilation_context.system_includes,
-            header_file = hdr,
-        )
-        include_paths.extend(inc)
-
-    return struct(
-        target = str(target.label),
-        include_paths = include_paths,
-        header_files = _extract_header_files(target = target, is_target_under_inspection = True),
+    ctx.actions.run(
+        inputs = header_files,
+        executable = ctx.executable._process_target,
+        arguments = [args],
+        outputs = [processing_output],
     )
 
-def _make_dep_info(dep):
-    include_paths = []
-    for hdr in dep[CcInfo].compilation_context.direct_public_headers:
-        inc = _get_include_paths(
-            label = dep.label,
-            system_includes = dep[CcInfo].compilation_context.system_includes,
-            header_file = hdr,
-        )
-        include_paths.extend(inc)
+    return processing_output
 
-    for hdr in dep[CcInfo].compilation_context.direct_textual_headers:
-        inc = _get_include_paths(
-            label = dep.label,
-            system_includes = dep[CcInfo].compilation_context.system_includes,
-            header_file = hdr,
-        )
-        include_paths.extend(inc)
-
-    return struct(
-        target = str(dep.label),
-        include_paths = include_paths,
-        header_files = _extract_header_files(target = dep, is_target_under_inspection = False),
-    )
-
-def _make_headers_info(target, public_deps, private_deps, defines):
-    """
-    Create a struct summarizing all information about the target and the dependencies required for executing the
-    DWYU logic.
-
-    Args:
-        target: Current target under inspection
-        public_deps: Direct public dependencies of target under inspection
-        private_deps: Direct private dependencies of target under inspection
-        defines: Defines relevant for the preprocessor
-    """
-    return struct(
-        self = _make_target_info(target),
-        public_deps = [_make_dep_info(dep) for dep in public_deps],
-        private_deps = [_make_dep_info(dep) for dep in private_deps],
-        defines = defines,
-    )
-
-def _label_to_name(label):
-    return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
+def _process_dependencies(ctx, target, deps, verbose):
+    return [_process_target(
+        ctx,
+        target = dep,
+        defines = [],
+        output_path = "{}_processed_dep_{}.json".format(_label_to_name(target.label), _label_to_name(dep.label)),
+        is_target_under_inspection = False,
+        verbose = verbose,
+    ) for dep in deps]
 
 def extract_defines_from_compiler_flags(compiler_flags):
     """
@@ -204,6 +115,13 @@ def _gather_defines(ctx, target_compilation_context):
 
     return extract_defines_from_compiler_flags(compiler_command_line_flags)
 
+def _do_ensure_private_deps(ctx):
+    """
+    The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
+    and cc_test a separation between public and private files exists.
+    """
+    return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
+
 def dwyu_aspect_impl(target, ctx):
     """
     Implementation for the "Depend on What You Use" (DWYU) aspect.
@@ -228,30 +146,48 @@ def dwyu_aspect_impl(target, ctx):
     if "no-dwyu" in ctx.rule.attr.tags:
         return []
 
-    public_files, private_files = _parse_sources(ctx.rule.attr)
+    public_files, private_files = _get_target_sources(ctx.rule)
+
+    # We skip targets which have no source files. cc_* targets can also be of value if they only specify the 'deps'
+    # attribute without own sources. But those targets are not of interest for DWYU.
     if not public_files and not private_files:
         return []
 
-    public_deps = ctx.rule.attr.deps
-    private_deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else []
-    defines = _gather_defines(ctx, target[CcInfo].compilation_context)
-
-    target_name = _label_to_name(target.label)
-    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target_name))
-    headers_info_file = ctx.actions.declare_file("{}_headers_info.json".format(target_name))
-    headers_info = _make_headers_info(target = target, public_deps = public_deps, private_deps = private_deps, defines = defines)
-    ctx.actions.write(headers_info_file, json.encode_indent(headers_info))
-
-    args = _make_args(
-        ctx = ctx,
-        public_files = public_files,
-        private_files = private_files,
-        report_file = report_file,
-        headers_info_file = headers_info_file,
+    processed_target = _process_target(
+        ctx,
+        target = target,
+        defines = _gather_defines(ctx, target_compilation_context = target[CcInfo].compilation_context),
+        output_path = "{}_processed_target_under_inspection.json".format(_label_to_name(target.label)),
+        is_target_under_inspection = True,
+        verbose = False,
     )
+
+    # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
+    #      target_under_inspection have the same dependency
+    processed_deps = _process_dependencies(ctx, target = target, deps = ctx.rule.attr.deps, verbose = False)
+    processed_implementation_deps = _process_dependencies(
+        ctx,
+        target = target,
+        deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else [],
+        verbose = False,
+    )
+
+    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(_label_to_name(target.label)))
+    args = ctx.actions.args()
+    args.add("--report", report_file)
+    args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
+    args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
+    args.add("--target_under_inspection", processed_target)
+    args.add_all("--deps", processed_deps, omit_if_empty = False)
+    args.add_all("--implementation_deps", processed_implementation_deps, omit_if_empty = False)
+    if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
+        args.add("--ignored_includes_config", ctx.file._config)
+    if _do_ensure_private_deps(ctx):
+        args.add("--implementation_deps_available")
+
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
-        inputs = [headers_info_file, ctx.file._config] + public_files + private_files,
+        inputs = [ctx.file._config, processed_target] + public_files + private_files + processed_deps + processed_implementation_deps,
         outputs = [report_file],
         mnemonic = "CompareIncludesToDependencies",
         progress_message = "Analyze dependencies of {}".format(target.label),

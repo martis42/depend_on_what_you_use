@@ -117,7 +117,17 @@ class TestGetSystemUnderInspection(unittest.TestCase):
             self.assertEqual(hf.usage.usage, UsageStatus.NONE)
 
     def test_load_full_file(self):
-        sui = get_system_under_inspection(Path("src/analyze_includes/test/data/headers_info_full.json"))
+        sui = get_system_under_inspection(
+            target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection.json"),
+            deps=[
+                Path("src/analyze_includes/test/data/dep_info_foo.json"),
+                Path("src/analyze_includes/test/data/dep_info_bar.json"),
+            ],
+            implementation_deps=[
+                Path("src/analyze_includes/test/data/implementation_dep_info_foo.json"),
+                Path("src/analyze_includes/test/data/implementation_dep_info_bar.json"),
+            ],
+        )
 
         self.assertEqual(len(sui.private_deps), 2)
         self.check_target(
@@ -157,7 +167,11 @@ class TestGetSystemUnderInspection(unittest.TestCase):
         )
 
     def test_load_empty_file(self):
-        sui = get_system_under_inspection(Path("src/analyze_includes/test/data/headers_info_empty.json"))
+        sui = get_system_under_inspection(
+            target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection_empty.json"),
+            deps=[],
+            implementation_deps=[],
+        )
 
         self.assertEqual(len(sui.private_deps), 0)
         self.assertEqual(len(sui.public_deps), 0)

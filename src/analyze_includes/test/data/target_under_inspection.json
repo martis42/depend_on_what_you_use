@@ -1,0 +1,15 @@
+{
+  "defines": [
+    "SOME_DEFINE",
+    "ANOTHER_DEFINE=42"
+  ],
+  "include_paths": [
+    "self/a.h",
+    "self/b.h"
+  ],
+  "header_files": [
+    "self/header_1.h",
+    "self/header_2.h"
+  ],
+  "target": "//:baz"
+}
