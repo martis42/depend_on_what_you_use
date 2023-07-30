@@ -280,12 +280,13 @@ This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases
 can contain breaking changes.
 
-The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
-Changing their content is not considered a breaking change.
-You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts
-also for minor version updates.
+**The following things can always break** and do not promise stability with respect to the semantic versioning:
 
-Also, how to include DWYU in your WORKSPACE file might change at any time.
+- The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
+  Changing their content is not considered a breaking change.
+  You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts for
+  DWYU updates.
+- How to include DWYU in your WORKSPACE file might change at any time.
 
 # Contributing
 
