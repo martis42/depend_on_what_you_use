@@ -80,9 +80,10 @@ class SystemUnderInspection:
     """A target whose include statements are analyzed and its dependencies."""
 
     # Dependencies which are available to downstream dependencies of the target under inspection
-    public_deps: List[CcTarget]
-    # Dependencies which are NOT available to downstream dependencies of the target under inspection
-    private_deps: List[CcTarget]
+    deps: List[CcTarget]
+    # Dependencies which are NOT available to downstream dependencies of the target under inspection. Exists only for
+    # cc_library targets
+    implementation_deps: List[CcTarget]
     # Defines influencing the preprocessor
     defines: List[str]
     # Target under inspection
@@ -112,8 +113,8 @@ def get_system_under_inspection(
     with open(target_under_inspection, encoding="utf-8") as target:
         target_info = json.load(target)
         return SystemUnderInspection(
-            public_deps=_cc_targets_from_deps(deps),
-            private_deps=_cc_targets_from_deps(implementation_deps),
+            deps=_cc_targets_from_deps(deps),
+            implementation_deps=_cc_targets_from_deps(implementation_deps),
             defines=target_info["defines"],
             target_under_inspection=_make_cc_target(target_under_inspection),
         )

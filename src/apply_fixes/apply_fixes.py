@@ -172,12 +172,10 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
         target = content["analyzed_target"]
 
         if requested_fixes.remove_unused_deps:
-            unused_public_deps = content["unused_public_deps"]
-            if unused_public_deps:
-                buildozer.execute(task=f"remove deps {' '.join(unused_public_deps)}", target=target)
-            unused_private_deps = content["unused_private_deps"]
-            if unused_private_deps:
-                buildozer.execute(task=f"remove implementation_deps {' '.join(unused_private_deps)}", target=target)
+            if unused_deps := content["unused_deps"]:
+                buildozer.execute(task=f"remove deps {' '.join(unused_deps)}", target=target)
+            if unused_deps := content["unused_implementation_deps"]:
+                buildozer.execute(task=f"remove implementation_deps {' '.join(unused_deps)}", target=target)
 
         if requested_fixes.move_private_deps_to_implementation_deps:
             deps_which_should_be_private = content["deps_which_should_be_private"]
