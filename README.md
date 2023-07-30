@@ -236,12 +236,6 @@ the analysis changes.
 
 # Supported Platforms
 
-TODO 3.8
-
-- Assignment expressions
-- f-strings support = for self-documenting expressions and debugging
-- shlex useful?
-
 | Platform         | Constraints                                                                                                |
 | ---------------- | ---------------------------------------------------------------------------------------------------------- |
 | Operating system | No constraints by design. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
