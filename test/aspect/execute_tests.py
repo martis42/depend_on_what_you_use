@@ -17,8 +17,8 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="5.0.0", python="3.8.15"),
     TestedVersions(bazel="5.4.1", python="3.9.16"),
     TestedVersions(bazel="6.0.0", python="3.10.9"),
-    TestedVersions(bazel="6.2.0", python="3.11.1"),
-    TestedVersions(bazel="7.0.0-pre.20230502.1", python="3.11.1"),
+    TestedVersions(bazel="6.3.0", python="3.11.1"),
+    TestedVersions(bazel="7.0.0-pre.20230710.5", python="3.11.1"),
 ]
 
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
