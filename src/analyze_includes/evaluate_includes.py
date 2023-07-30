@@ -17,8 +17,8 @@ class Result:
     target: str
     public_includes_without_dep: List[Include] = field(default_factory=list)
     private_includes_without_dep: List[Include] = field(default_factory=list)
-    unused_public_deps: List[str] = field(default_factory=list)
-    unused_private_deps: List[str] = field(default_factory=list)
+    unused_deps: List[str] = field(default_factory=list)
+    unused_implementation_deps: List[str] = field(default_factory=list)
     deps_which_should_be_private: List[str] = field(default_factory=list)
     use_implementation_deps: bool = False
 
@@ -26,8 +26,8 @@ class Result:
         return (
             len(self.public_includes_without_dep) == 0
             and len(self.private_includes_without_dep) == 0
-            and len(self.unused_public_deps) == 0
-            and len(self.unused_private_deps) == 0
+            and len(self.unused_deps) == 0
+            and len(self.unused_implementation_deps) == 0
             and len(self.deps_which_should_be_private) == 0
         )
 
@@ -41,12 +41,12 @@ class Result:
         if self.public_includes_without_dep or self.private_includes_without_dep:
             msg += "\nIncludes which are not available from the direct dependencies:\n"
             msg += "\n".join(f"  {inc}" for inc in self.public_includes_without_dep + self.private_includes_without_dep)
-        if self.unused_public_deps:
+        if self.unused_deps:
             msg += "\nUnused dependencies in 'deps' (none of their headers are referenced):\n"
-            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_public_deps)
-        if self.unused_private_deps:
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
+        if self.unused_implementation_deps:
             msg += "\nUnused dependencies in 'implementation_deps' (none of their headers are referenced):\n"
-            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_private_deps)
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_implementation_deps)
         if self.deps_which_should_be_private:
             msg += "\nPublic dependencies which are used only in private code:\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
@@ -57,8 +57,8 @@ class Result:
             "analyzed_target": self.target,
             "public_includes_without_dep": self._make_includes_map(self.public_includes_without_dep),
             "private_includes_without_dep": self._make_includes_map(self.private_includes_without_dep),
-            "unused_public_deps": self.unused_public_deps,
-            "unused_private_deps": self.unused_private_deps,
+            "unused_deps": self.unused_deps,
+            "unused_implementation_deps": self.unused_implementation_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
             "use_implementation_deps": self.use_implementation_deps,
         }
@@ -130,7 +130,7 @@ def _check_for_unused_dependencies(dependencies: List[CcTarget]) -> List[str]:
 
 def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> List[str]:
     should_be_private = []
-    for dep in dependencies.public_deps:
+    for dep in dependencies.deps:
         if all(hdr.usage.usage in (UsageStatus.NONE, UsageStatus.PRIVATE) for hdr in dep.include_paths) and any(
             hdr.usage.is_used() for hdr in dep.include_paths
         ):
@@ -145,8 +145,8 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
     dependencies.
     """
     return SystemUnderInspection(
-        public_deps=[pub for pub in system_under_inspection.public_deps if pub.include_paths],
-        private_deps=[pri for pri in system_under_inspection.private_deps if pri.include_paths],
+        deps=[dep for dep in system_under_inspection.deps if dep.include_paths],
+        implementation_deps=[dep for dep in system_under_inspection.implementation_deps if dep.include_paths],
         defines=system_under_inspection.defines,
         target_under_inspection=system_under_inspection.target_under_inspection,
     )
@@ -163,19 +163,19 @@ def evaluate_includes(
 
     result.public_includes_without_dep = _check_for_invalid_includes(
         includes=public_includes,
-        dependencies=system_under_inspection.public_deps,
+        dependencies=system_under_inspection.deps,
         usage=UsageStatus.PUBLIC,
         target_under_inspection=system_under_inspection.target_under_inspection,
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
-        dependencies=system_under_inspection.public_deps + system_under_inspection.private_deps,
+        dependencies=system_under_inspection.deps + system_under_inspection.implementation_deps,
         usage=UsageStatus.PRIVATE,
         target_under_inspection=system_under_inspection.target_under_inspection,
     )
 
-    result.unused_public_deps = _check_for_unused_dependencies(system_under_inspection.public_deps)
-    result.unused_private_deps = _check_for_unused_dependencies(system_under_inspection.private_deps)
+    result.unused_deps = _check_for_unused_dependencies(system_under_inspection.deps)
+    result.unused_implementation_deps = _check_for_unused_dependencies(system_under_inspection.implementation_deps)
 
     if ensure_private_deps:
         result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(system_under_inspection)

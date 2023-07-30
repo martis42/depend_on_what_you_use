@@ -129,29 +129,29 @@ class TestGetSystemUnderInspection(unittest.TestCase):
             ],
         )
 
-        self.assertEqual(len(sui.private_deps), 2)
+        self.assertEqual(len(sui.implementation_deps), 2)
         self.check_target(
-            actual=sui.private_deps[0],
+            actual=sui.implementation_deps[0],
             expected_name="//private/dep:foo",
             expected_paths=["private/dep/foo_a.h", "private/dep/foo_b.h"],
             expected_files=["private/dep/foo_1.h", "private/dep/foo_2.h"],
         )
         self.check_target(
-            actual=sui.private_deps[1],
+            actual=sui.implementation_deps[1],
             expected_name="//private/dep:bar",
             expected_paths=["private/dep/bar_a.h", "private/dep/bar_b.h"],
             expected_files=["private/dep/bar_1.h", "private/dep/bar_2.h"],
         )
 
-        self.assertEqual(len(sui.public_deps), 2)
+        self.assertEqual(len(sui.deps), 2)
         self.check_target(
-            actual=sui.public_deps[0],
+            actual=sui.deps[0],
             expected_name="//public/dep:foo",
             expected_paths=["public/dep/foo_a.h", "public/dep/foo_b.h"],
             expected_files=["public/dep/foo_1.h", "public/dep/foo_2.h"],
         )
         self.check_target(
-            actual=sui.public_deps[1],
+            actual=sui.deps[1],
             expected_name="//public/dep:bar",
             expected_paths=["public/dep/bar_a.h", "public/dep/bar_b.h"],
             expected_files=["public/dep/bar_1.h", "public/dep/bar_2.h"],
@@ -173,8 +173,8 @@ class TestGetSystemUnderInspection(unittest.TestCase):
             implementation_deps=[],
         )
 
-        self.assertEqual(len(sui.private_deps), 0)
-        self.assertEqual(len(sui.public_deps), 0)
+        self.assertEqual(len(sui.deps), 0)
+        self.assertEqual(len(sui.implementation_deps), 0)
 
         self.check_target(
             actual=sui.target_under_inspection,
