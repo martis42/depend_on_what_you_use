@@ -245,6 +245,8 @@ the analysis changes.
 
 # Alternatives to DWYU
 
+## Layering check
+
 To make sure no headers from transitive dependencies or private headers from dependencies are used you can use
 [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
 This approach has some benefits over DWYU:
@@ -255,12 +257,22 @@ This approach has some benefits over DWYU:
 Still, there are reasons to use DWYU instead of or in addition to layering_check:
 
 - DWYU Does not require a compiler, it works purely by text parsing.
-  This is the reason for some of it's [the known DWYU limitations](#known-limitations).
+  This is the reason for some of it's [known DWYU limitations](#known-limitations).
   However, this also makes the tool more flexible and independent of your platform.
   For example when using a recent clang version is not possible for you.
 - DWYU detects unused dependencies.
 - DWYU allows optimizing [implementation_deps](#implementation_deps).
 - DWYU offers automatic fixes for detected issues.
+
+## Gazelle
+
+[Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
+It seems there is no public and established C++ extension for gazelle.
+
+Still, if one agrees with the best practices enforced by DWYU but cannot use it investing time into a gazelle C++
+extension might be worth it.
+Automatically generating correct BUILD files based on your source code is most likely a more efficient approach compared
+to having to manually execute DWYU regularly to make sure no error was introduced.
 
 # Versioning
 
