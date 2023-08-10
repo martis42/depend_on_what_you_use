@@ -1,8 +1,8 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 
 class UsageStatus(Enum):
@@ -45,49 +45,36 @@ class UsageStatusTracker:
         return self._usage.name
 
 
-class HeaderFile:
-    def __init__(self, path: str) -> None:
-        self.path = path
-        self.usage = UsageStatusTracker()
-
-    def __repr__(self) -> str:
-        return f"HeaderFile(path='{self.path}', usage='{self.usage}')"
-
-
-class IncludePath:
-    def __init__(self, path: str) -> None:
-        self.path = path
-        self.usage = UsageStatusTracker()
-
-    def __repr__(self) -> str:
-        return f"IncludePath(path='{self.path}', usage='{self.usage}')"
-
-
 @dataclass
 class CcTarget:
     """A cc_* rule target and the available information associated with it."""
 
     name: str
-    include_paths: List[IncludePath]
-    header_files: List[HeaderFile]
+    header_files: List[str]
+    usage: UsageStatusTracker = field(init=False)
+
+    def __post_init__(self):
+        self.usage = UsageStatusTracker()
 
     def __repr__(self) -> str:
-        return f"CcTarget(name='{self.name}', include_paths={self.include_paths}, header_files={self.header_files})"
+        return f"CcTarget(name='{self.name}', usage='{self.usage}', header_files={self.header_files})"
 
 
 @dataclass
 class SystemUnderInspection:
     """A target whose include statements are analyzed and its dependencies."""
 
+    # Target under inspection
+    target_under_inspection: CcTarget
     # Dependencies which are available to downstream dependencies of the target under inspection
     deps: List[CcTarget]
     # Dependencies which are NOT available to downstream dependencies of the target under inspection. Exists only for
     # cc_library targets
     implementation_deps: List[CcTarget]
+    # All include paths available to the target under inspection. Combines all kinds of includes.
+    include_paths: List[str]
     # Defines influencing the preprocessor
     defines: List[str]
-    # Target under inspection
-    target_under_inspection: CcTarget
 
 
 def _make_cc_target(target_file: Path) -> CcTarget:
@@ -95,16 +82,29 @@ def _make_cc_target(target_file: Path) -> CcTarget:
         target_info = json.load(target)
         cc_target = CcTarget(
             name=target_info["target"],
-            include_paths=[],
-            header_files=[HeaderFile(path=file) for file in target_info["header_files"]],
+            header_files=target_info["header_files"],
         )
-        for include_path in target_info["include_paths"]:
-            cc_target.include_paths.append(IncludePath(include_path))
         return cc_target
 
 
 def _cc_targets_from_deps(deps: List[Path]) -> List[CcTarget]:
     return [_make_cc_target(dep) for dep in deps]
+
+
+def _get_include_paths(target_info: Dict[str, Any]) -> List[str]:
+    """
+    '.' represents the workspace root relative to which all paths in a Bazel workspace are defined. Our internal logic
+    does however expect an empty string for the "include relative to workspace root" case.
+    """
+
+    def replace_dot(paths: List[str]) -> List[str]:
+        return ["" if path == "." else path for path in paths]
+
+    return (
+        replace_dot(target_info["includes"])
+        + replace_dot(target_info["quote_includes"])
+        + replace_dot(target_info["system_includes"])
+    )
 
 
 def get_system_under_inspection(
@@ -113,8 +113,9 @@ def get_system_under_inspection(
     with open(target_under_inspection, encoding="utf-8") as target:
         target_info = json.load(target)
         return SystemUnderInspection(
+            target_under_inspection=_make_cc_target(target_under_inspection),
             deps=_cc_targets_from_deps(deps),
             implementation_deps=_cc_targets_from_deps(implementation_deps),
+            include_paths=_get_include_paths(target_info),
             defines=target_info["defines"],
-            target_under_inspection=_make_cc_target(target_under_inspection),
         )

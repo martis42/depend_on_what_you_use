@@ -35,9 +35,11 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
     args.add("--target", str(target.label))
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
-    args.add_all("--system_includes", cc_context.system_includes, omit_if_empty = False)
-    args.add("--bin_dir", ctx.bin_dir.path)
-    args.add_all("--defines", defines)
+    if is_target_under_inspection:
+        args.add_all("--includes", cc_context.includes, omit_if_empty = False)
+        args.add_all("--quote_includes", cc_context.quote_includes, omit_if_empty = False)
+        args.add_all("--system_includes", cc_context.system_includes, omit_if_empty = False)
+        args.add_all("--defines", defines)
     if verbose:
         args.add("--verbose")
 

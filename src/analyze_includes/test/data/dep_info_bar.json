@@ -1,8 +1,4 @@
 {
-  "include_paths": [
-    "public/dep/bar_a.h",
-    "public/dep/bar_b.h"
-  ],
   "header_files": [
     "public/dep/bar_1.h",
     "public/dep/bar_2.h"

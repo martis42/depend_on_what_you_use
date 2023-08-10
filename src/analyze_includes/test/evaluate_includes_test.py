@@ -1,15 +1,13 @@
 import unittest
 from pathlib import Path
-from typing import List
 
-from src.analyze_includes.evaluate_includes import Result, evaluate_includes
-from src.analyze_includes.parse_source import Include
-from src.analyze_includes.system_under_inspection import (
-    CcTarget,
-    HeaderFile,
-    IncludePath,
-    SystemUnderInspection,
+from src.analyze_includes.evaluate_includes import (
+    Result,
+    does_include_match_available_files,
+    evaluate_includes,
 )
+from src.analyze_includes.parse_source import Include
+from src.analyze_includes.system_under_inspection import CcTarget, SystemUnderInspection
 
 
 class TestResult(unittest.TestCase):
@@ -277,17 +275,55 @@ def test_set_use_implementation_deps(self):
     )
 
 
-class TestEvaluateIncludes(unittest.TestCase):
-    @staticmethod
-    def make_cc_target(name: str, files: List[str]) -> CcTarget:
-        """
-        In most test cases available include paths and files are identical since they only differ if a target uses
-        virtual includes or system includes.
-        """
-        return CcTarget(
-            name=name, include_paths=[IncludePath(f) for f in files], header_files=[HeaderFile(f) for f in files]
+class TestIncludeTofileMatching(unittest.TestCase):
+    def test_match_with_standard_include_path(self):
+        self.assertTrue(
+            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=["foo.h"])
+        )
+        self.assertTrue(
+            does_include_match_available_files(
+                include_statement="some/path/foo.h", include_paths=[""], header_files=["some/path/foo.h"]
+            )
+        )
+        self.assertTrue(
+            does_include_match_available_files(
+                include_statement="foo.h",
+                include_paths=["", "unrelated/path"],
+                header_files=["foo.h", "unrelated/file.h"],
+            )
         )
 
+    def test_no_match_with_standard_include_path(self):
+        self.assertFalse(
+            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=[])
+        )
+        self.assertFalse(
+            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=["bar.h"])
+        )
+        self.assertFalse(
+            does_include_match_available_files(
+                include_statement="foo.h",
+                include_paths=["", "unrelated/path"],
+                header_files=["bar.h", "unrelated/file.h", "not/matching/foo.h"],
+            )
+        )
+
+    def test_match_based_on_non_standard_include_path(self):
+        self.assertTrue(
+            does_include_match_available_files(
+                include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/foo.h"]
+            )
+        )
+
+    def test_no_match_based_on_non_standard_include_path(self):
+        self.assertFalse(
+            does_include_match_available_files(
+                include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/bar.h", "wrong/foo.h"]
+            )
+        )
+
+
+class TestEvaluateIncludes(unittest.TestCase):
     def test_success_for_valid_dependencies(self):
         result = evaluate_includes(
             public_includes=[
@@ -299,12 +335,36 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("file4"), include="self/own_header.h"),
             ],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=["self/own_header.h"]),
+                target_under_inspection=CcTarget(name="foo", header_files=["self/own_header.h"]),
                 deps=[
-                    self.make_cc_target(name="foo_pkg", files=["foo.h", "foo/bar.h"]),
-                    self.make_cc_target(name="lib_without_hdrs_purely_for_linking", files=[]),
+                    CcTarget(name="foo_pkg", header_files=["foo.h", "foo/bar.h"]),
+                    CcTarget(name="lib_without_hdrs_purely_for_linking", header_files=[]),
                 ],
-                implementation_deps=[self.make_cc_target(name="baz_pkg", files=["baz.h"])],
+                implementation_deps=[CcTarget(name="baz_pkg", header_files=["baz.h"])],
+                include_paths=[""],
+                defines=[],
+            ),
+            ensure_private_deps=True,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_success_for_valid_dependencies_with_virtual_include_paths(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("file1"), include="foo.h"),
+                Include(file=Path("file2"), include="dir/bar.h"),
+            ],
+            private_includes=[
+                Include(file=Path("file4"), include="path/baz.h"),
+            ],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=CcTarget(name="foo", header_files=["self/own_header.h"]),
+                deps=[
+                    CcTarget(name="foo_pkg", header_files=["foo.h", "some/virtual/dir/bar.h"]),
+                ],
+                implementation_deps=[CcTarget(name="baz_pkg", header_files=["long/nested/path/baz.h"])],
+                include_paths=["", "long/nested", "some/virtual"],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -317,9 +377,10 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[Include(file=Path("foo.h"), include="bar.h")],
             private_includes=[],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=["foo.h", "bar.h"]),
+                target_under_inspection=CcTarget(name="foo", header_files=["foo.h", "bar.h"]),
                 deps=[],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -337,12 +398,18 @@ class TestEvaluateIncludes(unittest.TestCase):
             ],
             private_includes=[],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(
+                target_under_inspection=CcTarget(
                     name="foo",
-                    files=["nested/dir/foo.h", "nested/dir/bar.h", "nested/dir/sub/tick.h", "nested/dir/sub/tock.h"],
+                    header_files=[
+                        "nested/dir/foo.h",
+                        "nested/dir/bar.h",
+                        "nested/dir/sub/tick.h",
+                        "nested/dir/sub/tock.h",
+                    ],
                 ),
                 deps=[],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -353,21 +420,21 @@ class TestEvaluateIncludes(unittest.TestCase):
     def test_success_for_relative_includes_to_dependency(self):
         result = evaluate_includes(
             public_includes=[
-                Include(file=Path("foo.h"), include="bar/dir/bar.h"),
                 Include(file=Path("bar/dir/bar.h"), include="sub/tick.h"),
                 Include(file=Path("bar/dir/bar.h"), include="../dir/sub/tick.h"),
                 Include(file=Path("bar/dir/sub/tick.h"), include="tock.h"),
             ],
             private_includes=[],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=["foo.h"]),
+                target_under_inspection=CcTarget(name="foo", header_files=["foo.h"]),
                 deps=[
-                    self.make_cc_target(
+                    CcTarget(
                         name="bar",
-                        files=["bar/dir/bar.h", "bar/dir/sub/tick.h", "bar/dir/sub/tock.h"],
+                        header_files=["bar/dir/bar.h", "bar/dir/sub/tick.h", "bar/dir/sub/tock.h"],
                     )
                 ],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -381,12 +448,13 @@ class TestEvaluateIncludes(unittest.TestCase):
             private_includes=[Include(file=Path("some/dir/bar.h"), include="tock.h")],
             # Make sure files with the required name which are at the wrong location are ignored
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(
+                target_under_inspection=CcTarget(
                     name="foo",
-                    files=["some/dir/foo.h", "some/dir/bar.h", "unrelated/dir/tick.h", "unrelated/dir/tock.h"],
+                    header_files=["some/dir/foo.h", "some/dir/bar.h", "unrelated/dir/tick.h", "unrelated/dir/tock.h"],
                 ),
                 deps=[],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -412,9 +480,10 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="bar/bar.h"),
             ],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=[]),
-                deps=[self.make_cc_target(name="foo", files=["foo.h"])],
-                implementation_deps=[self.make_cc_target(name="bar", files=["bar.h"])],
+                target_under_inspection=CcTarget(name="foo", header_files=[]),
+                deps=[CcTarget(name="foo", header_files=["foo.h"])],
+                implementation_deps=[CcTarget(name="bar", header_files=["bar.h"])],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -436,17 +505,18 @@ class TestEvaluateIncludes(unittest.TestCase):
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                target_under_inspection=CcTarget(name="foo", header_files=[]),
                 deps=[
-                    self.make_cc_target(name="foobar", files=["foobar.h"]),
-                    self.make_cc_target(name="foo", files=["foo.h"]),
-                    self.make_cc_target(name="bar", files=["bar.h"]),
+                    CcTarget(name="foobar", header_files=["foobar.h"]),
+                    CcTarget(name="foo", header_files=["foo.h"]),
+                    CcTarget(name="bar", header_files=["bar.h"]),
                 ],
                 implementation_deps=[
-                    self.make_cc_target(name="impl_dep", files=["impl_dep.h"]),
-                    self.make_cc_target(name="impl_foo", files=["impl_dep_foo.h"]),
-                    self.make_cc_target(name="impl_bar", files=["impl_dep_bar.h"]),
+                    CcTarget(name="impl_dep", header_files=["impl_dep.h"]),
+                    CcTarget(name="impl_foo", header_files=["impl_dep_foo.h"]),
+                    CcTarget(name="impl_bar", header_files=["impl_dep_bar.h"]),
                 ],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -471,13 +541,14 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                target_under_inspection=CcTarget(name="foo", header_files=[]),
                 deps=[
-                    self.make_cc_target(name="foobar", files=["foobar.h"]),
-                    self.make_cc_target(name="foo", files=["impl_dep_foo.h"]),
-                    self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
+                    CcTarget(name="foobar", header_files=["foobar.h"]),
+                    CcTarget(name="foo", header_files=["impl_dep_foo.h"]),
+                    CcTarget(name="bar", header_files=["impl_dep_bar.h"]),
                 ],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=True,
@@ -500,13 +571,14 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("private_file"), include="impl_dep_bar.h"),
             ],
             system_under_inspection=SystemUnderInspection(
-                target_under_inspection=self.make_cc_target(name="foo", files=[]),
+                target_under_inspection=CcTarget(name="foo", header_files=[]),
                 deps=[
-                    self.make_cc_target(name="foobar", files=["foobar.h"]),
-                    self.make_cc_target(name="foo", files=["impl_dep_foo.h"]),
-                    self.make_cc_target(name="bar", files=["impl_dep_bar.h"]),
+                    CcTarget(name="foobar", header_files=["foobar.h"]),
+                    CcTarget(name="foo", header_files=["impl_dep_foo.h"]),
+                    CcTarget(name="bar", header_files=["impl_dep_bar.h"]),
                 ],
                 implementation_deps=[],
+                include_paths=[""],
                 defines=[],
             ),
             ensure_private_deps=False,

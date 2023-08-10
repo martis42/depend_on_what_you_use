@@ -3,10 +3,9 @@
     "SOME_DEFINE",
     "ANOTHER_DEFINE=42"
   ],
-  "include_paths": [
-    "self/a.h",
-    "self/b.h"
-  ],
+  "includes": ["."],
+  "quote_includes": ["some/dir"],
+  "system_includes": ["another/dir"],
   "header_files": [
     "self/header_1.h",
     "self/header_2.h"
