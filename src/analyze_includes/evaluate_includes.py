@@ -78,64 +78,77 @@ class Result:
         return border + "\n" + msg + "\n" + border
 
 
+def does_include_match_available_files(
+    include_statement: str, include_paths: List[str], header_files: List[str]
+) -> bool:
+    for header in header_files:
+        for inc in include_paths:
+            if inc:
+                possible_file = inc + "/" + include_statement
+            else:
+                possible_file = include_statement
+            if possible_file == header:
+                return True
+    return False
+
+
+def _include_resolves_to_any_file(included_path: Path, files: List[str]) -> bool:
+    return any(included_path == Path(file).resolve() for file in files)
+
+
 def _check_for_invalid_includes(
     includes: List[Include],
     dependencies: List[CcTarget],
     usage: UsageStatus,
     target_under_inspection: CcTarget,
+    include_paths: List[str],
 ) -> List[Include]:
     invalid_includes = []
 
-    all_header_files = []
-    all_header_files.extend(target_under_inspection.header_files)
-    for dep in dependencies:
-        all_header_files.extend(dep.header_files)
-
     for inc in includes:
-        legal = False
+        legal_include = False
         for dep in dependencies:
-            if legal:
+            if does_include_match_available_files(
+                include_statement=inc.include,
+                include_paths=include_paths,
+                header_files=dep.header_files,
+            ):
+                legal_include = True
+                dep.usage.update(usage)
                 break
-            for dep_hdr in dep.include_paths:
-                if inc.include == dep_hdr.path:
-                    legal = True
-                    dep_hdr.usage.update(usage)
-                    break
-        if not legal:
+        if not legal_include:
             # Might be a file from the target under inspection
-            legal = any(inc.include == sh.path for sh in target_under_inspection.include_paths)
-        if not legal:
+            legal_include = does_include_match_available_files(
+                include_statement=inc.include,
+                include_paths=include_paths,
+                header_files=target_under_inspection.header_files,
+            )
+        if not legal_include:
             # Might be a relative include
             curr_dir = inc.file.parent
-            for hf in all_header_files:
-                path_matching_include_statement = (curr_dir / inc.include).resolve()
-                if path_matching_include_statement == Path(hf.path).resolve():
-                    legal = True
-                    hf.usage.update(usage)
-                    break
-        if not legal:
+            path_matching_include_statement = (curr_dir / inc.include).resolve()
+            legal_include = _include_resolves_to_any_file(
+                included_path=path_matching_include_statement, files=target_under_inspection.header_files
+            )
+            if not legal_include:
+                for dep in dependencies:
+                    if _include_resolves_to_any_file(
+                        included_path=path_matching_include_statement, files=dep.header_files
+                    ):
+                        legal_include = True
+                        dep.usage.update(usage)
+                        break
+        if not legal_include:
             invalid_includes.append(inc)
     return invalid_includes
 
 
 def _check_for_unused_dependencies(dependencies: List[CcTarget]) -> List[str]:
-    unused_deps = []
-    for dep in dependencies:
-        if all(not hdr.usage.is_used() for hdr in dep.include_paths) and all(
-            not hdr.usage.is_used() for hdr in dep.header_files
-        ):
-            unused_deps.append(dep.name)
-    return unused_deps
+    return [dep.name for dep in dependencies if not dep.usage.is_used()]
 
 
 def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> List[str]:
-    should_be_private = []
-    for dep in dependencies.deps:
-        if all(hdr.usage.usage in (UsageStatus.NONE, UsageStatus.PRIVATE) for hdr in dep.include_paths) and any(
-            hdr.usage.is_used() for hdr in dep.include_paths
-        ):
-            should_be_private.append(dep.name)
-    return should_be_private
+    return [dep.name for dep in dependencies.deps if dep.usage.usage == UsageStatus.PRIVATE]
 
 
 def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -> SystemUnderInspection:
@@ -145,10 +158,11 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
     dependencies.
     """
     return SystemUnderInspection(
-        deps=[dep for dep in system_under_inspection.deps if dep.include_paths],
-        implementation_deps=[dep for dep in system_under_inspection.implementation_deps if dep.include_paths],
-        defines=system_under_inspection.defines,
         target_under_inspection=system_under_inspection.target_under_inspection,
+        deps=[dep for dep in system_under_inspection.deps if dep.header_files],
+        implementation_deps=[dep for dep in system_under_inspection.implementation_deps if dep.header_files],
+        include_paths=system_under_inspection.include_paths,
+        defines=system_under_inspection.defines,
     )
 
 
@@ -166,12 +180,14 @@ def evaluate_includes(
         dependencies=system_under_inspection.deps,
         usage=UsageStatus.PUBLIC,
         target_under_inspection=system_under_inspection.target_under_inspection,
+        include_paths=system_under_inspection.include_paths,
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
         dependencies=system_under_inspection.deps + system_under_inspection.implementation_deps,
         usage=UsageStatus.PRIVATE,
         target_under_inspection=system_under_inspection.target_under_inspection,
+        include_paths=system_under_inspection.include_paths,
     )
 
     result.unused_deps = _check_for_unused_dependencies(system_under_inspection.deps)
