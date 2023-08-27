@@ -265,25 +265,9 @@ TESTS = [
         expected=ExpectedResult(success=True),
     ),
     TestCase(
-        name="in_file_defines",
+        name="processing_defines",
         cmd=TestCmd(
-            target="//test/aspect/defines:in_file_defines",
-            aspect=DEFAULT_ASPECT,
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="defines_from_bazel_target",
-        cmd=TestCmd(
-            target="//test/aspect/defines:defines_from_bazel_target",
-            aspect=DEFAULT_ASPECT,
-        ),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
-        name="transitive_defines_from_bazel_target",
-        cmd=TestCmd(
-            target="//test/aspect/defines:transitive_defines_from_bazel_target",
+            target="//test/aspect/defines:all",
             aspect=DEFAULT_ASPECT,
         ),
         expected=ExpectedResult(success=True),

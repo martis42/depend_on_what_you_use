@@ -187,9 +187,11 @@ def dwyu_aspect_impl(target, ctx):
     if _do_ensure_private_deps(ctx):
         args.add("--implementation_deps_available")
 
+    all_hdrs = target[CcInfo].compilation_context.headers.to_list()
+    analysis_inputs = [ctx.file._config, processed_target] + processed_deps + processed_implementation_deps + private_files + all_hdrs
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
-        inputs = [ctx.file._config, processed_target] + public_files + private_files + processed_deps + processed_implementation_deps,
+        inputs = analysis_inputs,
         outputs = [report_file],
         mnemonic = "CompareIncludesToDependencies",
         progress_message = "Analyze dependencies of {}".format(target.label),

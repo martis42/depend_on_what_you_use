@@ -107,6 +107,14 @@ def _get_include_paths(target_info: Dict[str, Any]) -> List[str]:
     )
 
 
+def _get_defines(target_info: Dict[str, Any]) -> List[str]:
+    """
+    Defines with values in BUILD files or the compiler CLI can be specified via '<DEFINE_TOKEN>=<VALUE>'. However, this
+    syntax is not valid for the preprocessor, which expects '<DEFINE_TOKEN> <VALUE>'.
+    """
+    return [define.replace("=", " ") for define in target_info["defines"]]
+
+
 def get_system_under_inspection(
     target_under_inspection: Path, deps: List[Path], implementation_deps: List[Path]
 ) -> SystemUnderInspection:
@@ -117,5 +125,5 @@ def get_system_under_inspection(
             deps=_cc_targets_from_deps(deps),
             implementation_deps=_cc_targets_from_deps(implementation_deps),
             include_paths=_get_include_paths(target_info),
-            defines=target_info["defines"],
+            defines=_get_defines(target_info),
         )
