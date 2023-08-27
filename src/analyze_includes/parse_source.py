@@ -4,27 +4,38 @@ from io import StringIO
 from pathlib import Path
 from typing import List, Optional
 
-from pcpp import Preprocessor
+from pcpp.preprocessor import Action, OutputDirective, Preprocessor
 
 
 class SimpleParsingPreprocessor(Preprocessor):
     """
-    This preprocessor configuration is used to prune commented code and to resolve preprocessor statements for defines
-    which are injected through Bazel. We do not resolve include statements. Meaning each file is analyzed only for
-    itself.
+    This preprocessor configuration is used to prune commented code and to resolve preprocessor statements. The main
+    points for us is resolving branching statements (e.g. '#ifdef') to analyze the correct code parts.
     """
 
-    def on_file_open(self, _, __):
+    def on_include_not_found(self, is_malformed, is_system_include, curdir, includepath):
         """
-        Raising here prevents include statements being resolved
-        """
-        raise OSError("Do not open file")
+        We ignore missing include statements.
 
-    def on_error(self, _, __, ___):
+        We have many tests regarding aggregating and processing include paths which are defined through Bazel in the
+        core DWYU logic for analyzing the include statements. Thus, we are confident all relevant include paths are
+        provided to the preprocessor.
+        We expect to fail finding system headers, as the standard library headers (aka the C++ Bazel toolchain) are
+        ignored by DWYU.
+        If a non toolchain header is missing we assume this is due to the header missing completely in the dependencies.
+        In other words the code does not even compile and thus is violating our assumptions of use, see the README.md.
         """
-        Since unresolved include statements cause errors we silence error reporting
-        """
-        pass
+        raise OutputDirective(Action.IgnoreAndPassThrough)
+
+
+def make_pre_processor() -> SimpleParsingPreprocessor:
+    """
+    We can't overwrite member values from the base class in the ctor of our derived class and thus set them after
+    construction.
+    """
+    processor = SimpleParsingPreprocessor()
+    processor.passthru_includes = re.compile(".*")
+    return processor
 
 
 @dataclass
@@ -65,16 +76,18 @@ class IgnoredIncludes:
         return is_ignored_path or is_ignored_pattern
 
 
-def get_includes_from_file(file: Path, defines: List[str]) -> List[Include]:
+def get_includes_from_file(file: Path, defines: List[str], include_paths: List[str]) -> List[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
     """
     with open(file, encoding="utf-8") as fin:
-        pre_processor = SimpleParsingPreprocessor()
+        pre_processor = make_pre_processor()
         for define in defines:
             pre_processor.define(define)
-        pre_processor.parse(fin.read())
+        for path in include_paths:
+            pre_processor.add_path(path)
 
+        pre_processor.parse(fin.read())
         output_sink = StringIO()
         pre_processor.write(output_sink)
 
@@ -94,11 +107,11 @@ def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) 
 
 
 def get_relevant_includes_from_files(
-    files: Optional[List[str]], ignored_includes: IgnoredIncludes, defines: List[str]
+    files: Optional[List[str]], ignored_includes: IgnoredIncludes, defines: List[str], include_paths: List[str]
 ) -> List[Include]:
     all_includes = []
     if files:
         for file in files:
-            includes = get_includes_from_file(file=Path(file), defines=defines)
+            includes = get_includes_from_file(file=Path(file), defines=defines, include_paths=include_paths)
             all_includes.extend(includes)
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)

@@ -12,8 +12,8 @@
   - [Implementation_deps](#Implementation_deps)
   - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
+- [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
-- [Preconditions](#preconditions)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
@@ -169,11 +169,13 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 
 ## Known limitations
 
-- Includes which are added through a preprocessor token are not recognized.
-- Fundamental support for processing preprocessor defines is present.
-  However, if header _A_ specifies a define _X_ and is included in header _B_, header _B_ is not aware of _X_ from header _A_.
-  Right now only defines specified through Bazel (e.g. toolchain or `cc_*` target attributes) or defines specified inside a file itself are used to process a file and discover include statements.
-  We aim to resolve this limitation in a future release.
+Includes which are added through a preprocessor token are not recognized.
+For example the following won't be analyzed properly:
+
+```cpp
+#define INCLUDE_PATH "some/header.h"
+#include INCLUDE_PATH
+```
 
 ## Applying automatic fixes
 
@@ -212,7 +214,7 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
   But a downstream user of library _A_ might transitively depend on _X_.
   Removing the unused dependency will break the build as the downstream dependency no longer finds dependency _X_.
 
-# Preconditions
+# Assumptions of use
 
 ##### The code has to be compilable
 

@@ -76,10 +76,16 @@ def main(args: Namespace) -> int:
         implementation_deps=args.implementation_deps,
     )
     all_includes_from_public = get_relevant_includes_from_files(
-        files=args.public_files, ignored_includes=ignored_includes, defines=system_under_inspection.defines
+        files=args.public_files,
+        ignored_includes=ignored_includes,
+        defines=system_under_inspection.defines,
+        include_paths=system_under_inspection.include_paths,
     )
     all_includes_from_private = get_relevant_includes_from_files(
-        files=args.private_files, ignored_includes=ignored_includes, defines=system_under_inspection.defines
+        files=args.private_files,
+        ignored_includes=ignored_includes,
+        defines=system_under_inspection.defines,
+        include_paths=system_under_inspection.include_paths,
     )
 
     result = evaluate_includes(
