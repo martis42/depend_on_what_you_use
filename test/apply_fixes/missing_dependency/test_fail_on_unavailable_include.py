@@ -1,4 +1,4 @@
-from result import Error, Result, Success
+from result import Result, Success
 from test_case import TestCaseBase
 
 
@@ -23,7 +23,8 @@ class TestCase(TestCaseBase):
             check=True,
         )
 
-        if "Could not find a proper dependency for invalid include 'bar/private_bar.h'" in process.stderr:
-            return Success()
+        expected_error = "Could not find a proper dependency for invalid include 'bar/private_bar.h'"
+        if expected_error not in process.stderr:
+            return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
         else:
-            return Error(f"Did not see the expected error. Unexpected stderr:\n{process.stderr}")
+            return Success()

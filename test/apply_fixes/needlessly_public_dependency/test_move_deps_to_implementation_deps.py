@@ -1,4 +1,4 @@
-from result import Error, Result, Success
+from result import Result, Success
 from test_case import TestCaseBase
 
 
@@ -12,17 +12,19 @@ class TestCase(TestCaseBase):
             aspect="use_implementation_deps_aspect", extra_args=["--experimental_cc_implementation_deps"]
         )
         self._run_automatic_fix(extra_args=["--fix-deps-which-should-be-private"])
-        target_public_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
-        target_private_deps = self._get_target_attribute(target=self.test_target, attribute="implementation_deps")
 
-        if target_public_deps == {"//:lib_c"}:
-            if target_private_deps == {"//:lib_a", "//:lib_b"}:
-                return Success()
-            else:
-                return Error(
-                    f"Dependencies have not been adapted correctly. Unexpected private dependencies: {target_private_deps}"
-                )
-        else:
-            return Error(
-                f"Dependencies have not been adapted correctly. Unexpected public dependencies: {target_public_deps}"
+        target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
+        target_implementation_deps = self._get_target_attribute(
+            target=self.test_target, attribute="implementation_deps"
+        )
+        expected_deps = {"//:lib_c"}
+        expected_implementation_deps = {"//:lib_a", "//:lib_b"}
+        if expected_deps != target_deps or expected_implementation_deps != target_implementation_deps:
+            return self._make_unexpected_deps_error(
+                expected_deps=expected_deps,
+                expected_implementation_deps=expected_implementation_deps,
+                actual_deps=target_deps,
+                actual_implementation_deps=target_implementation_deps,
             )
+        else:
+            return Success()

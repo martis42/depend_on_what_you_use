@@ -16,7 +16,7 @@ class TestCase(TestCaseBase):
         )
         if process.returncode == 0:
             return Error(f"Expected an exception, but none occurred")
-        if "Please choose at least one of the 'fix-..' options" not in process.stderr:
-            return Error("Unexpected error output:\n" + process.stderr)
+        if (expected_error := "Please choose at least one of the 'fix-..' options") not in process.stderr:
+            return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
 
         return Success()

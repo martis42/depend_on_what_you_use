@@ -1,4 +1,4 @@
-from result import Error, Result, Success
+from result import Result, Success
 from test_case import TestCaseBase
 
 
@@ -12,7 +12,7 @@ class TestCase(TestCaseBase):
         self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
-        if target_deps == {"//:generated_code_provider", "//generate_code:foo"}:
-            return Success()
+        if (expected := {"//:generated_code_provider", "//generate_code:foo"}) != target_deps:
+            return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
         else:
-            return Error(f"Dependencies have not been adapted correctly. Unexpected dependencies: {target_deps}")
+            return Success()
