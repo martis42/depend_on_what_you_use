@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Set
 
-from result import Result
+from result import Error, Result
 
 
 class TestCaseBase(ABC):
@@ -104,3 +104,24 @@ class TestCaseBase(ABC):
         logging.debug(process.stdout)
         logging.debug(process.stderr)
         return process
+
+    @staticmethod
+    def _make_unexpected_output_error(expected: str, output: str) -> Error:
+        border = 42 * "-"
+        return Error(f"Did not find expected output: {expected}\nUnexpected output:\n{border}\n{output}\n{border}\n")
+
+    @staticmethod
+    def _make_unexpected_deps_error(
+        expected_deps: Set[str] = None,
+        expected_implementation_deps: Set[str] = None,
+        actual_deps: Set[str] = None,
+        actual_implementation_deps: Set[str] = None,
+    ) -> Error:
+        message = "Unexpected dependencies.\n"
+        if expected_deps:
+            message += f"Expected deps: {expected_deps}\n"
+            message += f"Actual deps: {actual_deps}\n"
+        if expected_implementation_deps:
+            message += f"Expected implementation_deps: {expected_implementation_deps}\n"
+            message += f"Actual implementation_deps: {actual_implementation_deps}\n"
+        return Error(message)

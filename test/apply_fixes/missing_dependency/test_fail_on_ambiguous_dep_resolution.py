@@ -1,4 +1,4 @@
-from result import Error, Result, Success
+from result import Result, Success
 from test_case import TestCaseBase
 
 
@@ -23,14 +23,12 @@ class TestCase(TestCaseBase):
             check=True,
         )
 
-        if all(
-            msg in process.stderr
-            for msg in (
-                "Found multiple targets which potentially can provide include 'ambiguous_lib/lib.h'",
-                "//ambiguous_lib:lib_a",
-                "//ambiguous_lib:lib_b",
-            )
-        ):
+        expected_error = [
+            "Found multiple targets which potentially can provide include 'ambiguous_lib/lib.h'",
+            "//ambiguous_lib:lib_a",
+            "//ambiguous_lib:lib_b",
+        ]
+        if all(msg in process.stderr for msg in expected_error):
             return Success()
         else:
-            return Error(f"Did not see the expected error. Unexpected stderr:\n{process.stderr}")
+            return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
