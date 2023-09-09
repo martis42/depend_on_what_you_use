@@ -16,7 +16,7 @@ class TestCase(TestCaseBase):
         )
         if process.returncode == 0:
             return Error(f"Expected an exception, but none occurred")
-        if "Please choose at least of onf the 'fix-..' options" not in process.stderr:
+        if "Please choose at least one of the 'fix-..' options" not in process.stderr:
             return Error("Unexpected error output:\n" + process.stderr)
 
         return Success()
