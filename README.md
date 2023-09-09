@@ -23,15 +23,15 @@
 
 DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.
 
-DWYUs enforces the design principle:<br/>
-**A `cc_*` target X shall depend directly on the targets providing the header files which are included in the source code of X.**
+DWYUs enforces the design principle:<br>
+**A `cc_*` target _X_ shall depend directly on the targets providing the header files which are included in the source code of _X_.**
 
 The main features are:
 
 - Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
 - Finding unused dependencies.
-- Given one uses the latest experimental Bazel features, making sure one distinguishes properly between public and
-  private dependencies for `cc_library`. For more details see [features chapter Implementation_deps](#Implementation_deps).
+- Given one uses [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps), making sure one distinguishes properly between public and private dependencies for `cc_library` targets.
+  For more details see [features chapter Implementation_deps](#Implementation_deps).
 
 More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs/).
 
@@ -70,7 +70,6 @@ dwyu_setup_step_3()
 
 ### Configure the aspect
 
-Configure an aspect with the desired behavior.
 The features which can be configured through the aspect factory attributes are documented at [Features](#features).
 Put the following inside a `aspect.bzl` file (file name is exemplary):
 
@@ -84,12 +83,11 @@ your_dwyu_aspect = dwyu_aspect_factory()
 
 ### Use the aspect
 
-Invoke the aspect through the command line on a target:<br/>
+Invoke the aspect through the command line on a target:<br>
 `bazel build <target_pattern> --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=cc_dwyu_output`
 
-If no problem is found, the command will exit with `INFO: Build completed successfully`.<br/>
-If a problem is detected, the build command will fail with an error and a description of the problem will be printed in
-the terminal. For example:
+If no problem is found, the command will exit with `INFO: Build completed successfully`.<br>
+If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal. For example:
 
 ```
 ================================================================================
@@ -102,10 +100,10 @@ Unused dependencies in 'deps' (none of their headers are referenced):
 ===============================================================================
 ```
 
-### Create a rule invoking the aspect.
+### Create a rule invoking the aspect
 
-You can invoke the aspect from within a rule. This can be useful to make the execution part of a bazel build (e.g.
-`bazel build //...`) without having to manually execute the longish aspect build command.
+You can invoke the aspect from within a rule.
+This can be useful to make the execution part of a bazel build without having to manually execute the longish aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 A concrete example for doing so for the DWYU aspect can be found in [a rule in the recursion test cases](test/aspect/recursion/rule.bzl).
@@ -123,7 +121,8 @@ You can exclude a custom set of header files by providing a config file in json 
 your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
 ```
 
-The config file can contain these fields which should be lists of strings. All fields are optional:
+The config file can contain these fields which should be lists of strings.
+All fields are optional:
 
 | Field                        | Description                                                                                                                                                                                                                                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -135,34 +134,30 @@ Examples and the correct format can be seen at the [custom config test cases](te
 
 ## Skipping targets
 
-If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by
-setting the `no-dwyu` tag on those.
+If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by setting the `no-dwyu` tag on those.
 
 ## Recursion
 
 By default, DWYU analyzes only the target it is being applied to.
 
-You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is
-being applied to:
+You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is being applied to:
 
 ```starlark
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
 
-This can be used to create a rule invoking DWYU on a target and all its dependencies as part of a normal build command.
-Also, it can be a convenience to analyze specific fraction of your stack without utilizing bazel (c)query.
+Analyzing a targets and its whole build tree is a common use case.
+This feature allows you doing so without manually using (c)query to create the corresponding target list and forwarding it to DWYU.
 
 Examples for this can be seen at the [recursion test cases](test/aspect/recursion).
 
 ## Implementation_deps
 
-Starting with version 5.0.0 Bazel offers experimental feature [`implementation_deps`](https://docs.bazel.build/versions/5.0.0/be/c-cpp.html#cc_library.implementation_deps)
-to distinguish between public (aka interface) and private (aka implementation) dependencies for `cc_library`.
+Bazel offers the experimental feature [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies for `cc_library`.
 Headers from the private dependencies are not made available to users of the library to trim down dependency trees.
 
-DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in
-private files, but not put into the private dependency attribute. Meaning, it can find dependencies which should be
-moved from `deps` to `implementation_deps`.
+DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in private files, but not put into the private dependency attribute.
+Meaning, it can find dependencies which should be moved from `deps` to `implementation_deps`.
 
 Activate this behavior via:
 
@@ -176,9 +171,8 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 
 - If includes are added through a macro, this is invisible to DWYU.
 - Fundamental support for processing preprocessor defines is present.
-  However, if header A specifies a define X and is included in header B, header B is not aware of X from header A.
-  Right now only defines specified through Bazel (e.g. toolchain or `cc_*` target attributes) or defines specified
-  inside a file itself are used to process a file and discover include statements.
+  However, if header _A_ specifies a define _X_ and is included in header _B_, header _B_ is not aware of _X_ from header _A_.
+  Right now only defines specified through Bazel (e.g. toolchain or `cc_*` target attributes) or defines specified inside a file itself are used to process a file and discover include statements.
   We aim to resolve this limitation in a future release.
 - Include statements utilizing `..` are not recognized if they are used on virtual or system include paths.
 
@@ -187,52 +181,51 @@ Examples for this can be seen at the [implementation_deps test cases](test/aspec
 DWYU offers a tool to automatically fix some detected problems.
 
 ⚠
-Please note that **the tool cannot guarantee that your build is not being broken** by the changes. Always make sure your
-project is still valid after the changes and review the performed changes.
+Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
+Always make sure your project is still valid after the changes and review the performed changes.
 
 The workflow is the following:
 
-1. Execute DWYU on your workspace. DWYU will create report files containing information about discovered problems in the
-   Bazel output directory for each analyzed target.
-1. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`. The tool discovers the report files
-   generated in the previous step and gathers the problems for which a fix is available. Then,
-   [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) is utilized to adapt the BUILDS
-   files in your workspace.
+1. Execute DWYU on your workspace.
+   DWYU will create report files containing information about discovered problems in the Bazel output directory for each analyzed target.
+1. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`.
+   The tool discovers the report files generated in the previous step and gathers the problems for which a fix is available.
+   Then, [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) is utilized to adapt the BUILD files in your workspace.
 
-The `apply_fixes` tool requires you to explicitly choose which kind or errors you want to be fixed. You can see the full
-command line interface and more information about the script behavior and limitations by executing:<br>
+The `apply_fixes` tool requires you to explicitly choose which kind or errors you want to be fixed.
+You can see the full command line interface and more information about the script behavior and limitations by executing:<br>
 `bazel run @depend_on_what_you_use//:apply_fixes -- --help`
 
-If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience
-symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the
-report files. The tool offers options to control how the output directory is discovered.
+If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the report files.
+The tool offers options to control how the output directory is discovered.
 
 Unfortunately, the tool cannot promise perfect results due to various constraints:
 
-- If alias targets are involved, this cannot be processed properly. Alias targets are resolved to their actual target
-  before the DWY aspect is running. Thus, the DWYU report file contains the actual targets in its report and buildozer
-  is not able to modify the BUILD files containing the alias name.
-- Buildozer is working on the plain BUILD files as a user would see them in the editor. Meaning without alias resolution
-  or macro expansion. Consequently, buildozer cannot work on targets which are generated inside a macro or whose name
-  is constructed in a list comprehension.
-- Generally the fixes should not break your build. But there are edge cases. For example a dependency X might be unused
-  in library A, but the downstream user of library A transitively depends on it. Removing the unused dependency from
-  library A will break the build as the downstream dependency no longer finds dependency X.
-- Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency. Also
-  analyzing the visibility of potential direct dependencies is not yet implemented, which can cause a broken build if
-  a target without the proper visibility is chosen.
+- If alias targets are involved, this cannot be processed properly.
+  Alias targets are resolved to their actual target before the DWYU aspect is running.
+  Thus, the DWYU report file contains the actual targets in its report and buildozer is not able to modify the BUILD files containing the alias name.
+- Buildozer is working on the plain BUILD files as a user would see them in the editor.
+  Meaning without alias resolution or macro expansion.
+  Consequently, buildozer cannot work on targets which are generated inside a macro or whose name is constructed.
+- Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency.
+- If you execute DWYU only on some targets and not the complete build tree, this can break the overall build.
+  For example dependency _X_ in library _A_ is unused and would be removed.
+  But a downstream user of library _A_ might transitively depend on _X_.
+  Removing the unused dependency will break the build as the downstream dependency no longer finds dependency _X_.
 
 # Preconditions
 
-**The code has to be compilable** </br>
-DWYU is not performing a compilation itself. It works by statically analyzing the source code and build tree. However,
-non compiling code can contain errors which infringe the assumptions DWYU is based on. For example, including header
-files which do not exist at the expected path.
+##### The code has to be compilable
 
-**Include paths have to be unambiguous** </br>
-In other words, there shall not be multiple header files in the dependency tree of a target matching an
-include statement. Even if analysing the code works initially, it might break at any time if the ordering of paths in
-the analysis changes.
+DWYU is not performing a compilation itself.
+It works by statically analyzing the source code and build tree.
+However, non compiling code can contain errors which infringe the assumptions DWYU is based on.
+For example, including header files which do not exist at the expected path.
+
+##### Include paths have to be unambiguous
+
+There shall not be multiple header files in the dependency tree of a target matching an include statement.
+Even if analysing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
 
 # Supported Platforms
 
@@ -247,8 +240,7 @@ the analysis changes.
 
 ## Layering check
 
-To make sure no headers from transitive dependencies or private headers from dependencies are used you can use
-[Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
+To make sure no headers from transitive dependencies or private headers from dependencies are used you can use [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
 This approach has some benefits over DWYU:
 
 - Directly integrated into Bazel without need for further tooling.
@@ -256,10 +248,11 @@ This approach has some benefits over DWYU:
 
 Still, there are reasons to use DWYU instead of or in addition to layering_check:
 
-- DWYU Does not require a compiler, it works purely by text parsing.
+- DWYU does not require a compiler, it works purely by text parsing.
   This is the reason for some of it's [known DWYU limitations](#known-limitations).
   However, this also makes the tool more flexible and independent of your platform.
   For example when using a recent clang version is not possible for you.
+- DWYU is able to analyze header only libraries.
 - DWYU detects unused dependencies.
 - DWYU allows optimizing [implementation_deps](#implementation_deps).
 - DWYU offers automatic fixes for detected issues.
@@ -269,23 +262,19 @@ Still, there are reasons to use DWYU instead of or in addition to layering_check
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
 It seems there is no public and established C++ extension for gazelle.
 
-Still, if one agrees with the best practices enforced by DWYU but cannot use it investing time into a gazelle C++
-extension might be worth it.
-Automatically generating correct BUILD files based on your source code is most likely a more efficient approach compared
-to having to manually execute DWYU regularly to make sure no error was introduced.
+Still, if one agrees with the best practices enforced by DWYU but cannot use it, investing time into a gazelle C++ extension might be worth it.
+Automatically generating correct BUILD files based on your source code is a more efficient approach compared to having to manually execute DWYU regularly to make sure no error was introduced.
 
 # Versioning
 
 This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
-Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases
-can contain breaking changes.
+Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases can contain breaking changes.
 
 **The following things can always break** and do not promise stability with respect to the semantic versioning:
 
 - The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
   Changing their content is not considered a breaking change.
-  You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts for
-  DWYU updates.
+  You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts for DWYU updates.
 - How to include DWYU in your WORKSPACE file might change at any time.
 
 # Contributing
@@ -294,7 +283,7 @@ See [Contributing](CONTRIBUTING.md).
 
 # License
 
-Copyright © 2022-present, [Martin Medler](https://github.com/martis42). </br>
+Copyright © 2022-present, [Martin Medler](https://github.com/martis42). <br>
 This project licensed under the [MIT](https://opensource.org/licenses/MIT) license.
 
 This projects references several other projects which each have individual licenses.
