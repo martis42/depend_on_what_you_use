@@ -4,16 +4,26 @@
 
 All contributions require a review from the [code owners](.github/CODEOWNERS).
 
-## Code Style and Code Quality
+## Code Quality
 
-The project uses several formatters and linters. [poetry](https://github.com/python-poetry/poetry) and
-[pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) are used to manage and execute those.
+The project uses several formatters and linters.
+[poetry](https://github.com/python-poetry/poetry) and [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) are used to manage and execute those.
 
 When contributing code, please make sure to execute the checks.
 
 After you have installed `poetry` for your platform install the tools required by DWYU: `poetry install`.
-Then, you can execute all relevant checks via `poetry run pre-commit run --all-files` or configure `pre-commit-hooks`
-to run automatically for each commit.
+Then, you can execute all relevant checks via `poetry run pre-commit run --all-files` or configure `pre-commit-hooks` to run automatically for each commit.
+
+## Code Style
+
+### Markdown
+
+Most of the markdown stile is automatically enforced with [mdformat](https://github.com/executablebooks/mdformat).
+Some part is however maintained manually:
+
+- Each sentence starts in a new line.
+- Sentences are not wrapped, no matter how long they are.
+- `<br>` is used to enforce a newline.
 
 # Bug reports
 
