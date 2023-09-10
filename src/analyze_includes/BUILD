@@ -7,6 +7,7 @@ py_library(
         "evaluate_includes.py",
         "parse_config.py",
         "parse_source.py",
+        "result.py",
         "std_header.py",
         "system_under_inspection.py",
     ],
