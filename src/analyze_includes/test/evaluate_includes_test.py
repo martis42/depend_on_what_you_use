@@ -355,16 +355,31 @@ class TestEvaluateIncludes(unittest.TestCase):
                 Include(file=Path("file1"), include="foo.h"),
                 Include(file=Path("file2"), include="dir/bar.h"),
             ],
-            private_includes=[
-                Include(file=Path("file4"), include="path/baz.h"),
-            ],
+            private_includes=[Include(file=Path("file4"), include="path/baz.h")],
             system_under_inspection=SystemUnderInspection(
                 target_under_inspection=CcTarget(name="foo", header_files=["self/own_header.h"]),
-                deps=[
-                    CcTarget(name="foo_pkg", header_files=["foo.h", "some/virtual/dir/bar.h"]),
-                ],
+                deps=[CcTarget(name="foo_pkg", header_files=["foo.h", "some/virtual/dir/bar.h"])],
                 implementation_deps=[CcTarget(name="baz_pkg", header_files=["long/nested/path/baz.h"])],
                 include_paths=["", "long/nested", "some/virtual"],
+                defines=[],
+            ),
+            ensure_private_deps=True,
+        )
+
+        self.assertTrue(result.is_ok())
+
+    def test_success_for_valid_dependencies_with_virtual_include_paths_and_relative_include_statements(self):
+        result = evaluate_includes(
+            public_includes=[
+                Include(file=Path("file1"), include="../../self/own_header.h"),
+                Include(file=Path("file1"), include="some/virtual/../../dir/foo.h"),
+            ],
+            private_includes=[Include(file=Path("file2"), include="some/../../../some/virtual/dir/bar.h")],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=CcTarget(name="self", header_files=["self/own_header.h"]),
+                deps=[CcTarget(name="foo_pkg", header_files=["dir/foo.h"])],
+                implementation_deps=[CcTarget(name="bar_pkg", header_files=["some/virtual/dir/bar.h"])],
+                include_paths=["", "some/virtual", "other/virtual"],
                 defines=[],
             ),
             ensure_private_deps=True,
