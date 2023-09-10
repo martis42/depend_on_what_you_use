@@ -15,13 +15,13 @@ repos:
       # Python code quality
       - id: debug-statements
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.16
+    rev: 0.7.17
     hooks:
       - id: mdformat
         additional_dependencies:
           - mdformat-gfm
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 6.1.0
+    rev: 6.3.3
     hooks:
       - id: buildifier
         args: [ "--warnings=+out-of-order-load,+unsorted-dict-items,+native-py" ]

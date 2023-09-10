@@ -34,7 +34,7 @@ def setup_test_workspace(
     origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
 ) -> None:
     copytree(src=test_sources, dst=str(temporary_workspace), dirs_exist_ok=True)
-    with open(temporary_workspace / "WORKSPACE", mode="wt", encoding="utf-8") as ws_file:
+    with open(temporary_workspace / "WORKSPACE", mode="w", encoding="utf-8") as ws_file:
         ws_file.write(
             WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
         )
