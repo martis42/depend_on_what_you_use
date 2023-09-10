@@ -34,6 +34,12 @@ py_test(
 )
 
 py_test(
+    name = "result_test",
+    srcs = ["result_test.py"],
+    deps = ["//src/analyze_includes:lib"],
+)
+
+py_test(
     name = "system_under_inspection_test",
     srcs = ["system_under_inspection_test.py"],
     data = [
