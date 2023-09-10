@@ -125,12 +125,19 @@ def _check_for_invalid_includes(
             )
         if not legal_include:
             # Might be a relative include
-            curr_dir = inc.file.parent
-            path_matching_include_statement = (curr_dir / inc.include).resolve()
-            legal_include = _include_resolves_to_any_file(
-                included_path=path_matching_include_statement, files=target_under_inspection.header_files
-            )
-            if not legal_include:
+            roots_for_relative_includes = [Path(root) for root in [inc.file.parent] + include_paths]
+
+            for root in roots_for_relative_includes:
+                path_matching_include_statement = (root / inc.include).resolve()
+
+                # Relative include to target under inspection
+                if _include_resolves_to_any_file(
+                    included_path=path_matching_include_statement, files=target_under_inspection.header_files
+                ):
+                    legal_include = True
+                    break
+
+                # Relative include to dependency
                 for dep in dependencies:
                     if _include_resolves_to_any_file(
                         included_path=path_matching_include_statement, files=dep.header_files
@@ -138,6 +145,9 @@ def _check_for_invalid_includes(
                         legal_include = True
                         dep.usage.update(usage)
                         break
+                if legal_include:
+                    break
+
         if not legal_include:
             invalid_includes.append(inc)
     return invalid_includes
