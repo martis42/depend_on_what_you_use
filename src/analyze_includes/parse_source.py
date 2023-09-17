@@ -78,7 +78,11 @@ class IgnoredIncludes:
 
 def get_includes_from_file(file: Path, defines: List[str], include_paths: List[str]) -> List[Include]:
     """
-    Parse a C/C++ file and extract include statements which are neither commented nor disabled through a define.
+    Parse a C/C++ file and extract include statements which are neither commented nor disabled through pre processor
+    branching (e.g. #ifdef).
+
+    The preprocessor removes all comments and inactive code branches. This allows us then to find all include statements
+    with a simple regex.
     """
     with open(file, encoding="utf-8") as fin:
         pre_processor = make_pre_processor()
@@ -91,10 +95,20 @@ def get_includes_from_file(file: Path, defines: List[str], include_paths: List[s
         output_sink = StringIO()
         pre_processor.write(output_sink)
 
-        return [
-            Include(file=file, include=include)
-            for include in re.findall(r'^\s*#include\s*["<](.+)[">]', output_sink.getvalue(), re.MULTILINE)
-        ]
+        included_paths = []
+        for include in re.findall(r"^\s*#include\s*(.+)", output_sink.getvalue(), re.MULTILINE):
+            if include.startswith(('"', "<")) and include.endswith(('"', ">")):
+                included_paths.append(include)
+            else:
+                # Either a malformed include statement or an include path defined through a pre processor token.
+                # We ignore malformed include paths as they violate our assumptions of use.
+                if include in pre_processor.macros:
+                    # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
+                    # The value is a list of 'LexToken' classes from 'ply.lex.LexToken'.
+                    # In all our tests with include statements the list had always just one element.
+                    included_paths.append(pre_processor.macros[include].value[0].value)
+
+        return [Include(file=file, include=include.lstrip('"<').rstrip('">')) for include in included_paths]
 
 
 def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) -> List[Include]:

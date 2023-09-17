@@ -30,3 +30,15 @@ cc_library(
         "//test/aspect/defines/support:lib_b",
     ],
 )
+
+cc_library(
+    name = "include_using_pre_processor_token",
+    hdrs = ["include_using_pre_processor_token.h"],
+    copts = ['-DCONDITIONAL_DEFINES_HEADER=\"test/aspect/defines/support/conditional_defines.h\"'],
+    deps = [
+        "//test/aspect/defines/support:conditional_defines",
+        "//test/aspect/defines/support:lib_a",
+        "//test/aspect/defines/support:lib_b",
+        "//test/aspect/defines/support:some_defines",
+    ],
+)
