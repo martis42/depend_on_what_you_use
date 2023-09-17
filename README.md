@@ -10,7 +10,6 @@
   - [Skipping Targets](#skipping-targets)
   - [Recursion](#recursion)
   - [Implementation_deps](#Implementation_deps)
-  - [Known limitations](#known-limitations)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
@@ -166,16 +165,6 @@ your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
 Examples for this can be seen at the [implementation_deps test cases](test/aspect/implementation_deps).
-
-## Known limitations
-
-Includes which are added through a preprocessor token are not recognized.
-For example the following won't be analyzed properly:
-
-```cpp
-#define INCLUDE_PATH "some/header.h"
-#include INCLUDE_PATH
-```
 
 ## Applying automatic fixes
 

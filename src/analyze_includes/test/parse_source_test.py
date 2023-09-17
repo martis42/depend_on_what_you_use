@@ -166,6 +166,13 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="expected/include_a.h") in result)
         self.assertTrue(Include(file=test_file, include="expected/include_b.h") in result)
 
+    def test_include_based_on_pre_processor_token(self):
+        test_file = Path("src/analyze_includes/test/data/include_based_on_pre_processor_token.h")
+        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(len(result), 1)
+        self.assertTrue(Include(file=test_file, include="some/header.h") in result)
+
 
 class TestGetRelevantIncludesFromFiles(unittest.TestCase):
     def test_get_relevant_includes_from_files(self):
