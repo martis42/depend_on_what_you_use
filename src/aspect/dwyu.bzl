@@ -135,13 +135,14 @@ def dwyu_aspect_impl(target, ctx):
     Returns:
         OutputGroup containing the generated report file
     """
-    if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
+
+    # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
+    # We can't use 'required_providers = [CcInfo],' in the aspect definition due to bug:
+    # https://github.com/bazelbuild/bazel/issues/19609
+    if not CcInfo in target:
         return []
 
-    # Skip incompatible targets
-    # Ideally we should check for the existence of "IncompatiblePlatformProvider".
-    # However, this provider is not available in Starlark
-    if not CcInfo in target:
+    if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
 
     # Skip targets which explicitly opt-out
