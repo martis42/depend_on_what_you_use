@@ -12,7 +12,7 @@ def dwyu_aspect_factory(
 
     Args:
         config: Configuration file for the tool comparing the include statements to the dependencies.
-        recursive: If true, execute the aspect on all trannsitive dependencies.
+        recursive: If true, execute the aspect on all transitive dependencies.
                    If false, analyze only the target the aspect is being executed on.
         use_implementation_deps: If true, ensure cc_library dependencies which are used only in private files are
                                  listed in implementation_deps. Only available for Bazel >= 5.0.0 and if flag
