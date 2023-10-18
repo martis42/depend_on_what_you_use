@@ -1,9 +1,6 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 
-def _label_to_name(label):
-    return str(label).replace("@", "").replace("//", "").replace("/", "_").replace(":", "_")
-
 def _get_target_sources(rule):
     public_files = []
     private_files = []
@@ -57,7 +54,7 @@ def _process_dependencies(ctx, target, deps, verbose):
         ctx,
         target = dep,
         defines = [],
-        output_path = "{}_processed_dep_{}.json".format(_label_to_name(target.label), _label_to_name(dep.label)),
+        output_path = "{}_processed_dep_{}.json".format(target.label.name, hash(str(dep.label))),
         is_target_under_inspection = False,
         verbose = verbose,
     ) for dep in deps]
@@ -160,7 +157,7 @@ def dwyu_aspect_impl(target, ctx):
         ctx,
         target = target,
         defines = _gather_defines(ctx, target_compilation_context = target[CcInfo].compilation_context),
-        output_path = "{}_processed_target_under_inspection.json".format(_label_to_name(target.label)),
+        output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
         verbose = False,
     )
@@ -175,7 +172,7 @@ def dwyu_aspect_impl(target, ctx):
         verbose = False,
     )
 
-    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(_label_to_name(target.label)))
+    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
     args = ctx.actions.args()
     args.add("--report", report_file)
     args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
