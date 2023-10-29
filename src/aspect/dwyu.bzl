@@ -179,14 +179,14 @@ def dwyu_aspect_impl(target, ctx):
     args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
     args.add("--target_under_inspection", processed_target)
     args.add_all("--deps", processed_deps, omit_if_empty = False)
-    args.add_all("--implementation_deps", processed_implementation_deps, omit_if_empty = False)
-    if ctx.attr._config.label.name != "private/dwyu_empty_config.json":
-        args.add("--ignored_includes_config", ctx.file._config)
+    args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
+    if ctx.attr._config:
+        args.add("--ignored_includes_config", ctx.files._config[0])
     if _do_ensure_private_deps(ctx):
         args.add("--implementation_deps_available")
 
     all_hdrs = target[CcInfo].compilation_context.headers.to_list()
-    analysis_inputs = [ctx.file._config, processed_target] + processed_deps + processed_implementation_deps + private_files + all_hdrs
+    analysis_inputs = [processed_target] + ctx.files._config + processed_deps + processed_impl_deps + private_files + all_hdrs
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
         inputs = analysis_inputs,
