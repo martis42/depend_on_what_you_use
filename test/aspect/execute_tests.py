@@ -294,6 +294,94 @@ TESTS = [
             ],
         ),
     ),
+    TestCase(
+        name="target_mapping_b_fail_without_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_b",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='test/aspect/target_mapping/use_lib_b.cpp', include='test/aspect/target_mapping/libs/b.h'"
+            ],
+            unused_public_deps=["//test/aspect/target_mapping/libs:a"],
+        ),
+    ),
+    TestCase(
+        name="target_mapping_b_succeed_with_specific_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_b",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_specific_deps",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="target_mapping_b_succeed_with_direct_deps_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_b",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_direct_deps",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="target_mapping_b_succeed_with_transitive_deps_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_b",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_transitive_deps",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="target_mapping_c_fail_without_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_c",
+            aspect=DEFAULT_ASPECT,
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='test/aspect/target_mapping/use_lib_c.cpp', include='test/aspect/target_mapping/libs/c.h'"
+            ],
+            unused_public_deps=["//test/aspect/target_mapping/libs:a"],
+        ),
+    ),
+    TestCase(
+        name="target_mapping_c_fail_with_specific_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_c",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_specific_deps",
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='test/aspect/target_mapping/use_lib_c.cpp', include='test/aspect/target_mapping/libs/c.h'"
+            ],
+            unused_public_deps=["//test/aspect/target_mapping/libs:a"],
+        ),
+    ),
+    TestCase(
+        name="target_mapping_c_fail_with_direct_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_c",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_direct_deps",
+        ),
+        expected=ExpectedResult(
+            success=False,
+            invalid_includes=[
+                "File='test/aspect/target_mapping/use_lib_c.cpp', include='test/aspect/target_mapping/libs/c.h'"
+            ],
+            unused_public_deps=["//test/aspect/target_mapping/libs:a"],
+        ),
+    ),
+    TestCase(
+        name="target_mapping_c_succeed_with_transitive_mapping",
+        cmd=TestCmd(
+            target="//test/aspect/target_mapping:use_lib_c",
+            aspect="//test/aspect/target_mapping:aspect.bzl%map_transitive_deps",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
 ]
 
 if __name__ == "__main__":

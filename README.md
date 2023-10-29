@@ -166,6 +166,28 @@ your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 
 Examples for this can be seen at the [implementation_deps test cases](test/aspect/implementation_deps).
 
+## Target mapping
+
+Sometimes users don't want to follow the DWYU rules for all targets or have to work with external dependencies not following the DWYU principles.
+For such cases DWYU allows creating a mapping which for a chosen target makes more headers available as the target actually provides.
+In other words, one can combine virtually multiple targets for the DWYU analysis.
+Doing so allows using headers from transitive dependencies without DWYU raising an error for select cases.
+
+Such a mapping is created with the [dwyu_make_cc_info_mapping](src/cc_info_mapping/cc_info_mapping.bzl) rule.
+This offers multiple ways of mapping targets:
+
+1. Explicitly providing a list of targets which are mapped into a single target.
+1. Specifying that all direct dependencies of a given target are mapped into the target.
+1. Specifying that all transitive dependencies of a given target are mapped into the target.
+
+Activate this behavior via:
+
+```starlark
+your_aspect = dwyu_aspect_factory(target_mapping = "<mapping_target_created_by_the_user>")
+```
+
+Examples for this can be seen at the [target_mapping test cases](test/aspect/target_mapping).
+
 ## Applying automatic fixes
 
 DWYU offers a tool to automatically fix some detected problems.
