@@ -139,9 +139,12 @@ def dwyu_aspect_impl(target, ctx):
     if not CcInfo in target:
         return []
 
+    # While we limit ourselves right now in the early project phase, we aim at supporting all cc_ like rules accepting
+    # 'hdrs' and 'srcs' attributes and providing CcInfo
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
 
+    # TODO rename to 'no_dwyu' before version 0.1.0
     # Skip targets which explicitly opt-out
     if "no-dwyu" in ctx.rule.attr.tags:
         return []
@@ -196,6 +199,7 @@ def dwyu_aspect_impl(target, ctx):
         arguments = [args],
     )
 
+    # TODO recursion broken for implementation_deps
     if ctx.attr._recursive:
         transitive_reports = [dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.deps]
     else:
