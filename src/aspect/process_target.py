@@ -3,7 +3,6 @@ import logging
 import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import List
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
