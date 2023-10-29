@@ -1,7 +1,7 @@
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 def dwyu_aspect_factory(
-        config = Label("@depend_on_what_you_use//src/aspect:private/dwyu_empty_config.json"),
+        config = None,
         recursive = False,
         use_implementation_deps = False):
     """
@@ -21,6 +21,7 @@ def dwyu_aspect_factory(
         Configured DWYU aspect
     """
     attr_aspects = ["deps"] if recursive else []
+    aspect_config = [config] if config else []
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -30,9 +31,9 @@ def dwyu_aspect_factory(
             "_cc_toolchain": attr.label(
                 default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
             ),
-            "_config": attr.label(
-                default = config,
-                allow_single_file = [".json"],
+            "_config": attr.label_list(
+                default = aspect_config,
+                allow_files = [".json"],
             ),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
