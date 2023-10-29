@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from os import environ
 from pathlib import Path
+from shlex import join as join_cmd
 from shutil import which
 from typing import Dict, List, Optional
 
@@ -215,8 +216,11 @@ def execute_tests(
                 continue
             print(f"\n>>> Execute '{test.name}' with Bazel {version.bazel} and Python {version.python}")
 
+            dwyu_cmd = make_cmd(test_cmd=test.cmd, startup_args=[f"--output_base={output_base}"], extra_args=extra_args)
+            if verbose:
+                print(f"Executing cmd: {join_cmd(dwyu_cmd)}")
             process = subprocess.run(
-                make_cmd(test_cmd=test.cmd, startup_args=[f"--output_base={output_base}"], extra_args=extra_args),
+                dwyu_cmd,
                 env=test_env,
                 encoding="utf-8",
                 stdout=subprocess.PIPE,
