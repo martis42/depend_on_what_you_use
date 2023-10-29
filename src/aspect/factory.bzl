@@ -1,8 +1,10 @@
+load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "DwyuCcInfoRemappingsInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 def dwyu_aspect_factory(
         config = None,
         recursive = False,
+        target_mapping = None,
         use_implementation_deps = False):
     """
     Create a "Depend on What You Use" (DWYU) aspect.
@@ -14,14 +16,17 @@ def dwyu_aspect_factory(
         config: Configuration file for the tool comparing the include statements to the dependencies.
         recursive: If true, execute the aspect on all transitive dependencies.
                    If false, analyze only the target the aspect is being executed on.
+        target_mapping: A target providing a map of target labels to alternative CcInfo provider objects for those
+                        targets. Typically created with the dwyu_make_cc_info_mapping rule.
         use_implementation_deps: If true, ensure cc_library dependencies which are used only in private files are
-                                 listed in implementation_deps. Only available for Bazel >= 5.0.0 and if flag
+                                 listed in implementation_deps. Only available if flag
                                  '--experimental_cc_implementation_deps' is provided.
     Returns:
         Configured DWYU aspect
     """
     attr_aspects = ["deps"] if recursive else []
     aspect_config = [config] if config else []
+    aspect_target_mapping = [target_mapping] if target_mapping else []
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -52,6 +57,10 @@ def dwyu_aspect_factory(
             ),
             "_recursive": attr.bool(
                 default = recursive,
+            ),
+            "_target_mapping": attr.label_list(
+                providers = [DwyuCcInfoRemappingsInfo],
+                default = aspect_target_mapping,
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

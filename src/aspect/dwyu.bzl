@@ -1,5 +1,6 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
+load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "DwyuCcInfoRemappingsInfo")
 
 def _get_target_sources(rule):
     public_files = []
@@ -22,7 +23,7 @@ def _get_relevant_header(target_context, is_target_under_inspection):
 
 def _process_target(ctx, target, defines, output_path, is_target_under_inspection, verbose):
     processing_output = ctx.actions.declare_file(output_path)
-    cc_context = target[CcInfo].compilation_context
+    cc_context = target.cc_info.compilation_context
     header_files = _get_relevant_header(
         target_context = cc_context,
         is_target_under_inspection = is_target_under_inspection,
@@ -114,6 +115,34 @@ def _gather_defines(ctx, target_compilation_context):
 
     return extract_defines_from_compiler_flags(compiler_command_line_flags)
 
+def _exchange_cc_info(deps, mapping):
+    transformed = []
+    mapping_info = mapping[0][DwyuCcInfoRemappingsInfo].mapping
+    for dep in deps:
+        if dep.label in mapping_info:
+            transformed.append(struct(label = dep.label, cc_info = mapping_info[dep.label]))
+        else:
+            transformed.append(struct(label = dep.label, cc_info = dep[CcInfo]))
+    return transformed
+
+def _preprocess_deps(ctx):
+    """
+    Normally this function does nothing and simply stores dependencies and their CcInfo providers in a specific format.
+    If the user chooses to use the target mapping feature, we exchange here the CcInf provider for some targets with a
+    different one.
+    """
+    target_impl_deps = []
+    if ctx.attr._target_mapping:
+        target_deps = _exchange_cc_info(deps = ctx.rule.attr.deps, mapping = ctx.attr._target_mapping)
+        if hasattr(ctx.rule.attr, "implementation_deps"):
+            pass
+    else:
+        target_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.deps]
+        if hasattr(ctx.rule.attr, "implementation_deps"):
+            target_impl_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.implementation_deps]
+
+    return target_deps, target_impl_deps
+
 def _do_ensure_private_deps(ctx):
     """
     The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
@@ -158,22 +187,20 @@ def dwyu_aspect_impl(target, ctx):
 
     processed_target = _process_target(
         ctx,
-        target = target,
+        target = struct(label = target.label, cc_info = target[CcInfo]),
         defines = _gather_defines(ctx, target_compilation_context = target[CcInfo].compilation_context),
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
         verbose = False,
     )
 
+    # TODO consistently use impl_deps as variable name and only use long name in docs and APIs
+    target_deps, target_impl_deps = _preprocess_deps(ctx)
+
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
     #      target_under_inspection have the same dependency
-    processed_deps = _process_dependencies(ctx, target = target, deps = ctx.rule.attr.deps, verbose = False)
-    processed_implementation_deps = _process_dependencies(
-        ctx,
-        target = target,
-        deps = ctx.rule.attr.implementation_deps if hasattr(ctx.rule.attr, "implementation_deps") else [],
-        verbose = False,
-    )
+    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = False)
+    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = False)
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
     args = ctx.actions.args()
