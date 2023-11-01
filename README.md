@@ -10,6 +10,7 @@
   - [Skipping Targets](#skipping-targets)
   - [Recursion](#recursion)
   - [Implementation_deps](#Implementation_deps)
+  - [Target mapping](#target-mapping)
   - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
