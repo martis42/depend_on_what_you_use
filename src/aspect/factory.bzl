@@ -24,7 +24,12 @@ def dwyu_aspect_factory(
     Returns:
         Configured DWYU aspect
     """
-    attr_aspects = ["deps"] if recursive else []
+    attr_aspects = []
+    if recursive:
+        if use_implementation_deps:
+            attr_aspects = ["implementation_deps", "deps"]
+        else:
+            attr_aspects = ["deps"]
     aspect_config = [config] if config else []
     aspect_target_mapping = [target_mapping] if target_mapping else []
     return aspect(

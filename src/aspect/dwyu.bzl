@@ -150,6 +150,19 @@ def _do_ensure_private_deps(ctx):
     """
     return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
 
+def _gather_transitive_reports(ctx):
+    """
+    In recursive operation mode we have to propagate the DWYU report files of all transitive dependencies to ensure
+    the DWYU actions run for all targets. Not doing this will cause DWYU not being executed at all as without returning
+    the report files Bazel prunes the DWYU actions.
+    """
+    reports = []
+    if ctx.attr._recursive:
+        reports.extend([dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.deps])
+        if hasattr(ctx.rule.attr, "implementation_deps"):
+            reports.extend([dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.implementation_deps])
+    return reports
+
 def dwyu_aspect_impl(target, ctx):
     """
     Implementation for the "Depend on What You Use" (DWYU) aspect.
@@ -225,11 +238,5 @@ def dwyu_aspect_impl(target, ctx):
         arguments = [args],
     )
 
-    # TODO recursion broken for implementation_deps
-    if ctx.attr._recursive:
-        transitive_reports = [dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.deps]
-    else:
-        transitive_reports = []
-    accumulated_reports = depset(direct = [report_file], transitive = transitive_reports)
-
+    accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
     return [OutputGroupInfo(cc_dwyu_output = accumulated_reports)]
