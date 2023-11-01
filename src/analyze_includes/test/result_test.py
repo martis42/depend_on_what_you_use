@@ -156,7 +156,7 @@ class TestResult(unittest.TestCase):
         )
 
     def test_is_ok_fails_due_to_unused_private_deps(self):
-        unit = Result(target="//foo:bar", unused_implementation_deps=["foo", "baz"])
+        unit = Result(target="//foo:bar", unused_impl_deps=["foo", "baz"])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
@@ -187,7 +187,7 @@ class TestResult(unittest.TestCase):
         )
 
     def test_is_ok_fails_due_to_unused_public_and_private_deps(self):
-        unit = Result(target="//foo:bar", unused_deps=["foo"], unused_implementation_deps=["baz"])
+        unit = Result(target="//foo:bar", unused_deps=["foo"], unused_impl_deps=["baz"])
 
         self.assertFalse(unit.is_ok())
         self.assertEqual(
@@ -252,7 +252,7 @@ class TestResult(unittest.TestCase):
 
 
 def test_set_use_implementation_deps(self):
-    unit = Result(target="//:foo", use_implementation_deps=True)
+    unit = Result(target="//:foo", use_impl_deps=True)
 
     self.assertEqual(
         unit.to_json(),

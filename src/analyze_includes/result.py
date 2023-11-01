@@ -12,16 +12,16 @@ class Result:
     public_includes_without_dep: List[Include] = field(default_factory=list)
     private_includes_without_dep: List[Include] = field(default_factory=list)
     unused_deps: List[str] = field(default_factory=list)
-    unused_implementation_deps: List[str] = field(default_factory=list)
+    unused_impl_deps: List[str] = field(default_factory=list)
     deps_which_should_be_private: List[str] = field(default_factory=list)
-    use_implementation_deps: bool = False
+    use_impl_deps: bool = False
 
     def is_ok(self) -> bool:
         return (
             len(self.public_includes_without_dep) == 0
             and len(self.private_includes_without_dep) == 0
             and len(self.unused_deps) == 0
-            and len(self.unused_implementation_deps) == 0
+            and len(self.unused_impl_deps) == 0
             and len(self.deps_which_should_be_private) == 0
         )
 
@@ -38,9 +38,9 @@ class Result:
         if self.unused_deps:
             msg += "\nUnused dependencies in 'deps' (none of their headers are referenced):\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_deps)
-        if self.unused_implementation_deps:
+        if self.unused_impl_deps:
             msg += "\nUnused dependencies in 'implementation_deps' (none of their headers are referenced):\n"
-            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_implementation_deps)
+            msg += "\n".join(f"  Dependency='{dep}'" for dep in self.unused_impl_deps)
         if self.deps_which_should_be_private:
             msg += "\nPublic dependencies which are used only in private code:\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
@@ -52,9 +52,9 @@ class Result:
             "public_includes_without_dep": self._make_includes_map(self.public_includes_without_dep),
             "private_includes_without_dep": self._make_includes_map(self.private_includes_without_dep),
             "unused_deps": self.unused_deps,
-            "unused_implementation_deps": self.unused_implementation_deps,
+            "unused_implementation_deps": self.unused_impl_deps,
             "deps_which_should_be_private": self.deps_which_should_be_private,
-            "use_implementation_deps": self.use_implementation_deps,
+            "use_implementation_deps": self.use_impl_deps,
         }
         return dumps(content, indent=2) + "\n"
 
@@ -67,6 +67,6 @@ class Result:
 
     @staticmethod
     def _framed_msg(msg: str) -> str:
-        """Put a msg vertically between 2 borders"""
+        """Put a message between 2 horizontal borders"""
         border = 80 * "="
         return border + "\n" + msg + "\n" + border

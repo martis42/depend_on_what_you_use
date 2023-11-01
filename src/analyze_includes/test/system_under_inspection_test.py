@@ -86,7 +86,7 @@ class TestGetSystemUnderInspection(unittest.TestCase):
                 Path("src/analyze_includes/test/data/dep_info_foo.json"),
                 Path("src/analyze_includes/test/data/dep_info_bar.json"),
             ],
-            implementation_deps=[
+            impl_deps=[
                 Path("src/analyze_includes/test/data/implementation_dep_info_foo.json"),
                 Path("src/analyze_includes/test/data/implementation_dep_info_bar.json"),
             ],
@@ -104,13 +104,13 @@ class TestGetSystemUnderInspection(unittest.TestCase):
         self.assertEqual(sui.deps[1].header_files, ["public/dep/bar_1.h", "public/dep/bar_2.h"])
         self.assertEqual(sui.deps[1].usage.usage, UsageStatus.NONE)
 
-        self.assertEqual(len(sui.implementation_deps), 2)
-        self.assertEqual(sui.implementation_deps[0].name, "//private/dep:foo")
-        self.assertEqual(sui.implementation_deps[0].header_files, ["private/dep/foo_1.h", "private/dep/foo_2.h"])
-        self.assertEqual(sui.implementation_deps[0].usage.usage, UsageStatus.NONE)
-        self.assertEqual(sui.implementation_deps[1].name, "//private/dep:bar")
-        self.assertEqual(sui.implementation_deps[1].header_files, ["private/dep/bar_1.h", "private/dep/bar_2.h"])
-        self.assertEqual(sui.implementation_deps[1].usage.usage, UsageStatus.NONE)
+        self.assertEqual(len(sui.impl_deps), 2)
+        self.assertEqual(sui.impl_deps[0].name, "//private/dep:foo")
+        self.assertEqual(sui.impl_deps[0].header_files, ["private/dep/foo_1.h", "private/dep/foo_2.h"])
+        self.assertEqual(sui.impl_deps[0].usage.usage, UsageStatus.NONE)
+        self.assertEqual(sui.impl_deps[1].name, "//private/dep:bar")
+        self.assertEqual(sui.impl_deps[1].header_files, ["private/dep/bar_1.h", "private/dep/bar_2.h"])
+        self.assertEqual(sui.impl_deps[1].usage.usage, UsageStatus.NONE)
 
         self.assertEqual(sui.include_paths, ["", "some/dir", "another/dir"])
         self.assertEqual(sui.defines, ["SOME_DEFINE", "ANOTHER_DEFINE 42"])
@@ -119,14 +119,14 @@ class TestGetSystemUnderInspection(unittest.TestCase):
         sui = get_system_under_inspection(
             target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection_empty.json"),
             deps=[],
-            implementation_deps=[],
+            impl_deps=[],
         )
 
         self.assertEqual(sui.target_under_inspection.name, "//:foo")
         self.assertEqual(sui.target_under_inspection.header_files, [])
         self.assertEqual(sui.target_under_inspection.usage.usage, UsageStatus.NONE)
         self.assertEqual(sui.deps, [])
-        self.assertEqual(sui.implementation_deps, [])
+        self.assertEqual(sui.impl_deps, [])
         self.assertEqual(sui.include_paths, [])
         self.assertEqual(sui.defines, [])
 

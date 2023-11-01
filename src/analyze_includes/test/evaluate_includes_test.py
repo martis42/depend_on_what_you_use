@@ -74,7 +74,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     CcTarget(name="foo_pkg", header_files=["foo.h", "foo/bar.h"]),
                     CcTarget(name="lib_without_hdrs_purely_for_linking", header_files=[]),
                 ],
-                implementation_deps=[CcTarget(name="baz_pkg", header_files=["baz.h"])],
+                impl_deps=[CcTarget(name="baz_pkg", header_files=["baz.h"])],
                 include_paths=[""],
                 defines=[],
             ),
@@ -93,7 +93,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             system_under_inspection=SystemUnderInspection(
                 target_under_inspection=CcTarget(name="foo", header_files=["self/own_header.h"]),
                 deps=[CcTarget(name="foo_pkg", header_files=["foo.h", "some/virtual/dir/bar.h"])],
-                implementation_deps=[CcTarget(name="baz_pkg", header_files=["long/nested/path/baz.h"])],
+                impl_deps=[CcTarget(name="baz_pkg", header_files=["long/nested/path/baz.h"])],
                 include_paths=["", "long/nested", "some/virtual"],
                 defines=[],
             ),
@@ -112,7 +112,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             system_under_inspection=SystemUnderInspection(
                 target_under_inspection=CcTarget(name="self", header_files=["self/own_header.h"]),
                 deps=[CcTarget(name="foo_pkg", header_files=["dir/foo.h"])],
-                implementation_deps=[CcTarget(name="bar_pkg", header_files=["some/virtual/dir/bar.h"])],
+                impl_deps=[CcTarget(name="bar_pkg", header_files=["some/virtual/dir/bar.h"])],
                 include_paths=["", "some/virtual", "other/virtual"],
                 defines=[],
             ),
@@ -128,7 +128,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             system_under_inspection=SystemUnderInspection(
                 target_under_inspection=CcTarget(name="foo", header_files=["foo.h", "bar.h"]),
                 deps=[],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),
@@ -157,7 +157,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     ],
                 ),
                 deps=[],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),
@@ -182,7 +182,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                         header_files=["bar/dir/bar.h", "bar/dir/sub/tick.h", "bar/dir/sub/tock.h"],
                     )
                 ],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),
@@ -202,7 +202,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     header_files=["some/dir/foo.h", "some/dir/bar.h", "unrelated/dir/tick.h", "unrelated/dir/tock.h"],
                 ),
                 deps=[],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),
@@ -211,7 +211,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.unused_deps, [])
-        self.assertEqual(result.unused_implementation_deps, [])
+        self.assertEqual(result.unused_impl_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(result.public_includes_without_dep, [Include(file=Path("some/dir/foo.h"), include="tick.h")])
         self.assertEqual(result.private_includes_without_dep, [Include(file=Path("some/dir/bar.h"), include="tock.h")])
@@ -231,7 +231,7 @@ class TestEvaluateIncludes(unittest.TestCase):
             system_under_inspection=SystemUnderInspection(
                 target_under_inspection=CcTarget(name="foo", header_files=[]),
                 deps=[CcTarget(name="foo", header_files=["foo.h"])],
-                implementation_deps=[CcTarget(name="bar", header_files=["bar.h"])],
+                impl_deps=[CcTarget(name="bar", header_files=["bar.h"])],
                 include_paths=[""],
                 defines=[],
             ),
@@ -240,7 +240,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertFalse(result.is_ok())
         self.assertEqual(result.unused_deps, [])
-        self.assertEqual(result.unused_implementation_deps, [])
+        self.assertEqual(result.unused_impl_deps, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(len(result.public_includes_without_dep), 2)
         self.assertTrue(Include(file=Path("public_file"), include="foo/foo.h") in result.public_includes_without_dep)
@@ -260,7 +260,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     CcTarget(name="foo", header_files=["foo.h"]),
                     CcTarget(name="bar", header_files=["bar.h"]),
                 ],
-                implementation_deps=[
+                impl_deps=[
                     CcTarget(name="impl_dep", header_files=["impl_dep.h"]),
                     CcTarget(name="impl_foo", header_files=["impl_dep_foo.h"]),
                     CcTarget(name="impl_bar", header_files=["impl_dep_bar.h"]),
@@ -276,11 +276,11 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertEqual(result.private_includes_without_dep, [])
         self.assertEqual(result.deps_which_should_be_private, [])
         self.assertEqual(len(result.unused_deps), 2)
-        self.assertEqual(len(result.unused_implementation_deps), 2)
+        self.assertEqual(len(result.unused_impl_deps), 2)
         self.assertTrue("foo" in result.unused_deps)
         self.assertTrue("bar" in result.unused_deps)
-        self.assertTrue("impl_foo" in result.unused_implementation_deps)
-        self.assertTrue("impl_bar" in result.unused_implementation_deps)
+        self.assertTrue("impl_foo" in result.unused_impl_deps)
+        self.assertTrue("impl_bar" in result.unused_impl_deps)
 
     def test_public_dependencies_which_should_be_private(self):
         result = evaluate_includes(
@@ -296,7 +296,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     CcTarget(name="foo", header_files=["impl_dep_foo.h"]),
                     CcTarget(name="bar", header_files=["impl_dep_bar.h"]),
                 ],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),
@@ -307,7 +307,7 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertEqual(result.public_includes_without_dep, [])
         self.assertEqual(result.private_includes_without_dep, [])
         self.assertEqual(result.unused_deps, [])
-        self.assertEqual(result.unused_implementation_deps, [])
+        self.assertEqual(result.unused_impl_deps, [])
         self.assertEqual(len(result.deps_which_should_be_private), 2)
         self.assertTrue("foo" in result.deps_which_should_be_private)
         self.assertTrue("bar" in result.deps_which_should_be_private)
@@ -326,7 +326,7 @@ class TestEvaluateIncludes(unittest.TestCase):
                     CcTarget(name="foo", header_files=["impl_dep_foo.h"]),
                     CcTarget(name="bar", header_files=["impl_dep_bar.h"]),
                 ],
-                implementation_deps=[],
+                impl_deps=[],
                 include_paths=[""],
                 defines=[],
             ),

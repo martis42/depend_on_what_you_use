@@ -21,7 +21,7 @@ WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 class RequestedFixes:
     def __init__(self, main_args: Namespace) -> None:
         self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
-        self.move_private_deps_to_implementation_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
+        self.move_private_deps_to_impl_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
@@ -147,23 +147,21 @@ def add_discovered_deps(
     discovered_private_deps: List[str],
     target: str,
     buildozer: BuildozerExecutor,
-    use_implementation_deps: bool,
+    use_impl_deps: bool,
 ) -> None:
     add_to_deps = discovered_public_deps
-    add_to_implementation_deps = []
-    if use_implementation_deps:
+    add_to_impl_deps = []
+    if use_impl_deps:
         for dep in discovered_private_deps:
             if dep not in add_to_deps:
-                add_to_implementation_deps.append(dep)
+                add_to_impl_deps.append(dep)
     else:
         add_to_deps.extend(discovered_private_deps)
 
     if add_to_deps:
         buildozer.execute(task=f"add deps {' '.join(list(set(add_to_deps)))}", target=target)
-    if add_to_implementation_deps:
-        buildozer.execute(
-            task=f"add implementation_deps {' '.join(list(set(add_to_implementation_deps)))}", target=target
-        )
+    if add_to_impl_deps:
+        buildozer.execute(task=f"add implementation_deps {' '.join(list(set(add_to_impl_deps)))}", target=target)
 
 
 def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, requested_fixes: RequestedFixes) -> None:
@@ -177,7 +175,7 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
             if unused_deps := content["unused_implementation_deps"]:
                 buildozer.execute(task=f"remove implementation_deps {' '.join(unused_deps)}", target=target)
 
-        if requested_fixes.move_private_deps_to_implementation_deps:
+        if requested_fixes.move_private_deps_to_impl_deps:
             deps_which_should_be_private = content["deps_which_should_be_private"]
             if deps_which_should_be_private:
                 buildozer.execute(
@@ -196,7 +194,7 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
                 discovered_private_deps=discovered_private_deps,
                 target=target,
                 buildozer=buildozer,
-                use_implementation_deps=content["use_implementation_deps"],
+                use_impl_deps=content["use_implementation_deps"],
             )
 
 
