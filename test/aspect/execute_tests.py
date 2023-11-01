@@ -221,6 +221,23 @@ TESTS = [
         expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/recursion:e"]),
     ),
     TestCase(
+        name="recursive_fail_transitively_using_implementation_deps",
+        cmd=TestCmd(
+            target="//test/aspect/recursion:use_impl_deps",
+            aspect="//test/aspect/recursion:aspect.bzl%recursive_impl_deps_aspect",
+            extra_args=["--experimental_cc_implementation_deps"],
+        ),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/recursion:e"]),
+    ),
+    TestCase(
+        name="rule_recursive_failure_using_implementation_deps",
+        cmd=TestCmd(
+            target="//test/aspect/recursion:dwyu_recursive_use_impl_deps",
+            extra_args=["--experimental_cc_implementation_deps"],
+        ),
+        expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/recursion:e"]),
+    ),
+    TestCase(
         name="complex_includes",
         cmd=TestCmd(target="//test/aspect/complex_includes:all", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
