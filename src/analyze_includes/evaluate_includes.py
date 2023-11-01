@@ -102,7 +102,7 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
     return SystemUnderInspection(
         target_under_inspection=system_under_inspection.target_under_inspection,
         deps=[dep for dep in system_under_inspection.deps if dep.header_files],
-        implementation_deps=[dep for dep in system_under_inspection.implementation_deps if dep.header_files],
+        impl_deps=[dep for dep in system_under_inspection.impl_deps if dep.header_files],
         include_paths=system_under_inspection.include_paths,
         defines=system_under_inspection.defines,
     )
@@ -126,17 +126,17 @@ def evaluate_includes(
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
-        dependencies=system_under_inspection.deps + system_under_inspection.implementation_deps,
+        dependencies=system_under_inspection.deps + system_under_inspection.impl_deps,
         usage=UsageStatus.PRIVATE,
         target_under_inspection=system_under_inspection.target_under_inspection,
         include_paths=system_under_inspection.include_paths,
     )
 
     result.unused_deps = _check_for_unused_dependencies(system_under_inspection.deps)
-    result.unused_implementation_deps = _check_for_unused_dependencies(system_under_inspection.implementation_deps)
+    result.unused_impl_deps = _check_for_unused_dependencies(system_under_inspection.impl_deps)
 
     if ensure_private_deps:
         result.deps_which_should_be_private = _check_for_public_deps_which_should_be_private(system_under_inspection)
-        result.use_implementation_deps = True
+        result.use_impl_deps = True
 
     return result

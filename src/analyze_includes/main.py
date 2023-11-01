@@ -73,7 +73,7 @@ def main(args: Namespace) -> int:
     system_under_inspection = get_system_under_inspection(
         target_under_inspection=args.target_under_inspection,
         deps=args.deps,
-        implementation_deps=args.implementation_deps,
+        impl_deps=args.implementation_deps,
     )
     all_includes_from_public = get_relevant_includes_from_files(
         files=args.public_files,

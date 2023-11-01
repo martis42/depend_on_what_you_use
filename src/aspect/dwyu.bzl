@@ -194,7 +194,6 @@ def dwyu_aspect_impl(target, ctx):
         verbose = False,
     )
 
-    # TODO consistently use impl_deps as variable name and only use long name in docs and APIs
     target_deps, target_impl_deps = _preprocess_deps(ctx)
 
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple

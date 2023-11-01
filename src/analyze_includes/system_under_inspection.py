@@ -70,7 +70,7 @@ class SystemUnderInspection:
     deps: List[CcTarget]
     # Dependencies which are NOT available to downstream dependencies of the target under inspection. Exists only for
     # cc_library targets
-    implementation_deps: List[CcTarget]
+    impl_deps: List[CcTarget]
     # All include paths available to the target under inspection. Combines all kinds of includes.
     include_paths: List[str]
     # Defines influencing the preprocessor
@@ -116,14 +116,14 @@ def _get_defines(target_info: Dict[str, Any]) -> List[str]:
 
 
 def get_system_under_inspection(
-    target_under_inspection: Path, deps: List[Path], implementation_deps: List[Path]
+    target_under_inspection: Path, deps: List[Path], impl_deps: List[Path]
 ) -> SystemUnderInspection:
     with open(target_under_inspection, encoding="utf-8") as target:
         target_info = json.load(target)
         return SystemUnderInspection(
             target_under_inspection=_make_cc_target(target_under_inspection),
             deps=_cc_targets_from_deps(deps),
-            implementation_deps=_cc_targets_from_deps(implementation_deps),
+            impl_deps=_cc_targets_from_deps(impl_deps),
             include_paths=_get_include_paths(target_info),
             defines=_get_defines(target_info),
         )
