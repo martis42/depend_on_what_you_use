@@ -254,17 +254,12 @@ Even if analysing the code works initially, it might break at any time if the or
 ## Layering check
 
 To make sure no headers from transitive dependencies or private headers from dependencies are used you can use [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
-This approach has some benefits over DWYU:
-
-- Directly integrated into Bazel without need for further tooling.
-- Is able to overcome [the known DWYU limitations](#known-limitations).
+The main benefit of this approach is it being directly integrated into Bazel without need of further tooling like DWYU.
 
 Still, there are reasons to use DWYU instead of or in addition to layering_check:
 
 - DWYU does not require a compiler, it works purely by text parsing.
-  This is the reason for some of it's [known DWYU limitations](#known-limitations).
-  However, this also makes the tool more flexible and independent of your platform.
-  For example when using a recent clang version is not possible for you.
+  The only requirement towards your platform is the availability of a Python interpreter.
 - DWYU is able to analyze header only libraries.
 - DWYU detects unused dependencies.
 - DWYU allows optimizing [implementation_deps](#implementation_deps).
