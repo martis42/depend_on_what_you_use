@@ -175,9 +175,8 @@ def dwyu_aspect_impl(target, ctx):
         OutputGroup containing the generated report file
     """
 
+    # Remove when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
     # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
-    # We can't use 'required_providers = [CcInfo],' in the aspect definition due to bug:
-    # https://github.com/bazelbuild/bazel/issues/19609
     if not CcInfo in target:
         return []
 
