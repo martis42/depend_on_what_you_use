@@ -2,11 +2,11 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def dependencies():
-    rules_python_version = "0.18.1"
+    rules_python_version = "0.25.0"
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "29a801171f7ca190c543406f9894abf2d483c206e14d6acbd695623662320097",
+        sha256 = "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
         strip_prefix = "rules_python-{}".format(rules_python_version),
         urls = ["https://github.com/bazelbuild/rules_python/archive/{}.tar.gz".format(rules_python_version)],
     )

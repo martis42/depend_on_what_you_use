@@ -14,10 +14,9 @@ from execute_tests_impl import (
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
 TESTED_VERSIONS = [
-    TestedVersions(bazel="5.0.0", python="3.8.15"),
-    TestedVersions(bazel="5.4.1", python="3.9.16"),
-    TestedVersions(bazel="6.0.0", python="3.10.9"),
-    TestedVersions(bazel="6.4.0", python="3.11.1"),
+    TestedVersions(bazel="5.4.1", python="3.8.15"),
+    TestedVersions(bazel="6.0.0", python="3.9.16"),
+    TestedVersions(bazel="6.4.0", python="3.10.9"),
     TestedVersions(bazel="7.0.0rc5", python="3.11.1"),
     TestedVersions(bazel="8.0.0-pre.20231030.2", python="3.11.1"),
 ]
