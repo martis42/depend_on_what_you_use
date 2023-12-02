@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       # Repository hygiene
       - id: check-added-large-files
@@ -21,7 +21,7 @@ repos:
         additional_dependencies:
           - mdformat-gfm
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 6.3.3
+    rev: 6.3.3.1
     hooks:
       - id: buildifier
         args: [ "--warnings=+out-of-order-load,+unsorted-dict-items,+native-py" ]
