@@ -17,8 +17,9 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="5.0.0", python="3.8.15"),
     TestedVersions(bazel="5.4.1", python="3.9.16"),
     TestedVersions(bazel="6.0.0", python="3.10.9"),
-    TestedVersions(bazel="6.3.0", python="3.11.1"),
-    TestedVersions(bazel="7.0.0-pre.20230710.5", python="3.11.1"),
+    TestedVersions(bazel="6.4.0", python="3.11.1"),
+    TestedVersions(bazel="7.0.0rc5", python="3.11.1"),
+    TestedVersions(bazel="8.0.0-pre.20231030.2", python="3.11.1"),
 ]
 
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
@@ -28,7 +29,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(min="5.0.0"),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(min="5.0.0"),
     "--incompatible_struct_has_no_methods": CompatibleVersions(min="5.0.0"),
-    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(min="5.0.0"),
+    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(min="5.0.0", max="6.99.99"),
     "--incompatible_disallow_empty_glob": CompatibleVersions(min="5.0.0"),
     "--incompatible_existing_rules_immutable_view": CompatibleVersions(min="5.0.0"),
     "--incompatible_no_implicit_file_export": CompatibleVersions(min="5.0.0"),
