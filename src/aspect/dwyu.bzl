@@ -185,9 +185,8 @@ def dwyu_aspect_impl(target, ctx):
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
 
-    # TODO rename to 'no_dwyu' before version 0.1.0
     # Skip targets which explicitly opt-out
-    if "no-dwyu" in ctx.rule.attr.tags:
+    if any([tag in ctx.attr._skipped_tags for tag in ctx.rule.attr.tags]):
         return []
 
     public_files, private_files = _get_target_sources(ctx.rule)

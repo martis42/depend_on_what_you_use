@@ -4,6 +4,7 @@ load(":dwyu.bzl", "dwyu_aspect_impl")
 def dwyu_aspect_factory(
         config = None,
         recursive = False,
+        skipped_tags = None,
         target_mapping = None,
         use_implementation_deps = False):
     """
@@ -16,6 +17,8 @@ def dwyu_aspect_factory(
         config: Configuration file for the tool comparing the include statements to the dependencies.
         recursive: If true, execute the aspect on all transitive dependencies.
                    If false, analyze only the target the aspect is being executed on.
+        skipped_tags: Do not execute the aspect on targets with at least one of those tags. By default skips the
+                      analysis for targets tagged with 'no-dwyu'.
         target_mapping: A target providing a map of target labels to alternative CcInfo provider objects for those
                         targets. Typically created with the dwyu_make_cc_info_mapping rule.
         use_implementation_deps: If true, ensure cc_library dependencies which are used only in private files are
@@ -31,6 +34,7 @@ def dwyu_aspect_factory(
         else:
             attr_aspects = ["deps"]
     aspect_config = [config] if config else []
+    aspect_skipped_tags = skipped_tags if skipped_tags else ["no-dwyu"]
     aspect_target_mapping = [target_mapping] if target_mapping else []
     return aspect(
         implementation = dwyu_aspect_impl,
@@ -65,6 +69,9 @@ def dwyu_aspect_factory(
             ),
             "_recursive": attr.bool(
                 default = recursive,
+            ),
+            "_skipped_tags": attr.string_list(
+                default = aspect_skipped_tags,
             ),
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoRemappingsInfo],
