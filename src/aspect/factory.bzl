@@ -36,6 +36,9 @@ def dwyu_aspect_factory(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
         fragments = ["cpp"],
+        # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
+        # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
+        # required_providers = [CcInfo],
         toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
         attrs = {
             "_cc_toolchain": attr.label(
