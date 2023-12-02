@@ -135,6 +135,11 @@ Examples and the correct format can be seen at the [custom config test cases](te
 ## Skipping targets
 
 If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by setting the `no-dwyu` tag on those.
+You can also configure the aspect to skip targets based on a custom list of tags:
+
+```starlark
+your_aspect = dwyu_aspect_factory(skipped_tags = ["tag1_marking_skipping", "tag2_marking_skipping"])
+```
 
 ## Recursion
 

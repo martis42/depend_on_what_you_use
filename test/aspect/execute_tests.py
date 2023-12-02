@@ -91,11 +91,6 @@ TESTS = [
         expected=ExpectedResult(success=False, unused_public_deps=["//test/aspect/unused_dep:foo"]),
     ),
     TestCase(
-        name="unused_dep_skipped",
-        cmd=TestCmd(target="//test/aspect/unused_dep:main_skipped", aspect=DEFAULT_ASPECT),
-        expected=ExpectedResult(success=True),
-    ),
-    TestCase(
         name="unused_private_dep",
         cmd=TestCmd(
             target="//test/aspect/unused_dep/implementation_deps:implementation_deps_lib",
@@ -396,6 +391,19 @@ TESTS = [
         cmd=TestCmd(
             target="//test/aspect/target_mapping:use_lib_c",
             aspect="//test/aspect/target_mapping:aspect.bzl%map_transitive_deps",
+        ),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="skip_no_dwyu_tag",
+        cmd=TestCmd(target="//test/aspect/skip_tags:ignored_by_default_behavior", aspect=DEFAULT_ASPECT),
+        expected=ExpectedResult(success=True),
+    ),
+    TestCase(
+        name="skip_custom_tag",
+        cmd=TestCmd(
+            target="//test/aspect/skip_tags:ignored_by_custom_tag",
+            aspect="//test/aspect/skip_tags:aspect.bzl%test_aspect",
         ),
         expected=ExpectedResult(success=True),
     ),
