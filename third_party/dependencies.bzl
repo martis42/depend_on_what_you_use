@@ -11,9 +11,9 @@ def dependencies():
         urls = ["https://github.com/bazelbuild/rules_python/archive/{}.tar.gz".format(rules_python_version)],
     )
 
-    skylib_version = "1.4.1"
+    skylib_version = "1.5.0"
     http_archive(
         name = "bazel_skylib",
-        sha256 = "b8a1527901774180afc798aeb28c4634bdccf19c4d98e7bdd1ce79d1fe9aaad7",
+        sha256 = "cd55a062e763b9349921f0f5db8c3933288dc8ba4f76dd9416aac68acee3cb94",
         urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/{v}/bazel-skylib-{v}.tar.gz".format(v = skylib_version)],
     )
