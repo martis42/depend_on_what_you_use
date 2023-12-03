@@ -2,13 +2,13 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def dependencies():
-    rules_python_version = "0.25.0"
+    rules_python_version = "0.27.0"
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
+        sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
         strip_prefix = "rules_python-{}".format(rules_python_version),
-        urls = ["https://github.com/bazelbuild/rules_python/archive/{}.tar.gz".format(rules_python_version)],
+        urls = ["https://github.com/bazelbuild/rules_python/releases/download/{v}/rules_python-{v}.tar.gz".format(v = rules_python_version)],
     )
 
     skylib_version = "1.5.0"
