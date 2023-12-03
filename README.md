@@ -64,6 +64,9 @@ dwyu_setup_step_2()
 
 load("@depend_on_what_you_use//:setup_step_3.bzl", dwyu_setup_step_3 = "setup_step_3")
 dwyu_setup_step_3()
+
+load("@depend_on_what_you_use//:setup_step_4.bzl", dwyu_setup_step_4 = "setup_step_4")
+dwyu_setup_step_4()
 ```
 
 ## Use DWYU
