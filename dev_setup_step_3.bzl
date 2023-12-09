@@ -1,4 +1,4 @@
-load("@mypy_integration_pip_deps//:requirements.bzl", install_mypy_deps = "install_deps")
+load("@dwyu_mypy_deps//:requirements.bzl", install_mypy_deps = "install_deps")
 
 def dev_setup_step_3():
     """
