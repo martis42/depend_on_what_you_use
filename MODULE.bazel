@@ -1,0 +1,114 @@
+module(
+    name = "depend_on_what_you_use",
+    bazel_compatibility = [">=5.4.0"],
+    compatibility_level = 0,
+)
+
+bazel_dep(
+    name = "bazel_skylib",
+    # Keep in sync with //third_party/dependencies.bzl
+    version = "1.5.0",
+)
+bazel_dep(
+    name = "rules_python",
+    # Keep in sync with //third_party/dependencies.bzl
+    version = "0.27.0",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "dwyu_py_deps",
+    python_version = "3.10",
+    requirements_lock = "//third_party:requirements.txt",
+)
+use_repo(pip, "dwyu_py_deps")
+
+###
+### Development Dependencies
+###
+
+# Update with each rules_python update for easy lookup until specifying the patch version for toolchain is possible again
+# Keep in syc with test/aspect/execute_tests.py
+# PATCH_MAPPING:
+#  "3.10": "3.10.13"
+#  "3.11": "3.11.6"
+#  "3.12": "3.12.0"
+#  "3.8": "3.8.18"
+#  "3.9": "3.9.18"
+# Choose different version via: --@rules_python//python/config_settings:python_version=Major.Minor.Patch mathing one of
+# the registered toolchains below.
+python = use_extension(
+    "@rules_python//python/extensions:python.bzl",
+    "python",
+    dev_dependency = True,
+)
+python.toolchain(
+    python_version = "3.8",
+)
+python.toolchain(
+    python_version = "3.9",
+)
+python.toolchain(
+    is_default = True,
+    python_version = "3.10",
+)
+python.toolchain(
+    python_version = "3.11",
+)
+
+pip_dev = use_extension(
+    "@rules_python//python/extensions:pip.bzl",
+    "pip",
+    dev_dependency = True,
+)
+pip_dev.parse(
+    hub_name = "dwyu_mypy_deps",
+    python_version = "3.10",
+    requirements_lock = "//third_party:mypy_requirements.txt",
+)
+use_repo(pip_dev, "dwyu_mypy_deps")
+
+non_module_dependencies = use_extension(
+    "//third_party:extensions.bzl",
+    "non_module_dependencies",
+    dev_dependency = True,
+)
+use_repo(non_module_dependencies, "mypy_integration")
+
+bazel_dep(
+    name = "ext_repo",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "ext_repo",
+    path = "test/aspect/external_repo/repo",
+)
+
+bazel_dep(
+    name = "complex_includes_repo",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "complex_includes_repo",
+    path = "test/aspect/complex_includes/ext_repo",
+)
+
+###
+### The Migration phase using WORKSPACE.bzlmod and MODULE.bazel together does not support properly loading the implicit
+### Bazel dependencies. Thus, we need to load some basic things directly. This should become superfluous when we are
+### only using bzlmod eventually
+### Reference https://github.com/bazelbuild/bazel/blob/master/src/MODULE.tools
+###
+
+bazel_dep(
+    name = "platforms",
+    version = "0.0.7",
+    dev_dependency = True,
+)
+bazel_dep(
+    name = "rules_cc",
+    version = "0.0.1",
+    dev_dependency = True,
+)

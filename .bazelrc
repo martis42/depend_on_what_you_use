@@ -1,6 +1,11 @@
 # Always tell why tests fail
 test --test_output=errors
 
+# We use Bazel's modern dependency management system. This works for us only with Bazel >= 6.2.0
+# This is the deprecated version. "--enable_bzlmod" is the forward path. However, as Bazel < 6.0.0 does not support the
+# new flag. We keep using the deprecated one until we no longer support Bazel 5.
+build --experimental_enable_bzlmod=true
+
 # Mypy integration
 build:mypy --aspects=@mypy_integration//:mypy.bzl%mypy_aspect
 build:mypy --output_groups=mypy

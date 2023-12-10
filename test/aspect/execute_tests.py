@@ -13,16 +13,25 @@ from execute_tests_impl import (
 
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
+# Keep in sync with MODULE.bazel
 TESTED_VERSIONS = [
-    TestedVersions(bazel="5.4.1", python="3.8.15"),
-    TestedVersions(bazel="6.0.0", python="3.9.16"),
-    TestedVersions(bazel="6.4.0", python="3.10.9"),
-    TestedVersions(bazel="7.0.0rc5", python="3.11.1"),
-    TestedVersions(bazel="8.0.0-pre.20231030.2", python="3.11.1"),
+    TestedVersions(bazel="5.4.1", python="3.8.18"),
+    TestedVersions(bazel="6.0.0", python="3.9.18"),
+    TestedVersions(bazel="6.4.0", python="3.10.13"),
+    TestedVersions(bazel="7.0.0rc5", python="3.11.6"),
+    TestedVersions(bazel="8.0.0-pre.20231030.2", python="3.11.6"),
 ]
 
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
 VERSION_SPECIFIC_ARGS = {
+    # We support Bazel's modern dependency management system, but it works only as desired with a recent Bazel version
+    "--experimental_enable_bzlmod=false": CompatibleVersions(max="6.1.99"),
+    # We are not yet sure if we really want to lock the bzlmod resolution down given we test with various Bazel versions
+    # and configurations. It seems the main benefits of the lock file are not having to reanalyze the central registry
+    # when working without a cached workspace and being safeguarded against changed or yanked modules in the central
+    # registry. Both don't matter much to us right now.
+    "--lockfile_mode=off": CompatibleVersions(min="6.2.0"),
+    # Incompatible changes
     "--incompatible_legacy_local_fallback=false": CompatibleVersions(min="5.0.0"),  # false is the forward path behavior
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(min="5.0.0"),
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(min="5.0.0"),
