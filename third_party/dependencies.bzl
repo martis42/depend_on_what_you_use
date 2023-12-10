@@ -2,6 +2,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def dependencies():
+    # Keep in sync with MODULE.bazel
     rules_python_version = "0.27.0"
     maybe(
         http_archive,
@@ -11,6 +12,7 @@ def dependencies():
         urls = ["https://github.com/bazelbuild/rules_python/releases/download/{v}/rules_python-{v}.tar.gz".format(v = rules_python_version)],
     )
 
+    # Keep in sync with MODULE.bazel
     skylib_version = "1.5.0"
     http_archive(
         name = "bazel_skylib",

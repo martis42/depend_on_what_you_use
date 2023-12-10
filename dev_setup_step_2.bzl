@@ -19,10 +19,10 @@ def dev_setup_step_2():
     # Choose different version via: --@rules_python//python/config_settings:python_version=X
     python_register_multi_toolchains(
         name = "python",
-        default_version = "3.10.9",
+        default_version = "3.10",
         python_versions = [
-            "3.8.15",
-            "3.9.16",
-            "3.11.1",
+            "3.8",
+            "3.9",
+            "3.11",
         ],
     )
