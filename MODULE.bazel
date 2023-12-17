@@ -55,6 +55,9 @@ python.toolchain(
 python.toolchain(
     python_version = "3.11",
 )
+python.toolchain(
+    python_version = "3.12",
+)
 
 pip_dev = use_extension(
     "@rules_python//python/extensions:pip.bzl",
