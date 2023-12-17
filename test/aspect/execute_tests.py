@@ -39,7 +39,6 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_struct_has_no_methods": CompatibleVersions(min="5.0.0"),
     "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(min="5.0.0", max="6.99.99"),
     "--incompatible_disallow_empty_glob": CompatibleVersions(min="5.0.0"),
-    "--incompatible_existing_rules_immutable_view": CompatibleVersions(min="5.0.0"),
     "--incompatible_no_implicit_file_export": CompatibleVersions(min="5.0.0"),
     "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(min="5.0.0"),
     "--incompatible_default_to_explicit_init_py": CompatibleVersions(min="5.0.0"),
@@ -49,8 +48,13 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(min="6.0.0"),
     "--incompatible_check_testonly_for_output_files": CompatibleVersions(min="6.0.0"),
     "--incompatible_check_visibility_for_toolchains": CompatibleVersions(min="7.0.0"),
+    "--incompatible_auto_exec_groups": CompatibleVersions(min="7.0.0"),
+    "--incompatible_disable_non_executable_java_binary": CompatibleVersions(min="7.0.0"),
+    # TODO for us to work on those:
+    # "--incompatible_stop_exporting_language_modules": CompatibleVersions(min="5.0.0"),
     # Theoretically interesting for our project, but Bazel itself does not adhere to it
     # "--incompatible_python_disallow_native_rules": CompatibleVersions(min="7.0.0"),
+    # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(min="7.0.0"),
 }
 
