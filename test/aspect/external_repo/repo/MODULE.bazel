@@ -1,1 +1,1 @@
-module(name = "ext_repo")
+module(name = "external_test_repo")
