@@ -1,6 +1,6 @@
 # buildifier: disable=unnamed-macro
 def load_external_repo():
     native.local_repository(
-        name = "ext_repo",
+        name = "external_test_repo",
         path = "test/aspect/external_repo/repo",
     )

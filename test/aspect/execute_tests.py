@@ -248,7 +248,7 @@ TESTS = [
     ),
     TestCase(
         name="complex_includes_in_ext_repo",
-        cmd=TestCmd(target="@complex_includes_repo//...", aspect=DEFAULT_ASPECT),
+        cmd=TestCmd(target="@complex_includes_test_repo//...", aspect=DEFAULT_ASPECT),
         expected=ExpectedResult(success=True),
     ),
     TestCase(
