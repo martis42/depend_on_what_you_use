@@ -1,3 +1,4 @@
+load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 load(":providers.bzl", "DwyuCcInfoRemapInfo")
 
 def _aggregate_transitive_deps_aspect_impl(target, ctx):
