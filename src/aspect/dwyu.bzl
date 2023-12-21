@@ -1,6 +1,7 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "DwyuCcInfoRemappingsInfo")
+load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 
 def _get_target_sources(rule):
     public_files = []

@@ -13,6 +13,16 @@ def dependencies():
     )
 
     # Keep in sync with MODULE.bazel
+    rules_cc_version = "0.0.9"
+    maybe(
+        http_archive,
+        name = "rules_cc",
+        sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
+        strip_prefix = "rules_cc-{}".format(rules_cc_version),
+        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/{v}/rules_cc-{v}.tar.gz".format(v = rules_cc_version)],
+    )
+
+    # Keep in sync with MODULE.bazel
     skylib_version = "1.5.0"
     http_archive(
         name = "bazel_skylib",
