@@ -1,4 +1,3 @@
-load("@dwyu_py_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
 py_library(
@@ -12,7 +11,7 @@ py_library(
         "system_under_inspection.py",
     ],
     visibility = [":__subpackages__"],
-    deps = [requirement("pcpp")],
+    deps = ["@dwyu_pcpp//:pcpp"],
 )
 
 py_binary(

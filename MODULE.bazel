@@ -20,13 +20,11 @@ bazel_dep(
     version = "0.27.0",
 )
 
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    hub_name = "dwyu_py_deps",
-    python_version = "3.10",
-    requirements_lock = "//third_party:requirements.txt",
+non_module_dependencies = use_extension(
+    "//third_party:extensions.bzl",
+    "non_module_dependencies",
 )
-use_repo(pip, "dwyu_py_deps")
+use_repo(non_module_dependencies, "dwyu_pcpp")
 
 ###
 ### Development Dependencies
@@ -76,12 +74,12 @@ pip_dev.parse(
 )
 use_repo(pip_dev, "dwyu_mypy_deps")
 
-non_module_dependencies = use_extension(
+non_module_dev_dependencies = use_extension(
     "//third_party:extensions.bzl",
-    "non_module_dependencies",
+    "non_module_dev_dependencies",
     dev_dependency = True,
 )
-use_repo(non_module_dependencies, "mypy_integration")
+use_repo(non_module_dev_dependencies, "mypy_integration")
 
 bazel_dep(
     name = "external_test_repo",
