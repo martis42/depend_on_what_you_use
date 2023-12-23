@@ -35,15 +35,12 @@ repos:
     rev: v0.1.9
     hooks:
       - id: ruff-format
+      # Linting
+      - id: ruff
+        args: [ --fix ]
 
   - repo: local
     hooks:
-      - id: isort
-        name: isort
-        entry: poetry run isort
-        language: system
-        types: [ python ]
-
       - id: pyupgrade
         name: pyupgrade
         entry: poetry run pyupgrade
