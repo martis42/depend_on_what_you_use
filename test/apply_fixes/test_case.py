@@ -67,7 +67,7 @@ class TestCaseBase(ABC):
         cmd = ["bazel"]
         if startup_args:
             cmd.extend(startup_args)
-        cmd.extend(["build", f"--aspects=//:aspect.bzl%{aspect}", "--output_groups=cc_dwyu_output"])
+        cmd.extend(["build", f"--aspects=//:aspect.bzl%{aspect}", "--output_groups=dwyu"])
         if extra_args:
             cmd.extend(extra_args)
         cmd.append(self.test_target)

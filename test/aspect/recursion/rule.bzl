@@ -3,7 +3,7 @@ load("//test/aspect/recursion:aspect.bzl", "recursive_aspect", "recursive_impl_d
 
 def _dwyu_rule_impl(ctx):
     # gather artifacts to make sure the aspect is executed
-    aspect_artifacts = depset(transitive = [dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.attr.deps])
+    aspect_artifacts = depset(transitive = [dep[OutputGroupInfo].dwyu for dep in ctx.attr.deps])
     return [DefaultInfo(files = aspect_artifacts)]
 
 dwyu_rule_direct = rule(

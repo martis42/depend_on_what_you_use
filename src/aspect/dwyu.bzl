@@ -159,9 +159,9 @@ def _gather_transitive_reports(ctx):
     """
     reports = []
     if ctx.attr._recursive:
-        reports.extend([dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.deps])
+        reports.extend([dep[OutputGroupInfo].dwyu for dep in ctx.rule.attr.deps])
         if hasattr(ctx.rule.attr, "implementation_deps"):
-            reports.extend([dep[OutputGroupInfo].cc_dwyu_output for dep in ctx.rule.attr.implementation_deps])
+            reports.extend([dep[OutputGroupInfo].dwyu for dep in ctx.rule.attr.implementation_deps])
     return reports
 
 def dwyu_aspect_impl(target, ctx):
@@ -238,4 +238,4 @@ def dwyu_aspect_impl(target, ctx):
     )
 
     accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
-    return [OutputGroupInfo(cc_dwyu_output = accumulated_reports)]
+    return [OutputGroupInfo(dwyu = accumulated_reports)]
