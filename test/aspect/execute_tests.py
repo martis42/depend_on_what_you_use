@@ -25,37 +25,38 @@ TESTED_VERSIONS = [
 # When Bazel 7.0.0 releases we have to look again at the flags and check if more flags are available
 VERSION_SPECIFIC_ARGS = {
     # We support Bazel's modern dependency management system, but it works only as desired with a recent Bazel version
-    "--experimental_enable_bzlmod=false": CompatibleVersions(max="6.1.99"),
+    "--experimental_enable_bzlmod=false": CompatibleVersions(maximum="6.1.99"),
     # We are not yet sure if we really want to lock the bzlmod resolution down given we test with various Bazel versions
     # and configurations. It seems the main benefits of the lock file are not having to reanalyze the central registry
     # when working without a cached workspace and being safeguarded against changed or yanked modules in the central
     # registry. Both don't matter much to us right now.
-    "--lockfile_mode=off": CompatibleVersions(min="6.2.0"),
+    "--lockfile_mode=off": CompatibleVersions(minimum="6.2.0"),
     # Incompatible changes
-    "--incompatible_legacy_local_fallback=false": CompatibleVersions(min="5.0.0"),  # false is the forward path behavior
-    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(min="5.0.0"),
-    "--incompatible_config_setting_private_default_visibility": CompatibleVersions(min="5.0.0"),
-    "--incompatible_disable_target_provider_fields": CompatibleVersions(min="5.0.0"),
-    "--incompatible_struct_has_no_methods": CompatibleVersions(min="5.0.0"),
-    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(min="5.0.0", max="6.99.99"),
-    "--incompatible_disallow_empty_glob": CompatibleVersions(min="5.0.0"),
-    "--incompatible_no_implicit_file_export": CompatibleVersions(min="5.0.0"),
-    "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(min="5.0.0"),
-    "--incompatible_default_to_explicit_init_py": CompatibleVersions(min="5.0.0"),
-    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(min="5.0.0"),
-    "--incompatible_strict_action_env": CompatibleVersions(min="5.0.0"),
-    "--incompatible_disable_starlark_host_transitions": CompatibleVersions(min="6.0.0"),
-    "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(min="6.0.0"),
-    "--incompatible_check_testonly_for_output_files": CompatibleVersions(min="6.0.0"),
-    "--incompatible_check_visibility_for_toolchains": CompatibleVersions(min="7.0.0"),
-    "--incompatible_auto_exec_groups": CompatibleVersions(min="7.0.0"),
-    "--incompatible_disable_non_executable_java_binary": CompatibleVersions(min="7.0.0"),
+    "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),
+    # false is the forward path behavior
+    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_disable_target_provider_fields": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_struct_has_no_methods": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(minimum="5.0.0", maximum="6.99.99"),
+    "--incompatible_disallow_empty_glob": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_no_implicit_file_export": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_default_to_explicit_init_py": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_strict_action_env": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_disable_starlark_host_transitions": CompatibleVersions(minimum="6.0.0"),
+    "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(minimum="6.0.0"),
+    "--incompatible_check_testonly_for_output_files": CompatibleVersions(minimum="6.0.0"),
+    "--incompatible_check_visibility_for_toolchains": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_auto_exec_groups": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
-    # "--incompatible_stop_exporting_language_modules": CompatibleVersions(min="6.0.0"),
+    # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
     # Theoretically interesting for our project, but Bazel itself does not adhere to it
-    # "--incompatible_python_disallow_native_rules": CompatibleVersions(min="7.0.0"),
+    # "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
-    # "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(min="7.0.0"),
+    # "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
 }
 
 DEFAULT_ASPECT = "//test/aspect:aspect.bzl%dwyu_default_aspect"

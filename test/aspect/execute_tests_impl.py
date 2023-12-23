@@ -122,20 +122,17 @@ class ExpectedResult:
     def _has_errors(error_lines: List[str], expected_errors: List[str]) -> bool:
         if len(error_lines) != len(expected_errors):
             return False
-        for error in expected_errors:
-            if not any(error in line for line in error_lines):
-                return False
-        return True
+        return all(any(error in line for line in error_lines) for error in expected_errors)
 
 
 @dataclass
 class CompatibleVersions:
-    min: str = ""
-    max: str = ""
+    minimum: str = ""
+    maximum: str = ""
 
     def is_compatible_to(self, version: str) -> bool:
-        comply_with_min_version = version >= self.min if self.min else True
-        comply_with_max_version = version <= self.max if self.max else True
+        comply_with_min_version = version >= self.minimum if self.minimum else True
+        comply_with_max_version = version <= self.maximum if self.maximum else True
         return comply_with_min_version and comply_with_max_version
 
 
@@ -267,15 +264,8 @@ def main(
     tested_versions: List[TestedVersions],
     version_specific_args: Dict[str, CompatibleVersions],
 ) -> int:
-    if args.bazel and args.python:
-        versions = [TestedVersions(bazel=args.bazel, python=args.python)]
-    else:
-        versions = tested_versions
-
-    if args.test:
-        active_tests = [tc for tc in test_cases if tc.name in args.test]
-    else:
-        active_tests = test_cases
+    versions = [TestedVersions(bazel=args.bazel, python=args.python)] if args.bazel and args.python else tested_versions
+    active_tests = [tc for tc in test_cases if tc.name in args.test] if args.test else test_cases
 
     failed_tests = execute_tests(
         versions=versions, tests=active_tests, version_specific_args=version_specific_args, verbose=args.verbose

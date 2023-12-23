@@ -15,10 +15,7 @@ def does_include_match_available_files(
 ) -> bool:
     for header in header_files:
         for inc in include_paths:
-            if inc:
-                possible_file = inc + "/" + include_statement
-            else:
-                possible_file = include_statement
+            possible_file = inc + "/" + include_statement if inc else include_statement
             if possible_file == header:
                 return True
     return False
