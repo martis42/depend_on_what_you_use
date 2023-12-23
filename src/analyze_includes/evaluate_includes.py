@@ -54,7 +54,7 @@ def _check_for_invalid_includes(
             )
         if not legal_include:
             # Might be a relative include
-            roots_for_relative_includes = [Path(root) for root in [inc.file.parent] + include_paths]
+            roots_for_relative_includes = [Path(root) for root in [str(inc.file.parent), *include_paths]]
 
             for root in roots_for_relative_includes:
                 path_matching_include_statement = (root / inc.include).resolve()

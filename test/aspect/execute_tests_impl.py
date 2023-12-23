@@ -141,7 +141,7 @@ class TestCase:
     name: str
     cmd: TestCmd
     expected: ExpectedResult
-    compatible_versions: CompatibleVersions = CompatibleVersions()
+    compatible_versions: CompatibleVersions = field(default_factory=CompatibleVersions)
 
 
 @dataclass
@@ -171,7 +171,7 @@ def bazel_binary() -> str:
 
 
 def make_cmd(test_cmd: TestCmd, startup_args: List[str], extra_args: List[str]) -> List[str]:
-    cmd = [bazel_binary()] + startup_args + ["build", "--noshow_progress"]
+    cmd = [bazel_binary(), *startup_args, "build", "--noshow_progress"]
     if test_cmd.aspect:
         cmd.extend([f"--aspects={test_cmd.aspect}", "--output_groups=dwyu"])
     cmd.extend(extra_args)

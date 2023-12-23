@@ -27,7 +27,7 @@ class BuildozerExecutor:
         return self._summary
 
     def execute(self, task: str, target: str) -> None:
-        command = self._base_cmd + [task, target]
+        command = [*self._base_cmd, task, target]
         logging.log(logging.INFO if self._dry else logging.DEBUG, f"Executing buildozer command: {command}")
         process = subprocess.run(command, cwd=self._workspace, check=False, capture_output=True)
         self._summary.add_command(cmd=command, buildozer_result=process.returncode)
