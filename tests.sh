@@ -6,12 +6,12 @@ set -o nounset
 echo ""
 echo "Execute unit tests"
 echo ""
-bazel test //src/... //test/aspect:all
+bazel test -- //src/... //test/aspect:all //third_party/...
 
 echo ""
 echo "Executing mypy"
-echo
-bazel build --config=mypy //src/... //test/aspect:all
+echo ""
+bazel build --config=mypy -- //src/... //test/aspect:all
 
 echo ""
 echo "Execute integration tests - Aspect"

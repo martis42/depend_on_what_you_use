@@ -26,9 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Unit tests
-        run: bazel test //src/... //test/aspect:all
+        run: bazel test -- //src/... //test/aspect:all //third_party/...
       - name: Execute Mypy
-        run: bazel build --config=mypy //src/... //test/aspect:all
+        run: bazel build --config=mypy -- //src/... //test/aspect:all
 
   integration-tests-aspect:
     runs-on: ubuntu-20.04
