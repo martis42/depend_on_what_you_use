@@ -93,14 +93,16 @@ class TestCaseBase(ABC):
 
     def _run_cmd(self, cmd: List[str], **kwargs) -> None:
         logging.debug(f"Executing command: {cmd}")
+        check = kwargs.pop("check", True)
         if logging.getLogger().isEnabledFor(logging.DEBUG):
-            subprocess.run(cmd, cwd=self._workspace, **kwargs)
+            subprocess.run(cmd, cwd=self._workspace, check=check, **kwargs)
         else:
-            subprocess.run(cmd, cwd=self._workspace, capture_output=True, **kwargs)
+            subprocess.run(cmd, cwd=self._workspace, capture_output=True, check=check, **kwargs)
 
     def _run_and_capture_cmd(self, cmd: List[str], **kwargs) -> subprocess.CompletedProcess:
         logging.debug(f"Executing command: {cmd}")
-        process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, **kwargs)
+        check = kwargs.pop("check", True)
+        process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, check=check, **kwargs)
         logging.debug(process.stdout)
         logging.debug(process.stderr)
         return process
