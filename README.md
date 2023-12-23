@@ -249,7 +249,7 @@ Even if analysing the code works initially, it might break at any time if the or
 | Operating system | No constraints by design. However, Ubuntu 22.04 is currently the only OS used for development and testing. |
 | Python           | Minimum version is 3.8. All newer major versions until 3.12 are tested.                                    |
 | Bazel            | Minimum version is 5.4.0. Multiple newer versions are tested including rolling releases.                   |
-| Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                                |
+| Buildozer        | No known limitations. Tests are performed with 6.4.0.                                                      |
 
 # Alternatives to DWYU
 
