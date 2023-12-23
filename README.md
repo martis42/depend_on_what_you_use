@@ -246,9 +246,9 @@ Even if analysing the code works initially, it might break at any time if the or
 
 | Platform         | Constraints                                                                                                |
 | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Operating system | No constraints by design. However, Ubuntu 20.04 is currently the only OS used for development and testing. |
-| Python           | Minimum version is 3.8. Multiple versions are tested.                                                      |
-| Bazel            | Minimum version is 5.4.0. Multiple versions are tested.                                                    |
+| Operating system | No constraints by design. However, Ubuntu 22.04 is currently the only OS used for development and testing. |
+| Python           | Minimum version is 3.8. All newer major versions until 3.12 are tested.                                    |
+| Bazel            | Minimum version is 5.4.0. Multiple newer versions are tested including rolling releases.                   |
 | Buildozer        | No known limitations. Tests have been performed with 5.0.1.                                                |
 
 # Alternatives to DWYU
