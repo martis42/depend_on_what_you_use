@@ -7,18 +7,8 @@ authors = ["Martin Medler"]
 [tool.poetry.dependencies]
 python = "^3.8.1"
 
-[tool.black]
-line-length = 120
-
-[tool.isort]
-multi_line_output = 3
-profile = "black"
-
 [tool.poetry.dev-dependencies]
-black = "^23.11.0"
-isort = "^5.12.0"
 pre-commit = "^3.5.0"
-pyupgrade = "^3.15.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
