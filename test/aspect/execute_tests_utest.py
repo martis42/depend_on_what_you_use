@@ -170,12 +170,12 @@ class TestMakeCmd(unittest.TestCase):
         bazel = which("bazelisk") or which("bazel")
         build_with_default_options = ["build", "--noshow_progress"]
         if startup_args:
-            return [bazel] + startup_args + build_with_default_options
-        return [bazel] + build_with_default_options
+            return [bazel, *startup_args, *build_with_default_options]
+        return [bazel, *build_with_default_options]
 
     def test_basic_cmd(self):
         cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[], startup_args=[])
-        self.assertEqual(cmd, self._base_cmd() + ["--", "//foo:bar"])
+        self.assertEqual(cmd, [*self._base_cmd(), "--", "//foo:bar"])
 
     def test_complex_test_cmd(self):
         cmd = make_cmd(
@@ -189,8 +189,15 @@ class TestMakeCmd(unittest.TestCase):
         )
         self.assertEqual(
             cmd,
-            self._base_cmd()
-            + ["--aspects=//some/aspect.bzl", "--output_groups=dwyu", "--abc", "--cba", "--", "//foo:bar"],
+            [
+                *self._base_cmd(),
+                "--aspects=//some/aspect.bzl",
+                "--output_groups=dwyu",
+                "--abc",
+                "--cba",
+                "--",
+                "//foo:bar",
+            ],
         )
 
     def test_extra_args_on_top_of_test_cmd(self):
@@ -205,8 +212,8 @@ class TestMakeCmd(unittest.TestCase):
         )
         self.assertEqual(
             cmd,
-            self._base_cmd(startup_args=["--some_startup_arg"])
-            + [
+            [
+                *self._base_cmd(startup_args=["--some_startup_arg"]),
                 "--aspects=//some/aspect.bzl",
                 "--output_groups=dwyu",
                 "--outside_arg",
