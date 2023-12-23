@@ -19,9 +19,9 @@ docstring-code-format = false
 [lint]
 select = [
     # pycodestyle
-    # "E",
+    "E",
     # Pyflakes
-    # "F",
+    "F",
     # pyupgrade
     "UP",
     # flake8-bugbear
@@ -30,4 +30,8 @@ select = [
     # "SIM",
     # isort
     "I",
+]
+ignore = [
+    # It is fine tha some line are longer than the length limit
+    "E501",
 ]
