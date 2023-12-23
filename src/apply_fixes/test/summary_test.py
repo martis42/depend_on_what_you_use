@@ -21,7 +21,7 @@ class TestSummary(unittest.TestCase):
 
     def test_raise_on_unexpected_return_code(self):
         unit = Summary()
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, "failed with the unexpected return code"):
             unit.add_command(cmd=["foo", "bar"], buildozer_result=5)
 
 

@@ -24,10 +24,12 @@ select = [
     "F",
     # pyupgrade
     "UP",
+    # flake8-builtins
+    "A",
     # flake8-bugbear
-    # "B",
+    "B",
     # flake8-simplify
-    # "SIM",
+    "SIM",
     # isort
     "I",
 ]

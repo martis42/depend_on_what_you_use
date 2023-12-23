@@ -24,7 +24,7 @@ class TestUsageStatusTracker(unittest.TestCase):
 
     def test_no_usage_resetting(self):
         unit = UsageStatusTracker()
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, "Resetting the usage is not supported"):
             unit.update(UsageStatus.NONE)
 
     def test_update_to_public_and_then_private(self):

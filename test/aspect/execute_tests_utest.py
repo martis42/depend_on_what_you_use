@@ -222,19 +222,19 @@ class TestIsCompatibleVersion(unittest.TestCase):
         self.assertTrue(CompatibleVersions().is_compatible_to("1.0.0"))
 
     def test_above_min_version(self):
-        self.assertTrue(CompatibleVersions(min="0.9.9").is_compatible_to("1.0.0"))
+        self.assertTrue(CompatibleVersions(minimum="0.9.9").is_compatible_to("1.0.0"))
 
     def test_below_min_version(self):
-        self.assertFalse(CompatibleVersions(min="1.1.9").is_compatible_to("1.0.0"))
+        self.assertFalse(CompatibleVersions(minimum="1.1.9").is_compatible_to("1.0.0"))
 
     def test_below_max_version(self):
-        self.assertTrue(CompatibleVersions(max="1.1.0").is_compatible_to("1.0.0"))
+        self.assertTrue(CompatibleVersions(maximum="1.1.0").is_compatible_to("1.0.0"))
 
     def test_above_max_version(self):
-        self.assertFalse(CompatibleVersions(max="0.9.0").is_compatible_to("1.0.0"))
+        self.assertFalse(CompatibleVersions(maximum="0.9.0").is_compatible_to("1.0.0"))
 
     def test_inside_interval(self):
-        self.assertTrue(CompatibleVersions(min="0.9.0", max="1.1.0").is_compatible_to("1.0.0"))
+        self.assertTrue(CompatibleVersions(minimum="0.9.0", maximum="1.1.0").is_compatible_to("1.0.0"))
 
 
 if __name__ == "__main__":
