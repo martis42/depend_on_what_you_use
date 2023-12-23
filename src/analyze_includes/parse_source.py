@@ -99,14 +99,13 @@ def get_includes_from_file(file: Path, defines: List[str], include_paths: List[s
         for include in re.findall(r"^\s*#include\s*(.+)", output_sink.getvalue(), re.MULTILINE):
             if include.startswith(('"', "<")) and include.endswith(('"', ">")):
                 included_paths.append(include)
-            else:
+            elif include in pre_processor.macros:
                 # Either a malformed include statement or an include path defined through a pre processor token.
                 # We ignore malformed include paths as they violate our assumptions of use.
-                if include in pre_processor.macros:
-                    # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
-                    # The value is a list of 'LexToken' classes from 'ply.lex.LexToken'.
-                    # In all our tests with include statements the list had always just one element.
-                    included_paths.append(pre_processor.macros[include].value[0].value)
+                # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
+                # The value is a list of 'LexToken' classes from 'ply.lex.LexToken'.
+                # In all our tests with include statements the list had always just one element.
+                included_paths.append(pre_processor.macros[include].value[0].value)
 
         return [Include(file=file, include=include.lstrip('"<').rstrip('">')) for include in included_paths]
 
