@@ -30,15 +30,14 @@ repos:
           "--diff_command='diff'",
           "--warnings=-module-docstring,-function-docstring,-function-docstring-header,-print"
         ]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.9
+    hooks:
+      - id: ruff-format
 
   - repo: local
     hooks:
-      - id: black
-        name: black
-        entry: poetry run black
-        language: system
-        types: [ python ]
-
       - id: isort
         name: isort
         entry: poetry run isort

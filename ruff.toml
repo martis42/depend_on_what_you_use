@@ -1,0 +1,17 @@
+exclude = [
+    ".git",
+    ".ruff_cache",
+]
+line-length = 120
+indent-width = 4
+# Minimum Python version which we support
+target-version = "py38"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+# We want to be able to force spreading things over multiple lines by adding a ',' for readability
+skip-magic-trailing-comma = false
+line-ending = "auto"
+# We have no Python code in documentation
+docstring-code-format = false
