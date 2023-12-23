@@ -38,12 +38,3 @@ repos:
       # Linting
       - id: ruff
         args: [ --fix ]
-
-  - repo: local
-    hooks:
-      - id: pyupgrade
-        name: pyupgrade
-        entry: poetry run pyupgrade
-        args: [ --py38-plus ]
-        language: system
-        types: [ python ]
