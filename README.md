@@ -5,7 +5,7 @@
   - [Get a release](#get-a-release)
   - [Get a specific commit](#get-a-specific-commit)
   - [Use DWYU](#use-dwyu)
-- [Features](#features)
+- [Configuring DWYU](#configuring-dwyu)
   - [Custom header ignore list](#custom-header-ignore-list)
   - [Skipping Targets](#skipping-targets)
   - [Recursion](#recursion)
@@ -33,7 +33,7 @@ The main features are:
 - Given one uses [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps), making sure one distinguishes properly between public and private dependencies for `cc_library` targets.
   For more details see [features chapter Implementation_deps](#Implementation_deps).
 
-More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs/).
+More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs).
 
 # Getting started
 
@@ -67,8 +67,8 @@ dwyu_setup_step_2()
 
 ### Configure the aspect
 
-The features which can be configured through the aspect factory attributes are documented at [Features](#features).
-Put the following inside a `aspect.bzl` file (file name is exemplary):
+The features which can be configured through the aspect factory attributes are documented at [Configuring DWYU](#configuring-dwyu).
+Put the following inside a `.bzl` file:
 
 ```starlark
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
@@ -105,7 +105,7 @@ This can be useful to make the execution part of a bazel build without having to
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 A concrete example for doing so for the DWYU aspect can be found in [a rule in the recursion test cases](test/aspect/recursion/rule.bzl).
 
-# Features
+# Configuring DWYU
 
 ## Custom header ignore list
 
@@ -125,7 +125,7 @@ All fields are optional:
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ignore_include_paths`       | List of include paths which are ignored by the analysis. Setting this **disables ignoring the standard library include paths**.                                                                                                                                                                               |
 | `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended.                                                                              |
-| `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns, |
+| `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns. |
 
 Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
 
@@ -193,12 +193,11 @@ Examples for this can be seen at the [target_mapping test cases](test/aspect/tar
 
 ## Applying automatic fixes
 
+> \[!WARNING\]
+> Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
+> Always make sure your project is still valid after the changes and review the performed changes.
+
 DWYU offers a tool to automatically fix some detected problems.
-
-⚠
-Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
-Always make sure your project is still valid after the changes and review the performed changes.
-
 The workflow is the following:
 
 1. Execute DWYU on your workspace.
@@ -284,8 +283,7 @@ Please be aware that the project is still in an early phase and until version 1.
 
 - The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
   Changing their content is not considered a breaking change.
-  You are of course free to use those report files in custom scripts of yours, but might have to adapt those scripts for DWYU updates.
-- How to include DWYU in your WORKSPACE file might change at any time.
+- How to include DWYU in your project git commit might change at any time.
 
 # Contributing
 
