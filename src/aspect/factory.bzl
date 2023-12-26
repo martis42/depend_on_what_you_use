@@ -10,9 +10,6 @@ def dwyu_aspect_factory(
     """
     Create a "Depend on What You Use" (DWYU) aspect.
 
-    An aspect can only have default values and cannot be configured on the command line. Use this factory to create
-    an aspect with the desired behavior and then use it on the command line or in rules.
-
     Args:
         config: Configuration file for the tool comparing the include statements to the dependencies.
         recursive: If true, execute the aspect on all transitive dependencies.

@@ -3,9 +3,6 @@
 - [General](#general)
   - [Why use Python](#why-use-python)
   - [Why use a multi step automatic fixes workflow](#why-use-a-multi-step-automatic-fixes-workflow)
-- [Platforms](#platforms)
-  - [Why is Bazel \< 4.0.0 not supported](#why-is-bazel--400-not-supported)
-  - [Why is Python \< 3.6 not supported](#why-is-python--36-not-supported)
 - [Rejected Concepts](#rejected-concepts)
   - [Includes parsing via .d files](#includes-parsing-via-d-files)
 
@@ -42,22 +39,6 @@ First we discover all problems and store the result in a machine readable format
 Then, we use a separate tool to process the results and apply fixes to the BUILD files in the workspace.
 There are no problems regarding the sandboxing, since we utilize `bazel run` to execute the fixing tool.
 A tool being executed like this can access any part of the host system.
-
-# Platforms
-
-## Why is Bazel \< 5.0.0 not supported
-
-The DWYU aspect is incompatible to Bazel \< 4.0.0.
-Bazel 4.x is not tested, but should still work.
-
-We officially support and test only Bazel 5.0.0 and later.
-One major feature of DWYU is ensuring the proper usage of `implementation_deps`, which is a feature which is only available starting from Bazel 5.0.0.
-Furthermore, many Bazel rule sets already rely on Bazel 5.x as well.
-
-## Why is Python \< 3.8 not supported
-
-We aim to only support Python versions which are not EOL.
-Using a modern Python version enables us to write lean code utilizing modern Python features.
 
 # Rejected Concepts
 
