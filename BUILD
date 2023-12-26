@@ -4,4 +4,7 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-exports_files(["mypy.ini"])
+exports_files(
+    ["mypy.ini"],
+    visibility = ["@mypy_integration//:__subpackages__"],
+)
