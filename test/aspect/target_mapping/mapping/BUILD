@@ -1,4 +1,4 @@
-load("//src/cc_info_mapping:cc_info_mapping.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load("//:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
 
 package(default_visibility = ["//test/aspect/target_mapping:__pkg__"])
 
