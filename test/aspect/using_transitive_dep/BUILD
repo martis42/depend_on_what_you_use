@@ -14,3 +14,9 @@ cc_binary(
     srcs = ["main.cpp"],
     deps = [":bar"],
 )
+
+cc_library(
+    name = "transitive_usage_through_impl_deps",
+    srcs = ["transitive_usage_through_impl_deps.h"],
+    deps = [":bar"],
+)
