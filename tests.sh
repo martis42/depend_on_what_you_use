@@ -4,6 +4,11 @@ set -o errexit
 set -o nounset
 
 echo ""
+echo "Pre-commit checks"
+echo ""
+poetry run pre-commit run --all-files
+
+echo ""
 echo "Execute unit tests"
 echo ""
 bazel test -- //src/... //test/aspect:all //third_party/...
