@@ -6,6 +6,7 @@ from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import List, Optional
 
+from result import Error
 from test_case import TestCaseBase
 
 TEST_CASES_DIR = Path("test/apply_fixes")
@@ -58,7 +59,7 @@ def cleanup(test_workspace: Path) -> None:
 
 
 def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
-    logging.info(f">>> Executing '{test.name}'")
+    logging.info(f">>> Test '{test.name}'")
     succeeded = False
     result = None
 
@@ -76,11 +77,13 @@ def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
 
         cleanup(temporary_workspace)
 
-    if result is not None:
-        if not result.is_success():
-            logging.info(result.error)
-        else:
-            succeeded = True
+    if result is None:
+        result = Error("No result")
+
+    if result.is_success():
+        succeeded = True
+    else:
+        logging.info(result.error)
 
     logging.info(f'<<< {"OK" if succeeded else "FAILURE"}\n')
 

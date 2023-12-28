@@ -64,25 +64,44 @@ class TestCaseBase(ABC):
         """
         Create report files as input for the applying fixes script
         """
-        cmd = ["bazel"]
-        if startup_args:
-            cmd.extend(startup_args)
-        cmd.extend(["build", f"--aspects=//:aspect.bzl%{aspect}", "--output_groups=dwyu"])
-        if extra_args:
-            cmd.extend(extra_args)
-        cmd.append(self.test_target)
-        self._run_cmd(cmd=cmd, check=False)
+        cmd_startup_args = startup_args if startup_args else []
+        cmd_extra_args = extra_args if extra_args else []
+
+        self._run_cmd(
+            cmd=[
+                "bazel",
+                *cmd_startup_args,
+                "build",
+                "--nolegacy_external_runfiles",
+                f"--aspects=//:aspect.bzl%{aspect}",
+                "--output_groups=dwyu",
+                *cmd_extra_args,
+                "--",
+                self.test_target,
+            ],
+            check=False,
+        )
 
     def _run_automatic_fix(self, extra_args: Optional[List[str]] = None) -> None:
         """
         Execute the applying fixes script for the Bazel target associated with the test case
         """
-        cmd = ["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={self._workspace}"]
-        if logging.getLogger().isEnabledFor(logging.DEBUG):
-            cmd.append("--verbose")
-        if extra_args:
-            cmd.extend(extra_args)
-        self._run_cmd(cmd=cmd, check=True)
+        verbosity = ["--verbose"] if logging.getLogger().isEnabledFor(logging.DEBUG) else []
+        cmd_extra_args = extra_args if extra_args else []
+
+        self._run_cmd(
+            cmd=[
+                "bazel",
+                "run",
+                "--nolegacy_external_runfiles",
+                "@depend_on_what_you_use//:apply_fixes",
+                "--",
+                f"--workspace={self._workspace}",
+                *verbosity,
+                *cmd_extra_args,
+            ],
+            check=True,
+        )
 
     def _get_target_attribute(self, target: str, attribute: str) -> Set["str"]:
         """
