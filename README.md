@@ -103,7 +103,7 @@ You can invoke the aspect from within a rule.
 This can be useful to make the execution part of a bazel build without having to manually execute the longish aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
-A concrete example for doing so for the DWYU aspect can be found in [a rule in the recursion test cases](test/aspect/recursion/rule.bzl).
+A concrete example for doing so for the DWYU aspect can be found in [aspect integration tests](test/aspect/rule_using_aspect).
 
 # Configuring DWYU
 

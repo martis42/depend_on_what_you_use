@@ -1,5 +1,5 @@
 load("//test/aspect:aspect.bzl", "dwyu")
-load("//test/aspect/recursion:aspect.bzl", "dwyu_recursive", "dwyu_recursive_impl_deps")
+load("//test/aspect/rule_using_aspect:aspect.bzl", "dwyu_recursive", "dwyu_recursive_impl_deps")
 
 def _dwyu_rule_impl(ctx):
     # gather artifacts to make sure the aspect is executed
