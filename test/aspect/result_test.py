@@ -1,17 +1,15 @@
 import unittest
-from shutil import which
 
-from execute_tests_impl import (
+from result import (
     CATEGORY_INVALID_INCLUDES,
     CATEGORY_NON_PRIVATE_DEPS,
     CATEGORY_UNUSED_PRIVATE_DEPS,
     CATEGORY_UNUSED_PUBLIC_DEPS,
     DWYU_FAILURE,
     ERRORS_PREFIX,
-    CompatibleVersions,
+    Error,
     ExpectedResult,
-    TestCmd,
-    make_cmd,
+    Success,
 )
 
 
@@ -164,84 +162,16 @@ class TestExpectedResult(unittest.TestCase):
             )
 
 
-class TestMakeCmd(unittest.TestCase):
-    @staticmethod
-    def _base_cmd(startup_args=None):
-        bazel = which("bazelisk") or which("bazel")
-        build_with_default_options = ["build", "--noshow_progress"]
-        if startup_args:
-            return [bazel, *startup_args, *build_with_default_options]
-        return [bazel, *build_with_default_options]
+class TestResult(unittest.TestCase):
+    def test_success(self):
+        unit = Success()
+        self.assertTrue(unit.is_success())
+        self.assertEqual(unit.error, "")
 
-    def test_basic_cmd(self):
-        cmd = make_cmd(test_cmd=TestCmd(target="//foo:bar"), extra_args=[], startup_args=[])
-        self.assertEqual(cmd, [*self._base_cmd(), "--", "//foo:bar"])
-
-    def test_complex_test_cmd(self):
-        cmd = make_cmd(
-            test_cmd=TestCmd(
-                target="//foo:bar",
-                aspect="//some/aspect.bzl",
-                extra_args=["--abc", "--cba"],
-            ),
-            extra_args=[],
-            startup_args=[],
-        )
-        self.assertEqual(
-            cmd,
-            [
-                *self._base_cmd(),
-                "--aspects=//some/aspect.bzl",
-                "--output_groups=dwyu",
-                "--abc",
-                "--cba",
-                "--",
-                "//foo:bar",
-            ],
-        )
-
-    def test_extra_args_on_top_of_test_cmd(self):
-        cmd = make_cmd(
-            test_cmd=TestCmd(
-                target="//foo:bar",
-                aspect="//some/aspect.bzl",
-                extra_args=["--test_related_arg"],
-            ),
-            extra_args=["--outside_arg"],
-            startup_args=["--some_startup_arg"],
-        )
-        self.assertEqual(
-            cmd,
-            [
-                *self._base_cmd(startup_args=["--some_startup_arg"]),
-                "--aspects=//some/aspect.bzl",
-                "--output_groups=dwyu",
-                "--outside_arg",
-                "--test_related_arg",
-                "--",
-                "//foo:bar",
-            ],
-        )
-
-
-class TestIsCompatibleVersion(unittest.TestCase):
-    def test_no_limits(self):
-        self.assertTrue(CompatibleVersions().is_compatible_to("1.0.0"))
-
-    def test_above_min_version(self):
-        self.assertTrue(CompatibleVersions(minimum="0.9.9").is_compatible_to("1.0.0"))
-
-    def test_below_min_version(self):
-        self.assertFalse(CompatibleVersions(minimum="1.1.9").is_compatible_to("1.0.0"))
-
-    def test_below_max_version(self):
-        self.assertTrue(CompatibleVersions(maximum="1.1.0").is_compatible_to("1.0.0"))
-
-    def test_above_max_version(self):
-        self.assertFalse(CompatibleVersions(maximum="0.9.0").is_compatible_to("1.0.0"))
-
-    def test_inside_interval(self):
-        self.assertTrue(CompatibleVersions(minimum="0.9.0", maximum="1.1.0").is_compatible_to("1.0.0"))
+    def test_error(self):
+        unit = Error("foo")
+        self.assertFalse(unit.is_success())
+        self.assertEqual(unit.error, "foo")
 
 
 if __name__ == "__main__":
