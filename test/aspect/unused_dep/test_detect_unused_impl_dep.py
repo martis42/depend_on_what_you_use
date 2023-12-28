@@ -7,7 +7,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=False, unused_private_deps=["//test/aspect/unused_dep:foo"])
         actual = self._run_dwyu(
             target="//test/aspect/unused_dep/implementation_deps:implementation_deps_lib",
-            aspect="//test/aspect/unused_dep:aspect.bzl%implementation_deps_aspect",
+            aspect="//test/aspect:aspect.bzl%dwyu_impl_deps",
             extra_args=["--experimental_cc_implementation_deps"],
         )
 

@@ -12,7 +12,7 @@ class TestCase(TestCaseBase):
         )
         actual = self._run_dwyu(
             target="//test/aspect/using_transitive_dep:transitive_usage_through_impl_deps",
-            aspect="//test/aspect/using_transitive_dep:aspect.bzl%implementation_deps_aspect",
+            aspect="//test/aspect:aspect.bzl%dwyu_impl_deps",
             extra_args=["--experimental_cc_implementation_deps"],
         )
 
