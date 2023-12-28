@@ -45,7 +45,7 @@ class TestCaseTests(unittest.TestCase):
         self.assertEqual(self.unit.name, "foo")
 
     def test_get_default_aspect(self):
-        self.assertEqual(self.unit.default_aspect, "//test/aspect:aspect.bzl%dwyu_default_aspect")
+        self.assertEqual(self.unit.default_aspect, "//test/aspect:aspect.bzl%dwyu")
 
     @patch("subprocess.run")
     def test_get_success(self, _):
