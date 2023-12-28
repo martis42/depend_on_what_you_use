@@ -40,8 +40,8 @@ select = [
 ignore = [
     # It is fine tha some line are longer than the length limit
     "E501",
+    # Number of function arguments is too opinionated
+    "PLR0913",
     # High false positive rate. Often a plain number is the most expressive, e.g. when checling lengths.
     "PLR2004",
-    # Using Optinal and '= None' at once is overly verbose and hurts readability
-    "RUF013",
 ]

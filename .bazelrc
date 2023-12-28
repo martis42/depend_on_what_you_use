@@ -1,10 +1,18 @@
 # Always tell why tests fail
 test --test_output=errors
 
-# We use Bazel's modern dependency management system. This works for us only with Bazel >= 6.2.0
-# This is the deprecated version. "--enable_bzlmod" is the forward path. However, as Bazel < 6.0.0 does not support the
-# new flag. We keep using the deprecated one until we no longer support Bazel 5.
-build --experimental_enable_bzlmod=true
+# We use Bazel's modern dependency management system for development.
+build --enable_bzlmod=true
+
+# We are not yet sure if we really want to lock the bzlmod resolution down given we test with various Bazel versions
+# and configurations. It seems the main benefits of the lock file are not having to reanalyze the central registry
+# when working without a cached workspace and being safeguarded against changed or yanked modules in the central
+# registry. Both don't matter much to us right now.
+build --lockfile_mode=off
+
+# When working with hermetic Python toolchains, supporting the legacy runfiles layout is needlessly wasting resources.
+# See https://github.com/bazelbuild/rules_python/issues/1653
+build --nolegacy_external_runfiles
 
 # Mypy integration
 build:mypy --aspects=@mypy_integration//:mypy.bzl%mypy_aspect

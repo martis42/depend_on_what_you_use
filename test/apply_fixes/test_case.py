@@ -73,7 +73,7 @@ class TestCaseBase(ABC):
         cmd.append(self.test_target)
         self._run_cmd(cmd=cmd, check=False)
 
-    def _run_automatic_fix(self, extra_args: List[str] = None) -> None:
+    def _run_automatic_fix(self, extra_args: Optional[List[str]] = None) -> None:
         """
         Execute the applying fixes script for the Bazel target associated with the test case
         """
@@ -114,10 +114,10 @@ class TestCaseBase(ABC):
 
     @staticmethod
     def _make_unexpected_deps_error(
-        expected_deps: Set[str] = None,
-        expected_implementation_deps: Set[str] = None,
-        actual_deps: Set[str] = None,
-        actual_implementation_deps: Set[str] = None,
+        expected_deps: Optional[Set[str]] = None,
+        expected_implementation_deps: Optional[Set[str]] = None,
+        actual_deps: Optional[Set[str]] = None,
+        actual_implementation_deps: Optional[Set[str]] = None,
     ) -> Error:
         message = "Unexpected dependencies.\n"
         if expected_deps:
