@@ -64,18 +64,19 @@ def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
     result = None
 
     with TemporaryDirectory() as temporary_workspace:
+        workspace_path = Path(temporary_workspace)
         try:
             setup_test_workspace(
                 origin_workspace=origin_workspace,
                 test_sources=test.test_sources,
                 extra_workspace_file_content=test.extra_workspace_file_content,
-                temporary_workspace=Path(temporary_workspace),
+                temporary_workspace=workspace_path,
             )
-            result = test.execute_test(Path(temporary_workspace))
+            result = test.execute_test(workspace_path)
         except Exception:
             logging.exception("Test failed due to exception:")
 
-        cleanup(temporary_workspace)
+        cleanup(workspace_path)
 
     if result is None:
         result = Error("No result")
