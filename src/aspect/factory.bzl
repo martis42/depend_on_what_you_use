@@ -2,7 +2,7 @@ load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "DwyuCc
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 def dwyu_aspect_factory(
-        config = None,
+        ignored_includes = None,
         recursive = False,
         skipped_tags = None,
         target_mapping = None,
@@ -11,7 +11,8 @@ def dwyu_aspect_factory(
     Create a "Depend on What You Use" (DWYU) aspect.
 
     Args:
-        config: Configuration file for the tool comparing the include statements to the dependencies.
+        ignored_includes: Configuration file specifying which include statements should be skipped during analysis. When
+                          nothing is specified, the standard library headers are ignored by default.
         recursive: If true, execute the aspect on all transitive dependencies.
                    If false, analyze only the target the aspect is being executed on.
         skipped_tags: Do not execute the aspect on targets with at least one of those tags. By default skips the
@@ -30,7 +31,7 @@ def dwyu_aspect_factory(
             attr_aspects = ["implementation_deps", "deps"]
         else:
             attr_aspects = ["deps"]
-    aspect_config = [config] if config else []
+    aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = skipped_tags if skipped_tags else ["no-dwyu"]
     aspect_target_mapping = [target_mapping] if target_mapping else []
     return aspect(
@@ -45,10 +46,6 @@ def dwyu_aspect_factory(
             "_cc_toolchain": attr.label(
                 default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
             ),
-            "_config": attr.label_list(
-                default = aspect_config,
-                allow_files = [".json"],
-            ),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
                 allow_files = True,
@@ -56,6 +53,10 @@ def dwyu_aspect_factory(
                 cfg = "exec",
                 doc = "Tool Analyzing the include statement in the source code under inspection" +
                       " and comparing them to the available dependencies.",
+            ),
+            "_ignored_includes": attr.label_list(
+                default = aspect_ignored_includes,
+                allow_files = [".json"],
             ),
             "_process_target": attr.label(
                 default = Label("@depend_on_what_you_use//src/aspect:process_target"),
