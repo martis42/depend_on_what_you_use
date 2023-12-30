@@ -1,3 +1,3 @@
-int doC() {
+int doB() {
     return 42;
 }
