@@ -115,7 +115,7 @@ This list of headers can be seen in [std_header.py](src/analyze_includes/std_hea
 You can exclude a custom set of header files by providing a config file in json format to the aspect:
 
 ```starlark
-your_aspect = dwyu_aspect_factory(config = "//<your_config_file>.json")
+your_aspect = dwyu_aspect_factory(ignored_includes = "//<your_config_file>.json")
 ```
 
 The config file can contain these fields which should be lists of strings.
@@ -127,7 +127,7 @@ All fields are optional:
 | `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended.                                                                              |
 | `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns. |
 
-Examples and the correct format can be seen at the [custom config test cases](test/aspect/custom_config).
+Examples and the correct format can be seen at the [ignore_includes test cases](test/aspect/ignore_includes).
 
 ## Skipping targets
 
