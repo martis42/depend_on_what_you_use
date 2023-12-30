@@ -24,6 +24,12 @@ setup_step_1()
 load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
 setup_step_2()
 
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
+python_register_toolchains(
+    name = "python",
+    python_version = "3.8",
+)
+
 {extra_content}
 """
 
@@ -36,6 +42,8 @@ def setup_test_workspace(
         ws_file.write(
             WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
         )
+    with open(temporary_workspace / ".bazelversion", mode="w", encoding="utf-8") as ws_file:
+        ws_file.write("7.0.0")
 
 
 def cleanup(test_workspace: Path) -> None:
