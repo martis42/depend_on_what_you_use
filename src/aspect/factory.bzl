@@ -27,10 +27,7 @@ def dwyu_aspect_factory(
     """
     attr_aspects = []
     if recursive:
-        if use_implementation_deps:
-            attr_aspects = ["implementation_deps", "deps"]
-        else:
-            attr_aspects = ["deps"]
+        attr_aspects = ["implementation_deps", "deps"] if use_implementation_deps else ["deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = skipped_tags if skipped_tags else ["no-dwyu"]
     aspect_target_mapping = [target_mapping] if target_mapping else []
