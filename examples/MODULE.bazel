@@ -1,0 +1,29 @@
+module(
+    name = "dwyu_examples",
+    compatibility_level = 0,
+)
+
+bazel_dep(
+    name = "depend_on_what_you_use",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "depend_on_what_you_use",
+    path = "../",
+)
+
+bazel_dep(
+    name = "rules_python",
+    version = "0.27.0",
+    dev_dependency = True,
+)
+
+python = use_extension(
+    "@rules_python//python/extensions:python.bzl",
+    "python",
+    dev_dependency = True,
+)
+python.toolchain(
+    python_version = "3.10",
+)

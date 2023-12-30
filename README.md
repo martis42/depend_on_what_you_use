@@ -103,7 +103,8 @@ You can invoke the aspect from within a rule.
 This can be useful to make the execution part of a bazel build without having to manually execute the longish aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
-A concrete example for doing so for the DWYU aspect can be found in [aspect integration tests](test/aspect/rule_using_aspect).
+
+This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu).
 
 # Configuring DWYU
 
@@ -127,7 +128,7 @@ All fields are optional:
 | `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended.                                                                              |
 | `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns. |
 
-Examples and the correct format can be seen at the [ignore_includes test cases](test/aspect/ignore_includes).
+This is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
 
 ## Skipping targets
 
@@ -138,25 +139,25 @@ You can also configure the aspect to skip targets based on a custom list of tags
 your_aspect = dwyu_aspect_factory(skipped_tags = ["tag1_marking_skipping", "tag2_marking_skipping"])
 ```
 
+This is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+
 ## Recursion
 
 By default, DWYU analyzes only the target it is being applied to.
 
-You can also activate recursive analysis. Meaning the aspect analyzes recursively all dependencies of the target it is being applied to:
+You can also activate recursive analysis.
+Meaning the aspect analyzes recursively all dependencies of the target it is being applied to:
 
 ```starlark
 your_aspect = dwyu_aspect_factory(recursive = True)
 ```
 
-Analyzing a targets and its whole build tree is a common use case.
-This feature allows you doing so without manually using (c)query to create the corresponding target list and forwarding it to DWYU.
-
-Examples for this can be seen at the [recursion test cases](test/aspect/recursion).
+This is demonstrated in the [recursion example](/examples/recursion).
 
 ## Implementation_deps
 
 Bazel offers the experimental feature [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies for `cc_library`.
-Headers from the private dependencies are not made available to users of the library to trim down dependency trees.
+Headers from the private dependencies are not made available to users of the library.
 
 DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in private files, but not put into the private dependency attribute.
 Meaning, it can find dependencies which should be moved from `deps` to `implementation_deps`.
@@ -167,7 +168,7 @@ Activate this behavior via:
 your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
 ```
 
-Examples for this can be seen at the [implementation_deps test cases](test/aspect/implementation_deps).
+Usage of this can be seen in the [basic example](examples/basic_usage).
 
 ## Target mapping
 
@@ -189,7 +190,7 @@ Activate this behavior via:
 your_aspect = dwyu_aspect_factory(target_mapping = "<mapping_target_created_by_the_user>")
 ```
 
-Examples for this can be seen at the [target_mapping test cases](test/aspect/target_mapping).
+This is demonstrated in the [target_mapping example](/examples/target_mapping).
 
 # Applying automatic fixes
 
