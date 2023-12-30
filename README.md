@@ -11,7 +11,7 @@
   - [Recursion](#recursion)
   - [Implementation_deps](#Implementation_deps)
   - [Target mapping](#target-mapping)
-  - [Applying automatic fixes](#applying-automatic-fixes)
+- [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
@@ -191,7 +191,7 @@ your_aspect = dwyu_aspect_factory(target_mapping = "<mapping_target_created_by_t
 
 Examples for this can be seen at the [target_mapping test cases](test/aspect/target_mapping).
 
-## Applying automatic fixes
+# Applying automatic fixes
 
 > \[!WARNING\]
 > Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
