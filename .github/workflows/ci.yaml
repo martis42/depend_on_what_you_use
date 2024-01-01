@@ -51,3 +51,13 @@ jobs:
         run: |
           export PATH=/tmp/bin:$PATH
           ./test/apply_fixes/execute_tests.py
+
+  integration-tests-examples:
+    runs-on: ubuntu-22.04
+    needs: [ pre-commit, fast-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integration tests - Examples
+        run: |
+          cd examples
+          ./test.py
