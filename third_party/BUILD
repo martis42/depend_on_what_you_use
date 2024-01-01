@@ -9,7 +9,7 @@ alias(
 
 compile_pip_requirements(
     name = "mypy_requirements",
+    src = "mypy_requirements.in",
     extra_args = ["--resolver=backtracking"],
-    requirements_in = "mypy_requirements.in",
     requirements_txt = "mypy_requirements.txt",
 )
