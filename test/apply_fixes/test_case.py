@@ -72,7 +72,6 @@ class TestCaseBase(ABC):
                 "bazel",
                 *cmd_startup_args,
                 "build",
-                "--nolegacy_external_runfiles",
                 f"--aspects=//:aspect.bzl%{aspect}",
                 "--output_groups=dwyu",
                 *cmd_extra_args,
@@ -93,7 +92,6 @@ class TestCaseBase(ABC):
             cmd=[
                 "bazel",
                 "run",
-                "--nolegacy_external_runfiles",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
                 f"--workspace={self._workspace}",
