@@ -24,6 +24,17 @@ setup_step_1()
 load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
 setup_step_2()
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+
+maybe(
+    http_archive,
+    name = "rules_python",
+    sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
+    strip_prefix = "rules_python-0.27.0",
+    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.0/rules_python-0.27.0.tar.gz"],
+)
+
 load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 python_register_toolchains(
     name = "python",
@@ -44,6 +55,8 @@ def setup_test_workspace(
         )
     with open(temporary_workspace / ".bazelversion", mode="w", encoding="utf-8") as ws_file:
         ws_file.write("7.0.0")
+    with open(temporary_workspace / ".bazelrc", mode="w", encoding="utf-8") as ws_file:
+        ws_file.write("common --nolegacy_external_runfiles\ncommon --noenable_bzlmod")
 
 
 def cleanup(test_workspace: Path) -> None:
@@ -60,9 +73,11 @@ def cleanup(test_workspace: Path) -> None:
     )
     output_base = process.stdout.strip()
 
+    # Has to be done before output base cleanup, otherwise the shutdown will create the output base anew
     subprocess.run(["bazel", "shutdown"], cwd=test_workspace, check=True)
 
-    # Has to be done after the shutdown, otherwise the shutdown will create the output base anew
+    # The hermetic Python toolchain contains read oly files which we can't remove without making them writable
+    subprocess.run(["chmod", "-R", "+rw", output_base], check=True)
     rmtree(output_base)
 
 
