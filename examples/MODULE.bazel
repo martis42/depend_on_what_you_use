@@ -13,6 +13,11 @@ local_path_override(
     path = "../",
 )
 
+#
+# One can use DWYU without the content below. The hermetic Python toolchain merely increases the reproducibility when
+# executing the examples as integration test.
+#
+
 bazel_dep(
     name = "rules_python",
     version = "0.27.0",
@@ -25,5 +30,5 @@ python = use_extension(
     dev_dependency = True,
 )
 python.toolchain(
-    python_version = "3.10",
+    python_version = "3.8",
 )

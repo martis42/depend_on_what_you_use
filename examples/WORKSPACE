@@ -13,6 +13,11 @@ load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
 
 setup_step_2()
 
+#
+# One can use DWYU without the content below. The hermetic Python toolchain merely increases the reproducibility when
+# executing the examples as integration test.
+#
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
@@ -28,5 +33,5 @@ load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 
 python_register_toolchains(
     name = "python",
-    python_version = "3.10",
+    python_version = "3.8",
 )
