@@ -7,11 +7,11 @@ test --test_output=errors
 # yanking a module). Furthermore, the module resolution is deterministic.
 # However, there are several open issues suggesting the lock file will change in one way or another.
 # Thus, we don't use the bzlmod locking yet.
-build --lockfile_mode=off
+common --lockfile_mode=off
 
 # When working with hermetic Python toolchains, supporting the legacy runfiles layout is needlessly wasting resources.
 # See https://github.com/bazelbuild/rules_python/issues/1653
-build --nolegacy_external_runfiles
+common --nolegacy_external_runfiles
 
 # Mypy integration
 build:mypy --aspects=@mypy_integration//:mypy.bzl%mypy_aspect
