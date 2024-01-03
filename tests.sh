@@ -27,3 +27,14 @@ echo ""
 echo "Execute interation tests - Applying fixes"
 echo ""
 ./test/apply_fixes/execute_tests.py
+
+echo ""
+echo "Execute interation tests - Examples with bzlmod"
+echo ""
+cd examples
+./test.py
+
+echo ""
+echo "Execute interation tests - Examples with WORKSPACE setup"
+echo ""
+./test.py --legacy-workspace
