@@ -12,6 +12,3 @@ build --experimental_convenience_symlinks=clean
 # However, there are several open issues suggesting the lock file will change in one way or another.
 # Thus, we don't use the bzlmod locking yet.
 build --lockfile_mode=off
-
-# bzlmod changed how repos interact with each other which is incompatible to current DWYU design
-build --enable_bzlmod=false
