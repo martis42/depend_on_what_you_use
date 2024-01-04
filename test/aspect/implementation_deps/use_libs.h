@@ -1,7 +1,7 @@
 #ifndef USE_LIBS_H
 #define USE_LIBS_H
 
-#include "test/aspect/implementation_deps/bar.h"
+#include "implementation_deps/bar.h"
 
 int wrapBar()
 {

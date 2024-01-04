@@ -27,11 +27,3 @@ dev_setup_step_2()
 load("//:dev_setup_step_3.bzl", "dev_setup_step_3")
 
 dev_setup_step_3()
-
-#
-# Testing
-#
-
-load("//test/aspect:test.bzl", "test_setup")
-
-test_setup()

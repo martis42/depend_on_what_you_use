@@ -1,4 +1,4 @@
-#include "test/aspect/recursion/a.h"
+#include "recursion/a.h"
 
 int doSth()
 {

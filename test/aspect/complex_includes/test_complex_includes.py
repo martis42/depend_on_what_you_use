@@ -11,7 +11,7 @@ class TestCase(TestCaseBase):
         """
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
-            target=["//test/aspect/complex_includes:all", "@complex_includes_test_repo//..."],
+            target=["//complex_includes:all", "@complex_includes_test_repo//..."],
             aspect=self.default_aspect,
         )
 

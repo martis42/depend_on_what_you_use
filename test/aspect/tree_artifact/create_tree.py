@@ -35,9 +35,9 @@ def main(args: Namespace) -> int:
     else:
         with open(args.tree_root / "tree_lib.cc", mode="w", encoding="utf-8") as out:
             out.write(
-                '#include "test/aspect/tree_artifact/public_hdrs.h/tree_lib.h"\n'
-                '#include "test/aspect/tree_artifact/private_hdrs.h/tree_impl.h"\n'
-                '#include "test/aspect/tree_artifact/some_lib.h"\n'
+                '#include "tree_artifact/public_hdrs.h/tree_lib.h"\n'
+                '#include "tree_artifact/private_hdrs.h/tree_impl.h"\n'
+                '#include "tree_artifact/some_lib.h"\n'
                 "int doTreeThings() { return doSomething() + doPrivateStuff(); };\n"
             )
 

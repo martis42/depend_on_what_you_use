@@ -1,7 +1,7 @@
 #ifndef B_H
 #define B_H
 
-#include "test/aspect/alias/a.h"
+#include "alias/a.h"
 
 int doB()
 {

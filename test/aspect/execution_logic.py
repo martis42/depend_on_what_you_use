@@ -9,8 +9,6 @@ from result import Error
 from test_case import TestCaseBase
 from version import CompatibleVersions, TestedVersions
 
-TEST_CASES_DIR = Path("test/aspect")
-
 
 def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path, extra_args: List[str]) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
@@ -55,8 +53,7 @@ def main(
     list_tests: bool = False,
 ) -> int:
     workspace_path = get_current_workspace()
-    tests_search_dir = workspace_path / TEST_CASES_DIR
-    test_files = sorted([Path(x) for x in tests_search_dir.glob("*/test_*.py")])
+    test_files = sorted([Path(x) for x in workspace_path.glob("*/test_*.py")])
 
     if list_tests:
         test_names = [file_to_test_name(test) for test in test_files]

@@ -10,6 +10,6 @@ class TestCase(TestCaseBase):
         workspaces without failing unexpectedly.
         """
         expected = ExpectedResult(success=True)
-        actual = self._run_dwyu(target="//test/aspect/external_repo:use_external_libs", aspect=self.default_aspect)
+        actual = self._run_dwyu(target="//external_repo:use_external_libs", aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=expected)

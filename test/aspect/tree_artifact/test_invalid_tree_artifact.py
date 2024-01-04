@@ -7,11 +7,11 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(
             success=False,
             invalid_includes=[
-                "File='bazel-out/k8-fastbuild/bin/test/aspect/tree_artifact/sources.cc/tree_lib.cc', include='test/aspect/tree_artifact/some_lib.h'"
+                "File='bazel-out/k8-fastbuild/bin/tree_artifact/sources.cc/tree_lib.cc', include='tree_artifact/some_lib.h'"
             ],
         )
         actual = self._run_dwyu(
-            target="//test/aspect/tree_artifact:tree_artifact_library",
+            target="//tree_artifact:tree_artifact_library",
             aspect=self.default_aspect,
             extra_args=["--compilation_mode=fastbuild"],
         )

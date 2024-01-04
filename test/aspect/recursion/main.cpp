@@ -1,5 +1,5 @@
-#include "test/aspect/recursion/a.h"
-#include "test/aspect/recursion/b.h"
+#include "recursion/a.h"
+#include "recursion/b.h"
 
 int main()
 {

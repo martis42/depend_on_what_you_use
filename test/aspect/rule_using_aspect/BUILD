@@ -1,4 +1,4 @@
-load("//test/aspect/rule_using_aspect:rule.bzl", "dwyu_rule_direct", "dwyu_rule_recursive", "dwyu_rule_recursive_with_impl_deps")
+load("//rule_using_aspect:rule.bzl", "dwyu_rule_direct", "dwyu_rule_recursive", "dwyu_rule_recursive_with_impl_deps")
 
 dwyu_rule_direct(
     name = "dwyu_direct_main",

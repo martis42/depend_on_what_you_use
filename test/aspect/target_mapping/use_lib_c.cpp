@@ -1,4 +1,4 @@
-#include "test/aspect/target_mapping/libs/c.h"
+#include "target_mapping/libs/c.h"
 
 int main()
 {

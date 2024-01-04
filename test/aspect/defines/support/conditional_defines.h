@@ -1,4 +1,4 @@
-#include "test/aspect/defines/support/some_defines.h"
+#include "defines/support/some_defines.h"
 
 // Set defines based on values from included header
 

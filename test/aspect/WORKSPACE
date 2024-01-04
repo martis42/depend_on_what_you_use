@@ -1,0 +1,54 @@
+workspace(name = "dwyu_aspect_integration_tests")
+
+local_repository(
+    name = "depend_on_what_you_use",
+    path = "../../",
+)
+
+load("@depend_on_what_you_use//:setup_step_1.bzl", "setup_step_1")
+
+setup_step_1()
+
+load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
+
+setup_step_2()
+
+##
+## Python toolchains for testing compatibility to various Python versions
+##
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+
+maybe(
+    http_archive,
+    name = "rules_python",
+    sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
+    strip_prefix = "rules_python-0.27.0",
+    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.0/rules_python-0.27.0.tar.gz"],
+)
+
+load("@rules_python//python:repositories.bzl", "python_register_multi_toolchains")
+
+# Choose different version via: --@rules_python//python/config_settings:python_version=X
+python_register_multi_toolchains(
+    name = "python",
+    default_version = "3.8",
+    python_versions = [
+        "3.9",
+        "3.10",
+        "3.11",
+        "3.12",
+    ],
+)
+
+##
+## Workspaces for test purposes
+##
+
+load("//complex_includes:ext_repo.bzl", "load_complex_includes_repo")
+load("//external_repo:repo.bzl", "load_external_repo")
+
+load_external_repo()
+
+load_complex_includes_repo()
