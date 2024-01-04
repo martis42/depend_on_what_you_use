@@ -1,4 +1,4 @@
-#include "test/aspect/generated_code/bar.h"
+#include "generated_code/bar.h"
 
 int main()
 {

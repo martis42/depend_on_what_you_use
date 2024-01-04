@@ -6,8 +6,8 @@ class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
-            target="//test/aspect/target_mapping:use_lib_c",
-            aspect="//test/aspect/target_mapping:aspect.bzl%map_transitive_deps",
+            target="//target_mapping:use_lib_c",
+            aspect="//target_mapping:aspect.bzl%map_transitive_deps",
         )
 
         return self._check_result(actual=actual, expected=expected)

@@ -3,9 +3,9 @@
 
 cc_library(
     name = "implementation_deps_lib",
-    srcs = ["//test/aspect/unused_dep:using_bar"],
+    srcs = ["//unused_dep:using_bar"],
     implementation_deps = [
-        "//test/aspect/unused_dep:bar",
-        "//test/aspect/unused_dep:foo",
+        "//unused_dep:bar",
+        "//unused_dep:foo",
     ],
 )

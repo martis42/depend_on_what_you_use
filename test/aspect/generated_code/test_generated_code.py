@@ -8,6 +8,6 @@ class TestCase(TestCaseBase):
         Show that the aspect properly processes generated code which lives only in the bazel output tree.
         """
         expected = ExpectedResult(success=True)
-        actual = self._run_dwyu(target="//test/aspect/generated_code:foo", aspect=self.default_aspect)
+        actual = self._run_dwyu(target="//generated_code:foo", aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=expected)

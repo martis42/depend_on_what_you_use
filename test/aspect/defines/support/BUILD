@@ -1,4 +1,4 @@
-package(default_visibility = ["//test/aspect/defines:__pkg__"])
+package(default_visibility = ["//defines:__pkg__"])
 
 cc_library(
     name = "transitive_define",

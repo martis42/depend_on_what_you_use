@@ -1,6 +1,6 @@
 #ifndef A_H
 #define A_H
 
-#include "test/aspect/recursion/c.h"
+#include "recursion/c.h"
 
 #endif

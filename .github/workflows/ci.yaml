@@ -36,7 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
-        run: ./test/aspect/execute_tests.py
+        run: |
+          cd test/aspect
+          ./execute_tests.py
 
   integration-tests-apply-fixes:
     runs-on: ubuntu-22.04

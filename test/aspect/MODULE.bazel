@@ -1,0 +1,93 @@
+module(
+    name = "dwyu_aspect_integration_tests",
+    compatibility_level = 0,
+)
+
+bazel_dep(
+    name = "depend_on_what_you_use",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "depend_on_what_you_use",
+    path = "../../",
+)
+
+##
+## Python toolchains for testing compatibility to various Python versions
+##
+
+bazel_dep(
+    name = "rules_python",
+    version = "0.27.0",
+    dev_dependency = True,
+)
+
+# Update with each rules_python update for easy lookup until specifying the patch version for toolchain is possible again
+# Keep in syc with execute_tests.py
+# PATCH_MAPPING:
+#  "3.8": "3.8.18"
+#  "3.9": "3.9.18"
+#  "3.10": "3.10.13"
+#  "3.11": "3.11.6"
+#  "3.12": "3.12.0"
+# Choose different version via: --@rules_python//python/config_settings:python_version=Major.Minor.Patch mathing one of
+# the registered toolchains below.
+python = use_extension(
+    "@rules_python//python/extensions:python.bzl",
+    "python",
+    dev_dependency = True,
+)
+python.toolchain(
+    is_default = True,
+    python_version = "3.8",
+)
+python.toolchain(
+    python_version = "3.9",
+)
+python.toolchain(
+    python_version = "3.10",
+)
+python.toolchain(
+    python_version = "3.11",
+)
+python.toolchain(
+    python_version = "3.12",
+)
+
+##
+## Workspaces for test purposes
+##
+
+bazel_dep(
+    name = "external_test_repo",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "external_test_repo",
+    path = "external_repo/repo",
+)
+
+bazel_dep(
+    name = "complex_includes_test_repo",
+    version = "0.0.0",
+    dev_dependency = True,
+)
+local_path_override(
+    module_name = "complex_includes_test_repo",
+    path = "complex_includes/ext_repo",
+)
+
+##
+## The Migration phase using WORKSPACE.bzlmod and MODULE.bazel together does not support properly loading the implicit
+## Bazel dependencies. Thus, we need to load some basic things directly. This should become superfluous when we are
+## only using bzlmod eventually
+## Reference https://github.com/bazelbuild/bazel/blob/master/src/MODULE.tools
+##
+
+bazel_dep(
+    name = "platforms",
+    version = "0.0.7",
+    dev_dependency = True,
+)

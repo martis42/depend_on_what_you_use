@@ -47,7 +47,7 @@ class TestCaseBase(ABC):
 
     @property
     def default_aspect(self) -> str:
-        return "//test/aspect:aspect.bzl%dwyu"
+        return "//:aspect.bzl%dwyu"
 
     def execute_test(self, version: TestedVersions, output_base: Path, extra_args: List[str]) -> Result:
         self._tested_versions = version

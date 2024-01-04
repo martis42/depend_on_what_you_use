@@ -3,7 +3,7 @@
 #include "some/sub/dir/bar.h"
 #include "some/sub/dir/../dir/bar.h"
 // reach into virtual paths from repository root
-#include "test/aspect/relative_includes/_virtual_includes/virtual_strip/sub/dir/foo.h"
+#include "relative_includes/_virtual_includes/virtual_strip/sub/dir/foo.h"
 // include from virtually stripped path
 #include "../virtual_strip/sub/dir/foo.h"
 #include "sub/dir/../dir/foo.h"

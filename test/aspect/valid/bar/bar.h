@@ -1,7 +1,7 @@
 #ifndef BAR_H
 #define BAR_H
 
-#include "test/aspect/valid/foo/a.h"
+#include "valid/foo/a.h"
 
 int doBar();
 

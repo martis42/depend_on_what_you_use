@@ -24,7 +24,7 @@ _create_tree_artifact = rule(
         "tree_part": attr.string(),
         "tree_root": attr.string(),
         "verbose": attr.bool(default = False),
-        "_creator": attr.label(executable = True, cfg = "exec", default = "//test/aspect/tree_artifact:create_tree"),
+        "_creator": attr.label(executable = True, cfg = "exec", default = "//tree_artifact:create_tree"),
     },
 )
 

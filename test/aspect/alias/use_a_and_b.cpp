@@ -1,5 +1,5 @@
-#include "test/aspect/alias/a.h"
-#include "test/aspect/alias/b.h"
+#include "alias/a.h"
+#include "alias/b.h"
 
 int main()
 {

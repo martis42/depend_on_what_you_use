@@ -1,5 +1,5 @@
-#include "test/aspect/using_transitive_dep/foo.h"
-#include "test/aspect/using_transitive_dep/bar.h"
+#include "using_transitive_dep/foo.h"
+#include "using_transitive_dep/bar.h"
 
 int main()
 {

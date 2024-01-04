@@ -21,7 +21,9 @@ bazel build --config=mypy -- //src/... //test/aspect:all //test/apply_fixes:all
 echo ""
 echo "Execute integration tests - Aspect"
 echo ""
-./test/aspect/execute_tests.py
+cd test/aspect
+./execute_tests.py
+cd -
 
 echo ""
 echo "Execute interation tests - Applying fixes"

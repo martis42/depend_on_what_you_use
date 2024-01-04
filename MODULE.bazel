@@ -81,26 +81,6 @@ non_module_dev_dependencies = use_extension(
 )
 use_repo(non_module_dev_dependencies, "mypy_integration")
 
-bazel_dep(
-    name = "external_test_repo",
-    version = "0.0.0",
-    dev_dependency = True,
-)
-local_path_override(
-    module_name = "external_test_repo",
-    path = "test/aspect/external_repo/repo",
-)
-
-bazel_dep(
-    name = "complex_includes_test_repo",
-    version = "0.0.0",
-    dev_dependency = True,
-)
-local_path_override(
-    module_name = "complex_includes_test_repo",
-    path = "test/aspect/complex_includes/ext_repo",
-)
-
 ###
 ### The Migration phase using WORKSPACE.bzlmod and MODULE.bazel together does not support properly loading the implicit
 ### Bazel dependencies. Thus, we need to load some basic things directly. This should become superfluous when we are

@@ -1,0 +1,14 @@
+# When working with hermetic Python toolchains, supporting the legacy runfiles layout is needlessly wasting resources.
+# See https://github.com/bazelbuild/rules_python/issues/1653
+common --nolegacy_external_runfiles
+
+# The symlinks are annoying
+common --experimental_convenience_symlinks=clean
+
+# The performance gains offered by the lockfile are minimal for us.
+# Pinning the dependencies should be superfluous from a reproducibility perspective as the central registry is supposed
+# to be immutable for a module X in version Y after it has ben registered with the registry (ignoring the possibility of
+# yanking a module). Furthermore, the module resolution is deterministic.
+# However, there are several open issues suggesting the lock file will change in one way or another.
+# Thus, we don't use the bzlmod locking yet.
+common --lockfile_mode=off

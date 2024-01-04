@@ -2,5 +2,5 @@
 def load_external_repo():
     native.local_repository(
         name = "external_test_repo",
-        path = "test/aspect/external_repo/repo",
+        path = "external_repo/repo",
     )
