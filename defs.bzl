@@ -1,3 +1,7 @@
+"""
+Public symbols available to DWYU users.
+"""
+
 load("//src/aspect:factory.bzl", _dwyu_aspect_factory = "dwyu_aspect_factory")
 load(
     "//src/cc_info_mapping:cc_info_mapping.bzl",
