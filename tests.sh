@@ -16,7 +16,7 @@ bazel test -- //src/... //test/aspect:all //third_party/...
 echo ""
 echo "Executing mypy"
 echo ""
-bazel build --config=mypy -- //src/... //test/aspect:all //test/apply_fixes:all
+bazel build --config=mypy -- //src/... //examples:all //test/aspect:all //test/apply_fixes:all
 
 echo ""
 echo "Build aspect integration tests"
