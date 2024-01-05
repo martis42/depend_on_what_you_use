@@ -4,7 +4,6 @@ import json
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any
 
 
 class UsageStatus(Enum):
@@ -93,7 +92,7 @@ def _cc_targets_from_deps(deps: list[Path]) -> list[CcTarget]:
     return [_make_cc_target(dep) for dep in deps]
 
 
-def _get_include_paths(target_info: dict[str, Any]) -> list[str]:
+def _get_include_paths(target_info: dict[str, list[str]]) -> list[str]:
     """
     '.' represents the workspace root relative to which all paths in a Bazel workspace are defined. Our internal logic
     does however expect an empty string for the "include relative to workspace root" case.
@@ -109,7 +108,7 @@ def _get_include_paths(target_info: dict[str, Any]) -> list[str]:
     )
 
 
-def _get_defines(target_info: dict[str, Any]) -> list[str]:
+def _get_defines(target_info: dict[str, list[str]]) -> list[str]:
     """
     Defines with values in BUILD files or the compiler CLI can be specified via '<DEFINE_TOKEN>=<VALUE>'. However, this
     syntax is not valid for the preprocessor, which expects '<DEFINE_TOKEN> <VALUE>'.
