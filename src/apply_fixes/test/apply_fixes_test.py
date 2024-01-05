@@ -1,6 +1,7 @@
 import unittest
+from pathlib import Path
 from subprocess import CompletedProcess
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from src.apply_fixes.apply_fixes import (
     Dependency,
@@ -12,19 +13,19 @@ from src.apply_fixes.apply_fixes import (
 
 
 class TestApplyFixesHelper(unittest.TestCase):
-    def test_get_file_name(self):
+    def test_get_file_name(self) -> None:
         self.assertEqual(get_file_name("foo"), "foo")
         self.assertEqual(get_file_name("foo.txt"), "foo.txt")
         self.assertEqual(get_file_name("riff/raff/foo.txt"), "foo.txt")
 
-    def test_target_to_file(self):
+    def test_target_to_file(self) -> None:
         self.assertEqual(target_to_file(":foo"), "foo")
         self.assertEqual(target_to_file("@foo//bar:riff/raff.txt"), "raff.txt")
 
 
 class TestGetDependencies(unittest.TestCase):
     @patch("src.apply_fixes.apply_fixes.execute_and_capture")
-    def test_parse_query_output(self, execute_query_mock):
+    def test_parse_query_output(self, execute_query_mock: MagicMock) -> None:
         execute_query_mock.return_value = CompletedProcess(
             args=[],
             returncode=0,
@@ -51,7 +52,7 @@ class TestGetDependencies(unittest.TestCase):
 </query>
 """.strip(),
         )
-        deps = get_dependencies(workspace=None, target="")
+        deps = get_dependencies(workspace=Path(), target="")
 
         self.assertEqual(len(deps), 2)
         self.assertEqual(deps[0].target, "//foo:bar")
@@ -61,17 +62,17 @@ class TestGetDependencies(unittest.TestCase):
 
 
 class TestSearchDeps(unittest.TestCase):
-    def test_noop_for_empty_input(self):
-        self.assertEqual(search_missing_deps(workspace=None, target="", includes_without_direct_dep=[]), [])
+    def test_noop_for_empty_input(self) -> None:
+        self.assertEqual(search_missing_deps(workspace=Path(), target="", includes_without_direct_dep={}), [])
 
     @patch("src.apply_fixes.apply_fixes.get_dependencies")
-    def test_find_dependency(self, get_deps_mock):
+    def test_find_dependency(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//unrelated:lib", hdrs=["some_include.h"]),
             Dependency(target="//expected:target", hdrs=["include_a.h", "include_b.h"]),
         ]
         deps = search_missing_deps(
-            workspace=None,
+            workspace=Path(),
             target="foo",
             includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
         )
@@ -79,11 +80,11 @@ class TestSearchDeps(unittest.TestCase):
         self.assertEqual(deps, ["//expected:target"])
 
     @patch("src.apply_fixes.apply_fixes.get_dependencies")
-    def test_fail_on_unresolved_dependency(self, get_deps_mock):
+    def test_fail_on_unresolved_dependency(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [Dependency(target="//unrelated:lib", hdrs=["some_include.h"])]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
-                workspace=None,
+                workspace=Path(),
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
             )
@@ -103,14 +104,14 @@ class TestSearchDeps(unittest.TestCase):
             self.assertEqual(deps, [])
 
     @patch("src.apply_fixes.apply_fixes.get_dependencies")
-    def test_fail_on_ambiguous_dependency_resolution(self, get_deps_mock):
+    def test_fail_on_ambiguous_dependency_resolution(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//:lib_a", hdrs=["foo.h"]),
             Dependency(target="//:lib_b", hdrs=["foo.h"]),
         ]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
-                workspace=None,
+                workspace=Path(),
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
             )

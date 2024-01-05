@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import logging
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from sys import exit
 
 from execution_logic import main
@@ -8,7 +8,7 @@ from execution_logic import main
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
-def cli():
+def cli() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
     parser.add_argument("--list", "-l", action="store_true", help="List all available test cases and return.")

@@ -26,6 +26,8 @@ select = [
     "UP",
     # flake8-builtins
     "A",
+    # flake8-annotations
+    "ANN",
     # flake8-bugbear
     "B",
     # flake8-simplify
@@ -38,6 +40,10 @@ select = [
     "RUF"
 ]
 ignore = [
+    # Annotating **kwargs has little value
+    "ANN003",
+    # Documenting the type of 'self' is too verbose and in most cases either way obvious
+    "ANN101",
     # It is fine tha some line are longer than the length limit
     "E501",
     # Number of function arguments is too opinionated

@@ -4,7 +4,7 @@ import logging
 import shlex
 import subprocess
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -102,7 +102,7 @@ def execute_example(example: Example, legacy_workspace: bool) -> Result:
     return Result(example=cmd, success=False)
 
 
-def cli():
+def cli() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
         "--legacy-workspace",

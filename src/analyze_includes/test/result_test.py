@@ -16,7 +16,7 @@ class TestResult(unittest.TestCase):
             msg += "Result: SUCCESS"
         return border + "\n" + msg + errors + "\n" + border
 
-    def test_is_ok(self):
+    def test_is_ok(self) -> None:
         unit = Result("//foo:bar")
 
         self.assertTrue(unit.is_ok())
@@ -36,7 +36,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_invalid_private_includes(self):
+    def test_is_ok_fails_due_to_invalid_private_includes(self) -> None:
         unit = Result(
             target="//foo:bar",
             private_includes_without_dep=[
@@ -80,7 +80,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_invalid_public_includes(self):
+    def test_is_ok_fails_due_to_invalid_public_includes(self) -> None:
         unit = Result(
             target="//foo:bar",
             public_includes_without_dep=[
@@ -124,7 +124,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_unused_public_deps(self):
+    def test_is_ok_fails_due_to_unused_public_deps(self) -> None:
         unit = Result(target="//foo:bar", unused_deps=["foo", "baz"])
 
         self.assertFalse(unit.is_ok())
@@ -155,7 +155,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_unused_private_deps(self):
+    def test_is_ok_fails_due_to_unused_private_deps(self) -> None:
         unit = Result(target="//foo:bar", unused_impl_deps=["foo", "baz"])
 
         self.assertFalse(unit.is_ok())
@@ -186,7 +186,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_unused_public_and_private_deps(self):
+    def test_is_ok_fails_due_to_unused_public_and_private_deps(self) -> None:
         unit = Result(target="//foo:bar", unused_deps=["foo"], unused_impl_deps=["baz"])
 
         self.assertFalse(unit.is_ok())
@@ -219,7 +219,7 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
-    def test_is_ok_fails_due_to_deps_which_should_be_private(self):
+    def test_is_ok_fails_due_to_deps_which_should_be_private(self) -> None:
         unit = Result(target="//foo:bar", deps_which_should_be_private=["foo", "baz"])
 
         self.assertFalse(unit.is_ok())

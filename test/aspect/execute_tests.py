@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import logging
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from sys import exit
 
 from execution_logic import main
@@ -57,7 +57,7 @@ VERSION_SPECIFIC_ARGS = {
 }
 
 
-def cli():
+def cli() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
     parser.add_argument(

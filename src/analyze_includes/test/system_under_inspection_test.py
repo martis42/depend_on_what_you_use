@@ -16,18 +16,18 @@ class TestUsageStatusTracker(unittest.TestCase):
         unit.update(value)
         return unit
 
-    def test_default_ctor(self):
+    def test_default_ctor(self) -> None:
         unit = UsageStatusTracker()
 
         self.assertEqual(unit.usage, UsageStatus.NONE)
         self.assertFalse(unit.is_used())
 
-    def test_no_usage_resetting(self):
+    def test_no_usage_resetting(self) -> None:
         unit = UsageStatusTracker()
         with self.assertRaisesRegex(Exception, "Resetting the usage is not supported"):
             unit.update(UsageStatus.NONE)
 
-    def test_update_to_public_and_then_private(self):
+    def test_update_to_public_and_then_private(self) -> None:
         unit = UsageStatusTracker()
 
         unit.update(UsageStatus.PUBLIC)
@@ -36,7 +36,7 @@ class TestUsageStatusTracker(unittest.TestCase):
         unit.update(UsageStatus.PRIVATE)
         self.assertEqual(unit.usage, UsageStatus.PUBLIC_AND_PRIVATE)
 
-    def test_update_to_private_and_then_public(self):
+    def test_update_to_private_and_then_public(self) -> None:
         unit = UsageStatusTracker()
 
         unit.update(UsageStatus.PRIVATE)
@@ -45,7 +45,7 @@ class TestUsageStatusTracker(unittest.TestCase):
         unit.update(UsageStatus.PUBLIC)
         self.assertEqual(unit.usage, UsageStatus.PUBLIC_AND_PRIVATE)
 
-    def test_public_and_private_state_is_stable(self):
+    def test_public_and_private_state_is_stable(self) -> None:
         unit = self.make_tracker_with_value(UsageStatus.PUBLIC_AND_PRIVATE)
 
         unit.update(UsageStatus.PUBLIC)
@@ -57,7 +57,7 @@ class TestUsageStatusTracker(unittest.TestCase):
         unit.update(UsageStatus.PUBLIC_AND_PRIVATE)
         self.assertEqual(unit.usage, UsageStatus.PUBLIC_AND_PRIVATE)
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         unit_a = UsageStatusTracker()
         self.assertEqual(repr(unit_a), "NONE")
 
@@ -72,14 +72,14 @@ class TestUsageStatusTracker(unittest.TestCase):
 
 
 class TestCcTarget(unittest.TestCase):
-    def test_repr(self):
+    def test_repr(self) -> None:
         unit = CcTarget(name="//:foo", header_files=["bar.h"])
 
         self.assertEqual(repr(unit), "CcTarget(name='//:foo', usage='NONE', header_files=['bar.h'])")
 
 
 class TestGetSystemUnderInspection(unittest.TestCase):
-    def test_load_full_file(self):
+    def test_load_full_file(self) -> None:
         sui = get_system_under_inspection(
             target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection.json"),
             deps=[
@@ -115,7 +115,7 @@ class TestGetSystemUnderInspection(unittest.TestCase):
         self.assertEqual(sui.include_paths, ["", "some/dir", "another/dir"])
         self.assertEqual(sui.defines, ["SOME_DEFINE", "ANOTHER_DEFINE 42"])
 
-    def test_load_empty_file(self):
+    def test_load_empty_file(self) -> None:
         sui = get_system_under_inspection(
             target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection_empty.json"),
             deps=[],

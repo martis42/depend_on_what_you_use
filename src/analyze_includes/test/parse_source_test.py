@@ -11,7 +11,7 @@ from src.analyze_includes.parse_source import (
 
 
 class TestInclude(unittest.TestCase):
-    def test_equality(self):
+    def test_equality(self) -> None:
         unit_a = Include(file=Path("foo"), include="foo.h")
         unit_b = Include(file=Path("foo"), include="foo.h")
         unit_c = Include(file=Path("bar"), include="foo.h")
@@ -22,13 +22,13 @@ class TestInclude(unittest.TestCase):
         self.assertNotEqual(unit_a, unit_d)
         self.assertNotEqual(unit_c, unit_d)
 
-    def test_in(self):
+    def test_in(self) -> None:
         unit = [Include(file=Path("foo"), include="foo.h"), Include(file=Path("bar"), include="bar.h")]
 
         self.assertTrue(Include(file=Path("foo"), include="foo.h") in unit)
         self.assertTrue(Include(file=Path("bar"), include="bar.h") in unit)
 
-    def test_hash(self):
+    def test_hash(self) -> None:
         include = Include(file=Path("foo"), include="bar")
         unit = {include, include, Include(file=Path("foo"), include="bar"), Include(file=Path("bar"), include="foo")}
 
@@ -36,18 +36,18 @@ class TestInclude(unittest.TestCase):
         self.assertTrue(Include(file=Path("foo"), include="bar") in unit)
         self.assertTrue(Include(file=Path("bar"), include="foo") in unit)
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         unit = Include(file=Path("foo"), include="bar")
         self.assertEqual(repr(unit), "Include(file='foo', include='bar')")
 
-    def test_str(self):
+    def test_str(self) -> None:
         unit = Include(file=Path("foo"), include="bar")
 
         self.assertEqual(str(unit), "File='foo', include='bar'")
 
 
 class TestFilterIncludes(unittest.TestCase):
-    def test_filter_includes_for_file_paths(self):
+    def test_filter_includes_for_file_paths(self) -> None:
         result = filter_includes(
             includes=[
                 Include(file=Path("file1"), include="hiho.h"),
@@ -64,7 +64,7 @@ class TestFilterIncludes(unittest.TestCase):
         self.assertTrue(Include(file=Path("file3"), include="foo_pattern_not_match") in result)
         self.assertTrue(Include(file=Path("file4"), include="some/other/baz.h") in result)
 
-    def test_filter_includes_for_patterns(self):
+    def test_filter_includes_for_patterns(self) -> None:
         result = filter_includes(
             includes=[
                 Include(file=Path("file1"), include="some_header.h"),
@@ -98,19 +98,19 @@ class TestFilterIncludes(unittest.TestCase):
 
 
 class TestGetIncludesFromFile(unittest.TestCase):
-    def test_empty_header(self):
+    def test_empty_header(self) -> None:
         test_file = Path("src/analyze_includes/test/data/empty_header.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [])
 
-    def test_single_include(self):
+    def test_single_include(self) -> None:
         test_file = Path("src/analyze_includes/test/data/another_header.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
 
-    def test_multiple_includes(self):
+    def test_multiple_includes(self) -> None:
         test_file = Path("src/analyze_includes/test/data/some_header.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
@@ -119,7 +119,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="foo/bar/baz.h") in result)
         self.assertTrue(Include(file=test_file, include="some/path/to_a/system_header.h") in result)
 
-    def test_commented_includes_single_line_comments(self):
+    def test_commented_includes_single_line_comments(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
@@ -127,7 +127,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_a.h") in result)
         self.assertTrue(Include(file=test_file, include="active_b.h") in result)
 
-    def test_commented_includes_block_comments(self):
+    def test_commented_includes_block_comments(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
@@ -141,13 +141,13 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_g.h") in result)
         self.assertTrue(Include(file=test_file, include="active_h.h") in result)
 
-    def test_commented_includes_mixed_style(self):
+    def test_commented_includes_mixed_style(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
 
-    def test_includes_selected_through_defines(self):
+    def test_includes_selected_through_defines(self) -> None:
         test_file = Path("src/analyze_includes/test/data/header_with_defines.h")
         result = get_includes_from_file(test_file, defines=["FOO", "BAZ 42"], include_paths=[])
 
@@ -157,7 +157,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="no_bar.h") in result)
         self.assertTrue(Include(file=test_file, include="baz_greater_40.h") in result)
 
-    def test_includes_selected_through_defines_from_header(self):
+    def test_includes_selected_through_defines_from_header(self) -> None:
         test_file = Path("src/analyze_includes/test/data/use_defines.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
@@ -166,7 +166,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="expected/include_a.h") in result)
         self.assertTrue(Include(file=test_file, include="expected/include_b.h") in result)
 
-    def test_include_based_on_pre_processor_token(self):
+    def test_include_based_on_pre_processor_token(self) -> None:
         test_file = Path("src/analyze_includes/test/data/include_based_on_pre_processor_token.h")
         result = get_includes_from_file(test_file, defines=[], include_paths=[])
 
@@ -175,7 +175,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
 
 
 class TestGetRelevantIncludesFromFiles(unittest.TestCase):
-    def test_get_relevant_includes_from_files(self):
+    def test_get_relevant_includes_from_files(self) -> None:
         result = get_relevant_includes_from_files(
             files=["src/analyze_includes/test/data/some_header.h", "src/analyze_includes/test/data/another_header.h"],
             ignored_includes=IgnoredIncludes(paths=["vector"], patterns=[]),
