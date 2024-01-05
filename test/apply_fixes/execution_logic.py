@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
-from typing import List, Optional
 
 from result import Error
 from test_case import TestCaseBase
@@ -123,7 +124,7 @@ def file_to_test_name(test_file: Path) -> str:
     return test_file.parent.name + "/" + test_file.stem.replace("test_", "", 1)
 
 
-def main(requested_tests: Optional[List[str]] = None, list_tests: bool = False) -> int:
+def main(requested_tests: list[str] | None = None, list_tests: bool = False) -> int:
     current_workspace = get_current_workspace()
     tests_search_dir = current_workspace / TEST_CASES_DIR
     test_files = [Path(x) for x in tests_search_dir.glob("*/test_*.py")]

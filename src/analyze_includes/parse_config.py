@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Optional
 
 from src.analyze_includes.parse_source import IgnoredIncludes
 from src.analyze_includes.std_header import STD_HEADER
@@ -10,7 +11,7 @@ EXTRA_IGNORED_PATHS_KEY = "extra_ignore_include_paths"
 IGNORED_PATTERNS_KEY = "ignore_include_patterns"
 
 
-def get_ignored_includes(config_file: Optional[Path]) -> IgnoredIncludes:
+def get_ignored_includes(config_file: Path | None) -> IgnoredIncludes:
     ignored_paths = STD_HEADER
     ignored_patterns = []
     if config_file:

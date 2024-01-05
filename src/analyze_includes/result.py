@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from dataclasses import dataclass, field
 from json import dumps
-from typing import DefaultDict, List
 
 from src.analyze_includes.parse_source import Include
 
@@ -9,11 +10,11 @@ from src.analyze_includes.parse_source import Include
 @dataclass
 class Result:
     target: str
-    public_includes_without_dep: List[Include] = field(default_factory=list)
-    private_includes_without_dep: List[Include] = field(default_factory=list)
-    unused_deps: List[str] = field(default_factory=list)
-    unused_impl_deps: List[str] = field(default_factory=list)
-    deps_which_should_be_private: List[str] = field(default_factory=list)
+    public_includes_without_dep: list[Include] = field(default_factory=list)
+    private_includes_without_dep: list[Include] = field(default_factory=list)
+    unused_deps: list[str] = field(default_factory=list)
+    unused_impl_deps: list[str] = field(default_factory=list)
+    deps_which_should_be_private: list[str] = field(default_factory=list)
     use_impl_deps: bool = False
 
     def is_ok(self) -> bool:
@@ -59,7 +60,7 @@ class Result:
         return dumps(content, indent=2) + "\n"
 
     @staticmethod
-    def _make_includes_map(includes: List[Include]) -> DefaultDict[str, List[str]]:
+    def _make_includes_map(includes: list[Include]) -> defaultdict[str, list[str]]:
         includes_mapping = defaultdict(list)
         for inc in includes:
             includes_mapping[str(inc.file)].append(inc.include)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from abc import ABC, abstractmethod
@@ -6,7 +8,6 @@ from os import environ
 from pathlib import Path
 from shlex import join as shlex_join
 from shutil import which
-from typing import List, Optional, Union
 
 from result import Error, ExpectedResult, Result, Success
 from version import CompatibleVersions, TestedVersions
@@ -17,7 +18,7 @@ class TestCaseBase(ABC):
         self._name = name
         self._tested_versions = TestedVersions(bazel="", python="")
         self._output_base = Path()
-        self._extra_args: List[str] = []
+        self._extra_args: list[str] = []
 
     #
     # Interface
@@ -49,7 +50,7 @@ class TestCaseBase(ABC):
     def default_aspect(self) -> str:
         return "//:aspect.bzl%dwyu"
 
-    def execute_test(self, version: TestedVersions, output_base: Path, extra_args: List[str]) -> Result:
+    def execute_test(self, version: TestedVersions, output_base: Path, extra_args: list[str]) -> Result:
         self._tested_versions = version
         self._output_base = output_base
         self._extra_args = extra_args
@@ -69,7 +70,7 @@ class TestCaseBase(ABC):
         return Success() if as_expected else Error("DWYU did not behave as expected")
 
     def _run_dwyu(
-        self, target: Union[str, List[str]], aspect: str, extra_args: Optional[List[str]] = None
+        self, target: str | list[str], aspect: str, extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
         extra_args = extra_args if extra_args else []
         return self._run_bazel_build(
@@ -83,7 +84,7 @@ class TestCaseBase(ABC):
         )
 
     def _run_bazel_build(
-        self, target: Union[str, List[str]], extra_args: Optional[List[str]] = None
+        self, target: str | list[str], extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
         extra_args = extra_args if extra_args else []
         targets = target if isinstance(target, list) else [target]

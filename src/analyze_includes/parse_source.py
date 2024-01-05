@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import List, Optional
 
 from pcpp.preprocessor import Action, OutputDirective, Preprocessor
 
@@ -67,8 +68,8 @@ class IgnoredIncludes:
     or headers chosen by the user.
     """
 
-    paths: List[str]
-    patterns: List[str]
+    paths: list[str]
+    patterns: list[str]
 
     def is_ignored(self, include: str) -> bool:
         is_ignored_path = include in self.paths
@@ -76,7 +77,7 @@ class IgnoredIncludes:
         return is_ignored_path or is_ignored_pattern
 
 
-def get_includes_from_file(file: Path, defines: List[str], include_paths: List[str]) -> List[Include]:
+def get_includes_from_file(file: Path, defines: list[str], include_paths: list[str]) -> list[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through pre processor
     branching (e.g. #ifdef).
@@ -110,7 +111,7 @@ def get_includes_from_file(file: Path, defines: List[str], include_paths: List[s
         return [Include(file=file, include=include.lstrip('"<').rstrip('">')) for include in included_paths]
 
 
-def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) -> List[Include]:
+def filter_includes(includes: list[Include], ignored_includes: IgnoredIncludes) -> list[Include]:
     """
     - deduplicate list entries
     - throw away uninteresting includes (e.g. from standard library or ignored includes provided by the user)
@@ -120,8 +121,8 @@ def filter_includes(includes: List[Include], ignored_includes: IgnoredIncludes) 
 
 
 def get_relevant_includes_from_files(
-    files: Optional[List[str]], ignored_includes: IgnoredIncludes, defines: List[str], include_paths: List[str]
-) -> List[Include]:
+    files: list[str] | None, ignored_includes: IgnoredIncludes, defines: list[str], include_paths: list[str]
+) -> list[Include]:
     all_includes = []
     if files:
         for file in files:

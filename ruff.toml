@@ -37,7 +37,9 @@ select = [
     # Pylint
     "PL",
     # Ruff-specific
-    "RUF"
+    "RUF",
+    # Ensure we use modern typing syntax
+    "FA100",
 ]
 ignore = [
     # Annotating **kwargs has little value

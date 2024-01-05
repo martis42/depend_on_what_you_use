@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import List
 
 from src.analyze_includes.parse_source import Include
 from src.analyze_includes.result import Result
@@ -11,7 +12,7 @@ from src.analyze_includes.system_under_inspection import (
 
 
 def does_include_match_available_files(
-    include_statement: str, include_paths: List[str], header_files: List[str]
+    include_statement: str, include_paths: list[str], header_files: list[str]
 ) -> bool:
     for header in header_files:
         for inc in include_paths:
@@ -21,17 +22,17 @@ def does_include_match_available_files(
     return False
 
 
-def _include_resolves_to_any_file(included_path: Path, files: List[str]) -> bool:
+def _include_resolves_to_any_file(included_path: Path, files: list[str]) -> bool:
     return any(included_path == Path(file).resolve() for file in files)
 
 
 def _check_for_invalid_includes(
-    includes: List[Include],
-    dependencies: List[CcTarget],
+    includes: list[Include],
+    dependencies: list[CcTarget],
     usage: UsageStatus,
     target_under_inspection: CcTarget,
-    include_paths: List[str],
-) -> List[Include]:
+    include_paths: list[str],
+) -> list[Include]:
     invalid_includes = []
 
     for inc in includes:
@@ -82,11 +83,11 @@ def _check_for_invalid_includes(
     return invalid_includes
 
 
-def _check_for_unused_dependencies(dependencies: List[CcTarget]) -> List[str]:
+def _check_for_unused_dependencies(dependencies: list[CcTarget]) -> list[str]:
     return [dep.name for dep in dependencies if not dep.usage.is_used()]
 
 
-def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> List[str]:
+def _check_for_public_deps_which_should_be_private(dependencies: SystemUnderInspection) -> list[str]:
     return [dep.name for dep in dependencies.deps if dep.usage.usage == UsageStatus.PRIVATE]
 
 
@@ -106,8 +107,8 @@ def _filter_empty_dependencies(system_under_inspection: SystemUnderInspection) -
 
 
 def evaluate_includes(
-    public_includes: List[Include],
-    private_includes: List[Include],
+    public_includes: list[Include],
+    private_includes: list[Include],
     system_under_inspection: SystemUnderInspection,
     ensure_private_deps: bool,
 ) -> Result:

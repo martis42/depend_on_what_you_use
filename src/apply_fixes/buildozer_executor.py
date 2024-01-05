@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from pathlib import Path
-from typing import List
 
 from src.apply_fixes.summary import Summary
 
@@ -15,7 +16,7 @@ class BuildozerExecutor:
     build up a summary of all executed commands.
     """
 
-    def __init__(self, buildozer: str, buildozer_args: List[str], workspace: Path, dry: bool) -> None:
+    def __init__(self, buildozer: str, buildozer_args: list[str], workspace: Path, dry: bool) -> None:
         self._base_cmd = self._make_base_cmd(binary=buildozer, args=buildozer_args, dry=dry)
         self._workspace = workspace
         self._dry = dry
@@ -33,7 +34,7 @@ class BuildozerExecutor:
         self._summary.add_command(cmd=command, buildozer_result=process.returncode)
 
     @staticmethod
-    def _make_base_cmd(binary: str, dry: bool, args: List[str]) -> List[str]:
+    def _make_base_cmd(binary: str, dry: bool, args: list[str]) -> list[str]:
         command = [binary]
         if args:
             command.extend(args)

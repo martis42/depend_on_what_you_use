@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 import subprocess
@@ -8,7 +10,6 @@ from dataclasses import dataclass
 from itertools import chain
 from os import environ
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
 
@@ -25,12 +26,12 @@ class RequestedFixes:
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
-def execute_and_capture(cmd: List[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+def execute_and_capture(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
     logging.debug(f"Executing command: {cmd}")
     return subprocess.run(cmd, cwd=cwd, check=check, capture_output=True, text=True)
 
 
-def get_workspace(main_args: Namespace) -> Optional[Path]:
+def get_workspace(main_args: Namespace) -> Path | None:
     if main_args.workspace:
         return Path(main_args.workspace)
 
@@ -57,7 +58,7 @@ def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
     return bazel_bin_link.resolve()
 
 
-def gather_reports(bazel_bin: Path) -> List[Path]:
+def gather_reports(bazel_bin: Path) -> list[Path]:
     return list(bazel_bin.glob("**/*_dwyu_report.json"))
 
 
@@ -74,13 +75,13 @@ def target_to_file(dep: str) -> str:
 @dataclass
 class Dependency:
     target: str
-    hdrs: List[str]
+    hdrs: list[str]
 
     def __repr__(self) -> str:
         return f"Dependency(target={self.target}, hdrs={self.hdrs})"
 
 
-def get_dependencies(workspace: Path, target: str) -> List[Dependency]:
+def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
     """
     Extract dependencies from a given target together with further information about those dependencies.
     """
@@ -103,7 +104,7 @@ def get_dependencies(workspace: Path, target: str) -> List[Dependency]:
     ]
 
 
-def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: Dict[str, List[str]]) -> List[str]:
+def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: dict[str, list[str]]) -> list[str]:
     """
     Search for targets providing header files matching the include statements without matching direct dependency in the
     transitive dependencies of the target under inspection.
@@ -143,8 +144,8 @@ Please fix this manually. Candidates which have been discovered:
 
 
 def add_discovered_deps(
-    discovered_public_deps: List[str],
-    discovered_private_deps: List[str],
+    discovered_public_deps: list[str],
+    discovered_private_deps: list[str],
     target: str,
     buildozer: BuildozerExecutor,
     use_impl_deps: bool,
