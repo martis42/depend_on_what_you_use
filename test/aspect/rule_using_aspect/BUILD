@@ -7,11 +7,17 @@ dwyu_rule_direct(
 
 dwyu_rule_recursive(
     name = "dwyu_recursive_main",
+    tags = [
+        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
+    ],
     deps = [":main"],
 )
 
 dwyu_rule_recursive_with_impl_deps(
     name = "dwyu_recursive_with_impl_deps",
+    tags = [
+        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
+    ],
     deps = [":use_impl_deps"],
 )
 

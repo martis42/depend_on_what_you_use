@@ -7,5 +7,8 @@ cc_library(
 
 dwyu_rule(
     name = "dwyu",
+    tags = [
+        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
+    ],
     deps = [":bad_target"],
 )

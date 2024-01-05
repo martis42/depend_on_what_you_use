@@ -23,16 +23,25 @@ jobs:
 
   fast-tests:
     runs-on: ubuntu-22.04
+    needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@v4
       - name: Unit tests
         run: bazel test -- //src/... //test/aspect:all //third_party/...
       - name: Execute Mypy
         run: bazel build --config=mypy -- //src/... //test/aspect:all //test/apply_fixes:all
+      - name: Build aspect integration tests
+        run: |
+          cd test/aspect
+          bazel build //...
+      - name: Build examples
+        run: |
+          cd examples
+          bazel build //...
 
   integration-tests-aspect:
     runs-on: ubuntu-22.04
-    needs: [ pre-commit, fast-tests ]
+    needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
@@ -42,7 +51,7 @@ jobs:
 
   integration-tests-apply-fixes:
     runs-on: ubuntu-22.04
-    needs: [ pre-commit, fast-tests ]
+    needs: [ fast-tests ]
     steps:
       - run: |
           mkdir --parents /tmp/bin
@@ -56,7 +65,7 @@ jobs:
 
   integration-tests-examples:
     runs-on: ubuntu-22.04
-    needs: [ pre-commit, fast-tests ]
+    needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Examples
