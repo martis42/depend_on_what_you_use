@@ -45,3 +45,7 @@ ignore = [
     # High false positive rate. Often a plain number is the most expressive, e.g. when checling lengths.
     "PLR2004",
 ]
+unfixable = [
+    # Removing unused imports while writing new code is annoying when execting Ruff via the IDE
+    "F401",
+]
