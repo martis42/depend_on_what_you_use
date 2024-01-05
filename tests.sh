@@ -19,6 +19,20 @@ echo ""
 bazel build --config=mypy -- //src/... //test/aspect:all //test/apply_fixes:all
 
 echo ""
+echo "Build aspect integration tests"
+echo ""
+cd test/aspect
+bazel build //...
+cd -
+
+echo ""
+echo "Build examples"
+echo ""
+cd examples
+bazel build //...
+cd -
+
+echo ""
 echo "Execute integration tests - Aspect"
 echo ""
 cd test/aspect

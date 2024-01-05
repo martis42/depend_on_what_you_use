@@ -42,7 +42,7 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
-        build_cmd="//rule_using_dwyu/...",
+        build_cmd="//rule_using_dwyu:dwyu",
         expected_success=False,
     ),
     Example(
