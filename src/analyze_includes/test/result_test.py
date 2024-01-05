@@ -250,24 +250,23 @@ class TestResult(unittest.TestCase):
 """.lstrip(),
         )
 
+    def test_set_use_implementation_deps(self) -> None:
+        unit = Result(target="//:foo", use_impl_deps=True)
 
-def test_set_use_implementation_deps(self):
-    unit = Result(target="//:foo", use_impl_deps=True)
-
-    self.assertEqual(
-        unit.to_json(),
-        """
+        self.assertEqual(
+            unit.to_json(),
+            """
 {
-"analyzed_target": "//:foo",
-"public_includes_without_dep": {},
-"private_includes_without_dep": {},
-"unused_deps": [],
-"unused_implementation_deps": [],
-"deps_which_should_be_private": [],
-"use_implementation_deps": false
+  "analyzed_target": "//:foo",
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {},
+  "unused_deps": [],
+  "unused_implementation_deps": [],
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": true
 }
 """.lstrip(),
-    )
+        )
 
 
 if __name__ == "__main__":
