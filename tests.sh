@@ -11,12 +11,12 @@ poetry run pre-commit run --all-files
 echo ""
 echo "Execute unit tests"
 echo ""
-bazel test -- //src/... //test/aspect:all //third_party/...
+./scripts/unit_tests.sh
 
 echo ""
 echo "Executing mypy"
 echo ""
-bazel build --config=mypy -- //src/... //examples:all //test/aspect:all //test/apply_fixes:all
+./scripts/mypy.sh
 
 echo ""
 echo "Build aspect integration tests"
