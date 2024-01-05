@@ -1,13 +1,13 @@
 import logging
 import sys
-from argparse import REMAINDER, ArgumentParser, RawDescriptionHelpFormatter
+from argparse import REMAINDER, ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
 from src.apply_fixes.apply_fixes import main
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
-def cli():
+def cli() -> Namespace:
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         description="""

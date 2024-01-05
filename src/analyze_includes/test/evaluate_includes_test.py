@@ -10,7 +10,7 @@ from src.analyze_includes.system_under_inspection import CcTarget, SystemUnderIn
 
 
 class TestIncludeTofileMatching(unittest.TestCase):
-    def test_match_with_standard_include_path(self):
+    def test_match_with_standard_include_path(self) -> None:
         self.assertTrue(
             does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=["foo.h"])
         )
@@ -27,7 +27,7 @@ class TestIncludeTofileMatching(unittest.TestCase):
             )
         )
 
-    def test_no_match_with_standard_include_path(self):
+    def test_no_match_with_standard_include_path(self) -> None:
         self.assertFalse(
             does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=[])
         )
@@ -42,14 +42,14 @@ class TestIncludeTofileMatching(unittest.TestCase):
             )
         )
 
-    def test_match_based_on_non_standard_include_path(self):
+    def test_match_based_on_non_standard_include_path(self) -> None:
         self.assertTrue(
             does_include_match_available_files(
                 include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/foo.h"]
             )
         )
 
-    def test_no_match_based_on_non_standard_include_path(self):
+    def test_no_match_based_on_non_standard_include_path(self) -> None:
         self.assertFalse(
             does_include_match_available_files(
                 include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/bar.h", "wrong/foo.h"]
@@ -58,7 +58,7 @@ class TestIncludeTofileMatching(unittest.TestCase):
 
 
 class TestEvaluateIncludes(unittest.TestCase):
-    def test_success_for_valid_dependencies(self):
+    def test_success_for_valid_dependencies(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("file1"), include="foo.h"),
@@ -83,7 +83,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_valid_dependencies_with_virtual_include_paths(self):
+    def test_success_for_valid_dependencies_with_virtual_include_paths(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("file1"), include="foo.h"),
@@ -102,7 +102,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_valid_dependencies_with_virtual_include_paths_and_relative_include_statements(self):
+    def test_success_for_valid_dependencies_with_virtual_include_paths_and_relative_include_statements(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("file1"), include="../../self/own_header.h"),
@@ -121,7 +121,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_internal_relative_includes_with_flat_structure(self):
+    def test_success_for_internal_relative_includes_with_flat_structure(self) -> None:
         result = evaluate_includes(
             public_includes=[Include(file=Path("foo.h"), include="bar.h")],
             private_includes=[],
@@ -137,7 +137,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_internal_relative_includes_with_nested_structure(self):
+    def test_success_for_internal_relative_includes_with_nested_structure(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("nested/dir/foo.h"), include="bar.h"),
@@ -166,7 +166,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_success_for_relative_includes_to_dependency(self):
+    def test_success_for_relative_includes_to_dependency(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("bar/dir/bar.h"), include="sub/tick.h"),
@@ -191,7 +191,7 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
-    def test_invalid_includes_missing_internal_include(self):
+    def test_invalid_includes_missing_internal_include(self) -> None:
         result = evaluate_includes(
             public_includes=[Include(file=Path("some/dir/foo.h"), include="tick.h")],
             private_includes=[Include(file=Path("some/dir/bar.h"), include="tock.h")],
@@ -216,7 +216,7 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertEqual(result.public_includes_without_dep, [Include(file=Path("some/dir/foo.h"), include="tick.h")])
         self.assertEqual(result.private_includes_without_dep, [Include(file=Path("some/dir/bar.h"), include="tock.h")])
 
-    def test_missing_includes_from_dependencies(self):
+    def test_missing_includes_from_dependencies(self) -> None:
         result = evaluate_includes(
             public_includes=[
                 Include(file=Path("public_file"), include="foo.h"),
@@ -249,7 +249,7 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertTrue(Include(file=Path("private_file"), include="bar/foo.h") in result.private_includes_without_dep)
         self.assertTrue(Include(file=Path("private_file"), include="bar/bar.h") in result.private_includes_without_dep)
 
-    def test_unused_dependencies(self):
+    def test_unused_dependencies(self) -> None:
         result = evaluate_includes(
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[Include(file=Path("private_file"), include="impl_dep.h")],
@@ -282,7 +282,7 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertTrue("impl_foo" in result.unused_impl_deps)
         self.assertTrue("impl_bar" in result.unused_impl_deps)
 
-    def test_public_dependencies_which_should_be_private(self):
+    def test_public_dependencies_which_should_be_private(self) -> None:
         result = evaluate_includes(
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[
@@ -312,7 +312,7 @@ class TestEvaluateIncludes(unittest.TestCase):
         self.assertTrue("foo" in result.deps_which_should_be_private)
         self.assertTrue("bar" in result.deps_which_should_be_private)
 
-    def test_public_dependencies_which_should_be_private_disabled(self):
+    def test_public_dependencies_which_should_be_private_disabled(self) -> None:
         result = evaluate_includes(
             public_includes=[Include(file=Path("public_file"), include="foobar.h")],
             private_includes=[

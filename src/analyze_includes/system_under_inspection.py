@@ -53,7 +53,7 @@ class CcTarget:
     header_files: List[str]
     usage: UsageStatusTracker = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.usage = UsageStatusTracker()
 
     def __repr__(self) -> str:

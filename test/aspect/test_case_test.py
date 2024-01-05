@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from typing import Any, List
+from typing import Dict, List, Union
 from unittest.mock import MagicMock, Mock, patch
 
 from result import Error, Result, Success
@@ -9,11 +9,11 @@ from version import TestedVersions
 
 
 class TestCaseMock(TestCaseBase):
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         super().__init__(name)
         self.result = Success()
         self.dwyu_extra_args: List[str] = []
-        self.target = "//foo:bar"
+        self.target: Union[List[str], str] = "//foo:bar"
 
     def execute_test_logic(self) -> Result:
         self._run_dwyu(target=self.target, aspect="//some:aspect", extra_args=self.dwyu_extra_args)
@@ -21,12 +21,12 @@ class TestCaseMock(TestCaseBase):
 
 
 class TestCaseTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.unit = TestCaseMock("foo")
         self.unit._bazel_binary = Mock(return_value="/bazel/binary")
 
     @staticmethod
-    def get_cmd(mock: MagicMock) -> Any:
+    def get_cmd(mock: MagicMock) -> List[str]:
         """
         We expect only a single call happened.
         A call object is a tuple of (name, positional args, keyword args) and the cmd is the first positional argument.
@@ -34,28 +34,28 @@ class TestCaseTests(unittest.TestCase):
         return mock.mock_calls[0][1][0]
 
     @staticmethod
-    def get_env(mock: MagicMock) -> Any:
+    def get_env(mock: MagicMock) -> Dict[str, str]:
         """
         We expect only a single call happened.
         A call object is a tuple of (name, positional args, keyword args) and the env is part of args.
         """
         return mock.mock_calls[0][2]["env"]
 
-    def test_get_name(self):
+    def test_get_name(self) -> None:
         self.assertEqual(self.unit.name, "foo")
 
-    def test_get_default_aspect(self):
+    def test_get_default_aspect(self) -> None:
         self.assertEqual(self.unit.default_aspect, "//:aspect.bzl%dwyu")
 
     @patch("subprocess.run")
-    def test_get_success(self, _):
+    def test_get_success(self, _: MagicMock) -> None:
         result = self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
         )
         self.assertTrue(result.is_success())
 
     @patch("subprocess.run")
-    def test_get_error(self, _):
+    def test_get_error(self, _: MagicMock) -> None:
         self.unit.result = Error("some failure")
         result = self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
@@ -64,7 +64,7 @@ class TestCaseTests(unittest.TestCase):
         self.assertEqual(result.error, "some failure")
 
     @patch("subprocess.run")
-    def test_dwyu_command_without_any_extra_args(self, run_mock):
+    def test_dwyu_command_without_any_extra_args(self, run_mock: MagicMock) -> None:
         self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
         )
@@ -90,7 +90,7 @@ class TestCaseTests(unittest.TestCase):
         self.assertEqual(self.get_env(run_mock)["USE_BAZEL_VERSION"], "6.4.2")
 
     @patch("subprocess.run")
-    def test_dwyu_command_with_global_and_dwyu_extra_args(self, run_mock):
+    def test_dwyu_command_with_global_and_dwyu_extra_args(self, run_mock: MagicMock) -> None:
         self.unit.dwyu_extra_args = ["--some_arg=42", "--another_arg"]
         self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"),
@@ -123,7 +123,7 @@ class TestCaseTests(unittest.TestCase):
         self.assertEqual(self.get_env(run_mock)["USE_BAZEL_VERSION"], "6.4.2")
 
     @patch("subprocess.run")
-    def test_dwyu_command_with_multiple_targets(self, run_mock):
+    def test_dwyu_command_with_multiple_targets(self, run_mock: MagicMock) -> None:
         self.unit.target = ["//foo:bar", "//tick:tock"]
         self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]

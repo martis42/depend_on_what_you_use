@@ -8,7 +8,7 @@ from src.analyze_includes.parse_source import get_relevant_includes_from_files
 from src.analyze_includes.system_under_inspection import get_system_under_inspection
 
 
-def cli():
+def cli() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
         "--public_files",

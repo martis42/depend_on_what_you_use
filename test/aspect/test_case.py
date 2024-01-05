@@ -16,7 +16,7 @@ class TestCaseBase(ABC):
     def __init__(self, name: str) -> None:
         self._name = name
         self._tested_versions = TestedVersions(bazel="", python="")
-        self._output_base = Path("")
+        self._output_base = Path()
         self._extra_args: List[str] = []
 
     #

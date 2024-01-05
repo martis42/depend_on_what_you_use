@@ -11,7 +11,7 @@ class TestCaseBase(ABC):
     def __init__(self, name: str, test_sources: Path) -> None:
         self._name = name
         self._test_sources = test_sources
-        self._workspace = Path("")
+        self._workspace = Path()
 
     #
     # Interface

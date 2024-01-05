@@ -13,7 +13,7 @@ class SimpleParsingPreprocessor(Preprocessor):
     points for us is resolving branching statements (e.g. '#ifdef') to analyze the correct code parts.
     """
 
-    def on_include_not_found(self, is_malformed, is_system_include, curdir, includepath):
+    def on_include_not_found(self, is_malformed: bool, is_system_include: bool, curdir: str, includepath: str) -> None:
         """
         We ignore missing include statements.
 
