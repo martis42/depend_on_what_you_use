@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import List
 
 
 @dataclass
 class Summary:
-    successful_fixes: List[List[str]] = field(default_factory=list)
-    failed_fixes: List[List[str]] = field(default_factory=list)
-    fixes_without_effect: List[List[str]] = field(default_factory=list)
+    successful_fixes: list[list[str]] = field(default_factory=list)
+    failed_fixes: list[list[str]] = field(default_factory=list)
+    fixes_without_effect: list[list[str]] = field(default_factory=list)
 
-    def add_command(self, cmd: List[str], buildozer_result: int) -> None:
+    def add_command(self, cmd: list[str], buildozer_result: int) -> None:
         if buildozer_result == 0:
             self.successful_fixes.append(cmd)
         elif buildozer_result == 2:

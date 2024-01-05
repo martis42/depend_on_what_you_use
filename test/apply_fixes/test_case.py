@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional, Set
 
 from result import Error, Result
 
@@ -58,8 +59,8 @@ class TestCaseBase(ABC):
     def _create_reports(
         self,
         aspect: str = "default_aspect",
-        startup_args: Optional[List[str]] = None,
-        extra_args: Optional[List[str]] = None,
+        startup_args: list[str] | None = None,
+        extra_args: list[str] | None = None,
     ) -> None:
         """
         Create report files as input for the applying fixes script
@@ -81,7 +82,7 @@ class TestCaseBase(ABC):
             check=False,
         )
 
-    def _run_automatic_fix(self, extra_args: Optional[List[str]] = None) -> None:
+    def _run_automatic_fix(self, extra_args: list[str] | None = None) -> None:
         """
         Execute the applying fixes script for the Bazel target associated with the test case
         """
@@ -101,14 +102,14 @@ class TestCaseBase(ABC):
             check=True,
         )
 
-    def _get_target_attribute(self, target: str, attribute: str) -> Set["str"]:
+    def _get_target_attribute(self, target: str, attribute: str) -> set[str]:
         """
         Returns a set to ensure ordering is no issue
         """
         process = self._run_and_capture_cmd(cmd=["bazel", "query", f"labels({attribute}, {target})"], check=True)
         return {dep for dep in process.stdout.split("\n") if dep}
 
-    def _run_cmd(self, cmd: List[str], **kwargs) -> None:
+    def _run_cmd(self, cmd: list[str], **kwargs) -> None:
         logging.debug(f"Executing command: {cmd}")
         check = kwargs.pop("check", True)
         if logging.getLogger().isEnabledFor(logging.DEBUG):
@@ -116,7 +117,7 @@ class TestCaseBase(ABC):
         else:
             subprocess.run(cmd, cwd=self._workspace, capture_output=True, check=check, **kwargs)
 
-    def _run_and_capture_cmd(self, cmd: List[str], **kwargs) -> subprocess.CompletedProcess:
+    def _run_and_capture_cmd(self, cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
         logging.debug(f"Executing command: {cmd}")
         check = kwargs.pop("check", True)
         process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, check=check, **kwargs)
@@ -131,10 +132,10 @@ class TestCaseBase(ABC):
 
     @staticmethod
     def _make_unexpected_deps_error(
-        expected_deps: Optional[Set[str]] = None,
-        expected_implementation_deps: Optional[Set[str]] = None,
-        actual_deps: Optional[Set[str]] = None,
-        actual_implementation_deps: Optional[Set[str]] = None,
+        expected_deps: set[str] | None = None,
+        expected_implementation_deps: set[str] | None = None,
+        actual_deps: set[str] | None = None,
+        actual_implementation_deps: set[str] | None = None,
     ) -> Error:
         message = "Unexpected dependencies.\n"
         if expected_deps:

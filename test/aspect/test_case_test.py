@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import unittest
 from pathlib import Path
-from typing import Dict, List, Union
 from unittest.mock import MagicMock, Mock, patch
 
 from result import Error, Result, Success
@@ -12,8 +13,8 @@ class TestCaseMock(TestCaseBase):
     def __init__(self, name: str) -> None:
         super().__init__(name)
         self.result = Success()
-        self.dwyu_extra_args: List[str] = []
-        self.target: Union[List[str], str] = "//foo:bar"
+        self.dwyu_extra_args: list[str] = []
+        self.target: list[str] | str = "//foo:bar"
 
     def execute_test_logic(self) -> Result:
         self._run_dwyu(target=self.target, aspect="//some:aspect", extra_args=self.dwyu_extra_args)
@@ -26,7 +27,7 @@ class TestCaseTests(unittest.TestCase):
         self.unit._bazel_binary = Mock(return_value="/bazel/binary")
 
     @staticmethod
-    def get_cmd(mock: MagicMock) -> List[str]:
+    def get_cmd(mock: MagicMock) -> list[str]:
         """
         We expect only a single call happened.
         A call object is a tuple of (name, positional args, keyword args) and the cmd is the first positional argument.
@@ -34,7 +35,7 @@ class TestCaseTests(unittest.TestCase):
         return mock.mock_calls[0][1][0]
 
     @staticmethod
-    def get_env(mock: MagicMock) -> Dict[str, str]:
+    def get_env(mock: MagicMock) -> dict[str, str]:
         """
         We expect only a single call happened.
         A call object is a tuple of (name, positional args, keyword args) and the env is part of args.

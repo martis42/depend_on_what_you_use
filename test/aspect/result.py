@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 
 class Result(ABC):
@@ -47,10 +48,10 @@ class ExpectedResult:
     """
 
     success: bool
-    invalid_includes: List[str] = field(default_factory=list)
-    unused_public_deps: List[str] = field(default_factory=list)
-    unused_private_deps: List[str] = field(default_factory=list)
-    deps_which_should_be_private: List[str] = field(default_factory=list)
+    invalid_includes: list[str] = field(default_factory=list)
+    unused_public_deps: list[str] = field(default_factory=list)
+    unused_private_deps: list[str] = field(default_factory=list)
+    deps_which_should_be_private: list[str] = field(default_factory=list)
 
     def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
         if not self._has_correct_status(return_code=return_code, output=dwyu_output):
@@ -92,7 +93,7 @@ class ExpectedResult:
         return False
 
     @staticmethod
-    def _get_error_lines(idx_category: int, output: List[str]) -> List[str]:
+    def _get_error_lines(idx_category: int, output: list[str]) -> list[str]:
         errors_begin = idx_category + 1
         errors_end = 0
         for i in range(errors_begin, len(output)):
@@ -103,7 +104,7 @@ class ExpectedResult:
         return output[errors_begin:errors_end]
 
     @staticmethod
-    def _has_expected_errors(expected_errors: List[str], error_category: str, output: List[str]) -> bool:
+    def _has_expected_errors(expected_errors: list[str], error_category: str, output: list[str]) -> bool:
         if not expected_errors:
             return True
 
@@ -119,14 +120,14 @@ class ExpectedResult:
         return True
 
     @staticmethod
-    def _find_line_with(lines: List[str], val: str) -> Optional[int]:
+    def _find_line_with(lines: list[str], val: str) -> int | None:
         for idx, line in enumerate(lines):
             if val in line:
                 return idx
         return None
 
     @staticmethod
-    def _has_errors(error_lines: List[str], expected_errors: List[str]) -> bool:
+    def _has_errors(error_lines: list[str], expected_errors: list[str]) -> bool:
         if len(error_lines) != len(expected_errors):
             return False
         return all(any(error in line for line in error_lines) for error in expected_errors)

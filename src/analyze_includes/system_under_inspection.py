@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import json
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class UsageStatus(Enum):
@@ -50,7 +52,7 @@ class CcTarget:
     """A cc_* rule target and the available information associated with it."""
 
     name: str
-    header_files: List[str]
+    header_files: list[str]
     usage: UsageStatusTracker = field(init=False)
 
     def __post_init__(self) -> None:
@@ -67,14 +69,14 @@ class SystemUnderInspection:
     # Target under inspection
     target_under_inspection: CcTarget
     # Dependencies which are available to downstream dependencies of the target under inspection
-    deps: List[CcTarget]
+    deps: list[CcTarget]
     # Dependencies which are NOT available to downstream dependencies of the target under inspection. Exists only for
     # cc_library targets
-    impl_deps: List[CcTarget]
+    impl_deps: list[CcTarget]
     # All include paths available to the target under inspection. Combines all kinds of includes.
-    include_paths: List[str]
+    include_paths: list[str]
     # Defines influencing the preprocessor
-    defines: List[str]
+    defines: list[str]
 
 
 def _make_cc_target(target_file: Path) -> CcTarget:
@@ -87,17 +89,17 @@ def _make_cc_target(target_file: Path) -> CcTarget:
         return cc_target
 
 
-def _cc_targets_from_deps(deps: List[Path]) -> List[CcTarget]:
+def _cc_targets_from_deps(deps: list[Path]) -> list[CcTarget]:
     return [_make_cc_target(dep) for dep in deps]
 
 
-def _get_include_paths(target_info: Dict[str, Any]) -> List[str]:
+def _get_include_paths(target_info: dict[str, Any]) -> list[str]:
     """
     '.' represents the workspace root relative to which all paths in a Bazel workspace are defined. Our internal logic
     does however expect an empty string for the "include relative to workspace root" case.
     """
 
-    def replace_dot(paths: List[str]) -> List[str]:
+    def replace_dot(paths: list[str]) -> list[str]:
         return ["" if path == "." else path for path in paths]
 
     return (
@@ -107,7 +109,7 @@ def _get_include_paths(target_info: Dict[str, Any]) -> List[str]:
     )
 
 
-def _get_defines(target_info: Dict[str, Any]) -> List[str]:
+def _get_defines(target_info: dict[str, Any]) -> list[str]:
     """
     Defines with values in BUILD files or the compiler CLI can be specified via '<DEFINE_TOKEN>=<VALUE>'. However, this
     syntax is not valid for the preprocessor, which expects '<DEFINE_TOKEN> <VALUE>'.
@@ -116,7 +118,7 @@ def _get_defines(target_info: Dict[str, Any]) -> List[str]:
 
 
 def get_system_under_inspection(
-    target_under_inspection: Path, deps: List[Path], impl_deps: List[Path]
+    target_under_inspection: Path, deps: list[Path], impl_deps: list[Path]
 ) -> SystemUnderInspection:
     with open(target_under_inspection, encoding="utf-8") as target:
         target_info = json.load(target)

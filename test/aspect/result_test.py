@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import unittest
-from typing import List
 
 from result import (
     CATEGORY_INVALID_INCLUDES,
@@ -16,7 +17,7 @@ from result import (
 
 class TestExpectedResult(unittest.TestCase):
     @staticmethod
-    def _make_error_output(category: str, errors: List[str]) -> str:
+    def _make_error_output(category: str, errors: list[str]) -> str:
         msg = DWYU_FAILURE + "\n"
         msg += category + "\n"
         msg += "\n".join(f"{ERRORS_PREFIX}{err}" for err in errors)

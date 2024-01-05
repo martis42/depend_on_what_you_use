@@ -1,16 +1,17 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 from importlib.machinery import SourceFileLoader
 from os import environ
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from result import Error
 from test_case import TestCaseBase
 from version import CompatibleVersions, TestedVersions
 
 
-def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path, extra_args: List[str]) -> bool:
+def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path, extra_args: list[str]) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
         logging.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
         return True
@@ -45,11 +46,11 @@ def file_to_test_name(test_file: Path) -> str:
 
 
 def main(
-    tested_versions: List[TestedVersions],
-    version_specific_args: Dict[str, CompatibleVersions],
-    bazel: Optional[str] = None,
-    python: Optional[str] = None,
-    requested_tests: Optional[List[str]] = None,
+    tested_versions: list[TestedVersions],
+    version_specific_args: dict[str, CompatibleVersions],
+    bazel: str | None = None,
+    python: str | None = None,
+    requested_tests: list[str] | None = None,
     list_tests: bool = False,
 ) -> int:
     workspace_path = get_current_workspace()
