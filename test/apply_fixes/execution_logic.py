@@ -6,9 +6,12 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from result import Error
-from test_case import TestCaseBase
+
+if TYPE_CHECKING:
+    from test_case import TestCaseBase
 
 TEST_CASES_DIR = Path("test/apply_fixes")
 TEST_WORKSPACES_DIR = TEST_CASES_DIR / "workspaces"
