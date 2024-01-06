@@ -100,7 +100,7 @@ def main(args: Namespace) -> int:
         report.write(result.to_json())
 
     if not result.is_ok():
-        print(result.to_str())
+        print(result.to_str())  # noqa: T201
         return 1
 
     return 0

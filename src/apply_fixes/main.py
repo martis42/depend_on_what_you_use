@@ -106,7 +106,7 @@ The script expects 'bazel' to be available on PATH.
 
     has_explicit_fix_option = any((args.fix_unused_deps, args.fix_deps_which_should_be_private, args.fix_missing_deps))
     if not has_explicit_fix_option and not args.fix_all:
-        logging.error("Please choose at least one of the 'fix-..' options")
+        logging.fatal("Please choose at least one of the 'fix-..' options")
         sys.exit(1)
 
     return args
