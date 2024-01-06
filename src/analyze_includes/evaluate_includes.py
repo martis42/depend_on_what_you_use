@@ -29,6 +29,32 @@ def _include_resolves_to_any_file(included_path: Path, files: list[str]) -> bool
     return any(included_path == Path(file).resolve() for file in files)
 
 
+def _is_relative_include(
+    target_under_inspection: CcTarget,
+    include: Include,
+    dependencies: list[CcTarget],
+    include_paths: list[str],
+    usage: UsageStatus,
+) -> bool:
+    roots_for_relative_includes = [Path(root) for root in [str(include.file.parent), *include_paths]]
+    for root in roots_for_relative_includes:
+        path_matching_include_statement = (root / include.include).resolve()
+
+        # Relative include to target under inspection
+        if _include_resolves_to_any_file(
+            included_path=path_matching_include_statement, files=target_under_inspection.header_files
+        ):
+            return True
+
+        # Relative include to dependency
+        for dep in dependencies:
+            if _include_resolves_to_any_file(included_path=path_matching_include_statement, files=dep.header_files):
+                dep.usage.update(usage)
+                return True
+
+    return False
+
+
 def _check_for_invalid_includes(
     includes: list[Include],
     dependencies: list[CcTarget],
@@ -58,31 +84,16 @@ def _check_for_invalid_includes(
             )
         if not legal_include:
             # Might be a relative include
-            roots_for_relative_includes = [Path(root) for root in [str(inc.file.parent), *include_paths]]
-
-            for root in roots_for_relative_includes:
-                path_matching_include_statement = (root / inc.include).resolve()
-
-                # Relative include to target under inspection
-                if _include_resolves_to_any_file(
-                    included_path=path_matching_include_statement, files=target_under_inspection.header_files
-                ):
-                    legal_include = True
-                    break
-
-                # Relative include to dependency
-                for dep in dependencies:
-                    if _include_resolves_to_any_file(
-                        included_path=path_matching_include_statement, files=dep.header_files
-                    ):
-                        legal_include = True
-                        dep.usage.update(usage)
-                        break
-                if legal_include:
-                    break
-
+            legal_include = _is_relative_include(
+                target_under_inspection=target_under_inspection,
+                include=inc,
+                dependencies=dependencies,
+                include_paths=include_paths,
+                usage=usage,
+            )
         if not legal_include:
             invalid_includes.append(inc)
+
     return invalid_includes
 
 
