@@ -18,7 +18,7 @@ def get_ignored_includes(config_file: Path | None) -> IgnoredIncludes:
     ignored_paths = STD_HEADER
     ignored_patterns = []
     if config_file:
-        with open(config_file, encoding="utf-8") as fin:
+        with config_file.open(encoding="utf-8") as fin:
             config_data = json.load(fin)
 
             if IGNORED_PATHS_KEY in config_data:

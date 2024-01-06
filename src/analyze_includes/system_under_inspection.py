@@ -82,7 +82,7 @@ class SystemUnderInspection:
 
 
 def _make_cc_target(target_file: Path) -> CcTarget:
-    with open(target_file, encoding="utf-8") as target:
+    with target_file.open(encoding="utf-8") as target:
         target_info = json.load(target)
         return CcTarget(
             name=target_info["target"],
@@ -121,7 +121,7 @@ def _get_defines(target_info: dict[str, list[str]]) -> list[str]:
 def get_system_under_inspection(
     target_under_inspection: Path, deps: list[Path], impl_deps: list[Path]
 ) -> SystemUnderInspection:
-    with open(target_under_inspection, encoding="utf-8") as target:
+    with target_under_inspection.open(encoding="utf-8") as target:
         target_info = json.load(target)
         return SystemUnderInspection(
             target_under_inspection=_make_cc_target(target_under_inspection),
