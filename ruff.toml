@@ -17,41 +17,49 @@ line-ending = "auto"
 docstring-code-format = false
 
 [lint]
-select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-builtins
-    "A",
-    # flake8-annotations
-    "ANN",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    # Pylint
-    "PL",
-    # Ruff-specific
-    "RUF",
-    # Ensure we use modern typing syntax
-    "FA100",
-]
+select = ["ALL"]
 ignore = [
+    # Do not execute checks for tools we do not use
+    "AIR", # airflow
+    "DJ", # django
+    "NPY", # numpy
+    "PD", # pandas
+    "PT", # pytest
+    "TRIO", # trio
+    # This documentation style is too opinionated and too verbose, given our Python code is an implementation detail.
+    "D",
+    # Users are not expected to see exceptions. Optimizing the trace is not worth more complex code.
+    "EM",
+    # We don't believe these findings are worth refactoring the code. Using bools as feature flag is fine for now.
+    "FBT",
     # Annotating **kwargs has little value
     "ANN003",
     # Documenting the type of 'self' is too verbose and in most cases either way obvious
     "ANN101",
-    # It is fine tha some line are longer than the length limit
+    # We omit trailing commas deliberately to keep code in a single line instead of multiple lines due to the formatting
+    # rules automatically using a trailing comma as indicator for breaking a statement into multiple lines.
+    "COM812",
+    # It is fine that some line are longer than the length limit whenever the formatter finds not better option
     "E501",
+    # We prefer simple code to performance.
+    "G004",
+    # We use implicit namespace packages by design
+    "INP001",
     # Number of function arguments is too opinionated
     "PLR0913",
-    # High false positive rate. Often a plain number is the most expressive, e.g. when checling lengths.
+    # High false positive rate. Often a plain number is the most expressive, e.g. when checking lengths.
     "PLR2004",
+    # XML is not an attack vector for DWYU, as we don't process user provided xml content. We generate the xml content
+    # we use oureselves via bazel (c)query. If somebody can manipulate bazel (c)query to inject malicious xml code, the
+    # attacker has either way already access to the system.
+    "S314",
+    # We prefer the best practice to not use a shell for executing subprocess calls. The risk that we execute an invalid
+    # command is low given our integration tests
+    "S603",
+    # We want the flexibility that the requested binary can be located at any path.
+    "S607",
+    # We prefer verbose exceptions
+    "TRY003",
 ]
 unfixable = [
     # Removing unused imports while writing new code is annoying when execting Ruff via the IDE
