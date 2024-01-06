@@ -98,7 +98,7 @@ class TestSearchDeps(unittest.TestCase):
                 cm.output,
                 [
                     "WARNING:root:Could not find a proper dependency for invalid include 'some/path/include_b.h' of target 'foo'.\n"
-                    + "Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?"
+                    "Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?"
                 ],
             )
             self.assertEqual(deps, [])
@@ -119,7 +119,7 @@ class TestSearchDeps(unittest.TestCase):
                 cm.output,
                 [
                     "WARNING:root:Found multiple targets which potentially can provide include 'some/path/foo.h' of target 'foo'.\n"
-                    + "Please fix this manually. Candidates which have been discovered:",
+                    "Please fix this manually. Candidates which have been discovered:",
                     "WARNING:root:- //:lib_a\n- //:lib_b",
                 ],
             )

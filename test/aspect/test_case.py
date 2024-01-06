@@ -29,7 +29,6 @@ class TestCaseBase(ABC):
         """
         Overwrite this to implement a concrete test case
         """
-        pass
 
     @property
     def compatible_bazel_versions(self) -> CompatibleVersions:
