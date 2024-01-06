@@ -26,5 +26,4 @@ class TestCase(TestCaseBase):
                 actual_deps=target_deps,
                 actual_implementation_deps=target_implementation_deps,
             )
-        else:
-            return Success()
+        return Success()

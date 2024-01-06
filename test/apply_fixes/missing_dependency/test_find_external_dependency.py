@@ -19,5 +19,4 @@ class TestCase(TestCaseBase):
         expected_deps = {"@external_dep//:foo", "@external_dep//sub/dir:bar", "//:external_dep_provider"}
         if expected_deps != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected_deps, actual_deps=target_deps)
-        else:
-            return Success()
+        return Success()

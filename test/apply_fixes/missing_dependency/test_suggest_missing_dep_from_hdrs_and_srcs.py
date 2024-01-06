@@ -14,5 +14,4 @@ class TestCase(TestCaseBase):
         target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
         if (expected := {"//:libs_provider", "//libs:foo", "//libs:bar", "//:root_file_lib"}) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
-        else:
-            return Success()
+        return Success()

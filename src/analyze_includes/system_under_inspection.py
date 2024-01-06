@@ -84,11 +84,10 @@ class SystemUnderInspection:
 def _make_cc_target(target_file: Path) -> CcTarget:
     with open(target_file, encoding="utf-8") as target:
         target_info = json.load(target)
-        cc_target = CcTarget(
+        return CcTarget(
             name=target_info["target"],
             header_files=target_info["header_files"],
         )
-        return cc_target
 
 
 def _cc_targets_from_deps(deps: list[Path]) -> list[CcTarget]:
