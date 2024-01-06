@@ -115,5 +115,5 @@ class TestCaseBase(ABC):
     def _bazel_binary() -> str:
         bazel = which("bazel") or which("bazelisk")
         if not bazel:
-            raise Exception("No bazel or bazelisk binary available on your system")
+            raise RuntimeError("No bazel or bazelisk binary available on your system")
         return bazel
