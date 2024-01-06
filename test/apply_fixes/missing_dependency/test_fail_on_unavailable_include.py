@@ -26,5 +26,4 @@ class TestCase(TestCaseBase):
         expected_error = "Could not find a proper dependency for invalid include 'bar/private_bar.h'"
         if expected_error not in process.stderr:
             return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
-        else:
-            return Success()
+        return Success()

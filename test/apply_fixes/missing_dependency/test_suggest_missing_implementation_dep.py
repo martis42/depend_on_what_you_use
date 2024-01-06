@@ -22,5 +22,4 @@ class TestCase(TestCaseBase):
                 expected_implementation_deps=expected_implementation_deps,
                 actual_implementation_deps=target_implementation_deps,
             )
-        else:
-            return Success()
+        return Success()
