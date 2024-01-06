@@ -85,7 +85,7 @@ def get_includes_from_file(file: Path, defines: list[str], include_paths: list[s
     The preprocessor removes all comments and inactive code branches. This allows us then to find all include statements
     with a simple regex.
     """
-    with open(file, encoding="utf-8") as fin:
+    with file.open(encoding="utf-8") as fin:
         pre_processor = make_pre_processor()
         for define in defines:
             pre_processor.define(define)

@@ -167,7 +167,7 @@ def add_discovered_deps(
 
 
 def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, requested_fixes: RequestedFixes) -> None:
-    with open(report, encoding="utf-8") as report_in:
+    with report.open(encoding="utf-8") as report_in:
         content = json.load(report_in)
         target = content["analyzed_target"]
 

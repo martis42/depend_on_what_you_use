@@ -53,13 +53,13 @@ def setup_test_workspace(
     origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
 ) -> None:
     copytree(src=test_sources, dst=str(temporary_workspace), dirs_exist_ok=True)
-    with open(temporary_workspace / "WORKSPACE", mode="w", encoding="utf-8") as ws_file:
+    with temporary_workspace.joinpath("WORKSPACE").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write(
             WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
         )
-    with open(temporary_workspace / ".bazelversion", mode="w", encoding="utf-8") as ws_file:
+    with temporary_workspace.joinpath(".bazelversion").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write("7.0.0")
-    with open(temporary_workspace / ".bazelrc", mode="w", encoding="utf-8") as ws_file:
+    with temporary_workspace.joinpath(".bazelrc").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write("common --nolegacy_external_runfiles\ncommon --noenable_bzlmod")
 
 

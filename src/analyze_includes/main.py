@@ -96,7 +96,7 @@ def main(args: Namespace) -> int:
     )
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.report, mode="w", encoding="utf-8") as report:
+    with args.report.open(mode="w", encoding="utf-8") as report:
         report.write(result.to_json())
 
     if not result.is_ok():
