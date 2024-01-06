@@ -156,9 +156,7 @@ def add_discovered_deps(
     add_to_deps = discovered_public_deps
     add_to_impl_deps = []
     if use_impl_deps:
-        for dep in discovered_private_deps:
-            if dep not in add_to_deps:
-                add_to_impl_deps.append(dep)
+        add_to_impl_deps = [dep for dep in discovered_private_deps if dep not in add_to_deps]
     else:
         add_to_deps.extend(discovered_private_deps)
 

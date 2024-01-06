@@ -86,9 +86,13 @@ def main(
             if valid_versions.is_compatible_to(version.bazel)
         ]
 
-        for test in tests:
-            if not execute_test(test=test, version=version, output_base=output_base, extra_args=extra_args):
-                failed_tests.append(f"'{test.name}' for Bazel {version.bazel} and Python {version.python}")
+        failed_tests.extend(
+            [
+                f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
+                for test in tests
+                if not execute_test(test=test, version=version, output_base=output_base, extra_args=extra_args)
+            ]
+        )
 
     logging.info(f'Running tests {"FAILED" if failed_tests else "SUCCEEDED"}')
     if failed_tests:
