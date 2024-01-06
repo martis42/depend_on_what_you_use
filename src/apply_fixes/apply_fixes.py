@@ -56,7 +56,7 @@ def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
 
     bazel_bin_link = workspace_root / "bazel-bin"
     if not bazel_bin_link.is_symlink():
-        print(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
+        logging.fatal(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
         sys.exit(1)
     return bazel_bin_link.resolve()
 
@@ -220,7 +220,7 @@ def main(args: Namespace) -> int:
 
     reports = gather_reports(bin_dir)
     if not reports:
-        logging.error(
+        logging.fatal(
             """
 ERROR: Did not find any DWYU report files.
 Did you forget to run DWYU beforehand?

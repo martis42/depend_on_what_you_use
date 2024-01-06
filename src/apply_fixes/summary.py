@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 
 
@@ -22,10 +23,10 @@ class Summary:
             )
 
     def print_summary(self) -> None:
-        print(f"\nSuccessful fixes: {len(self.successful_fixes)}")
+        logging.info(f"\nSuccessful fixes: {len(self.successful_fixes)}")
 
         if self.failed_fixes:
-            print(
+            logging.info(
                 """
 WARNING Some buildozer commands failed!
 Common causes for this can be:
@@ -34,10 +35,10 @@ Common causes for this can be:
 
 Failed commands:"""
             )
-            print("\n".join(f"- {x}" for x in self.failed_fixes))
+            logging.info("\n".join(f"- {x}" for x in self.failed_fixes))
 
         if self.fixes_without_effect:
-            print(
+            logging.info(
                 """
 WARNING Some buildozer commands did not create a change!
 Common causes for this can be:
@@ -47,4 +48,4 @@ Common causes for this can be:
 
 Commands without effect:"""
             )
-            print("\n".join(f"- {x}" for x in self.fixes_without_effect))
+            logging.info("\n".join(f"- {x}" for x in self.fixes_without_effect))

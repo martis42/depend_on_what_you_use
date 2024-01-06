@@ -12,4 +12,4 @@ with open(INPUT_FILE, encoding="utf-8") as fin:
     for line in fin.readlines():
         include = re.findall("^<(.+)>$", line)
         if len(include) == 1:
-            print(f'"{include[0]}",')
+            print(f'"{include[0]}",')  # noqa: T201
