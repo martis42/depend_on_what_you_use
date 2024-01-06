@@ -24,7 +24,7 @@ class TestCaseMock(TestCaseBase):
 class TestCaseTests(unittest.TestCase):
     def setUp(self) -> None:
         self.unit = TestCaseMock("foo")
-        self.unit._bazel_binary = Mock(return_value="/bazel/binary")
+        self.unit._bazel_binary = Mock(return_value="/bazel/binary")  # noqa: SLF001
 
     @staticmethod
     def get_cmd(mock: MagicMock) -> list[str]:
