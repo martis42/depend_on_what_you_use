@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from src.analyze_includes.parse_source import Include
 from src.analyze_includes.result import Result
 from src.analyze_includes.system_under_inspection import (
     CcTarget,
     SystemUnderInspection,
     UsageStatus,
 )
+
+if TYPE_CHECKING:
+    from src.analyze_includes.parse_source import Include
 
 
 def does_include_match_available_files(

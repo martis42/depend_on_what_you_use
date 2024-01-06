@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from src.apply_fixes.summary import Summary
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class BuildozerExecutor:

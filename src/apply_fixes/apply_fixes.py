@@ -5,13 +5,16 @@ import logging
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
-from argparse import Namespace
 from dataclasses import dataclass
 from itertools import chain
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 

@@ -5,10 +5,13 @@ import subprocess
 from importlib.machinery import SourceFileLoader
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from result import Error
-from test_case import TestCaseBase
 from version import CompatibleVersions, TestedVersions
+
+if TYPE_CHECKING:
+    from test_case import TestCaseBase
 
 
 def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path, extra_args: list[str]) -> bool:
