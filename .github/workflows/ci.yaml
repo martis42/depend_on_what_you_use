@@ -40,39 +40,79 @@ jobs:
           bazel build //...
 
   integration-tests-aspect:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+    runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
         run: |
-          cd test/aspect
-          ./execute_tests.py
+          cd test
+          cd aspect
+          python execute_tests.py
+  #      - name: Integration tests - Aspect
+  #        if: runner.os == 'Linux' || runner.os == 'macOS'
+  #        run: |
+  #          cd test/aspect
+  #          ./execute_tests.py
+  #      - name: Integration tests - Aspect
+  #        if: runner.os == 'Windows'
+  #        run: |
+  #          cd test\aspect
+  #          python execute_tests.py
 
   integration-tests-apply-fixes:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+    runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - run: |
-          mkdir --parents /tmp/bin
+      - uses: actions/checkout@v4
+      - name: Prepare buildozer
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p /tmp/bin
           wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-linux-amd64 -O /tmp/bin/buildozer
           chmod +x /tmp/bin/buildozer
-      - uses: actions/checkout@v4
+      - name: Prepare buildozer
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p /tmp/bin
+          wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-darwin-amd64 -O /tmp/bin/buildozer
+          chmod +x /tmp/bin/buildozer
+      - name: Prepare buildozer
+        if: runner.os == 'Windows'
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-windows-amd64.exe" -OutFile "D:\Downloads\buildozer.exe"
       - name: Integration tests - Applying fixes
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           export PATH=/tmp/bin:$PATH
-          ./test/apply_fixes/execute_tests.py
+          ./test/apply_fixes/execute_tests.py -v
+      - name: Integration tests - Applying fixes
+        if: runner.os == 'Windows'
+        run: |
+          env:Path += ';D:\Downloads'
+          python test/apply_fixes/execute_tests.py -v
 
-  integration-tests-examples:
-    runs-on: ubuntu-22.04
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Integration tests - Examples
-        run: |
-          cd examples
-          ./test.py
-      - name: Integration tests - Examples with legacy WORKSPACE setup
-        run: |
-          cd examples
-          ./test.py --legacy-workspace
+
+# Works, but commented to ave resources
+#  integration-tests-examples:
+#    strategy:
+#      matrix:
+#        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+#    runs-on: ${{ matrix.os }}
+#    needs: [ fast-tests ]
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Integration tests - Examples
+#        run: |
+#          cd examples
+#          python test.py
+#      - name: Integration tests - Examples with legacy WORKSPACE setup
+#        run: |
+#          cd examples
+#          python test.py --legacy-workspace

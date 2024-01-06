@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import subprocess
 from importlib.machinery import SourceFileLoader
-from os import environ
 from pathlib import Path
 
 from result import Error
@@ -72,7 +71,7 @@ def main(
     versions = [TestedVersions(bazel=bazel, python=python)] if bazel and python else tested_versions
 
     failed_tests = []
-    output_root = Path(environ["HOME"]) / ".cache" / "bazel" / workspace_path.relative_to("/")
+    output_root = Path.home() / ".cache" / "bazel" / "dwyu"
     for version in versions:
         output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
         output_base.mkdir(parents=True, exist_ok=True)
