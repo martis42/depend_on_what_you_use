@@ -15,6 +15,7 @@ def cli() -> Namespace:
         required=True,
         metavar="FILE",
         nargs="*",
+        type=Path,
         help="All public source files of the target under inspection.",
     )
     parser.add_argument(
@@ -22,12 +23,14 @@ def cli() -> Namespace:
         required=True,
         metavar="FILE",
         nargs="*",
+        type=Path,
         help="All private source files of the target under inspection.",
     )
     parser.add_argument(
         "--target_under_inspection",
         required=True,
         metavar="FILE",
+        type=Path,
         help="Information about target under inspection.",
     )
     parser.add_argument(
@@ -35,6 +38,7 @@ def cli() -> Namespace:
         required=True,
         metavar="FILE",
         nargs="*",
+        type=Path,
         help="Information about dependencies.",
     )
     parser.add_argument(
@@ -42,6 +46,7 @@ def cli() -> Namespace:
         required=True,
         metavar="FILE",
         nargs="*",
+        type=Path,
         help="Information about implementation dependencies.",
     )
     parser.add_argument(
