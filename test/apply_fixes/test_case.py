@@ -24,14 +24,12 @@ class TestCaseBase(ABC):
         """
         Bazel target from workspace under test used in test case implementation
         """
-        pass
 
     @abstractmethod
     def execute_test_logic(self) -> Result:
         """
         Overwrite this to implement a concrete test case
         """
-        pass
 
     @property
     def extra_workspace_file_content(self) -> str:
