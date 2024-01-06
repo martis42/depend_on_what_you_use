@@ -4,12 +4,12 @@ import json
 import logging
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from itertools import chain
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
+from xml.etree import ElementTree
 
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
 
@@ -103,7 +103,7 @@ def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
             target=dep.attrib["name"],
             hdrs=[target_to_file(hdr.attrib["value"]) for hdr in dep.findall(".//*[@name='hdrs']/label")],
         )
-        for dep in ET.fromstring(process.stdout)
+        for dep in ElementTree.fromstring(process.stdout)
     ]
 
 
