@@ -24,7 +24,7 @@ class UsageStatusTracker:
 
     def update(self, usage_update: UsageStatus) -> None:
         if usage_update == UsageStatus.NONE:
-            raise Exception("Resetting the usage is not supported")
+            raise RuntimeError("Resetting the usage is not supported")
 
         if self._usage == UsageStatus.PUBLIC_AND_PRIVATE:
             return

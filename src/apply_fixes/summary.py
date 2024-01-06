@@ -17,7 +17,7 @@ class Summary:
         elif buildozer_result == 3:
             self.fixes_without_effect.append(cmd)
         else:
-            raise Exception(
+            raise RuntimeError(
                 f"Running buildozer command '{cmd}' failed with the unexpected return code: {buildozer_result}"
             )
 
