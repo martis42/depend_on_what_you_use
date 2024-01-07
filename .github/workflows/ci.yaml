@@ -64,15 +64,18 @@ jobs:
           ./test/apply_fixes/execute_tests.py
 
   integration-tests-examples:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+    runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Examples
         run: |
           cd examples
-          ./test.py
+          python test.py
       - name: Integration tests - Examples with legacy WORKSPACE setup
         run: |
           cd examples
-          ./test.py --legacy-workspace
+          python test.py --legacy-workspace
