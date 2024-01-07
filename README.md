@@ -1,6 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![CI](https://github.com/martis42/depend_on_what_you_use/actions/workflows/ci.yaml/badge.svg)](https://github.com/martis42/depend_on_what_you_use/actions/workflows/ci.yaml)
 
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
