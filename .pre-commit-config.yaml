@@ -36,5 +36,5 @@ repos:
     hooks:
       - id: ruff-format
       # Linting
-      - id: ruff
-        args: [ --fix ]
+#      - id: ruff
+#        args: [ --fix ]

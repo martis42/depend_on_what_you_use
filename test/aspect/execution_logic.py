@@ -36,7 +36,15 @@ def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path,
 
 
 def get_current_workspace() -> Path:
-    process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
+    try:
+        process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
+    except Exception:
+        print("BAZEL INFO FAILED")
+        print("---- stdout ----")
+        print(process.stdout)
+        print("---- stderr ----")
+        print(process.stderr)
+        print("----------------")
     return Path(process.stdout.strip())
 
 

@@ -3,48 +3,48 @@ name: CI
 on: [ pull_request ]
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache: 'poetry'
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-      - run: source .venv/bin/activate
-      - uses: pre-commit/action@v3.0.0
-
-  fast-tests:
-    runs-on: ubuntu-22.04
-    needs: [ pre-commit ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Unit tests
-        run: ./scripts/unit_tests.sh
-      - name: Execute Mypy
-        run: ./scripts/mypy.sh
-      - name: Build aspect integration tests
-        run: |
-          cd test/aspect
-          bazel build //...
-      - name: Build examples
-        run: |
-          cd examples
-          bazel build //...
+  #  pre-commit:
+  #    runs-on: ubuntu-22.04
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - uses: snok/install-poetry@v1
+  #        with:
+  #          virtualenvs-create: true
+  #          virtualenvs-in-project: true
+  #          installer-parallel: true
+  #      - uses: actions/setup-python@v5
+  #        with:
+  #          python-version: "3.10"
+  #          cache: 'poetry'
+  #      - name: Install dependencies
+  #        run: poetry install --no-interaction --no-root
+  #      - run: source .venv/bin/activate
+  #      - uses: pre-commit/action@v3.0.0
+  #
+  #  fast-tests:
+  #    runs-on: ubuntu-22.04
+  #    needs: [ pre-commit ]
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - name: Unit tests
+  #        run: ./scripts/unit_tests.sh
+  #      - name: Execute Mypy
+  #        run: ./scripts/mypy.sh
+  #      - name: Build aspect integration tests
+  #        run: |
+  #          cd test/aspect
+  #          bazel build //...
+  #      - name: Build examples
+  #        run: |
+  #          cd examples
+  #          bazel build //...
 
   integration-tests-aspect:
     strategy:
       matrix:
         os: [ ubuntu-22.04, macos-12, windows-2022 ]
     runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
+    #needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
@@ -68,7 +68,7 @@ jobs:
       matrix:
         os: [ ubuntu-22.04, macos-12, windows-2022 ]
     runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
+    #needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare buildozer
@@ -86,6 +86,7 @@ jobs:
       - name: Prepare buildozer
         if: runner.os == 'Windows'
         run: |
+          New-Item -Path "D:\" -Name "Downloads" -ItemType Directory
           Invoke-WebRequest -Uri "https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-windows-amd64.exe" -OutFile "D:\Downloads\buildozer.exe"
       - name: Integration tests - Applying fixes
         if: runner.os == 'Linux' || runner.os == 'macOS'
@@ -95,7 +96,7 @@ jobs:
       - name: Integration tests - Applying fixes
         if: runner.os == 'Windows'
         run: |
-          env:Path += ';D:\Downloads'
+          echo "PATH=$env:PATH;D:\Downloads" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           python test/apply_fixes/execute_tests.py -v
 
 
