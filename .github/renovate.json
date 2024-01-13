@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     ":rebaseStalePrs",
-    "schedule:weekends"
+    "schedule:weekends",
+    ":semanticCommits"
   ],
   "labels": [
     "deps"
@@ -14,6 +15,7 @@
   },
   "enabledManagers": [
     "github-actions",
+    "pip_requirements",
     "poetry",
     "pre-commit"
   ]
