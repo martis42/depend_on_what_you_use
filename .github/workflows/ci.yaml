@@ -40,14 +40,18 @@ jobs:
           bazel build //...
 
   integration-tests-aspect:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12 ]
+    runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
         run: |
-          cd test/aspect
-          ./execute_tests.py
+          cd test
+          cd aspect
+          python execute_tests.py
 
   integration-tests-apply-fixes:
     runs-on: ubuntu-22.04
