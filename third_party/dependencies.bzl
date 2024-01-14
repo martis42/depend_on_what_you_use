@@ -4,11 +4,11 @@ load("@depend_on_what_you_use//third_party/pcpp:repository.bzl", "pcpp")
 
 def dependencies():
     # Keep in sync with MODULE.bazel
-    rules_python_version = "0.27.0"
+    rules_python_version = "0.28.0"
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
+        sha256 = "d70cd72a7a4880f0000a6346253414825c19cdd40a28289bdf67b8e6480edff8",
         strip_prefix = "rules_python-{}".format(rules_python_version),
         urls = ["https://github.com/bazelbuild/rules_python/releases/download/{v}/rules_python-{v}.tar.gz".format(v = rules_python_version)],
     )
