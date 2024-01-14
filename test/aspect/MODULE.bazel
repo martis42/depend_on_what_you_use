@@ -17,9 +17,10 @@ local_path_override(
 ## Python toolchains for testing compatibility to various Python versions
 ##
 
+# Keep in sync with //test/aspect/WORKSPACE
 bazel_dep(
     name = "rules_python",
-    version = "0.27.0",
+    version = "0.28.0",
     dev_dependency = True,
 )
 

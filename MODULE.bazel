@@ -18,7 +18,10 @@ bazel_dep(
 bazel_dep(
     name = "rules_python",
     # Keep in sync with //third_party/dependencies.bzl
-    version = "0.27.0",
+    # Keep in sync with //examples/MODULE.bazel
+    # Keep in sync with //test/aspect/MODULE.bazel
+    # Keep in sync with //test/apply_fixes/execution_logic.py
+    version = "0.28.0",
 )
 
 non_module_dependencies = use_extension(
