@@ -10,6 +10,7 @@ create_tree_artifacts(
     private_headers = "private_hdrs.h",
     public_headers = "public_hdrs.h",
     sources = "sources.cc",
+    verbose = True,
 )
 
 cc_library(

@@ -203,15 +203,15 @@ def dwyu_aspect_impl(target, ctx):
         defines = _gather_defines(ctx, target_compilation_context = target[CcInfo].compilation_context),
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
-        verbose = False,
+        verbose = True,
     )
 
     target_deps, target_impl_deps = _preprocess_deps(ctx)
 
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
     #      target_under_inspection have the same dependency
-    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = False)
-    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = False)
+    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = True)
+    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = True)
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
     args = ctx.actions.args()
