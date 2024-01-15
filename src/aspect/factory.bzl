@@ -6,7 +6,8 @@ def dwyu_aspect_factory(
         recursive = False,
         skipped_tags = None,
         target_mapping = None,
-        use_implementation_deps = False):
+        use_implementation_deps = False,
+        verbose = False):
     """
     Create a "Depend on What You Use" (DWYU) aspect.
 
@@ -22,6 +23,7 @@ def dwyu_aspect_factory(
         use_implementation_deps: If true, ensure cc_library dependencies which are used only in private files are
                                  listed in implementation_deps. Only available if flag
                                  '--experimental_cc_implementation_deps' is provided.
+        verbose: If true, print debugging information about what DWYU does internally.
     Returns:
         Configured DWYU aspect
     """
@@ -74,6 +76,9 @@ def dwyu_aspect_factory(
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,
+            ),
+            "_verbose": attr.bool(
+                default = verbose,
             ),
         },
     )
