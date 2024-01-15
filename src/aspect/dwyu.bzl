@@ -76,12 +76,12 @@ def extract_defines_from_compiler_flags(compiler_flags):
     defines = {}
 
     for cflag in compiler_flags:
-        if cflag.startswith("-U"):
+        if cflag.startswith(("-U", "/U")):
             undefine = cflag[2:]
             undefine_name = undefine.split("=", 1)[0]
             if undefine_name in defines.keys():
                 defines.pop(undefine_name)
-        if cflag.startswith("-D"):
+        if cflag.startswith(("-D", "/D")):
             define = cflag[2:]
             define_name = define.split("=", 1)[0]
             defines[define_name] = define

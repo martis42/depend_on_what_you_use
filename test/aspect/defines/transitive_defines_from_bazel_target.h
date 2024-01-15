@@ -3,7 +3,9 @@
 #ifdef TRANSITIVE_DEFINE
 #include "defines/support/a.h"
 #else
-#include "defines/support/b.h"
+
+#include "non/existing/a.h"
+
 #endif
 
 #include "defines/support/a.h"
@@ -13,9 +15,9 @@
 // 'local_defines' which should not leak to users of the target
 
 #ifdef LOCAL_DEFINE
-#include "defines/support/b.h"
+#include "non/existing/b.h"
 #endif
 
 #ifdef LOCAL_COPT
-#include "defines/support/b.h"
+#include "non/existing/c.h"
 #endif

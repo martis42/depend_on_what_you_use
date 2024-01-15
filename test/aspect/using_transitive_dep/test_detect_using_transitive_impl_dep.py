@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from result import ExpectedResult, Result
 from test_case import TestCaseBase
 
@@ -7,7 +9,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(
             success=False,
             invalid_includes=[
-                "File='using_transitive_dep/transitive_usage_through_impl_deps.h', include='using_transitive_dep/foo.h'"
+                f"File='{Path('using_transitive_dep/transitive_usage_through_impl_deps.h')}', include='using_transitive_dep/foo.h'"
             ],
         )
         actual = self._run_dwyu(

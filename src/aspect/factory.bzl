@@ -7,7 +7,7 @@ def dwyu_aspect_factory(
         skipped_tags = None,
         target_mapping = None,
         use_implementation_deps = False,
-        verbose = False):
+        verbose = True):
     """
     Create a "Depend on What You Use" (DWYU) aspect.
 
