@@ -13,6 +13,7 @@
   - [Recursion](#recursion)
   - [Implementation_deps](#Implementation_deps)
   - [Target mapping](#target-mapping)
+  - [Verbosity](#verbosity)
 - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
@@ -205,6 +206,16 @@ your_aspect = dwyu_aspect_factory(target_mapping = "<mapping_target_created_by_t
 ```
 
 This is demonstrated in the [target_mapping example](/examples/target_mapping).
+
+## Verbosity
+
+One can configure the DWYU aspect to print debugging information.
+
+Activate this behavior via:
+
+```starlark
+your_aspect = dwyu_aspect_factory(verbose = True)
+```
 
 # Applying automatic fixes
 
