@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from result import ExpectedResult, Result
 from test_case import TestCaseBase
 
@@ -7,7 +9,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(
             success=False,
             invalid_includes=[
-                "File='ignore_includes/use_not_ignored_header.h', include='example_substring_matching_does_not_work_here.h'"
+                f"File='{Path('ignore_includes/use_not_ignored_header.h')}', include='example_substring_matching_does_not_work_here.h'"
             ],
         )
         actual = self._run_dwyu(
