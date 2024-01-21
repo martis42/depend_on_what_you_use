@@ -7,7 +7,11 @@ cc_library(
 cc_library(
     name = "defines_from_bazel_target",
     hdrs = ["defines_from_bazel_target.h"],
-    copts = ["-DSOME_COPT 42"],
+    copts = select({
+        # Strictly speaking Windows does not automatically equal MSVC, but does so in our integration tests
+        "@platforms//os:windows": ["/DSOME_COPT 42"],
+        "//conditions:default": ["-DSOME_COPT 42"],
+    }),
     defines = ["SOME_DEFINE"],
     local_defines = ["LOCAL_DEFINE"],
     deps = ["//defines/support:lib_a"],
