@@ -29,6 +29,13 @@ def _extract_defines_from_compiler_flags_test_impl(ctx):
         extract_defines_from_compiler_flags(["-DFoo=BAR=42", "-DTick 42", '-DRiff "Raff"']),
     )
 
+    # MSVC syntax
+    asserts.equals(
+        env,
+        ["Bar", "FooBar=42"],
+        extract_defines_from_compiler_flags(["/DFoo", "/UFoo", "/DBar", "/DFooBar=42"]),
+    )
+
     return unittest.end(env)
 
 extract_defines_from_compiler_flags_test = unittest.make(_extract_defines_from_compiler_flags_test_impl)
