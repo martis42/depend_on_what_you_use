@@ -1,0 +1,33 @@
+name: 'Prepare Buildozer'
+description: 'Download buildozer and make it available on PATH'
+inputs:
+  version:
+    description: 'Buildozer version'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        # Determine buildozer URL
+        BASE_URL="https://github.com/bazelbuild/buildtools/releases/download/v${{ inputs.version }}"
+        if [[ "${RUNNER_OS}" == "Linux" ]]; then
+          BUILDOZER_URL="${BASE_URL}/buildozer-linux-amd64"
+        elif [ "${RUNNER_OS}" == "macOS" ]; then
+          BUILDOZER_URL="${BASE_URL}/buildozer-darwin-amd64"
+        elif [ "${RUNNER_OS}" == "Windows" ]; then
+          BUILDOZER_URL="${BASE_URL}/buildozer-windows-amd64.exe"
+        else
+          echo "'${RUNNER_OS}' is not supported"
+          exit 1
+        fi
+
+        # Download buildozer
+        BUILDOZER_DIR="/tmp/bin"
+        BUILDOZER_PATH="${BUILDOZER_DIR}/buildozer"
+        mkdir -p "${BUILDOZER_DIR}"
+        wget --no-verbose "${BUILDOZER_URL}" -O "${BUILDOZER_PATH}"
+
+        # Make buildozer available on PATH for subsequent actions
+        chmod +x "${BUILDOZER_PATH}"
+        echo "${BUILDOZER_DIR}" >> $GITHUB_PATH
+      shell: bash
