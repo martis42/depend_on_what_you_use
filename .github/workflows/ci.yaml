@@ -61,18 +61,29 @@ jobs:
           python execute_tests.py -b 7.0.0 -p 3.8.18
 
   integration-tests-apply-fixes:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12 ]
+    runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - run: |
+      - name: Prepare buildozer
+        if: runner.os == 'Linux'
+        run: |
           mkdir --parents /tmp/bin
           wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-linux-amd64 -O /tmp/bin/buildozer
+          chmod +x /tmp/bin/buildozer
+      - name: Prepare buildozer
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p /tmp/bin
+          wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-darwin-amd64 -O /tmp/bin/buildozer
           chmod +x /tmp/bin/buildozer
       - uses: actions/checkout@v4
       - name: Integration tests - Applying fixes
         run: |
           export PATH=/tmp/bin:$PATH
-          ./test/apply_fixes/execute_tests.py
+          python test/apply_fixes/execute_tests.py
 
   integration-tests-examples:
     strategy:
