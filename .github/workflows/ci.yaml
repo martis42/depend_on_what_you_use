@@ -67,22 +67,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - name: Prepare buildozer
-        if: runner.os == 'Linux'
-        run: |
-          mkdir --parents /tmp/bin
-          wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-linux-amd64 -O /tmp/bin/buildozer
-          chmod +x /tmp/bin/buildozer
-      - name: Prepare buildozer
-        if: runner.os == 'macOS'
-        run: |
-          mkdir -p /tmp/bin
-          wget --no-verbose https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildozer-darwin-amd64 -O /tmp/bin/buildozer
-          chmod +x /tmp/bin/buildozer
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/prepare_buildozer
+        with:
+          version: '6.4.0'
       - name: Integration tests - Applying fixes
         run: |
-          export PATH=/tmp/bin:$PATH
           python test/apply_fixes/execute_tests.py
 
   integration-tests-examples:
