@@ -38,6 +38,13 @@ class TestCaseBase(ABC):
         """
         return ""
 
+    @property
+    def windows_compatible(self) -> bool:
+        """
+        Some test cases are not compatible to a Windows environment
+        """
+        return True
+
     #
     # Base Implementation
     #

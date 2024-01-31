@@ -55,7 +55,7 @@ def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
         return Path(process.stdout.strip())
 
     bazel_bin_link = workspace_root / "bazel-bin"
-    if not bazel_bin_link.is_symlink():
+    if not bazel_bin_link.is_dir():
         logging.fatal(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
         sys.exit(1)
     return bazel_bin_link.resolve()

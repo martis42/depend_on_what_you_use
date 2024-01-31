@@ -3,7 +3,8 @@ from __future__ import annotations
 import logging
 import subprocess
 from importlib.machinery import SourceFileLoader
-from pathlib import Path
+from pathlib import Path, PosixPath
+from platform import system
 from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
@@ -49,13 +50,22 @@ python_register_toolchains(
 """
 
 
+def dwyu_path_as_string(dwyu_path: Path) -> str:
+    """
+    We can't use the path directly on Windows as we need escaped backslashes
+    """
+    return str(dwyu_path) if isinstance(dwyu_path, PosixPath) else str(dwyu_path).replace("\\", "\\\\")
+
+
 def setup_test_workspace(
     origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
 ) -> None:
     copytree(src=test_sources, dst=str(temporary_workspace), dirs_exist_ok=True)
     with temporary_workspace.joinpath("WORKSPACE").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write(
-            WORKSPACE_FILE_TEMPLATE.format(dwyu_path=origin_workspace, extra_content=extra_workspace_file_content)
+            WORKSPACE_FILE_TEMPLATE.format(
+                dwyu_path=dwyu_path_as_string(origin_workspace), extra_content=extra_workspace_file_content
+            )
         )
     with temporary_workspace.joinpath(".bazelversion").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write("7.0.0")
@@ -86,6 +96,10 @@ def cleanup(test_workspace: Path) -> None:
 
 
 def execute_test(test: TestCaseBase, origin_workspace: Path) -> bool:
+    if not test.windows_compatible and system() == "Windows":
+        logging.info(f"--- Skipping Test due to Windows incompatibility '{test.name}'")
+        return True
+
     logging.info(f">>> Test '{test.name}'")
     succeeded = False
     result = None

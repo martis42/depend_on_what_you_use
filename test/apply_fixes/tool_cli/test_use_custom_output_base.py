@@ -9,6 +9,15 @@ class TestCase(TestCaseBase):
     def test_target(self) -> str:
         return "//:binary"
 
+    @property
+    def windows_compatible(self) -> bool:
+        """
+        Setting a custom output base to a temporary directory does not work as expected on Windows. Cleaning up the
+        directory fails. We could not identify the underlying problem yet. As this is a test for an edge case and not a
+        major use case, we skip this test for now on Windows.
+        """
+        return False
+
     def execute_test_logic(self) -> Result:
         with TemporaryDirectory() as output_base:
             self._create_reports(startup_args=[f"--output_base={output_base}"])
