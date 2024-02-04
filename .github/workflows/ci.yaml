@@ -1,93 +1,17 @@
-name: CI
-
 on: [ pull_request ]
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-22.04
+  win_symlinks:
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
-      - uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache: 'poetry'
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-      - run: source .venv/bin/activate
-      - uses: pre-commit/action@v3.0.0
-
-  fast-tests:
-    runs-on: ubuntu-22.04
-    needs: [ pre-commit ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Unit tests
-        run: ./scripts/unit_tests.sh
-      - name: Execute Mypy
-        run: ./scripts/mypy.sh
-      - name: Build aspect integration tests
+      - name: Find Symlinks
+        shell: bash
         run: |
-          cd test/aspect
-          bazel build //...
-      - name: Build examples
-        run: |
-          cd examples
-          bazel build //...
-
-  integration-tests-aspect:
-    strategy:
-      matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Integration tests - Aspect
-        if: runner.os != 'Windows'
-        run: |
-          cd test
-          cd aspect
-          python execute_tests.py
-      - name: Integration tests - Aspect
-        if: runner.os == 'Windows'
-        run: |
-          cd test
-          cd aspect
-          python execute_tests.py -b 7.0.0 -p 3.8.18
-
-  integration-tests-apply-fixes:
-    strategy:
-      matrix:
-        os: [ ubuntu-22.04, macos-12 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/prepare_buildozer
-        with:
-          version: '6.4.0'
-      - name: Integration tests - Applying fixes
-        run: |
-          python test/apply_fixes/execute_tests.py
-
-  integration-tests-examples:
-    strategy:
-      matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Integration tests - Examples
-        run: |
-          cd examples
-          python test.py
-      - name: Integration tests - Examples with legacy WORKSPACE setup
-        run: |
-          cd examples
-          python test.py --legacy-workspace
+          pwd
+          find . -maxdepth 1
+          echo "----"
+          #bazel build --experimental_convenience_symlinks=normal //src/...
+          bazel build //src/...
+          echo "----"
+          find . -maxdepth 1
