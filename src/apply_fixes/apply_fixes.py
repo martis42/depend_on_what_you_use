@@ -44,9 +44,12 @@ def get_workspace(main_args: Namespace) -> Path | None:
     return Path(workspace_root)
 
 
-def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
-    if main_args.bazel_bin:
-        return Path(main_args.bazel_bin)
+def get_reports_search_dir(main_args: Namespace, workspace_root: Path) -> Path:
+    """
+    Unless a dedicated search directory is provided, try to deduce the 'bazel-bin' dir.
+    """
+    if main_args.search_path:
+        return Path(main_args.search_path)
 
     if main_args.use_bazel_info:
         process = execute_and_capture(
@@ -61,12 +64,12 @@ def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
     return bazel_bin_link.resolve()
 
 
-def gather_reports(bazel_bin: Path) -> list[Path]:
+def gather_reports(search_path: Path) -> list[Path]:
     """
     We explicitly use os.walk() as it has better performance than Path.glob() in large and deeply nested file trees.
     """
     reports = []
-    for root, _, files in walk(bazel_bin):
+    for root, _, files in walk(search_path):
         for file in files:
             if file.endswith("_dwyu_report.json"):
                 reports.append(Path(root) / file)  # noqa: PERF401
@@ -223,10 +226,10 @@ def main(args: Namespace) -> int:
         return 1
     logging.debug(f"Workspace: '{workspace}'")
 
-    bin_dir = get_bazel_bin_dir(main_args=args, workspace_root=workspace)
-    logging.debug(f"Bazel-bin directory: '{bin_dir}'")
+    reports_search_dir = get_reports_search_dir(main_args=args, workspace_root=workspace)
+    logging.debug(f"Reports search directory: '{reports_search_dir}'")
 
-    reports = gather_reports(bin_dir)
+    reports = gather_reports(reports_search_dir)
     if not reports:
         logging.fatal(
             """
