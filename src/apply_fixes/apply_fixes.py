@@ -6,7 +6,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from itertools import chain
-from os import environ
+from os import environ, walk
 from pathlib import Path
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
@@ -62,7 +62,15 @@ def get_bazel_bin_dir(main_args: Namespace, workspace_root: Path) -> Path:
 
 
 def gather_reports(bazel_bin: Path) -> list[Path]:
-    return list(bazel_bin.glob("**/*_dwyu_report.json"))
+    """
+    We explicitly use os.walk() as it has better performance than Path.glob() in large and deeply nested file trees.
+    """
+    reports = []
+    for root, _, files in walk(bazel_bin):
+        for file in files:
+            if file.endswith("_dwyu_report.json"):
+                reports.append(Path(root) / file)  # noqa: PERF401
+    return reports
 
 
 def get_file_name(include: str) -> str:
