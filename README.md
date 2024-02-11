@@ -257,9 +257,9 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
 
 ##### The code has to be compilable
 
-DWYU is not performing a compilation itself.
+DWYU is not performing a compilation.
 It works by statically analyzing the source code and build tree.
-However, non compiling code can contain errors which infringe the assumptions DWYU is based on.
+However, non compiling code can contain errors infringing the assumptions DWYU is based on.
 For example, including header files which do not exist at the expected path.
 
 ##### Include paths have to be unambiguous
