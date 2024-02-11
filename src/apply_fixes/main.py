@@ -50,12 +50,13 @@ The script expects 'bazel' to be available on PATH.
         naming scheme or do not point to the Bazel output directory containing the DWYU reports.""",
     )
     parser.add_argument(
-        "--bazel-bin",
+        "--search-path",
         metavar="PATH",
         help="""
-        Path to the bazel-bin directory inside which the DWYU reports are located.
+        Path to the directory below which the DWYU reports are located.
         Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
-        deduce the Bazel output directory containing the DWYU report files.""",
+        deduce the Bazel output directory containing the DWYU report files. Or if you want to search only in a sub tree
+        of te Bazel output directories.""",
     )
     parser.add_argument(
         "--fix-unused-deps",
