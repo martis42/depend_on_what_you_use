@@ -271,20 +271,20 @@ Even if analysing the code works initially, it might break at any time if the or
 
 ### Aspect
 
-| Platform         | Constraints                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------------- |
-| Operating system | No constraints by design. Tests are based on Ubuntu 22.04.                               |
-| Python           | Minimum version is 3.8. All newer major versions until 3.12 are tested.                  |
-| Bazel            | Minimum version is 5.4.0. Multiple newer versions are tested including rolling releases. |
+| Platform         | Constraints                                                                               |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| Operating system | Integration tests check \[Ubuntu 22.04, Macos 12, Windows 2022\].                         |
+| Python           | Minimum version is 3.8. Integration tests check \[3.8.x, 3.9.x, 3.10.x, 3.11.x, 3.12.x\]. |
+| Bazel            | Minimum version is 5.4.0. Integration tests check \[5.x, 6.x, 7.x, 8.0.0-pre.x\].         |
 
 ### Applying fixes
 
-| Platform         | Constraints                                                |
-| ---------------- | ---------------------------------------------------------- |
-| Operating system | No constraints by design. Tests are based on Ubuntu 22.04. |
-| Python           | Minimum version is 3.8. Tests are based on Python 3.8.     |
-| Bazel            | No constraints by design. Tests are based on 7.0.0.        |
-| Buildozer        | No known limitations. Tests are based on 6.4.0.            |
+| Platform         | Constraints                                                       |
+| ---------------- | ----------------------------------------------------------------- |
+| Operating system | Integration tests check \[Ubuntu 22.04, Macos 12, Windows 2022\]. |
+| Python           | Minimum version is 3.8. Integration tests check 3.8.              |
+| Bazel            | No known constraint. Integration tests check 7.0.0.               |
+| Buildozer        | No known constraint. Integration tests check 6.4.0.               |
 
 # Alternatives to DWYU
 
