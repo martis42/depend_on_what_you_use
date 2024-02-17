@@ -16,7 +16,7 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="6.0.0", python="3.9.18"),
     TestedVersions(bazel="6.4.0", python="3.10.13"),
     TestedVersions(bazel="7.0.0", python="3.11.6"),
-    TestedVersions(bazel="8.0.0-pre.20231030.2", python="3.12.0"),
+    TestedVersions(bazel="8.0.0-pre.20240206.3", python="3.12.0"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
