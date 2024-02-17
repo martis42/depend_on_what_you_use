@@ -29,8 +29,7 @@ VERSION_SPECIFIC_ARGS = {
     # registry. Both don't matter much to us right now.
     "--lockfile_mode=off": CompatibleVersions(minimum="6.2.0"),
     # Incompatible changes
-    "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),
-    # false is the forward path behavior
+    "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(minimum="5.0.0"),
