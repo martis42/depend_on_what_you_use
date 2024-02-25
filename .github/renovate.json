@@ -20,5 +20,17 @@
     "pip_requirements",
     "poetry",
     "pre-commit"
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "rules_python"
+      ],
+      "matchManagers": [
+        "bazel",
+        "bazel-module"
+      ],
+      "enabled": false
+    }
   ]
 }
