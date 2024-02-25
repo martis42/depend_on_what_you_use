@@ -21,7 +21,7 @@ bazel_dep(
     # Keep in sync with //examples/MODULE.bazel
     # Keep in sync with //test/aspect/MODULE.bazel
     # Keep in sync with //test/apply_fixes/execution_logic.py
-    version = "0.28.0",
+    version = "0.31.0",
 )
 
 non_module_dependencies = use_extension(
