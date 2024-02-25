@@ -2,22 +2,18 @@ module(
     name = "depend_on_what_you_use",
     # Keep in sync with setup_step_2.bzl
     bazel_compatibility = [">=5.4.0"],
-    compatibility_level = 0,
 )
 
 bazel_dep(
     name = "bazel_skylib",
-    # Keep in sync with //third_party/dependencies.bzl
     version = "1.5.0",
 )
 bazel_dep(
     name = "rules_cc",
-    # Keep in sync with //third_party/dependencies.bzl
     version = "0.0.9",
 )
 bazel_dep(
     name = "rules_python",
-    # Keep in sync with //third_party/dependencies.bzl
     # Keep in sync with //examples/MODULE.bazel
     # Keep in sync with //test/aspect/MODULE.bazel
     # Keep in sync with //test/apply_fixes/execution_logic.py
