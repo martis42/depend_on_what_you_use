@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/martis42/depend_on_what_you_use",
+  "maintainers": [
+    {
+      "name": "Martin Medler",
+      "email": "martis42.dev@gmail.com",
+      "github": "martis42"
+    }
+  ],
+  "repository": [
+    "github:martis42/depend_on_what_you_use"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
