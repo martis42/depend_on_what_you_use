@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended",
     ":rebaseStalePrs",
-    "schedule:weekends",
+    "schedule:monthly",
     ":semanticCommits"
   ],
   "labels": [
@@ -31,6 +31,23 @@
         "bazel-module"
       ],
       "enabled": false
+    },
+    {
+      "matchManagers": [
+        "bazel",
+        "bazel-module"
+      ],
+      "groupName": "Bazel dependencies",
+      "groupSlug": "bazel_deps"
+    },
+    {
+      "matchManagers": [
+        "pip_requirements",
+        "poetry",
+        "pre-commit"
+      ],
+      "groupName": "Quality tooling dependencies",
+      "groupSlug": "quality_deps"
     }
   ]
 }
