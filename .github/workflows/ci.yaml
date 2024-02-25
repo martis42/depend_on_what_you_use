@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
       - run: source .venv/bin/activate
-      - uses: pre-commit/action@v3.0.0
+      - uses: pre-commit/action@v3.0.1
 
   fast-tests:
     runs-on: ubuntu-22.04
