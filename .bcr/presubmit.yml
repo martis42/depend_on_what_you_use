@@ -6,9 +6,11 @@ bcr_test_module:
   module_path: "e2e/bzlmod"
   matrix:
     platform: [ "macos", "ubuntu2004", "windows" ]
+    bazel: [ 5.4.0, 6.x, 7.x ]
   tasks:
     run_tests:
       name: "Run unit tests"
       platform: ${{ platform }}
+      bazel: ${{ bazel }}
       test_targets:
         - "//src/..."
