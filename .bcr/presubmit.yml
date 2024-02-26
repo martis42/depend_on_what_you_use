@@ -1,16 +1,15 @@
-# We configure this at it seems to be mandatory, but instead of performing of executing integration tests as intended,
-# we execute the unit tests. We trust our integration tests in our CI to ensure everything is fine for a release.
+# We configure this as it seems to be mandatory. But instead of executing integration tests as intended,
+# we build a trivial target. We trust our integration tests in our CI to ensure everything is fine for a release.
 # Either way, our integration tests are basd on Python scripts and currently could not be executed by a bazel test
 # command either way.
-bcr_test_module:
-  module_path: "e2e/bzlmod"
-  matrix:
-    platform: [ "macos", "ubuntu2004", "windows" ]
-    bazel: [ 5.4.0, 6.x, 7.x ]
-  tasks:
-    run_tests:
-      name: "Run unit tests"
-      platform: ${{ platform }}
-      bazel: ${{ bazel }}
-      test_targets:
-        - "//src/..."
+matrix:
+  platform: [ "macos", "ubuntu2004", "windows" ]
+  # DWYU supports Bazel 5.4.0, but only via WORKSPACE
+  bazel: [ 6.x, 7.x ]
+tasks:
+  verify_targets:
+    name: "Verify build targets"
+    platform: ${{ platform }}
+    bazel: ${{ bazel }}
+    build_targets:
+      - "@depend_on_what_you_use//:apply_fixes"
