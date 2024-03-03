@@ -24,7 +24,8 @@
   "packageRules": [
     {
       "matchPackagePatterns": [
-        "rules_python"
+        "rules_python",
+        "rules_cc"
       ],
       "matchManagers": [
         "bazel",
