@@ -21,6 +21,11 @@
     "poetry",
     "pre-commit"
   ],
+  "pip_requirements": {
+    "fileMatch": [
+      "(^|/)[\\w-]*requirements([-.]\\w+)?\\.(in|txt)$"
+    ]
+  },
   "packageRules": [
     {
       "matchPackagePatterns": [
