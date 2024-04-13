@@ -1,11 +1,9 @@
 module(
     name = "dwyu_examples",
-    compatibility_level = 0,
 )
 
 bazel_dep(
     name = "depend_on_what_you_use",
-    version = "0.0.0",
     dev_dependency = True,
 )
 local_path_override(
@@ -14,7 +12,7 @@ local_path_override(
 )
 
 #
-# One can use DWYU without the content below. The hermetic Python toolchain merely increases the reproducibility when
+# One can use DWYU without the content below. The hermetic Python toolchain increases the reproducibility when
 # executing the examples as integration test.
 #
 

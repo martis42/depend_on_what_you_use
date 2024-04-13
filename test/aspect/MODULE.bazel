@@ -1,11 +1,9 @@
 module(
     name = "dwyu_aspect_integration_tests",
-    compatibility_level = 0,
 )
 
 bazel_dep(
     name = "depend_on_what_you_use",
-    version = "0.0.0",
     dev_dependency = True,
 )
 local_path_override(
@@ -62,7 +60,6 @@ python.toolchain(
 
 bazel_dep(
     name = "external_test_repo",
-    version = "0.0.0",
     dev_dependency = True,
 )
 local_path_override(
@@ -72,7 +69,6 @@ local_path_override(
 
 bazel_dep(
     name = "complex_includes_test_repo",
-    version = "0.0.0",
     dev_dependency = True,
 )
 local_path_override(

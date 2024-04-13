@@ -3,7 +3,6 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("@depend_on_what_you_use//third_party/pcpp:repository.bzl", "pcpp")
 
 def dependencies():
-    # Keep in sync with MODULE.bazel
     maybe(
         http_archive,
         name = "rules_python",
@@ -12,7 +11,6 @@ def dependencies():
         urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz"],
     )
 
-    # Keep in sync with MODULE.bazel
     maybe(
         http_archive,
         name = "rules_cc",
