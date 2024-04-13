@@ -53,9 +53,13 @@ pip_dev.parse(
 )
 use_repo(pip_dev, "dwyu_mypy_deps")
 
-mypy_dep = use_extension(
-    "//third_party:dev_extensions.bzl",
-    "mypy_dependency",
+bazel_dep(
+    name = "mypy_integration",
     dev_dependency = True,
 )
-use_repo(mypy_dep, "mypy_integration")
+archive_override(
+    module_name = "mypy_integration",
+    integrity = "sha256-V1HVImCed4/4/ZdKDoPncNOYZDrceYdvpGW2tCnGfgY=",
+    strip_prefix = "bazel-mypy-integration-c289c0cd30e53b5cc467b601295834dbc400f4b2",
+    urls = ["https://github.com/bazel-contrib/bazel-mypy-integration/archive/c289c0cd30e53b5cc467b601295834dbc400f4b2.tar.gz"],
+)
