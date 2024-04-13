@@ -40,17 +40,17 @@ cd test/aspect
 cd -
 
 echo ""
-echo "Execute interation tests - Applying fixes"
+echo "Execute integration tests - Applying fixes"
 echo ""
 ./test/apply_fixes/execute_tests.py
 
 echo ""
-echo "Execute interation tests - Examples with bzlmod"
+echo "Execute integration tests - Examples with bzlmod"
 echo ""
 cd examples
 ./test.py
 
 echo ""
-echo "Execute interation tests - Examples with WORKSPACE setup"
+echo "Execute integration tests - Examples with WORKSPACE setup"
 echo ""
 ./test.py --legacy-workspace
