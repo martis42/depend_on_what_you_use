@@ -10,9 +10,6 @@ bazel_dep(
 )
 bazel_dep(
     name = "rules_python",
-    # Keep in sync with //examples/MODULE.bazel
-    # Keep in sync with //test/aspect/MODULE.bazel
-    # Keep in sync with //test/apply_fixes/execution_logic.py
     version = "0.27.1",
 )
 
@@ -26,6 +23,7 @@ use_repo(non_module_dependencies, "dwyu_pcpp")
 ### Development Dependencies
 ###
 
+# Keep in sync with third_party/dependencies.bzl
 bazel_dep(
     name = "bazel_skylib",
     version = "1.5.0",
@@ -41,17 +39,17 @@ python.toolchain(
     python_version = "3.8",
 )
 
-pip_dev = use_extension(
+pip = use_extension(
     "@rules_python//python/extensions:pip.bzl",
     "pip",
     dev_dependency = True,
 )
-pip_dev.parse(
+pip.parse(
     hub_name = "dwyu_mypy_deps",
     python_version = "3.8",
     requirements_lock = "//third_party:mypy_requirements.txt",
 )
-use_repo(pip_dev, "dwyu_mypy_deps")
+use_repo(pip, "dwyu_mypy_deps")
 
 bazel_dep(
     name = "mypy_integration",
