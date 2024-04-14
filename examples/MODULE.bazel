@@ -1,11 +1,6 @@
-module(
-    name = "dwyu_examples",
-)
+module(name = "dwyu_examples")
 
-bazel_dep(
-    name = "depend_on_what_you_use",
-    dev_dependency = True,
-)
+bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../",
@@ -16,18 +11,12 @@ local_path_override(
 # executing the examples as integration test.
 #
 
-bazel_dep(
-    name = "rules_python",
-    # Keep in sync with //examples/WORKSPACE
-    version = "0.27.1",
-    dev_dependency = True,
-)
+# Keep in sync with //examples/WORKSPACE
+bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
 
 python = use_extension(
     "@rules_python//python/extensions:python.bzl",
     "python",
     dev_dependency = True,
 )
-python.toolchain(
-    python_version = "3.8",
-)
+python.toolchain(python_version = "3.8")

@@ -1,11 +1,6 @@
-module(
-    name = "dwyu_aspect_integration_tests",
-)
+module(name = "dwyu_aspect_integration_tests")
 
-bazel_dep(
-    name = "depend_on_what_you_use",
-    dev_dependency = True,
-)
+bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../../",
@@ -16,11 +11,7 @@ local_path_override(
 ##
 
 # Keep in sync with //test/aspect/WORKSPACE
-bazel_dep(
-    name = "rules_python",
-    version = "0.27.1",
-    dev_dependency = True,
-)
+bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
 
 # Update with each rules_python update for easy lookup until specifying the patch version for toolchain is possible again
 # Keep in syc with execute_tests.py
@@ -41,36 +32,22 @@ python.toolchain(
     is_default = True,
     python_version = "3.8",
 )
-python.toolchain(
-    python_version = "3.9",
-)
-python.toolchain(
-    python_version = "3.10",
-)
-python.toolchain(
-    python_version = "3.11",
-)
-python.toolchain(
-    python_version = "3.12",
-)
+python.toolchain(python_version = "3.9")
+python.toolchain(python_version = "3.10")
+python.toolchain(python_version = "3.11")
+python.toolchain(python_version = "3.12")
 
 ##
 ## Workspaces for test purposes
 ##
 
-bazel_dep(
-    name = "external_test_repo",
-    dev_dependency = True,
-)
+bazel_dep(name = "external_test_repo", dev_dependency = True)
 local_path_override(
     module_name = "external_test_repo",
     path = "external_repo/repo",
 )
 
-bazel_dep(
-    name = "complex_includes_test_repo",
-    dev_dependency = True,
-)
+bazel_dep(name = "complex_includes_test_repo", dev_dependency = True)
 local_path_override(
     module_name = "complex_includes_test_repo",
     path = "complex_includes/ext_repo",
@@ -83,8 +60,4 @@ local_path_override(
 ## Reference https://github.com/bazelbuild/bazel/blob/master/src/MODULE.tools
 ##
 
-bazel_dep(
-    name = "platforms",
-    version = "0.0.7",
-    dev_dependency = True,
-)
+bazel_dep(name = "platforms", version = "0.0.7", dev_dependency = True)
