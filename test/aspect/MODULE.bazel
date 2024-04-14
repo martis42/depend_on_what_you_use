@@ -11,6 +11,8 @@ local_path_override(
 ##
 
 # Keep in sync with //test/aspect/WORKSPACE
+# TODO version >= 0.30.0 allows choosing the toolchain without caring for the patch version. Unfortunately, this is not
+# compatible to using WORKSPACE and Bazel 5.x
 bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
 
 # Update with each rules_python update for easy lookup until specifying the patch version for toolchain is possible again
