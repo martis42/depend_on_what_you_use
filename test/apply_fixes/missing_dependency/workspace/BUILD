@@ -45,9 +45,21 @@ cc_library(
     deps = [":libs_provider"],
 )
 
+cc_library(
+    name = "use_manipulated_bar",
+    hdrs = ["use_manipulated_bar.h"],
+    deps = [":manipulated_bar_provider"],
+)
+
 ##################
 # Helper Targets #
 ##################
+
+cc_library(
+    name = "manipulated_bar_provider",
+    srcs = ["dummy.h"],
+    deps = ["//libs:manipulated_bar"],
+)
 
 cc_library(
     name = "ambiguous_lib_provider",
