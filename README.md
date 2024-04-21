@@ -271,11 +271,11 @@ Even if analysing the code works initially, it might break at any time if the or
 
 ### Aspect
 
-| Platform         | Constraints                                                                               |
-| ---------------- | ----------------------------------------------------------------------------------------- |
-| Operating system | Integration tests check \[Ubuntu 22.04, Macos 12, Windows 2022\].                         |
-| Python           | Minimum version is 3.8. Integration tests check \[3.8.x, 3.9.x, 3.10.x, 3.11.x, 3.12.x\]. |
-| Bazel            | Minimum version is 5.4.0. Integration tests check \[5.x, 6.x, 7.x, 8.0.0-pre.x\].         |
+| Platform         | Constraints                                                                       |
+| ---------------- | --------------------------------------------------------------------------------- |
+| Operating system | Integration tests check \[Ubuntu 22.04, Macos 12, Windows 2022\].                 |
+| Python           | Minimum version is 3.8. Integration tests check \[3.8, 3.9, 3.10, 3.11, 3.12\].   |
+| Bazel            | Minimum version is 5.4.0. Integration tests check \[5.x, 6.x, 7.x, 8.0.0-pre.x\]. |
 
 ### Applying fixes
 
@@ -319,7 +319,7 @@ Please be aware that the project is still in an early phase and until version 1.
 
 - The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
   Changing their content is not considered a breaking change.
-- How to include DWYU in your project git commit might change at any time.
+- How to include DWYU in your project might change at any time.
 
 # Contributing
 
