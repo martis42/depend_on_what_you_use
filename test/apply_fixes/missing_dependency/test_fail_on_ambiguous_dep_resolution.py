@@ -24,7 +24,7 @@ class TestCase(TestCaseBase):
         )
 
         expected_error = [
-            "Found multiple targets which potentially can provide include 'ambiguous_lib/lib.h'",
+            "Found multiple targets providing invalid include path 'ambiguous_lib/lib.h'",
             "//ambiguous_lib:lib_a",
             "//ambiguous_lib:lib_b",
         ]

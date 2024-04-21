@@ -8,7 +8,7 @@ from src.apply_fixes.apply_fixes import (
     get_dependencies,
     get_file_name,
     search_missing_deps,
-    target_to_file,
+    target_to_path,
 )
 
 
@@ -18,9 +18,9 @@ class TestApplyFixesHelper(unittest.TestCase):
         self.assertEqual(get_file_name("foo.txt"), "foo.txt")
         self.assertEqual(get_file_name("riff/raff/foo.txt"), "foo.txt")
 
-    def test_target_to_file(self) -> None:
-        self.assertEqual(target_to_file(":foo"), "foo")
-        self.assertEqual(target_to_file("@foo//bar:riff/raff.txt"), "raff.txt")
+    def test_target_to_path(self) -> None:
+        self.assertEqual(target_to_path("//:foo"), "foo")
+        self.assertEqual(target_to_path("@foo//bar:riff/raff.txt"), "bar/riff/raff.txt")
 
 
 class TestGetDependencies(unittest.TestCase):
@@ -56,9 +56,9 @@ class TestGetDependencies(unittest.TestCase):
 
         self.assertEqual(len(deps), 2)
         self.assertEqual(deps[0].target, "//foo:bar")
-        self.assertEqual(deps[0].hdrs, ["riff.h", "raff.h"])
+        self.assertEqual(deps[0].include_paths, ["foo/riff.h", "foo/raff.h"])
         self.assertEqual(deps[1].target, "//:foobar")
-        self.assertEqual(deps[1].hdrs, ["foobar.h"])
+        self.assertEqual(deps[1].include_paths, ["foobar.h"])
 
 
 class TestSearchDeps(unittest.TestCase):
@@ -68,8 +68,8 @@ class TestSearchDeps(unittest.TestCase):
     @patch("src.apply_fixes.apply_fixes.get_dependencies")
     def test_find_dependency(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
-            Dependency(target="//unrelated:lib", hdrs=["some_include.h"]),
-            Dependency(target="//expected:target", hdrs=["include_a.h", "include_b.h"]),
+            Dependency(target="//unrelated:lib", include_paths=["some_include.h"]),
+            Dependency(target="//expected:target", include_paths=["other/path/include_a.h", "some/path/include_b.h"]),
         ]
         deps = search_missing_deps(
             workspace=Path(),
@@ -80,34 +80,10 @@ class TestSearchDeps(unittest.TestCase):
         self.assertEqual(deps, ["//expected:target"])
 
     @patch("src.apply_fixes.apply_fixes.get_dependencies")
-    def test_fail_on_unresolved_dependency(self, get_deps_mock: MagicMock) -> None:
-        get_deps_mock.return_value = [Dependency(target="//unrelated:lib", hdrs=["some_include.h"])]
-        with self.assertLogs() as cm:
-            deps = search_missing_deps(
-                workspace=Path(),
-                target="foo",
-                includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
-            )
-            self.assertTrue(
-                any(
-                    "WARNING:root:Could not find a proper dependency for invalid include 'some/path/include_b.h'" in out
-                    for out in cm.output
-                )
-            )
-            self.assertEqual(
-                cm.output,
-                [
-                    "WARNING:root:Could not find a proper dependency for invalid include 'some/path/include_b.h' of target 'foo'.\n"
-                    "Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?"
-                ],
-            )
-            self.assertEqual(deps, [])
-
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
-    def test_fail_on_ambiguous_dependency_resolution(self, get_deps_mock: MagicMock) -> None:
+    def test_fail_on_ambiguous_dependency_resolution_for_full_include_path(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
-            Dependency(target="//:lib_a", hdrs=["foo.h"]),
-            Dependency(target="//:lib_b", hdrs=["foo.h"]),
+            Dependency(target="//:lib_a", include_paths=["some/path/foo.h"]),
+            Dependency(target="//:lib_b", include_paths=["some/path/foo.h"]),
         ]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
@@ -115,13 +91,59 @@ class TestSearchDeps(unittest.TestCase):
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
             )
-            self.assertEqual(
-                cm.output,
-                [
-                    "WARNING:root:Found multiple targets which potentially can provide include 'some/path/foo.h' of target 'foo'.\n"
-                    "Please fix this manually. Candidates which have been discovered:",
-                    "WARNING:root:- //:lib_a\n- //:lib_b",
-                ],
+            self.assertEqual(len(cm.output), 1)
+            self.assertTrue(
+                "Found multiple targets providing invalid include path 'some/path/foo.h' of target 'foo'"
+                in cm.output[0]
+            )
+            self.assertTrue("Discovered potential dependencies are: ['//:lib_a', '//:lib_b']" in cm.output[0])
+            self.assertEqual(deps, [])
+
+    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    def test_find_dependency_via_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
+        get_deps_mock.return_value = [
+            Dependency(target="//some:lib_a", include_paths=["foo.h"]),
+        ]
+        deps = search_missing_deps(
+            workspace=Path(),
+            target="foo",
+            includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
+        )
+        self.assertEqual(deps, ["//some:lib_a"])
+
+    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    def test_fail_on_ambiguous_dependency_resolution_for_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
+        get_deps_mock.return_value = [
+            Dependency(target="//:lib_a", include_paths=["foo.h"]),
+            Dependency(target="//:lib_b", include_paths=["foo.h"]),
+        ]
+        with self.assertLogs() as cm:
+            deps = search_missing_deps(
+                workspace=Path(),
+                target="foo",
+                includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
+            )
+            self.assertEqual(len(cm.output), 1)
+            self.assertTrue(
+                "Found multiple targets providing file 'foo.h' from invalid include 'some/path/foo.h' of target 'foo'"
+                in cm.output[0]
+            )
+            self.assertTrue("Discovered potential dependencies are: ['//:lib_a', '//:lib_b']" in cm.output[0])
+            self.assertEqual(deps, [])
+
+    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    def test_fail_on_unresolved_dependency(self, get_deps_mock: MagicMock) -> None:
+        get_deps_mock.return_value = [Dependency(target="//unrelated:lib", include_paths=["some_include.h"])]
+        with self.assertLogs() as cm:
+            deps = search_missing_deps(
+                workspace=Path(),
+                target="foo",
+                includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
+            )
+            self.assertEqual(len(cm.output), 1)
+            self.assertTrue(
+                "Could not find a proper dependency for invalid include path 'some/path/include_b.h' of target 'foo'"
+                in cm.output[0]
             )
             self.assertEqual(deps, [])
 

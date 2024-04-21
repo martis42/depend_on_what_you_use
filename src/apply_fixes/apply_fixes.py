@@ -80,19 +80,18 @@ def get_file_name(include: str) -> str:
     return include.split("/")[-1]
 
 
-def target_to_file(dep: str) -> str:
-    """Extract the file name from a Bazel target label"""
-    tmp = dep.split(":")[-1]
-    return get_file_name(tmp)
+def target_to_path(dep: str) -> str:
+    return dep.replace(":", "/").rsplit("//", 1)[1]
 
 
 @dataclass
 class Dependency:
     target: str
-    hdrs: list[str]
+    # Assuming no include path manipulation, the target provides these include paths
+    include_paths: list[str]
 
     def __repr__(self) -> str:
-        return f"Dependency(target={self.target}, hdrs={self.hdrs})"
+        return f"Dependency(target={self.target}, include_paths={self.include_paths})"
 
 
 def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
@@ -105,17 +104,69 @@ def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
             "query",
             "--output=xml",
             "--noimplicit_deps",
-            f'attr("hdrs", "", deps({target}) except deps({target}, 1))',
+            f'kind("rule", deps({target}) except deps({target}, 1))',
         ],
         cwd=workspace,
     )
     return [
         Dependency(
             target=dep.attrib["name"],
-            hdrs=[target_to_file(hdr.attrib["value"]) for hdr in dep.findall(".//*[@name='hdrs']/label")],
+            include_paths=[target_to_path(hdr.attrib["value"]) for hdr in dep.findall(".//*[@name='hdrs']/label")],
         )
         for dep in ElementTree.fromstring(process.stdout)
     ]
+
+
+def mach_deps_to_include(target: str, invalid_include: str, target_deps: list[Dependency]) -> str | None:
+    """
+    The possibility to manipulate include paths complicates matching potential dependencies to the invalid include
+    statement. Thus, we perform this multistep heuristic.
+    """
+
+    deps_providing_included_path = [dep.target for dep in target_deps if invalid_include in dep.include_paths]
+
+    if len(deps_providing_included_path) == 1:
+        return deps_providing_included_path[0]
+
+    if len(deps_providing_included_path) > 1:
+        logging.warning(
+            f"""
+Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
+Cannot determine correct dependency.
+Discovered potential dependencies are: {deps_providing_included_path}.
+            """.strip()
+        )
+        return None
+
+    # No potential dep could be found searching for the full include statement. We perform a second search looking only
+    # the file name of the invalid include. The file name cannot be altered by the various include path manipulation
+    # techniques offered by Bazel, only the path at which a header can be discovered can be manipulated.
+    included_file = get_file_name(invalid_include)
+    deps_providing_included_file = [
+        dep.target for dep in target_deps if included_file in [get_file_name(path) for path in dep.include_paths]
+    ]
+
+    if len(deps_providing_included_file) == 1:
+        return deps_providing_included_file[0]
+
+    if len(deps_providing_included_file) > 1:
+        logging.warning(
+            f"""
+Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
+Matching the full include path did not work. Cannot determine correct dependency.
+Discovered potential dependencies are: {deps_providing_included_file}.
+            """.strip()
+        )
+        return None
+
+    logging.warning(
+        f"""
+Could not find a proper dependency for invalid include path '{invalid_include}' of target '{target}'.
+Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
+Or is this include is resolved through the toolchain instead through a dependency?
+        """.strip()
+    )
+    return None
 
 
 def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: dict[str, list[str]]) -> list[str]:
@@ -128,33 +179,11 @@ def search_missing_deps(workspace: Path, target: str, includes_without_direct_de
 
     target_deps = get_dependencies(workspace=workspace, target=target)
     all_invalid_includes = list(chain(*includes_without_direct_dep.values()))
-    discovered_dependencies = []
-    for include in all_invalid_includes:
-        include_file = get_file_name(include)
-        potential_deps = [dep.target for dep in target_deps if include_file in dep.hdrs]
-
-        if not potential_deps:
-            logging.warning(
-                f"""
-Could not find a proper dependency for invalid include '{include}' of target '{target}'.
-Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
-                """.strip()
-            )
-            continue
-
-        if len(potential_deps) > 1:
-            logging.warning(
-                f"""
-Found multiple targets which potentially can provide include '{include}' of target '{target}'.
-Please fix this manually. Candidates which have been discovered:
-                """.strip()
-            )
-            logging.warning("\n".join(f"- {dep}" for dep in potential_deps))
-            continue
-
-        discovered_dependencies.append(potential_deps[0])
-
-    return discovered_dependencies
+    return [
+        dep
+        for include in all_invalid_includes
+        if (dep := mach_deps_to_include(target=target, invalid_include=include, target_deps=target_deps)) is not None
+    ]
 
 
 def add_discovered_deps(
