@@ -154,7 +154,16 @@ You can also configure the aspect to skip targets based on a custom list of tags
 your_aspect = dwyu_aspect_factory(skipped_tags = ["tag1_marking_skipping", "tag2_marking_skipping"])
 ```
 
-This is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+Another possibility is skipping all targets from external workspaces.
+Often external dependencies are not our under control and thus analyzing them is of little value.
+This option is mostly useful in combination with the recursive analysis.
+You configure it like this:
+
+```starlark
+your_aspect = dwyu_aspect_factory(skip_external_targets = True)
+```
+
+Both options are demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
 ## Recursion
 

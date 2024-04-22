@@ -49,7 +49,10 @@ python_register_multi_toolchains(
 
 load("//complex_includes:ext_repo.bzl", "load_complex_includes_repo")
 load("//external_repo:repo.bzl", "load_external_repo")
+load("//skip_external_targets:external_dep.bzl", "load_external_dep")
 
 load_external_repo()
 
 load_complex_includes_repo()
+
+load_external_dep()

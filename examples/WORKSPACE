@@ -36,3 +36,11 @@ python_register_toolchains(
     name = "python",
     python_version = "3.8",
 )
+
+#
+# Support to make the examples work
+#
+
+load("//:support/external_targets.bzl", "load_external_targets")
+
+load_external_targets()

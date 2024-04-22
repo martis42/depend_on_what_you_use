@@ -4,6 +4,7 @@ load(":dwyu.bzl", "dwyu_aspect_impl")
 def dwyu_aspect_factory(
         ignored_includes = None,
         recursive = False,
+        skip_external_targets = False,
         skipped_tags = None,
         target_mapping = None,
         use_implementation_deps = False,
@@ -16,6 +17,7 @@ def dwyu_aspect_factory(
                           nothing is specified, the standard library headers are ignored by default.
         recursive: If true, execute the aspect on all transitive dependencies.
                    If false, analyze only the target the aspect is being executed on.
+        skip_external_targets: If a target is from an external workspace DWYU skips analyzing it.
         skipped_tags: Do not execute the aspect on targets with at least one of those tags. By default skips the
                       analysis for targets tagged with 'no-dwyu'.
         target_mapping: A target providing a map of target labels to alternative CcInfo provider objects for those
@@ -66,6 +68,9 @@ def dwyu_aspect_factory(
             ),
             "_recursive": attr.bool(
                 default = recursive,
+            ),
+            "_skip_external_targets": attr.bool(
+                default = skip_external_targets,
             ),
             "_skipped_tags": attr.string_list(
                 default = aspect_skipped_tags,

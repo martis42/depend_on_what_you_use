@@ -3,6 +3,9 @@ load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "DwyuCcInfoRemappingsInfo")
 load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 
+def _is_external(ctx):
+    return ctx.label.workspace_root.startswith("external")
+
 def _get_target_sources(rule):
     public_files = []
     private_files = []
@@ -193,6 +196,10 @@ def dwyu_aspect_impl(target, ctx):
     # While we limit ourselves right now in the early project phase, we aim at supporting all cc_ like rules accepting
     # 'hdrs' and 'srcs' attributes and providing CcInfo
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
+        return []
+
+    # If configured, skip external targets
+    if ctx.attr._skip_external_targets and _is_external(ctx):
         return []
 
     # Skip targets which explicitly opt-out
