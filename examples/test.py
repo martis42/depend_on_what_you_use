@@ -58,6 +58,10 @@ EXAMPLES = [
         expected_success=True,
     ),
     Example(
+        build_cmd="--aspects=//:aspect.bzl%dwyu_recursive_skip_external --output_groups=dwyu //skipping_targets:use_broken_external_dependency",
+        expected_success=True,
+    ),
+    Example(
         build_cmd="--aspects=//:aspect.bzl%dwyu_map_specific_deps --output_groups=dwyu //target_mapping:use_lib_b",
         expected_success=True,
     ),

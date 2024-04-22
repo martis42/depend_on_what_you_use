@@ -28,3 +28,9 @@ cc_library(
     name = "lib_b",
     hdrs = ["lib_b.h"],
 )
+
+cc_library(
+    name = "use_broken_external_dependency",
+    hdrs = ["use_broken_external_dependency.h"],
+    deps = ["@external_targets//:has_unused_dep"],
+)

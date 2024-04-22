@@ -20,3 +20,13 @@ python = use_extension(
     dev_dependency = True,
 )
 python.toolchain(python_version = "3.8")
+
+#
+# Support to make the examples work
+#
+
+bazel_dep(name = "external_targets", dev_dependency = True)
+local_path_override(
+    module_name = "external_targets",
+    path = "support/external_targets",
+)
