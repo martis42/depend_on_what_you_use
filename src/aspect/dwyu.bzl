@@ -154,6 +154,12 @@ def _do_ensure_private_deps(ctx):
     """
     return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
 
+def _dywu_results_from_deps(deps):
+    """
+    We cannot rely on DWYU being executed on the dependencies as analysis of the dependency might have been skipped.
+    """
+    return [dep[OutputGroupInfo].dwyu for dep in deps if hasattr(dep[OutputGroupInfo], "dwyu")]
+
 def _gather_transitive_reports(ctx):
     """
     In recursive operation mode we have to propagate the DWYU report files of all transitive dependencies to ensure
@@ -162,9 +168,9 @@ def _gather_transitive_reports(ctx):
     """
     reports = []
     if ctx.attr._recursive:
-        reports.extend([dep[OutputGroupInfo].dwyu for dep in ctx.rule.attr.deps])
+        reports.extend(_dywu_results_from_deps(ctx.rule.attr.deps))
         if hasattr(ctx.rule.attr, "implementation_deps"):
-            reports.extend([dep[OutputGroupInfo].dwyu for dep in ctx.rule.attr.implementation_deps])
+            reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
 def dwyu_aspect_impl(target, ctx):
