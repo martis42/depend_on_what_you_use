@@ -117,7 +117,20 @@ def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
     ]
 
 
-def mach_deps_to_include(target: str, invalid_include: str, target_deps: list[Dependency]) -> str | None:
+def is_valid_visibility(from_target: str, to_target: str) -> bool:
+    workspace = "TODO"
+    process = execute_and_capture(
+        cmd=[
+            "bazel",
+            "query",
+            f"visible({to_target}, {from_target})",
+        ],
+        cwd=workspace,
+    )
+    return process.stdout != ""
+
+
+def match_deps_to_include(target: str, invalid_include: str, target_deps: list[Dependency]) -> str | None:
     """
     The possibility to manipulate include paths complicates matching potential dependencies to the invalid include
     statement. Thus, we perform this multistep heuristic.
@@ -126,9 +139,19 @@ def mach_deps_to_include(target: str, invalid_include: str, target_deps: list[De
     deps_providing_included_path = [dep.target for dep in target_deps if invalid_include in dep.include_paths]
 
     if len(deps_providing_included_path) == 1:
-        return deps_providing_included_path[0]
+        if is_valid_visibility(from_target=target, to_target=deps_providing_included_path[0]):
+            return deps_providing_included_path[0]
+        logging.warning(
+            f"""
+Found target {deps_providing_included_path[0]} to resolve invalid include path '{invalid_include}' of target '{target}'.
+However, this target is not visible to '{target}'. Is there maybe somewhere an alias involved?
+            """.strip()
+        )
+        return None
 
     if len(deps_providing_included_path) > 1:
+        logging.debug("Multiple potential targets found. Checking visibility.")
+        # TODO check visibility as tie breaker
         logging.warning(
             f"""
 Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
@@ -147,9 +170,12 @@ Discovered potential dependencies are: {deps_providing_included_path}.
     ]
 
     if len(deps_providing_included_file) == 1:
+        # TODO check visibility to ensure this is a valid option
         return deps_providing_included_file[0]
 
     if len(deps_providing_included_file) > 1:
+        logging.debug("Multiple potential targets found. Checking visibility.")
+        # TODO check visibility as tie breaker
         logging.warning(
             f"""
 Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
@@ -182,7 +208,7 @@ def search_missing_deps(workspace: Path, target: str, includes_without_direct_de
     return [
         dep
         for include in all_invalid_includes
-        if (dep := mach_deps_to_include(target=target, invalid_include=include, target_deps=target_deps)) is not None
+        if (dep := match_deps_to_include(target=target, invalid_include=include, target_deps=target_deps)) is not None
     ]
 
 
