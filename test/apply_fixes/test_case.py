@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import shlex
 import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -115,7 +116,7 @@ class TestCaseBase(ABC):
         return {dep for dep in process.stdout.split("\n") if dep}
 
     def _run_cmd(self, cmd: list[str], **kwargs) -> None:
-        logging.debug(f"Executing command: {cmd}")
+        logging.debug(f"Executing command: {shlex.join(cmd)}")
         check = kwargs.pop("check", True)
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             subprocess.run(cmd, cwd=self._workspace, check=check, **kwargs)
@@ -123,7 +124,7 @@ class TestCaseBase(ABC):
             subprocess.run(cmd, cwd=self._workspace, capture_output=True, check=check, **kwargs)
 
     def _run_and_capture_cmd(self, cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-        logging.debug(f"Executing command: {cmd}")
+        logging.debug(f"Executing command: {shlex.join(cmd)}")
         check = kwargs.pop("check", True)
         process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, check=check, **kwargs)
         logging.debug(process.stdout)

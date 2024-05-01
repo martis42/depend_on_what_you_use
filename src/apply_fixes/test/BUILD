@@ -1,14 +1,20 @@
 load("@rules_python//python:defs.bzl", "py_test")
 
 py_test(
-    name = "apply_fixes_test",
-    srcs = ["apply_fixes_test.py"],
+    name = "bazel_query_test",
+    srcs = ["bazel_query_test.py"],
     deps = ["//src/apply_fixes:lib"],
 )
 
 py_test(
     name = "buildozer_executor_test",
     srcs = ["buildozer_executor_test.py"],
+    deps = ["//src/apply_fixes:lib"],
+)
+
+py_test(
+    name = "search_missing_deps",
+    srcs = ["search_missing_deps.py"],
     deps = ["//src/apply_fixes:lib"],
 )
 

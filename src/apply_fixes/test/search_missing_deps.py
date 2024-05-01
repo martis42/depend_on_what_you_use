@@ -1,9 +1,8 @@
 import unittest
-from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import MagicMock, patch
 
-from src.apply_fixes.apply_fixes import (
+from src.apply_fixes.search_missing_deps import (
     Dependency,
     get_dependencies,
     get_file_name,
@@ -24,35 +23,55 @@ class TestApplyFixesHelper(unittest.TestCase):
 
 
 class TestGetDependencies(unittest.TestCase):
-    @patch("src.apply_fixes.apply_fixes.execute_and_capture")
-    def test_parse_query_output(self, execute_query_mock: MagicMock) -> None:
-        execute_query_mock.return_value = CompletedProcess(
-            args=[],
-            returncode=0,
-            stderr="",
-            stdout="""
-<?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<query version="2">
-    <rule class="cc_library" location="/foo/BUILD:13:37" name="//foo:bar">
-        <string name="name" value="bar"/>
-        <list name="hdrs">
-            <label value="//foo:riff.h"/>
-            <label value="//foo:raff.h"/>
-        </list>
-        <rule-input name="//foo:riff.h"/>
-        <rule-input name="//foo:raff.h"/>
-    </rule>
-    <rule class="cc_library" location="/BUILD:1:11" name="//:foobar">
-        <string name="name" value="foobar"/>
-        <list name="hdrs">
-            <label value="//:foobar.h"/>
-        </list>
-        <rule-input name="//:foobar.h"/>
-    </rule>
-</query>
+    def test_parse_query_output(self) -> None:
+        execute_query_mock = MagicMock()
+        execute_query_mock.configure_mock(
+            uses_cquery=False,
+            **{
+                "execute.return_value": CompletedProcess(
+                    args=[],
+                    returncode=0,
+                    stderr="",
+                    stdout="""
+{"type":"RULE","rule":{"name":"//foo:bar","ruleClass":"cc_library","attribute":[{"name":"unrelated"},{"name":"hdrs","type":"LABEL_LIST","stringListValue":["//foo:riff.h", "//foo:raff.h"],"explicitlySpecified":true,"nodep":false}]}}
+{"type":"RULE","rule":{"name":"//:foobar","ruleClass":"cc_library","attribute":[{"name":"unrelated"},{"name":"hdrs","type":"LABEL_LIST","stringListValue":["//:foobar.h"],"explicitlySpecified":true,"nodep":false}]}}
+{"type":"RULE","rule":{"name":"//:buzz","ruleClass":"unrelated_rule"}}
+{"type":"UNRELATED"}
 """.strip(),
+                ),
+            },
         )
-        deps = get_dependencies(workspace=Path(), target="")
+        deps = get_dependencies(bazel_query=execute_query_mock, target="")
+
+        self.assertEqual(len(deps), 2)
+        self.assertEqual(deps[0].target, "//foo:bar")
+        self.assertEqual(deps[0].include_paths, ["foo/riff.h", "foo/raff.h"])
+        self.assertEqual(deps[1].target, "//:foobar")
+        self.assertEqual(deps[1].include_paths, ["foobar.h"])
+
+    def test_parse_cquery_output(self) -> None:
+        execute_query_mock = MagicMock()
+        execute_query_mock.configure_mock(
+            uses_cquery=True,
+            **{
+                "execute.return_value": CompletedProcess(
+                    args=[],
+                    returncode=0,
+                    stderr="",
+                    stdout="""
+{
+  "results": [
+    {"target": {"type":"RULE","rule":{"name":"//foo:bar","ruleClass":"cc_library","attribute":[{"name":"unrelated"},{"name":"hdrs","type":"LABEL_LIST","stringListValue":["//foo:riff.h", "//foo:raff.h"],"explicitlySpecified":true,"nodep":false}]}}},
+    {"target": {"type":"RULE","rule":{"name":"//:foobar","ruleClass":"cc_library","attribute":[{"name":"unrelated"},{"name":"hdrs","type":"LABEL_LIST","stringListValue":["//:foobar.h"],"explicitlySpecified":true,"nodep":false}]}}},
+    {"target": {"type": "RULE", "rule": {"name":"//:buzz","ruleClass":"unrelated_rule"}}},
+    {"target": {"type": "UNRELATED"}}
+  ]
+}
+""".strip(),
+                ),
+            },
+        )
+        deps = get_dependencies(bazel_query=execute_query_mock, target="")
 
         self.assertEqual(len(deps), 2)
         self.assertEqual(deps[0].target, "//foo:bar")
@@ -63,23 +82,23 @@ class TestGetDependencies(unittest.TestCase):
 
 class TestSearchDeps(unittest.TestCase):
     def test_noop_for_empty_input(self) -> None:
-        self.assertEqual(search_missing_deps(workspace=Path(), target="", includes_without_direct_dep={}), [])
+        self.assertEqual(search_missing_deps(bazel_query=MagicMock(), target="", includes_without_direct_dep={}), [])
 
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    @patch("src.apply_fixes.search_missing_deps.get_dependencies")
     def test_find_dependency(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//unrelated:lib", include_paths=["some_include.h"]),
             Dependency(target="//expected:target", include_paths=["other/path/include_a.h", "some/path/include_b.h"]),
         ]
         deps = search_missing_deps(
-            workspace=Path(),
+            bazel_query=MagicMock(),
             target="foo",
             includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
         )
 
         self.assertEqual(deps, ["//expected:target"])
 
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    @patch("src.apply_fixes.search_missing_deps.get_dependencies")
     def test_fail_on_ambiguous_dependency_resolution_for_full_include_path(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//:lib_a", include_paths=["some/path/foo.h"]),
@@ -87,7 +106,7 @@ class TestSearchDeps(unittest.TestCase):
         ]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
-                workspace=Path(),
+                bazel_query=MagicMock(),
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
             )
@@ -99,19 +118,19 @@ class TestSearchDeps(unittest.TestCase):
             self.assertTrue("Discovered potential dependencies are: ['//:lib_a', '//:lib_b']" in cm.output[0])
             self.assertEqual(deps, [])
 
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    @patch("src.apply_fixes.search_missing_deps.get_dependencies")
     def test_find_dependency_via_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//some:lib_a", include_paths=["foo.h"]),
         ]
         deps = search_missing_deps(
-            workspace=Path(),
+            bazel_query=MagicMock(),
             target="foo",
             includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
         )
         self.assertEqual(deps, ["//some:lib_a"])
 
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    @patch("src.apply_fixes.search_missing_deps.get_dependencies")
     def test_fail_on_ambiguous_dependency_resolution_for_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//:lib_a", include_paths=["foo.h"]),
@@ -119,7 +138,7 @@ class TestSearchDeps(unittest.TestCase):
         ]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
-                workspace=Path(),
+                bazel_query=MagicMock(),
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/foo.h"]},
             )
@@ -131,12 +150,12 @@ class TestSearchDeps(unittest.TestCase):
             self.assertTrue("Discovered potential dependencies are: ['//:lib_a', '//:lib_b']" in cm.output[0])
             self.assertEqual(deps, [])
 
-    @patch("src.apply_fixes.apply_fixes.get_dependencies")
+    @patch("src.apply_fixes.search_missing_deps.get_dependencies")
     def test_fail_on_unresolved_dependency(self, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [Dependency(target="//unrelated:lib", include_paths=["some_include.h"])]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
-                workspace=Path(),
+                bazel_query=MagicMock(),
                 target="foo",
                 includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
             )
