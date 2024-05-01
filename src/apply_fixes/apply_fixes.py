@@ -264,8 +264,7 @@ def main(args: Namespace) -> int:
             """
 ERROR: Did not find any DWYU report files.
 Did you forget to run DWYU beforehand?
-By default this tool looks for DWYU report files in the output directory for a 'fastbuild' DWYU execution. If you want
-to use another output directory, have a look at the apply_fixes CLI options via '--help'.
+Maybe the tool used the wrong output directory, have a look at the apply_fixes CLI options via '--help'.
         """.strip()
         )
         return 1

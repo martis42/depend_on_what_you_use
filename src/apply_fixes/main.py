@@ -13,7 +13,7 @@ def cli() -> Namespace:
         description="""
 This script expects that the user has invoked DWYU in the given workspace beforehand and by doing so generated DYWU
 report files in the output path.
-Running this script multiple times on the same report files will not break anything, but cause a lot of warnings,
+Running this script multiple times on the same report files will not break anything, but will cause a lot of warnings,
 since all issues are already fixed. Always execute the DWYU aspect to generate fresh report files before executing
 this script.
 
@@ -56,7 +56,7 @@ The script expects 'bazel' to be available on PATH.
         Path to the directory below which the DWYU reports are located.
         Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
         deduce the Bazel output directory containing the DWYU report files. Or if you want to search only in a sub tree
-        of te Bazel output directories.""",
+        of the Bazel output directories.""",
     )
     parser.add_argument(
         "--fix-unused-deps",
