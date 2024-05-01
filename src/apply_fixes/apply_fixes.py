@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import json
 import logging
-import subprocess
+import shlex
 import sys
-from dataclasses import dataclass
-from itertools import chain
 from os import environ, walk
 from pathlib import Path
 from typing import TYPE_CHECKING
-from xml.etree import ElementTree
 
+from src.apply_fixes.bazel_query import BazelQuery
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
+from src.apply_fixes.search_missing_deps import search_missing_deps
+from src.apply_fixes.utils import execute_and_capture
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -27,11 +27,6 @@ class RequestedFixes:
         self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
         self.move_private_deps_to_impl_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
-
-
-def execute_and_capture(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
-    logging.debug(f"Executing command: {cmd}")
-    return subprocess.run(cmd, cwd=cwd, check=check, capture_output=True, text=True)
 
 
 def get_workspace(main_args: Namespace) -> Path | None:
@@ -76,116 +71,6 @@ def gather_reports(search_path: Path) -> list[Path]:
     return reports
 
 
-def get_file_name(include: str) -> str:
-    return include.split("/")[-1]
-
-
-def target_to_path(dep: str) -> str:
-    return dep.replace(":", "/").rsplit("//", 1)[1]
-
-
-@dataclass
-class Dependency:
-    target: str
-    # Assuming no include path manipulation, the target provides these include paths
-    include_paths: list[str]
-
-    def __repr__(self) -> str:
-        return f"Dependency(target={self.target}, include_paths={self.include_paths})"
-
-
-def get_dependencies(workspace: Path, target: str) -> list[Dependency]:
-    """
-    Extract dependencies from a given target together with further information about those dependencies.
-    """
-    process = execute_and_capture(
-        cmd=[
-            "bazel",
-            "query",
-            "--output=xml",
-            "--noimplicit_deps",
-            f'kind("rule", deps({target}) except deps({target}, 1))',
-        ],
-        cwd=workspace,
-    )
-    return [
-        Dependency(
-            target=dep.attrib["name"],
-            include_paths=[target_to_path(hdr.attrib["value"]) for hdr in dep.findall(".//*[@name='hdrs']/label")],
-        )
-        for dep in ElementTree.fromstring(process.stdout)
-    ]
-
-
-def mach_deps_to_include(target: str, invalid_include: str, target_deps: list[Dependency]) -> str | None:
-    """
-    The possibility to manipulate include paths complicates matching potential dependencies to the invalid include
-    statement. Thus, we perform this multistep heuristic.
-    """
-
-    deps_providing_included_path = [dep.target for dep in target_deps if invalid_include in dep.include_paths]
-
-    if len(deps_providing_included_path) == 1:
-        return deps_providing_included_path[0]
-
-    if len(deps_providing_included_path) > 1:
-        logging.warning(
-            f"""
-Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
- Cannot determine correct dependency.
- Discovered potential dependencies are: {deps_providing_included_path}.
-            """.strip()
-        )
-        return None
-
-    # No potential dep could be found searching for the full include statement. We perform a second search looking only
-    # the file name of the invalid include. The file name cannot be altered by the various include path manipulation
-    # techniques offered by Bazel, only the path at which a header can be discovered can be manipulated.
-    included_file = get_file_name(invalid_include)
-    deps_providing_included_file = [
-        dep.target for dep in target_deps if included_file in [get_file_name(path) for path in dep.include_paths]
-    ]
-
-    if len(deps_providing_included_file) == 1:
-        return deps_providing_included_file[0]
-
-    if len(deps_providing_included_file) > 1:
-        logging.warning(
-            f"""
-Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
- Matching the full include path did not work. Cannot determine correct dependency.
- Discovered potential dependencies are: {deps_providing_included_file}.
-            """.strip()
-        )
-        return None
-
-    logging.warning(
-        f"""
-Could not find a proper dependency for invalid include path '{invalid_include}' of target '{target}'.
- Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
- Or is this include resolved through the toolchain instead through a dependency?
-        """.strip()
-    )
-    return None
-
-
-def search_missing_deps(workspace: Path, target: str, includes_without_direct_dep: dict[str, list[str]]) -> list[str]:
-    """
-    Search for targets providing header files matching the include statements without matching direct dependency in the
-    transitive dependencies of the target under inspection.
-    """
-    if not includes_without_direct_dep:
-        return []
-
-    target_deps = get_dependencies(workspace=workspace, target=target)
-    all_invalid_includes = list(chain(*includes_without_direct_dep.values()))
-    return [
-        dep
-        for include in all_invalid_includes
-        if (dep := mach_deps_to_include(target=target, invalid_include=include, target_deps=target_deps)) is not None
-    ]
-
-
 def add_discovered_deps(
     discovered_public_deps: list[str],
     discovered_private_deps: list[str],
@@ -206,7 +91,9 @@ def add_discovered_deps(
         buildozer.execute(task=f"add implementation_deps {' '.join(list(set(add_to_impl_deps)))}", target=target)
 
 
-def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, requested_fixes: RequestedFixes) -> None:
+def perform_fixes(
+    bazel_query: BazelQuery, buildozer: BuildozerExecutor, report: Path, requested_fixes: RequestedFixes
+) -> None:
     with report.open(encoding="utf-8") as report_in:
         content = json.load(report_in)
         target = content["analyzed_target"]
@@ -226,10 +113,14 @@ def perform_fixes(buildozer: BuildozerExecutor, workspace: Path, report: Path, r
 
         if requested_fixes.add_missing_deps:
             discovered_public_deps = search_missing_deps(
-                workspace=workspace, target=target, includes_without_direct_dep=content["public_includes_without_dep"]
+                bazel_query=bazel_query,
+                target=target,
+                includes_without_direct_dep=content["public_includes_without_dep"],
             )
             discovered_private_deps = search_missing_deps(
-                workspace=workspace, target=target, includes_without_direct_dep=content["private_includes_without_dep"]
+                bazel_query=bazel_query,
+                target=target,
+                includes_without_direct_dep=content["private_includes_without_dep"],
             )
             add_discovered_deps(
                 discovered_public_deps=discovered_public_deps,
@@ -269,13 +160,19 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
         )
         return 1
 
+    bazel_query = BazelQuery(
+        workspace=workspace,
+        use_cquery=args.use_cquery,
+        query_args=shlex.split(args.bazel_args) if args.bazel_args else [],
+        startup_args=shlex.split(args.bazel_startup_args) if args.bazel_startup_args else [],
+    )
     buildozer_executor = BuildozerExecutor(
         buildozer=buildozer, buildozer_args=args.buildozer_args, workspace=workspace, dry=args.dry_run
     )
     for report in reports:
         logging.debug(f"Processing report file '{report}'")
         perform_fixes(
-            workspace=workspace, report=report, buildozer=buildozer_executor, requested_fixes=RequestedFixes(args)
+            report=report, bazel_query=bazel_query, buildozer=buildozer_executor, requested_fixes=RequestedFixes(args)
         )
     buildozer_executor.summary.print_summary()
 

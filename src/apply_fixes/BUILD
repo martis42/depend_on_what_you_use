@@ -4,8 +4,11 @@ py_library(
     name = "lib",
     srcs = [
         "apply_fixes.py",
+        "bazel_query.py",
         "buildozer_executor.py",
+        "search_missing_deps.py",
         "summary.py",
+        "utils.py",
     ],
     visibility = [":__subpackages__"],
 )

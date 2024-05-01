@@ -59,6 +59,34 @@ The script expects 'bazel' to be available on PATH.
         of the Bazel output directories.""",
     )
     parser.add_argument(
+        "--use-cquery",
+        action="store_true",
+        help="""
+        The apply_fixes script by default uses 'bazel query' to find missing dependencies. Your project might use
+        select statements to exchange dependencies. In such cases you should use 'bazel cquery' to allow this script
+        understanding the dependency tree properly. Should be used together with '--bazel-args' to provide
+        the configuration for 'bazel cquery'.""",
+    )
+    parser.add_argument(
+        "--bazel-args",
+        type=str,
+        metavar="STRING",
+        help="""
+        The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
+        arguments to work properly in your workspace you can provide them here. Also look into '--use-cquery' if
+        you want to provide build configuration.
+        Arguments have ot be provided as one large string, e.g.: --bazel-args='--foo --tick=tock'.""",
+    )
+    parser.add_argument(
+        "--bazel-startup-args",
+        type=str,
+        metavar="STRING",
+        help="""
+        The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
+        startup arguments (e.g. a custom output base) to work properly in your workspace you can provide them here.
+        Arguments have ot be provided as one large string, e.g.: --bazel-args='--foo --tick=tock'.""",
+    )
+    parser.add_argument(
         "--fix-unused-deps",
         action="store_true",
         help="Automatically remove unused dependencies.",

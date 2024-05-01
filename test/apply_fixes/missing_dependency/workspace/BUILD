@@ -51,6 +51,12 @@ cc_library(
     deps = [":manipulated_bar_provider"],
 )
 
+cc_library(
+    name = "use_configured_lib",
+    hdrs = ["use_configured_lib.h"],
+    deps = ["//configured_lib:configured_deps"],
+)
+
 ##################
 # Helper Targets #
 ##################
