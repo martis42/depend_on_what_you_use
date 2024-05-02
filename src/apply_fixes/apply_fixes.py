@@ -51,9 +51,9 @@ def get_reports_search_dir(main_args: Namespace, workspace_root: Path) -> Path:
     if main_args.search_path:
         return Path(main_args.search_path)
 
-    if main_args.use_bazel_info:
+    if main_args.bazel_info_args:
         process = execute_and_capture(
-            cmd=["bazel", "info", f"--compilation_mode={main_args.use_bazel_info}", "bazel-bin"], cwd=workspace_root
+            cmd=["bazel", "info", f"{main_args.bazel_info_args}", "bazel-bin"], cwd=workspace_root
         )
         return Path(process.stdout.strip())
 

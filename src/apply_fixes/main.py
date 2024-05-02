@@ -37,15 +37,18 @@ The script expects 'bazel' to be available on PATH.
         convenience symlink.""",
     )
     parser.add_argument(
-        "--use-bazel-info",
-        const="fastbuild",
-        choices=["dbg", "fastbuild", "opt"],
+        "--bazel-info-args",
+        const="--compilation_mode=fastbuild",
         nargs="?",
         help="""
         Don't follow the convenience symlinks to reach the Bazel output directory containing the DWYU reports. Instead,
         use 'bazel info' to deduce the output directory.
-        This option accepts an optional argument specifying the compilation mode which was used to generate the DWYU
-        report files.
+        This option accepts an optional argument specifying additional arguments that we will passed to 'bazel info'.
+        This matters because we need to find files in the correct output path, which typically includes the compilation
+        mode and then platform suffix, if used. If you combined these options into a config, you can pass the config.
+        Examples include `--bazel-info-args="--compilation_mode=opt"` or
+        `--bazel-info-args="--compilation_mode=opt --platform_suffix production"` or
+        `--bazel-info-args="--config=production"`.
         Using this option is recommended if the convenience symlinks do not exist, don't follow the default
         naming scheme or do not point to the Bazel output directory containing the DWYU reports.""",
     )
