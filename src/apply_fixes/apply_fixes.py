@@ -132,8 +132,8 @@ def mach_deps_to_include(target: str, invalid_include: str, target_deps: list[De
         logging.warning(
             f"""
 Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
-Cannot determine correct dependency.
-Discovered potential dependencies are: {deps_providing_included_path}.
+ Cannot determine correct dependency.
+ Discovered potential dependencies are: {deps_providing_included_path}.
             """.strip()
         )
         return None
@@ -153,8 +153,8 @@ Discovered potential dependencies are: {deps_providing_included_path}.
         logging.warning(
             f"""
 Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
-Matching the full include path did not work. Cannot determine correct dependency.
-Discovered potential dependencies are: {deps_providing_included_file}.
+ Matching the full include path did not work. Cannot determine correct dependency.
+ Discovered potential dependencies are: {deps_providing_included_file}.
             """.strip()
         )
         return None
@@ -162,8 +162,8 @@ Discovered potential dependencies are: {deps_providing_included_file}.
     logging.warning(
         f"""
 Could not find a proper dependency for invalid include path '{invalid_include}' of target '{target}'.
-Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
-Or is this include is resolved through the toolchain instead through a dependency?
+ Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
+ Or is this include resolved through the toolchain instead through a dependency?
         """.strip()
     )
     return None
