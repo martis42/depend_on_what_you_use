@@ -132,6 +132,7 @@ STD_HEADER = {
     "assert.h",
     "ctype.h",
     "errno.h",
+    "fcntl.h",
     "fenv.h",
     "float.h",
     "inttypes.h",
@@ -146,8 +147,10 @@ STD_HEADER = {
     "stdio.h",
     "stdlib.h",
     "string.h",
+    "sys/resource.h",
     "time.h",
     "uchar.h",
+    "unistd.h",
     "wchar.h",
     "wctype.h",
     # special C compatibility headers
