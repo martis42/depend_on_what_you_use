@@ -35,9 +35,7 @@ cd -
 echo ""
 echo "Execute integration tests - Aspect"
 echo ""
-cd test/aspect
-./execute_tests.py
-cd -
+./test/aspect/execute_tests.py
 
 echo ""
 echo "Execute integration tests - Applying fixes"
@@ -47,10 +45,9 @@ echo ""
 echo ""
 echo "Execute integration tests - Examples with bzlmod"
 echo ""
-cd examples
-./test.py
+./examples/test.py
 
 echo ""
 echo "Execute integration tests - Examples with WORKSPACE setup"
 echo ""
-./test.py --legacy-workspace
+./examples/test.py --legacy-workspace

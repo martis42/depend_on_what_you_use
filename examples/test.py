@@ -6,6 +6,8 @@ import subprocess
 import sys
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
+from os import chdir
+from pathlib import Path
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -138,4 +140,8 @@ def main(legacy_workspace: bool) -> int:
 
 if __name__ == "__main__":
     args = cli()
+
+    # Ensure we can invoke the script from various places
+    chdir(Path(__file__).parent)
+
     sys.exit(main(args.legacy_workspace))
