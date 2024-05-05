@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import logging
 from argparse import ArgumentParser, Namespace
+from os import chdir
+from pathlib import Path
 from sys import exit
 
 from execution_logic import main
@@ -92,6 +94,10 @@ if __name__ == "__main__":
     args = cli()
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    # Ensure we can invoke the script from various places
+    chdir(Path(__file__).parent)
+
     exit(
         main(
             tested_versions=TESTED_VERSIONS,
