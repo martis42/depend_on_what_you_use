@@ -31,13 +31,9 @@ jobs:
       - name: Execute Mypy
         run: ./scripts/mypy.sh
       - name: Build aspect integration tests
-        run: |
-          cd test/aspect
-          bazel build //...
+        run: ./scripts/build_aspect_tests.sh
       - name: Build examples
-        run: |
-          cd examples
-          bazel build //...
+        run: ./scripts/build_examples.sh
 
   integration-tests-aspect:
     strategy:
