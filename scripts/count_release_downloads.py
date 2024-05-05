@@ -28,8 +28,6 @@ process = subprocess.run(cmd, check=True, capture_output=True, text=True)
 reply = json.loads(process.stdout.strip())
 
 for release in reply:
-    print(f"Release '{release['name']}'")
-    if "assets" not in release:
-        print("  No assets")
+    print(f"Release '{release['tag_name']}'")
     for asset in release["assets"]:
         print(f"  {asset['name']}: {asset['download_count']}")
