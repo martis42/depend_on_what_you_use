@@ -27,6 +27,28 @@ The script expects 'bazel' to be available on PATH.
     """.strip(),
     )
     parser.add_argument(
+        "--fix-unused-deps",
+        action="store_true",
+        help="Automatically remove unused dependencies.",
+    )
+    parser.add_argument(
+        "--fix-deps-which-should-be-private",
+        action="store_true",
+        help="Automatically move 'deps' to 'implementation_deps'.",
+    )
+    parser.add_argument(
+        "--fix-missing-deps",
+        action="store_true",
+        help="""
+        Automatically search and add dependencies providing headers for which a direct dependency is missing. This is
+        based on a heuristic and thus is not guaranteed to work.""",
+    )
+    parser.add_argument(
+        "--fix-all",
+        action="store_true",
+        help="Perform all available automatic fixes.",
+    )
+    parser.add_argument(
         "--workspace",
         metavar="PATH",
         help="""
@@ -74,8 +96,8 @@ The script expects 'bazel' to be available on PATH.
         help="""
         The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
         arguments to work properly in your workspace you can provide them here. Also look into '--use-cquery' if
-        you want to provide build configuration.
-        Arguments have ot be provided as one large string, e.g.: --bazel-args='--foo --tick=tock'.""",
+        you want to provide a build configuration.
+        Arguments have to be provided as continuous string, e.g.: --bazel-args='--foo --tick=tock'.""",
     )
     parser.add_argument(
         "--bazel-startup-args",
@@ -84,36 +106,7 @@ The script expects 'bazel' to be available on PATH.
         help="""
         The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
         startup arguments (e.g. a custom output base) to work properly in your workspace you can provide them here.
-        Arguments have ot be provided as one large string, e.g.: --bazel-args='--foo --tick=tock'.""",
-    )
-    parser.add_argument(
-        "--fix-unused-deps",
-        action="store_true",
-        help="Automatically remove unused dependencies.",
-    )
-    parser.add_argument(
-        "--fix-deps-which-should-be-private",
-        action="store_true",
-        help="Automatically move 'deps' to 'implementation_deps'.",
-    )
-    parser.add_argument(
-        "--fix-missing-deps",
-        action="store_true",
-        help="""
-        Automatically search and add dependencies providing headers for which a direct dependency is missing. This is
-        based on a heuristic and thus is not guaranteed to work.""",
-    )
-    parser.add_argument(
-        "--fix-all",
-        action="store_true",
-        help="Perform all available automatic fixes.",
-    )
-    parser.add_argument(
-        "--buildozer",
-        metavar="PATH",
-        help="""
-        buildozer binary which shall be used by this script. If none is provided, it is expected to find buildozer on
-        PATH.""",
+        Arguments have to be provided as continuous string, e.g.: -bazel-startup-args='--foo --tick=tock'.""",
     )
     parser.add_argument(
         "--dry-run",
@@ -124,6 +117,13 @@ The script expects 'bazel' to be available on PATH.
         "--verbose",
         action="store_true",
         help="Announce intermediate steps.",
+    )
+    parser.add_argument(
+        "--buildozer",
+        metavar="PATH",
+        help="""
+        buildozer binary which shall be used by this script. If none is provided, it is expected to find buildozer on
+        PATH.""",
     )
     parser.add_argument(
         "--buildozer-args",
