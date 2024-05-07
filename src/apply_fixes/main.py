@@ -1,6 +1,6 @@
 import logging
 import sys
-from argparse import REMAINDER, ArgumentParser, Namespace, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
 from src.apply_fixes.apply_fixes import main
 
@@ -127,8 +127,11 @@ The script expects 'bazel' to be available on PATH.
     )
     parser.add_argument(
         "--buildozer-args",
-        nargs=REMAINDER,
-        help="Forward arguments to buildozer. Has to be the last option in the command line.",
+        type=str,
+        metavar="STRING",
+        help="""
+        Forward arguments to buildozer.
+        Arguments have to be provided as continuous string, e.g.: --buildozer-args='-foo -tick=tock'.""",
     )
 
     args = parser.parse_args()

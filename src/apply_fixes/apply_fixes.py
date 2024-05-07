@@ -167,7 +167,10 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
         startup_args=shlex.split(args.bazel_startup_args) if args.bazel_startup_args else [],
     )
     buildozer_executor = BuildozerExecutor(
-        buildozer=buildozer, buildozer_args=args.buildozer_args, workspace=workspace, dry=args.dry_run
+        buildozer=buildozer,
+        buildozer_args=shlex.split(args.buildozer_args) if args.buildozer_args else [],
+        workspace=workspace,
+        dry=args.dry_run,
     )
     for report in reports:
         logging.debug(f"Processing report file '{report}'")
