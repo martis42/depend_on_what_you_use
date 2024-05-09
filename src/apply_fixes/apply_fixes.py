@@ -29,6 +29,10 @@ class RequestedFixes:
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
+def args_string_to_list(args: str | None) -> list[str]:
+    return shlex.split(args) if args else []
+
+
 def get_workspace(main_args: Namespace) -> Path | None:
     if main_args.workspace:
         return Path(main_args.workspace)
@@ -48,7 +52,14 @@ def get_reports_search_dir(main_args: Namespace, workspace_root: Path) -> Path:
 
     if main_args.use_bazel_info:
         process = execute_and_capture(
-            cmd=["bazel", "info", f"--compilation_mode={main_args.use_bazel_info}", "bazel-bin"], cwd=workspace_root
+            cmd=[
+                "bazel",
+                *args_string_to_list(main_args.bazel_startup_args),
+                "info",
+                *args_string_to_list(main_args.bazel_args),
+                "bazel-bin",
+            ],
+            cwd=workspace_root,
         )
         return Path(process.stdout.strip())
 
@@ -163,12 +174,12 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
     bazel_query = BazelQuery(
         workspace=workspace,
         use_cquery=args.use_cquery,
-        query_args=shlex.split(args.bazel_args) if args.bazel_args else [],
-        startup_args=shlex.split(args.bazel_startup_args) if args.bazel_startup_args else [],
+        query_args=args_string_to_list(args.bazel_args),
+        startup_args=args_string_to_list(args.bazel_startup_args),
     )
     buildozer_executor = BuildozerExecutor(
         buildozer=buildozer,
-        buildozer_args=shlex.split(args.buildozer_args) if args.buildozer_args else [],
+        buildozer_args=args_string_to_list(args.buildozer_args),
         workspace=workspace,
         dry=args.dry_run,
     )
