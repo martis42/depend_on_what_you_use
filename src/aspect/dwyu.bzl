@@ -135,14 +135,14 @@ def _exchange_cc_info(deps, mapping):
 def _preprocess_deps(ctx):
     """
     Normally this function does nothing and simply stores dependencies and their CcInfo providers in a specific format.
-    If the user chooses to use the target mapping feature, we exchange here the CcInf provider for some targets with a
+    If the user chooses to use the target mapping feature, we exchange here the CcInfo provider for some targets with a
     different one.
     """
     target_impl_deps = []
     if ctx.attr._target_mapping:
         target_deps = _exchange_cc_info(deps = ctx.rule.attr.deps, mapping = ctx.attr._target_mapping)
         if hasattr(ctx.rule.attr, "implementation_deps"):
-            pass
+            target_impl_deps = _exchange_cc_info(deps = ctx.rule.attr.implementation_deps, mapping = ctx.attr._target_mapping)
     else:
         target_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.deps]
         if hasattr(ctx.rule.attr, "implementation_deps"):
