@@ -248,6 +248,10 @@ You can see the full command line interface and more information about the scrip
 If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the report files.
 The tool offers options to control how the output directory is discovered.
 
+Discovering the DWYU report files automatically can take a large amount of time if the `bazel-bin` directory is too large.
+In such cases you can pipe the command line output of executing the DWYU aspect into a file and forward this file to the apply_fixes script via the `--dwyu-log-file` option.
+The apply_fixes script will then deduce the DWYU report file locations without crawling though thw whole `bazel-bin` directory.
+
 Unfortunately, the tool cannot promise perfect results due to various constraints:
 
 - If alias targets are involved, this cannot be processed properly.

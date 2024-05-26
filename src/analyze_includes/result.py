@@ -6,18 +6,22 @@ from json import dumps
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from src.analyze_includes.parse_source import Include
 
 
 @dataclass
 class Result:
     target: str
+    report: Path | None = None
+    use_impl_deps: bool = False
+
     public_includes_without_dep: list[Include] = field(default_factory=list)
     private_includes_without_dep: list[Include] = field(default_factory=list)
     unused_deps: list[str] = field(default_factory=list)
     unused_impl_deps: list[str] = field(default_factory=list)
     deps_which_should_be_private: list[str] = field(default_factory=list)
-    use_impl_deps: bool = False
 
     def is_ok(self) -> bool:
         return (
@@ -47,6 +51,9 @@ class Result:
         if self.deps_which_should_be_private:
             msg += "\nPublic dependencies which are used only in private code:\n"
             msg += "\n".join(f"  Dependency='{dep}'" for dep in self.deps_which_should_be_private)
+
+        msg += f"\n\nDWYU Report: {self.report}"
+
         return self._framed_msg(msg)
 
     def to_json(self) -> str:

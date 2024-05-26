@@ -1,6 +1,7 @@
 import logging
 import sys
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
+from pathlib import Path
 
 from src.apply_fixes.apply_fixes import main
 
@@ -80,6 +81,20 @@ The script expects 'bazel' to be available on PATH.
         of the Bazel output directories.""",
     )
     parser.add_argument(
+        "--dwyu-log-file",
+        metavar="PATH",
+        type=Path,
+        help="""
+        If discovering the DWYU report files in the bazel-bin is not feasible, one can instead pipe the command line
+        output of executing the DWYU aspect into a log file and tell this script to extract the DWYU report paths from
+        this execution log. This can be helpful when your workspace is so large, that crawling the corresponding
+        'bazel-bin' directory is too slow for a satisfactory user experience. This script still has to be able to
+        discover the location of the 'bazel-bin' directory. Meaning, the 'bazel-bin' convenience symlink at the
+        workspace root should exists or if it is not available one of the following options should be used:
+        ['--use-bazel-info', '--search-path']. Please note when using '--search-path' you have to point exactly to the
+        'bazel-bin' directory and can't point so sub directories.""",
+    )
+    parser.add_argument(
         "--use-cquery",
         action="store_true",
         help="""
@@ -138,6 +153,10 @@ The script expects 'bazel' to be available on PATH.
     has_explicit_fix_option = any((args.fix_unused_deps, args.fix_deps_which_should_be_private, args.fix_missing_deps))
     if not has_explicit_fix_option and not args.fix_all:
         logging.fatal("Please choose at least one of the 'fix-..' options")
+        sys.exit(1)
+
+    if args.use_bazel_info and args.search_path:
+        logging.fatal("Please choose only one options controlling the 'bazel-bin' directory discovery.")
         sys.exit(1)
 
     return args

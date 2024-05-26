@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 from pathlib import Path
 
@@ -7,14 +9,16 @@ from src.analyze_includes.result import Result
 
 class TestResult(unittest.TestCase):
     @staticmethod
-    def _expected_msg(target: str, errors: str = "") -> str:
+    def _expected_msg(target: str, errors: str = "", report: str | None = None) -> str:
         border = 80 * "="
         msg = f"DWYU analyzing: '{target}'\n\n"
         if errors:
             msg += "Result: FAILURE\n\n"
+            report = f"\n\nDWYU Report: {report}\n"
         else:
             msg += "Result: SUCCESS"
-        return border + "\n" + msg + errors + "\n" + border
+            report = "\n"
+        return border + "\n" + msg + errors + report + border
 
     def test_is_ok(self) -> None:
         unit = Result("//foo:bar")
@@ -28,6 +32,43 @@ class TestResult(unittest.TestCase):
   "analyzed_target": "//foo:bar",
   "public_includes_without_dep": {},
   "private_includes_without_dep": {},
+  "unused_deps": [],
+  "unused_implementation_deps": [],
+  "deps_which_should_be_private": [],
+  "use_implementation_deps": false
+}
+""".lstrip(),
+        )
+
+    def test_is_ok_fails_and_prints_report(self) -> None:
+        unit = Result(
+            target="//foo:bar",
+            private_includes_without_dep=[Include(file=Path("foo"), include="missing")],
+        )
+        unit.report = Path("some/report.json")
+
+        self.assertFalse(unit.is_ok())
+        self.assertEqual(
+            unit.to_str(),
+            self._expected_msg(
+                target="//foo:bar",
+                errors="Includes which are not available from the direct dependencies:"
+                "\n  File='foo', include='missing'",
+                report="some/report.json",
+            ),
+        )
+        # The report is not mentioned in the json file as it would be redundant
+        self.assertEqual(
+            unit.to_json(),
+            """
+{
+  "analyzed_target": "//foo:bar",
+  "public_includes_without_dep": {},
+  "private_includes_without_dep": {
+    "foo": [
+      "missing"
+    ]
+  },
   "unused_deps": [],
   "unused_implementation_deps": [],
   "deps_which_should_be_private": [],

@@ -13,6 +13,12 @@ py_test(
 )
 
 py_test(
+    name = "get_dwyu_reports_test",
+    srcs = ["get_dwyu_reports_test.py"],
+    deps = ["//src/apply_fixes:lib"],
+)
+
+py_test(
     name = "search_missing_deps",
     srcs = ["search_missing_deps.py"],
     deps = ["//src/apply_fixes:lib"],
@@ -21,5 +27,11 @@ py_test(
 py_test(
     name = "summary_test",
     srcs = ["summary_test.py"],
+    deps = ["//src/apply_fixes:lib"],
+)
+
+py_test(
+    name = "utils_test",
+    srcs = ["utils_test.py"],
     deps = ["//src/apply_fixes:lib"],
 )

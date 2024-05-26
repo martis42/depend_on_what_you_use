@@ -99,6 +99,7 @@ def main(args: Namespace) -> int:
         system_under_inspection=system_under_inspection,
         ensure_private_deps=args.implementation_deps_available,
     )
+    result.report = args.report
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     with args.report.open(mode="w", encoding="utf-8") as report:
