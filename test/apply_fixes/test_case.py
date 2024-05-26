@@ -62,6 +62,25 @@ class TestCaseBase(ABC):
         self._workspace = workspace
         return self.execute_test_logic()
 
+    def _make_create_reports_cmd(
+        self,
+        aspect: str = "default_aspect",
+        startup_args: list[str] | None = None,
+        extra_args: list[str] | None = None,
+    ) -> list[str]:
+        cmd_startup_args = startup_args if startup_args else []
+        cmd_extra_args = extra_args if extra_args else []
+        return [
+            "bazel",
+            *cmd_startup_args,
+            "build",
+            f"--aspects=//:aspect.bzl%{aspect}",
+            "--output_groups=dwyu",
+            *cmd_extra_args,
+            "--",
+            self.test_target,
+        ]
+
     def _create_reports(
         self,
         aspect: str = "default_aspect",
@@ -71,22 +90,8 @@ class TestCaseBase(ABC):
         """
         Create report files as input for the applying fixes script
         """
-        cmd_startup_args = startup_args if startup_args else []
-        cmd_extra_args = extra_args if extra_args else []
-
-        self._run_cmd(
-            cmd=[
-                "bazel",
-                *cmd_startup_args,
-                "build",
-                f"--aspects=//:aspect.bzl%{aspect}",
-                "--output_groups=dwyu",
-                *cmd_extra_args,
-                "--",
-                self.test_target,
-            ],
-            check=False,
-        )
+        cmd = self._make_create_reports_cmd(aspect=aspect, startup_args=startup_args, extra_args=extra_args)
+        self._run_cmd(cmd=cmd, check=False)
 
     def _run_automatic_fix(self, extra_args: list[str] | None = None) -> None:
         """
@@ -127,8 +132,11 @@ class TestCaseBase(ABC):
         logging.debug(f"Executing command: {shlex.join(cmd)}")
         check = kwargs.pop("check", True)
         process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, check=check, **kwargs)
+        logging.debug("===== stdout =====")
         logging.debug(process.stdout)
+        logging.debug("----- stderr -----")
         logging.debug(process.stderr)
+        logging.debug("==================")
         return process
 
     @staticmethod

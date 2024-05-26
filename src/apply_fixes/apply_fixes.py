@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import json
 import logging
-import shlex
-import sys
-from os import environ, walk
+from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from src.apply_fixes.bazel_query import BazelQuery
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
+from src.apply_fixes.get_dwyu_reports import gather_reports, get_reports_search_dir
 from src.apply_fixes.search_missing_deps import search_missing_deps
-from src.apply_fixes.utils import execute_and_capture
+from src.apply_fixes.utils import args_string_to_list
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -29,10 +28,6 @@ class RequestedFixes:
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
-def args_string_to_list(args: str | None) -> list[str]:
-    return shlex.split(args) if args else []
-
-
 def get_workspace(main_args: Namespace) -> Path | None:
     if main_args.workspace:
         return Path(main_args.workspace)
@@ -41,45 +36,6 @@ def get_workspace(main_args: Namespace) -> Path | None:
     if not workspace_root:
         return None
     return Path(workspace_root)
-
-
-def get_reports_search_dir(main_args: Namespace, workspace_root: Path) -> Path:
-    """
-    Unless a dedicated search directory is provided, try to deduce the 'bazel-bin' dir.
-    """
-    if main_args.search_path:
-        return Path(main_args.search_path)
-
-    if main_args.use_bazel_info:
-        process = execute_and_capture(
-            cmd=[
-                "bazel",
-                *args_string_to_list(main_args.bazel_startup_args),
-                "info",
-                *args_string_to_list(main_args.bazel_args),
-                "bazel-bin",
-            ],
-            cwd=workspace_root,
-        )
-        return Path(process.stdout.strip())
-
-    bazel_bin_link = workspace_root / "bazel-bin"
-    if not bazel_bin_link.is_dir():
-        logging.fatal(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist or is not a symlink.")
-        sys.exit(1)
-    return bazel_bin_link.resolve()
-
-
-def gather_reports(search_path: Path) -> list[Path]:
-    """
-    We explicitly use os.walk() as it has better performance than Path.glob() in large and deeply nested file trees.
-    """
-    reports = []
-    for root, _, files in walk(search_path):
-        for file in files:
-            if file.endswith("_dwyu_report.json"):
-                reports.append(Path(root) / file)  # noqa: PERF401
-    return reports
 
 
 def add_discovered_deps(
@@ -160,7 +116,7 @@ def main(args: Namespace) -> int:
     reports_search_dir = get_reports_search_dir(main_args=args, workspace_root=workspace)
     logging.debug(f"Reports search directory: '{reports_search_dir}'")
 
-    reports = gather_reports(reports_search_dir)
+    reports = gather_reports(main_args=args, search_path=reports_search_dir)
     if not reports:
         logging.fatal(
             """
