@@ -49,6 +49,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         inputs = header_files,
         executable = ctx.executable._process_target,
         arguments = [args],
+        mnemonic = "DwyuProcessTargetInfo",
         outputs = [processing_output],
     )
 
@@ -248,7 +249,7 @@ def dwyu_aspect_impl(target, ctx):
         executable = ctx.executable._dwyu_binary,
         inputs = analysis_inputs,
         outputs = [report_file],
-        mnemonic = "CompareIncludesToDependencies",
+        mnemonic = "DwyuAnalyzeIncludes",
         progress_message = "Analyze dependencies of {}".format(target.label),
         arguments = [args],
     )
