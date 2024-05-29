@@ -10,26 +10,20 @@ local_path_override(
 ## Python toolchains for testing compatibility to various Python versions
 ##
 
-# Keep in sync with //test/aspect/WORKSPACE
-# TODO version >= 0.30.0 allows choosing the toolchain without caring for the patch version. Unfortunately, this is not
-# compatible to using WORKSPACE and Bazel 5.x
-bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
+# We use a newer rules_python version than the one DWYU depends on to profit from the ability to select a toolchain
+# without specifying the patch version, which is possible from >= 0.30.0 onward.
+# Furthermore, this allows ensuring that we are compatible to new rules_python versions. The most crucial parts of DWYU
+# do not depend on rules_python and therefore we are confident in the example integration tests and unit tests finding
+# all issues related to the rules_python version DWYU depends on.
+bazel_dep(name = "rules_python", version = "0.32.2", dev_dependency = True)
 
-# Update with each rules_python update for easy lookup until specifying the patch version for toolchain is possible again
-# Keep in syc with execute_tests.py
-# PATCH_MAPPING:
-#  "3.8": "3.8.18"
-#  "3.9": "3.9.18"
-#  "3.10": "3.10.13"
-#  "3.11": "3.11.6"
-#  "3.12": "3.12.0"
-# Choose different version via: --@rules_python//python/config_settings:python_version=Major.Minor.Patch mathing one of
-# the registered toolchains below.
 python = use_extension(
     "@rules_python//python/extensions:python.bzl",
     "python",
     dev_dependency = True,
 )
+
+# Choose different version via: --@rules_python//python/config_settings:python_version=X
 python.toolchain(
     is_default = True,
     python_version = "3.8",

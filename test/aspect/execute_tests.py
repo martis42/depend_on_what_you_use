@@ -12,13 +12,13 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
-# Keep in sync with MODULE.bazel
+# For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
 TESTED_VERSIONS = [
     TestedVersions(bazel="5.4.1", python="3.8.18"),
     TestedVersions(bazel="6.5.0", python="3.9.18"),
-    TestedVersions(bazel="7.0.0", python="3.10.13"),
-    TestedVersions(bazel="7.1.1", python="3.11.6"),
-    TestedVersions(bazel="8.0.0-pre.20240401.3", python="3.12.0"),
+    TestedVersions(bazel="7.0.0", python="3.10"),
+    TestedVersions(bazel="7.1.1", python="3.11"),
+    TestedVersions(bazel="8.0.0-pre.20240401.3", python="3.12"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
