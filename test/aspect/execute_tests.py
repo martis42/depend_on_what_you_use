@@ -49,12 +49,10 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_check_visibility_for_toolchains": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_auto_exec_groups": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
-    # Theoretically interesting for our project, but Bazel itself does not adhere to it
-    # "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
-    # Theoretically of interest for us, but rules_python does not comply to this.
-    # "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
 }
 
 
