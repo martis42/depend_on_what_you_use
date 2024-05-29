@@ -18,7 +18,7 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="6.5.0", python="3.9.18"),
     TestedVersions(bazel="7.0.0", python="3.10"),
     TestedVersions(bazel="7.1.1", python="3.11"),
-    TestedVersions(bazel="8.0.0-pre.20240401.3", python="3.12"),
+    TestedVersions(bazel="8.0.0-pre.20240516.1", python="3.12"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
@@ -35,7 +35,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_struct_has_no_methods": CompatibleVersions(minimum="5.0.0"),
+    "--incompatible_struct_has_no_methods": CompatibleVersions(minimum="5.0.0", before="8.0.0"),
     "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(minimum="5.0.0", before="7.0.0"),
     "--incompatible_disallow_empty_glob": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_no_implicit_file_export": CompatibleVersions(minimum="5.0.0"),
