@@ -17,47 +17,29 @@ if TYPE_CHECKING:
 TEST_CASES_DIR = Path("test/apply_fixes")
 TEST_WORKSPACES_DIR = TEST_CASES_DIR / "workspaces"
 
-WORKSPACE_FILE_TEMPLATE = """
-local_repository(
-    name = "depend_on_what_you_use",
-    path = "{dwyu_path}",
-)
-
-load("@depend_on_what_you_use//:setup_step_1.bzl", "setup_step_1")
-setup_step_1()
-
-load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
-setup_step_2()
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+MODULE_FILE_TEMPLATE = """
+bazel_dep(name = "depend_on_what_you_use")
+local_path_override(module_name = "depend_on_what_you_use", path = "{dwyu_path}")
 
 #
-# One can use DWYU without the content below. Those are dependencies to enable testing.
+# Setup dependencies for test orchestration
 #
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "9f38886a40548c6e96c106b752f242130ee11aaa068a56ba7e56f4511f33e4f2",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/1.6.1/bazel-skylib-1.6.1.tar.gz"],
-)
+bazel_dep(name = "bazel_skylib", version = "1.6.1")
 
-maybe(
-    http_archive,
-    name = "rules_python",
-    sha256 = "e85ae30de33625a63eca7fc40a94fea845e641888e52f32b6beea91e8b1b2793",
-    strip_prefix = "rules_python-0.27.1",
-    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz"],
-)
-
-load("@rules_python//python:repositories.bzl", "python_register_toolchains")
-python_register_toolchains(
-    name = "python",
-    python_version = "3.8",
-)
+bazel_dep(name = "rules_python", version = "0.27.1")
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.8")
 
 {extra_content}
 """
+
+BAZEL_RC_FILE = """
+common --nolegacy_external_runfiles
+common --lockfile_mode=off
+"""
+
+BAZEL_VERSION = "7.0.0"
 
 
 def dwyu_path_as_string(dwyu_path: Path) -> str:
@@ -71,16 +53,16 @@ def setup_test_workspace(
     origin_workspace: Path, test_sources: Path, extra_workspace_file_content: str, temporary_workspace: Path
 ) -> None:
     copytree(src=test_sources, dst=str(temporary_workspace), dirs_exist_ok=True)
-    with temporary_workspace.joinpath("WORKSPACE").open(mode="w", encoding="utf-8") as ws_file:
+    with temporary_workspace.joinpath("MODULE.bazel").open(mode="w", encoding="utf-8") as ws_file:
         ws_file.write(
-            WORKSPACE_FILE_TEMPLATE.format(
+            MODULE_FILE_TEMPLATE.format(
                 dwyu_path=dwyu_path_as_string(origin_workspace), extra_content=extra_workspace_file_content
             )
         )
     with temporary_workspace.joinpath(".bazelversion").open(mode="w", encoding="utf-8") as ws_file:
-        ws_file.write("7.0.0")
+        ws_file.write(BAZEL_VERSION)
     with temporary_workspace.joinpath(".bazelrc").open(mode="w", encoding="utf-8") as ws_file:
-        ws_file.write("common --nolegacy_external_runfiles\ncommon --noenable_bzlmod")
+        ws_file.write(BAZEL_RC_FILE)
 
 
 def cleanup(test_workspace: Path) -> None:

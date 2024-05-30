@@ -9,7 +9,10 @@ class TestCase(TestCaseBase):
 
     @property
     def extra_workspace_file_content(self) -> str:
-        return 'load("//:load_external_dep.bzl", "load_external_dep")\nload_external_dep()'
+        return """
+bazel_dep(name = "external_dep")
+local_path_override(module_name = "external_dep", path = "external_dep")
+"""
 
     def execute_test_logic(self) -> Result:
         self._create_reports()
