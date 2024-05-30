@@ -1,6 +1,6 @@
 module(name = "dwyu_aspect_integration_tests")
 
-bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
+bazel_dep(name = "depend_on_what_you_use")
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../../",
@@ -15,13 +15,9 @@ local_path_override(
 # Furthermore, this allows ensuring that we are compatible to new rules_python versions. The most crucial parts of DWYU
 # do not depend on rules_python and therefore we are confident in the example integration tests and unit tests finding
 # all issues related to the rules_python version DWYU depends on.
-bazel_dep(name = "rules_python", version = "0.32.2", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "0.32.2")
 
-python = use_extension(
-    "@rules_python//python/extensions:python.bzl",
-    "python",
-    dev_dependency = True,
-)
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 
 # Choose different version via: --@rules_python//python/config_settings:python_version=X
 python.toolchain(
@@ -37,19 +33,19 @@ python.toolchain(python_version = "3.12")
 ## Workspaces for test purposes
 ##
 
-bazel_dep(name = "external_test_repo", dev_dependency = True)
+bazel_dep(name = "external_test_repo")
 local_path_override(
     module_name = "external_test_repo",
     path = "external_repo/repo",
 )
 
-bazel_dep(name = "complex_includes_test_repo", dev_dependency = True)
+bazel_dep(name = "complex_includes_test_repo")
 local_path_override(
     module_name = "complex_includes_test_repo",
     path = "complex_includes/ext_repo",
 )
 
-bazel_dep(name = "skip_external_deps_test_repo", dev_dependency = True)
+bazel_dep(name = "skip_external_deps_test_repo")
 local_path_override(
     module_name = "skip_external_deps_test_repo",
     path = "skip_external_targets/external_dep",
@@ -62,4 +58,4 @@ local_path_override(
 ## Reference https://github.com/bazelbuild/bazel/blob/master/src/MODULE.tools
 ##
 
-bazel_dep(name = "platforms", version = "0.0.7", dev_dependency = True)
+bazel_dep(name = "platforms", version = "0.0.7")
