@@ -17,7 +17,7 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="5.4.1", python="3.8.18"),
     TestedVersions(bazel="6.5.0", python="3.9.18"),
     TestedVersions(bazel="7.0.0", python="3.10"),
-    TestedVersions(bazel="7.1.1", python="3.11"),
+    TestedVersions(bazel="7.1.1", python="3.11", is_default=True),
     TestedVersions(bazel="8.0.0-pre.20240516.1", python="3.12"),
 ]
 
@@ -72,6 +72,12 @@ def cli() -> Namespace:
         help="Run tests with the specified Python version."
         " Has to be one of the versions for which we register a hermetic toolchain. Also requires setting '--bazel'.",
     )
+    parser.add_argument(
+        "--only-default-version",
+        "-d",
+        action="store_true",
+        help="Execute tests only for the default Bazel and Python version.",
+    )
     parser.add_argument("--list", "-l", action="store_true", help="List all available test cases and return.")
     parser.add_argument(
         "--test",
@@ -104,5 +110,6 @@ if __name__ == "__main__":
             python=args.python,
             requested_tests=args.test,
             list_tests=args.list,
+            only_default_version=args.only_default_version,
         )
     )

@@ -54,6 +54,7 @@ def main(
     python: str | None = None,
     requested_tests: list[str] | None = None,
     list_tests: bool = False,
+    only_default_version: bool = False,
 ) -> int:
     workspace_path = get_current_workspace()
     test_files = sorted([Path(x) for x in workspace_path.glob("*/test_*.py")])
@@ -71,7 +72,12 @@ def main(
             module = SourceFileLoader("", str(test.resolve())).load_module()
             tests.append(module.TestCase(name))
 
-    versions = [TestedVersions(bazel=bazel, python=python)] if bazel and python else tested_versions
+    if bazel and python:
+        versions = [TestedVersions(bazel=bazel, python=python)]
+    elif only_default_version:
+        versions = [version for version in tested_versions if version.is_default]
+    else:
+        versions = tested_versions
 
     failed_tests = []
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
