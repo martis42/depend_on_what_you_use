@@ -1,3 +1,5 @@
+define: &generated_doc_files "docs/cc_info_mapping.md"
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -11,6 +13,7 @@ repos:
       - id: check-json
       # Code style
       - id: end-of-file-fixer
+        exclude: *generated_doc_files
       - id: trailing-whitespace
       # Python code quality
       - id: debug-statements
@@ -18,6 +21,7 @@ repos:
     rev: 0.7.17
     hooks:
       - id: mdformat
+        exclude: *generated_doc_files
         additional_dependencies:
           - mdformat-gfm
   - repo: https://github.com/keith/pre-commit-buildifier

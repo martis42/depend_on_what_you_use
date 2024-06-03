@@ -1,3 +1,25 @@
+"""
+Sometimes users don't want to follow the DWYU rules for all targets or have to work with external dependencies not following the DWYU principles.
+While one can exclude targets from the DWYU analysis completely (e.g. via tags), one can also explicitly define exceptions where includes can be provided by selected transitive dependencies instead of direct dependencies.
+In other words, one can virtually change which header files are treated as being available from direct dependencies.
+
+One example use case for this are unit tests based on gtest.
+Following strictly the DWYU principles each test using a gtest header should depend both on the gtest library and the gtest main:
+```starlark
+cc_test(
+  name = "my_test",
+  srcs = ["my_test.cc"],
+  deps = [
+    "@com_google_googletest//:gtest",
+    "@com_google_googletest//:gtest_main",
+  ],
+)
+```
+This can be considered superfluous noise without a significant benefit.
+The mapping feature described here allows defining that `@com_google_googletest//:gtest_main` offers the header files from `@com_google_googletest//:gtest`.
+Then a test can specify only the dependency to `@com_google_googletest//:gtest_main` without DWYU raising an error while analysing the test.
+"""
+
 load("@depend_on_what_you_use//src/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("@depend_on_what_you_use//src/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("@depend_on_what_you_use//src/cc_info_mapping/private:providers.bzl", "DwyuCcInfoRemapInfo")
@@ -8,9 +30,9 @@ MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
 MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
 
 DwyuCcInfoRemappingsInfo = provider(
-    "Dictionary of targets labels wnd which CcInfo provider DWYU should use for analysing them",
+    "Mapping of targets to CcInfo providers which DWYU should use for analyis instead of the targets original CcInfo.",
     fields = {
-        "mapping": "Dictionary with structure {'target label': CcInfo provider which should be used by DWYU}",
+        "mapping": "Dictionary with structure {'target label': CcInfo}",
     },
 )
 
@@ -30,6 +52,8 @@ _make_remapping_info = rule(
 
 def dwyu_make_cc_info_mapping(name, mapping):
     """
+    Map include paths available from one or several targets to another target.
+
     Create a mapping which allows treating targets as if they themselves would offer header files, which in fact are
     coming from their dependencies. This enables the DWYU analysis to skip over some usage of headers provided by
     transitive dependencies without raising an error.
