@@ -10,11 +10,26 @@ Go to each site and copy the content into a file. This file then reads the file 
 python file containing the standard header list for DWYU to lookup.
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
-with Path("input.txt").open(encoding="utf-8") as fin:
+INPUT = Path("input.txt")
+
+
+def extract_header(text: str) -> list[str]:
     headers = []
-    for line in fin.readlines():
-        headers.extend(re.findall(r"<([a-z/.]+)>", line))
-    print("\n".join(f'"{h}",' for h in sorted(set(headers))))  # noqa: T201
+    for line in text.split("\n"):
+        headers.extend(re.findall(r"<([a-z_/.]+)>", line))
+    return headers
+
+
+def main() -> None:
+    with INPUT.open(encoding="utf-8") as fin:
+        headers = extract_header(fin.read())
+        print("\n".join(f'"{h}",' for h in sorted(set(headers))))  # noqa: T201
+
+
+if __name__ == "__main__":
+    main()
