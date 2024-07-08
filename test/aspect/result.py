@@ -76,7 +76,7 @@ class ExpectedResult:
             output=output_lines,
         ):
             return False
-        if not ExpectedResult._has_expected_errors(
+        if not ExpectedResult._has_expected_errors(  # noqa: SIM103
             expected_errors=self.deps_which_should_be_private,
             error_category=CATEGORY_NON_PRIVATE_DEPS,
             output=output_lines,
@@ -88,9 +88,7 @@ class ExpectedResult:
     def _has_correct_status(self, return_code: int, output: str) -> bool:
         if self.success and return_code == 0:
             return True
-        if not self.success and return_code != 0 and DWYU_FAILURE in output:
-            return True
-        return False
+        return not self.success and return_code != 0 and DWYU_FAILURE in output
 
     @staticmethod
     def _get_error_lines(idx_category: int, output: list[str]) -> list[str]:
@@ -112,12 +110,10 @@ class ExpectedResult:
         if idx_category is None:
             return False
 
-        if not ExpectedResult._has_errors(
+        return ExpectedResult._has_errors(
             error_lines=ExpectedResult._get_error_lines(idx_category=idx_category, output=output),
             expected_errors=expected_errors,
-        ):
-            return False
-        return True
+        )
 
     @staticmethod
     def _find_line_with(lines: list[str], val: str) -> int | None:
