@@ -97,6 +97,9 @@ class TestCaseBase(ABC):
             # Testing over many Bazel versions does work well with a static bazelrc file including flags which might not
             # be available in a some tested Bazel version.
             "--noworkspace_rc",
+            # Can improve performance in Windows workers
+            # See https://github.com/bazelbuild/rules_python/blob/7bba79de34b6352001cb42b801245d0de33ce225/docs/sphinx/pypi-dependencies.md#L40
+            "--windows_enable_symlinks",
             "build",
             "--experimental_convenience_symlinks=ignore",
             "--noshow_progress",

@@ -35,6 +35,12 @@ python.toolchain(python_version = "3.8")
 """
 
 BAZEL_RC_FILE = """
+# Can improve performance in Windows workers
+# See https://github.com/bazelbuild/rules_python/blob/7bba79de34b6352001cb42b801245d0de33ce225/docs/sphinx/pypi-dependencies.md#L40
+startup --windows_enable_symlinks
+
+# Decrease Python toolchain overhead
+# See https://github.com/bazelbuild/rules_python/issues/1653
 common --nolegacy_external_runfiles
 common --lockfile_mode=off
 """
