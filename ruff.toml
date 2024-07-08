@@ -25,7 +25,6 @@ ignore = [
     "NPY", # numpy
     "PD", # pandas
     "PT", # pytest
-    "TRIO", # trio
     # This documentation style is too opinionated and too verbose, given our Python code is an implementation detail.
     "D",
     # Users are not expected to see exceptions. Optimizing the trace is not worth more complex code.
