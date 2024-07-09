@@ -45,15 +45,6 @@
       ],
       "groupName": "Bazel dependencies",
       "groupSlug": "bazel_deps"
-    },
-    {
-      "matchManagers": [
-        "pip_requirements",
-        "poetry",
-        "pre-commit"
-      ],
-      "groupName": "Quality tooling dependencies",
-      "groupSlug": "quality_deps"
     }
   ]
 }
