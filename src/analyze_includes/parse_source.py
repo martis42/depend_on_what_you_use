@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 
-from pcpp.preprocessor import Action, OutputDirective, Preprocessor
+from pcpp.preprocessor import Action, OutputDirective, Preprocessor  # type: ignore[import-not-found]
 
 
 class SimpleParsingPreprocessor(Preprocessor):

@@ -30,4 +30,4 @@ class TestCase(TestCaseBase):
         ]
         if all(msg in process.stderr for msg in expected_error):
             return Success()
-        return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
+        return self._make_unexpected_output_error(expected="\n".join(expected_error), output=process.stderr)

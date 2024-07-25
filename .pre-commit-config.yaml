@@ -38,3 +38,21 @@ repos:
       # Linting
       - id: ruff
         args: [ --fix ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      # We overwrite the args as we configure mypy via our mypy.ini
+      # We require separate instances due to several files being named the same which mypy cannot handle
+      - id: mypy
+        name: "mypy"
+        args: [ ]
+        exclude: ^test/.*
+      - id: mypy
+        name: "mypy - test/aspect"
+        args: [ ]
+        files: ^test/aspect/.*\.py
+      - id: mypy
+        name: "mypy - test/apply_fixes"
+        args: [ ]
+        files: ^test/apply_fixes/.*\.py
