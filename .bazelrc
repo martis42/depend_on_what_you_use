@@ -13,11 +13,5 @@ common --lockfile_mode=off
 # See https://github.com/bazelbuild/rules_python/issues/1653
 common --nolegacy_external_runfiles
 
-# Mypy integration
-build:mypy --aspects=@mypy_integration//:mypy.bzl%mypy_aspect
-build:mypy --output_groups=mypy
-build:mypy --@mypy_integration//:mypy=//third_party:mypy
-build:mypy --@mypy_integration//:mypy_config=//:mypy.ini
-
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc
