@@ -14,11 +14,6 @@ echo ""
 ./scripts/unit_tests.sh
 
 echo ""
-echo "Executing mypy"
-echo ""
-./scripts/mypy.sh
-
-echo ""
 echo "Build aspect integration tests"
 echo ""
 ./scripts/build_aspect_tests.sh

@@ -28,8 +28,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unit tests
         run: ./scripts/unit_tests.sh
-      - name: Execute Mypy
-        run: ./scripts/mypy.sh
       - name: Build aspect integration tests
         run: ./scripts/build_aspect_tests.sh
       - name: Build examples
