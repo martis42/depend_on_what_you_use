@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 from result import Error, Result, Success
 from test_case import TestCaseBase
@@ -12,7 +12,7 @@ from version import TestedVersions
 class TestCaseMock(TestCaseBase):
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.result = Success()
+        self.result: Result = Success()
         self.dwyu_extra_args: list[str] = []
         self.target: list[str] | str = "//foo:bar"
 
@@ -20,11 +20,14 @@ class TestCaseMock(TestCaseBase):
         self._run_dwyu(target=self.target, aspect="//some:aspect", extra_args=self.dwyu_extra_args)
         return self.result
 
+    @staticmethod
+    def _bazel_binary() -> str:
+        return "/bazel/binary"
+
 
 class TestCaseTests(unittest.TestCase):
     def setUp(self) -> None:
         self.unit = TestCaseMock("foo")
-        self.unit._bazel_binary = Mock(return_value="/bazel/binary")  # noqa: SLF001
 
     @staticmethod
     def get_cmd(mock: MagicMock) -> list[str]:

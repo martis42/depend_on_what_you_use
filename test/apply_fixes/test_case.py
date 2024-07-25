@@ -142,7 +142,9 @@ class TestCaseBase(ABC):
     @staticmethod
     def _make_unexpected_output_error(expected: str, output: str) -> Error:
         border = 42 * "-"
-        return Error(f"Did not find expected output: {expected}\nUnexpected output:\n{border}\n{output}\n{border}\n")
+        return Error(
+            f"Did not find expected output: \n{border}\n{expected}\n{border}\nUnexpected output:\n{border}\n{output}\n{border}\n"
+        )
 
     @staticmethod
     def _make_unexpected_deps_error(

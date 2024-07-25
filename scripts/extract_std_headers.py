@@ -10,6 +10,9 @@ Go to each site and copy the content into a file. This file then reads the file 
 python file containing the standard header list for DWYU to lookup.
 """
 
+# No benefit for using logging here
+# ruff: noqa: T201
+
 from __future__ import annotations
 
 import re
@@ -28,7 +31,7 @@ def extract_header(text: str) -> list[str]:
 def main() -> None:
     with INPUT.open(encoding="utf-8") as fin:
         headers = extract_header(fin.read())
-        print("\n".join(f'"{h}",' for h in sorted(set(headers))))  # noqa: T201
+        print("\n".join(f'"{h}",' for h in sorted(set(headers))))
 
 
 if __name__ == "__main__":
