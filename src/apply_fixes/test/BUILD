@@ -19,8 +19,8 @@ py_test(
 )
 
 py_test(
-    name = "search_missing_deps",
-    srcs = ["search_missing_deps.py"],
+    name = "search_missing_deps_test",
+    srcs = ["search_missing_deps_test.py"],
     deps = ["//src/apply_fixes:lib"],
 )
 
