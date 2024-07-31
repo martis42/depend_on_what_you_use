@@ -7,13 +7,6 @@
   - [Get a release](#get-a-release)
   - [Get a specific commit](#get-a-specific-commit)
   - [Use DWYU](#use-dwyu)
-- [Configuring DWYU](#configuring-dwyu)
-  - [Custom header ignore list](#custom-header-ignore-list)
-  - [Skipping Targets](#skipping-targets)
-  - [Recursion](#recursion)
-  - [Implementation_deps](#Implementation_deps)
-  - [Target mapping](#target-mapping)
-  - [Verbosity](#verbosity)
 - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
@@ -82,24 +75,25 @@ dwyu_setup_step_2()
 
 ### Configure the aspect
 
-The features which can be configured through the aspect factory attributes are documented at [Configuring DWYU](#configuring-dwyu).
-Put the following inside a `.bzl` file:
+The DWYU aspect is created in your project by a [factory function offering various options](docs/dwyu_aspect.md) to configure the aspect.
+Various illustrations for configuring and using the DWYU aspect can be seen in the [examples](/examples).
+
+Example `.bzl` file creating a DWYU aspect with default configuration:
 
 ```starlark
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
-# Provide no arguments for the default behavior
-# Or set a custom value for the various attributes
 your_dwyu_aspect = dwyu_aspect_factory()
 ```
 
 ### Use the aspect
 
-Invoke the aspect through the command line on a target:<br>
-`bazel build <target_pattern> --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=dwyu`
+Assuming you created the DWYU aspect in file `//:aspect.bzl`, execute it on a target pattern:<br>
+`bazel build --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=dwyu <target_pattern>`
 
 If no problem is found, the command will exit with `INFO: Build completed successfully`.<br>
-If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal. For example:
+If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal.
+For example:
 
 ```
 ================================================================================
@@ -120,111 +114,6 @@ This can be useful to make the execution part of a bazel build without having to
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 
 This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu).
-
-# Configuring DWYU
-
-## Custom header ignore list
-
-By default, DWYU ignores all header from the standard library when comparing include statements to the dependencies.
-This list of headers can be seen in [std_header.py](src/analyze_includes/std_header.py).
-
-You can exclude a custom set of header files by providing a config file in json format to the aspect:
-
-```starlark
-your_aspect = dwyu_aspect_factory(ignored_includes = "//<your_config_file>.json")
-```
-
-The config file can contain these fields which should be lists of strings.
-All fields are optional:
-
-| Field                        | Description                                                                                                                                                                                                                                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ignore_include_paths`       | List of include paths which are ignored by the analysis. Setting this **disables ignoring the standard library include paths**.                                                                                                                                                                               |
-| `extra_ignore_include_paths` | List of include paths which are ignored by the analysis. If `ignore_include_paths` is specified as well, both list are combined. If `ignore_include_paths` is not set, the default list of standard library headers is extended.                                                                              |
-| `ignore_include_patterns`    | List of patterns for include paths which are ignored by the analysis. Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax). The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns. |
-
-This is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
-
-## Skipping targets
-
-If you want the DWYU aspect to skip certain targets and negative target patterns are not an option you can do so by setting the `no-dwyu` tag on those.
-You can also configure the aspect to skip targets based on a custom list of tags:
-
-```starlark
-your_aspect = dwyu_aspect_factory(skipped_tags = ["tag1_marking_skipping", "tag2_marking_skipping"])
-```
-
-Another possibility is skipping all targets from external workspaces.
-Often external dependencies are not our under control and thus analyzing them is of little value.
-This option is mostly useful in combination with the recursive analysis.
-You configure it like this:
-
-```starlark
-your_aspect = dwyu_aspect_factory(skip_external_targets = True)
-```
-
-Both options are demonstrated in the [skipping_targets example](/examples/skipping_targets).
-
-## Recursion
-
-By default, DWYU analyzes only the target it is being applied to.
-
-You can also activate recursive analysis.
-Meaning the aspect analyzes recursively all dependencies of the target it is being applied to:
-
-```starlark
-your_aspect = dwyu_aspect_factory(recursive = True)
-```
-
-This is demonstrated in the [recursion example](/examples/recursion).
-
-## Implementation_deps
-
-Bazel offers the experimental feature [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies for `cc_library`.
-Headers from the private dependencies are not made available to users of the library.
-
-DWYU analyzes the usage of headers from the dependencies and can raise an error if a dependency is used only in private files, but not put into the private dependency attribute.
-Meaning, it can find dependencies which should be moved from `deps` to `implementation_deps`.
-
-Activate this behavior via:
-
-```starlark
-your_aspect = dwyu_aspect_factory(use_implementation_deps = True)
-```
-
-Usage of this can be seen in the [basic example](examples/basic_usage).
-
-## Target mapping
-
-Sometimes users don't want to follow the DWYU rules for all targets or have to work with external dependencies not following the DWYU principles.
-For such cases DWYU allows creating a mapping which for a chosen target makes more headers available as the target actually provides.
-In other words, one can combine virtually multiple targets for the DWYU analysis.
-Doing so allows using headers from transitive dependencies without DWYU raising an error for select cases.
-
-Such a mapping is created with the [dwyu_make_cc_info_mapping](src/cc_info_mapping/cc_info_mapping.bzl) rule.
-This offers multiple ways of mapping targets:
-
-1. Explicitly providing a list of targets which are mapped into a single target.
-1. Specifying that all direct dependencies of a given target are mapped into the target.
-1. Specifying that all transitive dependencies of a given target are mapped into the target.
-
-Activate this behavior via:
-
-```starlark
-your_aspect = dwyu_aspect_factory(target_mapping = "<mapping_target_created_by_the_user>")
-```
-
-This is demonstrated in the [target_mapping example](/examples/target_mapping).
-
-## Verbosity
-
-One can configure the DWYU aspect to print debugging information.
-
-Activate this behavior via:
-
-```starlark
-your_aspect = dwyu_aspect_factory(verbose = True)
-```
 
 # Applying automatic fixes
 
