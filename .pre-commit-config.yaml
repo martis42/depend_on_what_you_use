@@ -1,3 +1,5 @@
+define: &generated_doc_files "^docs/(cc_info_mapping|dwyu_aspect).md"
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -11,15 +13,19 @@ repos:
       - id: check-json
       # Code style
       - id: end-of-file-fixer
+        exclude: *generated_doc_files
       - id: trailing-whitespace
       # Python code quality
       - id: debug-statements
+
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
     hooks:
       - id: mdformat
+        exclude: *generated_doc_files
         additional_dependencies:
           - mdformat-gfm
+
   - repo: https://github.com/keith/pre-commit-buildifier
     rev: 7.1.2
     hooks:
@@ -30,6 +36,7 @@ repos:
           "--diff_command='diff'",
           "--warnings=-module-docstring,-function-docstring,-function-docstring-header,-print"
         ]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
     rev: v0.5.5
