@@ -11,7 +11,7 @@ poetry run pre-commit run --all-files
 echo ""
 echo "Execute unit tests"
 echo ""
-./scripts/unit_tests.sh
+bazel test //...
 
 echo ""
 echo "Build aspect integration tests"
