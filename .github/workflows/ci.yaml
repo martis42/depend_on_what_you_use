@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Unit tests
-        run: ./scripts/unit_tests.sh
+        run: bazel test //...
       - name: Build aspect integration tests
         run: ./scripts/build_aspect_tests.sh
       - name: Build examples
