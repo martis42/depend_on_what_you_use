@@ -25,11 +25,6 @@ VERSION_SPECIFIC_ARGS = {
     # We support Bazel's modern dependency management system, but it works only as desired with a recent Bazel version
     "--experimental_enable_bzlmod=false": CompatibleVersions(before="6.0.0"),
     "--enable_bzlmod=false": CompatibleVersions(minimum="6.0.0", before="6.2.0"),
-    # We are not yet sure if we really want to lock the bzlmod resolution down given we test with various Bazel versions
-    # and configurations. It seems the main benefits of the lock file are not having to reanalyze the central registry
-    # when working without a cached workspace and being safeguarded against changed or yanked modules in the central
-    # registry. Both don't matter much to us right now.
-    "--lockfile_mode=off": CompatibleVersions(minimum="6.2.0"),
     # Incompatible changes
     "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
