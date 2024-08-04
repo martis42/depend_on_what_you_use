@@ -2,6 +2,7 @@
 
 # Bazel
 bazel-*
+*MODULE.bazel.lock
 user.bazelrc
 
 # Python

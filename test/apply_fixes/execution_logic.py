@@ -42,10 +42,11 @@ startup --windows_enable_symlinks
 # Decrease Python toolchain overhead
 # See https://github.com/bazelbuild/rules_python/issues/1653
 common --nolegacy_external_runfiles
+# Useless as the workspace are thrown away after each creation
 common --lockfile_mode=off
 """
 
-BAZEL_VERSION = "7.0.0"
+BAZEL_VERSION = "7.2.1"
 
 
 def dwyu_path_as_string(dwyu_path: Path) -> str:
