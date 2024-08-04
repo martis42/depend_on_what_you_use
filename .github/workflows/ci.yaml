@@ -4,6 +4,7 @@ on: [ pull_request ]
 
 jobs:
   pre-commit:
+    if: ${{ (github.event.pull_request.draft == false) || contains(github.event.comment.body, '/check') }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
