@@ -47,7 +47,7 @@ def get_dependencies(bazel_query: BazelQuery, target: str) -> list[Dependency]:
     for x in queried_targets:
         if x["type"] == "RULE" and x["rule"]["ruleClass"].startswith("cc_"):
             for attr in x["rule"]["attribute"]:
-                if attr["name"] == "hdrs" and attr["explicitlySpecified"]:
+                if attr["name"] == "hdrs" and attr["explicitlySpecified"] and "stringListValue" in attr:
                     deps.append(
                         Dependency(
                             target=x["rule"]["name"],
