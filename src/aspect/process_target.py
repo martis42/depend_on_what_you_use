@@ -38,7 +38,11 @@ def cli() -> Namespace:
     )
     parser.add_argument("--verbose", action="store_true", help="Print debugging output")
 
-    args = parser.parse_args()
+    if len(sys.argv) == 2 and sys.argv[1].startswith("--param_file="):
+        param_file = Path(sys.argv[1][len("--param_file=") :])
+        args = parser.parse_args(param_file.read_text().splitlines())
+    else:
+        args = parser.parse_args()
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 

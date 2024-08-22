@@ -45,6 +45,9 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
     if verbose:
         args.add("--verbose")
 
+    args.set_param_file_format("multiline")
+    args.use_param_file("--param_file=%s", use_always = True)
+
     ctx.actions.run(
         inputs = header_files,
         executable = ctx.executable._process_target,
