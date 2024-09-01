@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//src/aspect:dwyu.bzl", "extract_defines_from_compiler_flags")
+load("//src/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_defines_from_compiler_flags")
 
 def _extract_defines_from_compiler_flags_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -38,10 +38,35 @@ def _extract_defines_from_compiler_flags_test_impl(ctx):
 
     return unittest.end(env)
 
+def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # None if empty list is provided
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags([]))
+
+    # None if nothing can be found
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["whatever"]))
+
+    # Unknown standard value yields 1
+    asserts.equals(env, 1, extract_cpp_standard_from_compiler_flags(["whatever", "-std=foo"]))
+
+    # Basic case
+    asserts.equals(env, 202002, extract_cpp_standard_from_compiler_flags(["-std=c++20", "whatever"]))
+
+    # Last definition wins
+    asserts.equals(env, 199711, extract_cpp_standard_from_compiler_flags(["-std=c++20", "whatever", "-std=c++98"]))
+
+    # MSVC syntax
+    asserts.equals(env, 202302, extract_cpp_standard_from_compiler_flags(["/std:c++23"]))
+
+    return unittest.end(env)
+
 extract_defines_from_compiler_flags_test = unittest.make(_extract_defines_from_compiler_flags_test_impl)
+extract_cpp_standard_from_compiler_flags_test = unittest.make(_extract_cpp_standard_from_compiler_flags_test_impl)
 
 def dwyu_aspect_test_suite(name):
     unittest.suite(
         name,
         extract_defines_from_compiler_flags_test,
+        extract_cpp_standard_from_compiler_flags_test,
     )

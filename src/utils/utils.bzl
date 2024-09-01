@@ -7,6 +7,10 @@ def label_to_name(label):
 def print_compilation_context(cc_info, headline = None):
     """
     Print CcInfo's compilation_context in a structured way.
+
+    print debugging is eased by those flags which prevent print statements being omitted on subsequent execution
+    --nokeep_state_after_build
+    --notrack_incremental_state
     """
     cc = cc_info.compilation_context
     headline_str = "\n" + headline if headline else ""
