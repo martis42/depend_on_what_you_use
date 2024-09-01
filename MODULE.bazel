@@ -15,7 +15,7 @@ use_repo(non_module_dependencies, "dwyu_pcpp")
 ### Development Dependencies
 ###
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.7.9", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.8.1", dev_dependency = True)
 bazel_dep(name = "stardoc", version = "0.7.0", dev_dependency = True)
 
 python = use_extension(
