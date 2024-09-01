@@ -9,6 +9,7 @@
   - [Use DWYU](#use-dwyu)
 - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
+- [Known problems](#known-problems)
 - [Supported Platforms](#supported-platforms)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
@@ -168,6 +169,27 @@ For example, including header files which do not exist at the expected path.
 
 There shall not be multiple header files in the dependency tree of a target matching an include statement.
 Even if analysing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
+
+# Known problems
+
+## Preprocessor statements
+
+DWYU does not compile the code, but parses it as text and searches for include statements.
+If preprocessor statements control how the code should be interpreted, this is a flawed approach (e.g. include different headers based on the platform).
+To work around this DWYU uses [`pcpp`](https://github.com/ned14/pcpp) to preprocess files before searching for include statements.
+
+In most cases this approach works as desired.
+There are however some edge cases to be aware of:
+
+1)<br>
+`pcpp` is not the preprocessor used by your C++ toolchain.
+There is no guarantee that it behaves exactly the same.
+
+2)<br>
+DWYU can only forward defined values to `pcpp` which are part of the compiler command build by Bazel.
+Some values are however set internally by the compiler while processing files and are unknown to DWYU.<br>
+Common cases for such macros can be seen at [cppreference.com](https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros).
+While DWYU cannot generally know the values of all those compiler defined macros, we offer a feature to set `__cplusplus` based on a heuristic.
 
 # Supported Platforms
 

@@ -48,6 +48,14 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
+        build_cmd="--aspects=//:aspect.bzl%dwyu_set_cplusplus --output_groups=dwyu //set_cpp_standard:cpp_lib",
+        expected_success=True,
+    ),
+    Example(
+        build_cmd="--aspects=//:aspect.bzl%dwyu_set_cplusplus --output_groups=dwyu //set_cpp_standard:use_specific_cpp_standard",
+        expected_success=True,
+    ),
+    Example(
         build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //skipping_targets:bad_target",
         expected_success=False,
     ),

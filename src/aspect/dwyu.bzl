@@ -3,6 +3,31 @@ load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
 load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 
+# Based on those references:
+# https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
+# https://clang.llvm.org/cxx_status.html
+# https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
+# https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170
+#
+# We ignore the fuzzy variants (e.g. 'c++1X' or 'c++2X') as their values seem to be not constant but depend on the
+# compiler version.
+_STD_FLAG_TO_STANDARD = {
+    "c++03": 199711,
+    "c++11": 201103,
+    "c++14": 201402,
+    "c++17": 201703,
+    "c++20": 202002,
+    "c++23": 202302,
+    "c++98": 199711,
+    "gnu++03": 199711,
+    "gnu++11": 201103,
+    "gnu++14": 201402,
+    "gnu++17": 201703,
+    "gnu++20": 202002,
+    "gnu++23": 202302,
+    "gnu++98": 199711,
+}
+
 def _is_external(ctx):
     return ctx.label.workspace_root.startswith("external")
 
@@ -66,17 +91,6 @@ def _process_dependencies(ctx, target, deps, verbose):
     ) for dep in deps]
 
 def extract_defines_from_compiler_flags(compiler_flags):
-    """
-    We extract the relevant defines from the compiler command line flags. We utilize the compiler flags since the
-    toolchain can set defines which are not available through CcInfo or the cpp fragments. Furthermore, defines
-    potentially overwrite or deactivate each other depending on the order in which they appear in the compiler
-    command. Thus, this is the only way to make sure DWYU analyzes what would actually happen during compilation.
-
-    Args:
-        compiler_flags: List of flags making up the compilation command
-    Returns:
-        List of defines
-    """
     defines = {}
 
     for cflag in compiler_flags:
@@ -95,7 +109,45 @@ def extract_defines_from_compiler_flags(compiler_flags):
 
     return defines.values()
 
-def _gather_defines(ctx, target_compilation_context):
+def extract_cpp_standard_from_compiler_flags(compiler_flags):
+    cpp_standard = None
+
+    for cflag in compiler_flags:
+        standard_value = None
+
+        # gcc/clang
+        if cflag.startswith("-std="):
+            standard_value = cflag.split("=", 1)[1]
+
+        # MSVC
+        if cflag.startswith("/std:"):
+            standard_value = cflag.split(":", 1)[1]
+
+        if standard_value:
+            standard = _STD_FLAG_TO_STANDARD.get(standard_value, None)
+            if standard:
+                cpp_standard = standard
+            elif not cpp_standard:
+                # We see a standard flag, but don't understands its value. We ensure the C++ standard macro is defined,
+                # even if we can't define its exact value.
+                cpp_standard = 1
+
+    return cpp_standard
+
+def _is_c_file(file):
+    """
+    Heuristic for finding C files by looking for the established file extensions.
+    """
+    return file.extension in ["h", "c"]
+
+def _gather_defines(ctx, target_compilation_context, target_files):
+    """
+    We extract the relevant defines from the compiler command line flags. We utilize the compiler flags since the
+    toolchain can set defines which are not available through CcInfo or the cpp fragments. Furthermore, defines
+    potentially overwrite or deactivate each other depending on the order in which they appear in the compiler
+    command. Thus, this is the only way to make sure DWYU analyzes what would actually happen during compilation.
+    """
+
     cc_toolchain = find_cpp_toolchain(ctx)
 
     feature_configuration = cc_common.configure_features(
@@ -104,6 +156,7 @@ def _gather_defines(ctx, target_compilation_context):
         requested_features = ctx.features,
         unsupported_features = ctx.disabled_features,
     )
+
     compile_variables = cc_common.create_compile_variables(
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
@@ -121,7 +174,30 @@ def _gather_defines(ctx, target_compilation_context):
         variables = compile_variables,
     )
 
-    return extract_defines_from_compiler_flags(compiler_command_line_flags)
+    defines = extract_defines_from_compiler_flags(compiler_command_line_flags)
+
+    if ctx.attr._set_cplusplus:
+        cpp_standard = None
+        compiler_cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+
+        # If we can extract a c++ standard from the compiler invocation, we use it as we consider this our most reliable
+        # source of information
+        if compiler_cpp_standard:
+            cpp_standard = compiler_cpp_standard
+
+        # If we could not determine the C++ standard based on the compiler arguments, we use a heuristic based on the
+        # file types. If any file extension other than ['.h', '.c'] is used, we assume C++.
+        if not cpp_standard:
+            # We don't know the exact C++ standard, but at least we can enable preprocessor control statements caring
+            # only about '__cplusplus' being defined at all or not.
+            if not all([_is_c_file(file) for file in target_files]):
+                cpp_standard = 1
+
+        # If we assume this is a C++ compilation, add the corresponding constant to the defines list
+        if cpp_standard:
+            defines.append("__cplusplus={}".format(cpp_standard))
+
+    return defines
 
 def _exchange_cc_info(deps, mapping):
     transformed = []
@@ -214,10 +290,15 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
+    defines = _gather_defines(
+        ctx,
+        target_compilation_context = target[CcInfo].compilation_context,
+        target_files = public_files + private_files,
+    )
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
-        defines = _gather_defines(ctx, target_compilation_context = target[CcInfo].compilation_context),
+        defines = defines,
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
         verbose = ctx.attr._verbose,
