@@ -27,7 +27,7 @@ repos:
           - mdformat-gfm
 
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 7.1.2
+    rev: 7.3.1
     hooks:
       - id: buildifier
         args: [ "--warnings=-load,+unsorted-dict-items,+native-py" ]
