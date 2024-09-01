@@ -47,7 +47,7 @@ repos:
         args: [ --fix ]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.1
+    rev: v1.11.2
     hooks:
       # We overwrite the args as we configure mypy via our mypy.ini
       # We require separate instances due to several files being named the same which mypy cannot handle
