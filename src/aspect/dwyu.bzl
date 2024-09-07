@@ -71,7 +71,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         args.add("--verbose")
 
     args.set_param_file_format("multiline")
-    args.use_param_file("--param_file=%s", use_always = True)
+    args.use_param_file("--param_file=%s")
 
     ctx.actions.run(
         inputs = header_files,
