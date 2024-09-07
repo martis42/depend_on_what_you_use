@@ -56,6 +56,7 @@ def main(args: Namespace) -> int:
     logging.debug(f"Includes             '{args.includes}'")
     logging.debug(f"Quote includes       '{args.quote_includes}'")
     logging.debug(f"System includes      '{args.system_includes}'")
+    logging.debug(f"Defines              '{args.defines}'")
 
     output = {"target": args.target, "header_files": args.header_files}
     if args.includes is not None:
