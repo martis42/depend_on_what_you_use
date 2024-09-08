@@ -46,8 +46,11 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.2.0"),
+    "--incompatible_disable_native_repo_rules": CompatibleVersions(minimum="7.2.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
+    # "--noincompatible_enable_deprecated_label_apis": CompatibleVersions(minimum="7.0.0"),
 }
 
 
