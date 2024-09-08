@@ -16,6 +16,9 @@ from pathlib import Path
 RELEASE_NOTES_TEMPLATE = """
 ## Using Bzlmod (Recommended)
 
+> :construction: Not yet deployed to BCR :construction:
+> Release will become usable via bzlmod as soon as it is no longer the pre-release phase.
+
 Add to your `MODULE.bazel` file:
 
 ```starlark
