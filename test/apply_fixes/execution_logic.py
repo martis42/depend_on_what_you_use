@@ -46,7 +46,7 @@ common --nolegacy_external_runfiles
 common --lockfile_mode=off
 """
 
-BAZEL_VERSION = "7.2.1"
+BAZEL_VERSION = "7.3.1"
 
 
 def dwyu_path_as_string(dwyu_path: Path) -> str:
