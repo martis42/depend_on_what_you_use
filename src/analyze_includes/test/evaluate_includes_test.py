@@ -335,6 +335,25 @@ class TestEvaluateIncludes(unittest.TestCase):
 
         self.assertTrue(result.is_ok())
 
+    def test_include_matching_multiple_dependencies(self) -> None:
+        result = evaluate_includes(
+            public_includes=[Include(file=Path("file1"), include="bar.h")],
+            private_includes=[],
+            system_under_inspection=SystemUnderInspection(
+                target_under_inspection=CcTarget(name="foo", header_files=[]),
+                deps=[
+                    CcTarget(name="fizz", header_files=["bar.h"]),
+                    CcTarget(name="buzz", header_files=["bar.h"]),
+                ],
+                impl_deps=[],
+                include_paths=[""],
+                defines=[],
+            ),
+            ensure_private_deps=False,
+        )
+
+        self.assertTrue(result.is_ok())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -74,7 +74,6 @@ def _check_for_invalid_includes(
             ):
                 legal_include = True
                 dep.usage.update(usage)
-                break
         if not legal_include:
             # Might be a file from the target under inspection
             legal_include = does_include_match_available_files(
