@@ -6,7 +6,7 @@ set -o nounset
 echo ""
 echo "Pre-commit checks"
 echo ""
-poetry run pre-commit run --all-files
+pre-commit run --all-files
 
 echo ""
 echo "Execute unit tests"
