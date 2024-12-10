@@ -4,7 +4,7 @@ on: [ pull_request ]
 
 jobs:
   pre-commit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: snok/install-poetry@v1
@@ -22,7 +22,7 @@ jobs:
       - uses: pre-commit/action@v3.0.1
 
   fast-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
   integration-tests-aspect:
     strategy:
       matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+        os: [ ubuntu-24.04, macos-15, windows-2022 ]
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
@@ -51,7 +51,7 @@ jobs:
   integration-tests-apply-fixes:
     strategy:
       matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+        os: [ ubuntu-24.04, macos-15, windows-2022 ]
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
@@ -65,7 +65,7 @@ jobs:
   integration-tests-examples:
     strategy:
       matrix:
-        os: [ ubuntu-22.04, macos-12, windows-2022 ]
+        os: [ ubuntu-24.04, macos-15, windows-2022 ]
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
