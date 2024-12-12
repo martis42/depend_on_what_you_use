@@ -1,5 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:py_binary.bzl", "py_binary")
 
 py_binary(
     name = "process_target",
@@ -17,6 +17,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/cc_info_mapping",
+        "@rules_cc//cc/common",
     ],
 )
 
