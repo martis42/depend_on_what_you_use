@@ -1,4 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuCcInfoRemapInfo")
 
 def _aggregate_transitive_deps_aspect_impl(target, ctx):

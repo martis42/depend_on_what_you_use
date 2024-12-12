@@ -9,4 +9,5 @@ bzl_library(
         "transitive_deps.bzl",
     ],
     visibility = ["//src/cc_info_mapping:__pkg__"],
+    deps = ["@rules_cc//cc/common"],
 )
