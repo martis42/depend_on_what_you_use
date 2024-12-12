@@ -7,7 +7,7 @@ from pathlib import Path
 from shutil import rmtree
 
 # No benefit for using logging, and we deliberately use '/tmp' which has no risk in this context
-# ruff: noqa: T201n
+# ruff: noqa: T201
 # ruff: noqa: S108
 
 BCR_DATA_TEMPLATE = """{{
