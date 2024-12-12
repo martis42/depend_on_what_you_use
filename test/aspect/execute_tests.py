@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import logging
+import sys
 from argparse import ArgumentParser, Namespace
 from os import chdir
 from pathlib import Path
-from sys import exit
 
 from execution_logic import main
 from test_case import CompatibleVersions, TestedVersions
@@ -87,7 +87,7 @@ def cli() -> Namespace:
     parsed_args = parser.parse_args()
     if (parsed_args.bazel and not parsed_args.python) or (not parsed_args.bazel and parsed_args.python):
         logging.error("ERROR: '--bazel' and '--python' have to be used together")
-        exit(1)
+        sys.exit(1)
 
     return parsed_args
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Ensure we can invoke the script from various places
     chdir(Path(__file__).parent)
 
-    exit(
+    sys.exit(
         main(
             tested_versions=TESTED_VERSIONS,
             version_specific_args=VERSION_SPECIFIC_ARGS,

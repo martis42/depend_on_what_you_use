@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
+import sys
 from argparse import ArgumentParser, Namespace
-from sys import exit
 
 from execution_logic import main
 
@@ -25,4 +25,4 @@ if __name__ == "__main__":
     args = cli()
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    exit(main(requested_tests=args.test, list_tests=args.list))
+    sys.exit(main(requested_tests=args.test, list_tests=args.list))
