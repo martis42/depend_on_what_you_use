@@ -1,7 +1,8 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
-load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 
 # Based on those references:
 # https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
