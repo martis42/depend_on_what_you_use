@@ -195,17 +195,17 @@ While DWYU cannot generally know the values of all those compiler defined macros
 
 ### Aspect
 
-| Platform         | Constraints                                                                     |
-| ---------------- | ------------------------------------------------------------------------------- |
-| Operating system | Integration tests check [Ubuntu 22.04, Macos 12, Windows 2022].                 |
-| Python           | Minimum version is 3.8. Integration tests check [3.8, 3.9, 3.10, 3.11, 3.12].   |
-| Bazel            | Minimum version is 5.4.0. Integration tests check [5.x, 6.x, 7.x, 8.0.0-pre.x]. |
+| Platform         | Constraints                                                                   |
+| ---------------- | ----------------------------------------------------------------------------- |
+| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022].               |
+| Python           | Minimum version is 3.8. Integration tests check [3.8, 3.9, 3.10, 3.11, 3.12]. |
+| Bazel            | Minimum version is 6.0.0. Integration tests check [6.x, 7.x, 8.x, rolling].   |
 
 ### Applying fixes
 
 | Platform         | Constraints                                                     |
 | ---------------- | --------------------------------------------------------------- |
-| Operating system | Integration tests check [Ubuntu 22.04, Macos 12, Windows 2022]. |
+| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022]. |
 | Python           | Minimum version is 3.8. Integration tests check 3.8.            |
 | Bazel            | No known constraint. Integration tests check 7.0.0.             |
 | Buildozer        | No known constraint. Integration tests check 6.4.0.             |

@@ -14,17 +14,19 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
 # For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
 TESTED_VERSIONS = [
-    TestedVersions(bazel="5.4.1", python="3.8.18"),
-    TestedVersions(bazel="6.5.0", python="3.9.18"),
-    TestedVersions(bazel="7.0.0", python="3.10"),
-    TestedVersions(bazel="7.3.1", python="3.11", is_default=True),
+    TestedVersions(bazel="6.0.0", python="3.8.18"),
+    TestedVersions(bazel="6.5.0", python="3.8"),
+    TestedVersions(bazel="7.0.0", python="3.9"),
+    TestedVersions(bazel="7.4.1", python="3.10"),
+    TestedVersions(bazel="8.0.0", python="3.11", is_default=True),
     TestedVersions(bazel="rolling", python="3.12"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
-    # We support Bazel's modern dependency management system, but it works only as desired with a recent Bazel version
-    "--experimental_enable_bzlmod=false": CompatibleVersions(before="6.0.0"),
+    # We test Bazel 6 once with bzlmod and once with legacy WORKSPACE setup. Newer Bazel versions are only tested
+    # with bzlmod. bzlmod does not work for us before Bazel 6.2.
     "--enable_bzlmod=false": CompatibleVersions(minimum="6.0.0", before="6.2.0"),
+    "--enable_bzlmod=true": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
     # Incompatible changes
     "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
