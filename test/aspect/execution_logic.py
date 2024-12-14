@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import subprocess
+import sys
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -12,8 +13,18 @@ from version import CompatibleVersions, TestedVersions
 if TYPE_CHECKING:
     from test_case import TestCaseBase
 
+# Allow importing common test support code. Relative imports do not work in our case.
+WORKSPACE_TEST_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(WORKSPACE_TEST_DIR))
 
-def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path, extra_args: list[str]) -> bool:
+# We need to adjust the import path first before performing this import
+# ruff: noqa: E402
+from support.bazel import get_bazel_binary
+
+
+def execute_test(
+    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path, extra_args: list[str]
+) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
         logging.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
         return True
@@ -22,7 +33,7 @@ def execute_test(test: TestCaseBase, version: TestedVersions, output_base: Path,
     succeeded = False
     result = None
     try:
-        result = test.execute_test(version=version, output_base=output_base, extra_args=extra_args)
+        result = test.execute_test(version=version, bazel_bin=bazel_bin, output_base=output_base, extra_args=extra_args)
     except Exception:
         logging.exception("Test failed due to exception:")
 
@@ -79,6 +90,8 @@ def main(
     else:
         versions = tested_versions
 
+    bazel_binary = get_bazel_binary()
+
     failed_tests = []
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
     for version in versions:
@@ -95,7 +108,9 @@ def main(
             [
                 f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
                 for test in tests
-                if not execute_test(test=test, version=version, output_base=output_base, extra_args=extra_args)
+                if not execute_test(
+                    test=test, version=version, bazel_bin=bazel_binary, output_base=output_base, extra_args=extra_args
+                )
             ]
         )
 

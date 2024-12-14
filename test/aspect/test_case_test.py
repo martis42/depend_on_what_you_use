@@ -15,14 +15,11 @@ class TestCaseMock(TestCaseBase):
         self.result: Result = Success()
         self.dwyu_extra_args: list[str] = []
         self.target: list[str] | str = "//foo:bar"
+        self.bazel_binary = Path("/bazel/binary")
 
     def execute_test_logic(self) -> Result:
         self._run_dwyu(target=self.target, aspect="//some:aspect", extra_args=self.dwyu_extra_args)
         return self.result
-
-    @staticmethod
-    def _bazel_binary() -> str:
-        return "/bazel/binary"
 
 
 class TestCaseTests(unittest.TestCase):
@@ -54,7 +51,10 @@ class TestCaseTests(unittest.TestCase):
     @patch("subprocess.run")
     def test_get_success(self, _: MagicMock) -> None:
         result = self.unit.execute_test(
-            version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
+            version=TestedVersions(bazel="6.4.2", python="13.37"),
+            bazel_bin=self.unit.bazel_binary,
+            output_base=Path("/some/path"),
+            extra_args=[],
         )
         self.assertTrue(result.is_success())
 
@@ -62,7 +62,10 @@ class TestCaseTests(unittest.TestCase):
     def test_get_error(self, _: MagicMock) -> None:
         self.unit.result = Error("some failure")
         result = self.unit.execute_test(
-            version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
+            version=TestedVersions(bazel="6.4.2", python="13.37"),
+            bazel_bin=self.unit.bazel_binary,
+            output_base=Path("/some/path"),
+            extra_args=[],
         )
         self.assertFalse(result.is_success())
         self.assertEqual(result.error, "some failure")
@@ -70,7 +73,10 @@ class TestCaseTests(unittest.TestCase):
     @patch("subprocess.run")
     def test_dwyu_command_without_any_extra_args(self, run_mock: MagicMock) -> None:
         self.unit.execute_test(
-            version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
+            version=TestedVersions(bazel="6.4.2", python="13.37"),
+            bazel_bin=self.unit.bazel_binary,
+            output_base=Path("/some/path"),
+            extra_args=[],
         )
 
         run_mock.assert_called_once()
@@ -99,6 +105,7 @@ class TestCaseTests(unittest.TestCase):
         self.unit.dwyu_extra_args = ["--some_arg=42", "--another_arg"]
         self.unit.execute_test(
             version=TestedVersions(bazel="6.4.2", python="13.37"),
+            bazel_bin=self.unit.bazel_binary,
             output_base=Path("/some/path"),
             extra_args=["--global_arg=23", "--another_global_arg"],
         )
@@ -132,7 +139,10 @@ class TestCaseTests(unittest.TestCase):
     def test_dwyu_command_with_multiple_targets(self, run_mock: MagicMock) -> None:
         self.unit.target = ["//foo:bar", "//tick:tock"]
         self.unit.execute_test(
-            version=TestedVersions(bazel="6.4.2", python="13.37"), output_base=Path("/some/path"), extra_args=[]
+            version=TestedVersions(bazel="6.4.2", python="13.37"),
+            bazel_bin=self.unit.bazel_binary,
+            output_base=Path("/some/path"),
+            extra_args=[],
         )
 
         run_mock.assert_called_once()
