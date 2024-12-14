@@ -33,8 +33,6 @@ ignore = [
     "FBT",
     # Annotating **kwargs has little value
     "ANN003",
-    # Documenting the type of 'self' is too verbose and in most cases either way obvious
-    "ANN101",
     # We omit trailing commas deliberately to keep code in a single line instead of multiple lines due to the formatting
     # rules automatically using a trailing comma as indicator for breaking a statement into multiple lines.
     "COM812",
