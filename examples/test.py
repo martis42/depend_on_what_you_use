@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
 import logging
 import shlex
@@ -8,6 +9,7 @@ from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from os import chdir
 from pathlib import Path
+from shutil import which
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -96,24 +98,44 @@ class Result:
     success: bool
 
 
-def make_cmd(example: Example, legacy_workspace: bool) -> str:
-    cmd = "bazel build "
+def get_bazel_binary() -> Path:
+    """
+    We use bazelisk to control the exact Bazel version we test with. Using the native bazel binary would cause the tests
+    to run with an arbitrary Bazel version without us noticing.
+    """
+    if bazel := which("bazelisk"):
+        return Path(bazel)
+
+    # Might be system where bazlisk was renamed to bazel or bazel links to a bazelisk binary not being on PATH.
+    # We test this by using the '--strict' option which only exists for bazelisk, but not bazel
+    bazel = which("bazel")
+    if bazel and (
+        subprocess.run([bazel, "--strict", "--version"], shell=False, check=False, capture_output=True).returncode == 0
+    ):
+        return Path(bazel)
+
+    raise RuntimeError("No bazelisk binary or bazel symlink towards bazelisk available on your system")
+
+
+def make_cmd(example: Example, bazel_bin: Path, legacy_workspace: bool) -> list[str]:
+    cmd = [str(bazel_bin), "build"]
     if legacy_workspace:
-        cmd += "--noenable_bzlmod "
-    cmd += example.build_cmd
+        cmd.append("--noenable_bzlmod")
+    cmd.extend(shlex.split(example.build_cmd))
     return cmd
 
 
-def execute_example(example: Example, legacy_workspace: bool) -> Result:
-    cmd = make_cmd(example=example, legacy_workspace=legacy_workspace)
-    logging.info(f"\n##\n## Executing: {cmd}\n##\n")
+def execute_example(example: Example, bazel_bin: Path, legacy_workspace: bool) -> Result:
+    cmd = make_cmd(example=example, bazel_bin=bazel_bin, legacy_workspace=legacy_workspace)
+    cmd_str = shlex.join(cmd)
+    logging.info(f"\n##\n## Executing: '{cmd_str}'\n##\n")
 
-    process = subprocess.run(shlex.split(cmd), check=False)
+    process = subprocess.run(cmd, check=False)
     if (process.returncode == 0 and example.expected_success) or (
         process.returncode != 0 and not example.expected_success
     ):
-        return Result(example=cmd, success=True)
-    return Result(example=cmd, success=False)
+        return Result(example=cmd_str, success=True)
+    return Result(example=cmd_str, success=False)
 
 
 def cli() -> Namespace:
@@ -132,9 +154,13 @@ def main(legacy_workspace: bool) -> int:
     Basic testing if the examples behave as desired.
 
     We ony look for the return code of a command. If a command fails as expected we do not analyze if it fails for the
-    correct reason. These kind of detailed testing is done in the integration tests.
+    correct reason. These kind of detailed testing is done in the aspect integration tests.
     """
-    results = [execute_example(example=ex, legacy_workspace=legacy_workspace) for ex in EXAMPLES]
+    bazel_binary = get_bazel_binary()
+
+    results = [
+        execute_example(example=ex, bazel_bin=bazel_binary, legacy_workspace=legacy_workspace) for ex in EXAMPLES
+    ]
     failed_examples = [res.example for res in results if not res.success]
 
     if failed_examples:
