@@ -3,5 +3,5 @@
 set -o errexit
 
 cd test/aspect
-bazel build //...
+bazel test //:all
 cd -

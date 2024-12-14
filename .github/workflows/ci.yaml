@@ -15,10 +15,10 @@ jobs:
     needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@v4
-      - name: Unit tests
+      - name: DWYU Unit tests
         run: bazel test //...
-      - name: Build aspect integration tests
-        run: ./scripts/build_aspect_tests.sh
+      - name: Aspect integration tests scripts unittests
+        run: ./scripts/test_aspect_tests_scripts.sh
       - name: Build examples
         run: ./scripts/build_examples.sh
 
