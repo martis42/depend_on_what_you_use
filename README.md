@@ -207,7 +207,7 @@ While DWYU cannot generally know the values of all those compiler defined macros
 | ---------------- | --------------------------------------------------------------- |
 | Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022]. |
 | Python           | Minimum version is 3.8. Integration tests check 3.8.            |
-| Bazel            | No known constraint. Integration tests check 7.0.0.             |
+| Bazel            | No known constraint. Integration tests check 7.4.1.             |
 | Buildozer        | No known constraint. Integration tests check 6.4.0.             |
 
 # Alternatives to DWYU
