@@ -9,7 +9,14 @@ from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from os import chdir
 from pathlib import Path
-from shutil import which
+
+# Allow importing common code from other parts of this workspace
+WORKSPACE_TEST_DIR = Path(__file__).resolve().parent.parent / "test"
+sys.path.append(str(WORKSPACE_TEST_DIR))
+
+# We need to adjust the import path first before performing this import
+# ruff: noqa: E402
+from support.bazel import get_bazel_binary
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -96,25 +103,6 @@ EXAMPLES = [
 class Result:
     example: str
     success: bool
-
-
-def get_bazel_binary() -> Path:
-    """
-    We use bazelisk to control the exact Bazel version we test with. Using the native bazel binary would cause the tests
-    to run with an arbitrary Bazel version without us noticing.
-    """
-    if bazel := which("bazelisk"):
-        return Path(bazel)
-
-    # Might be system where bazlisk was renamed to bazel or bazel links to a bazelisk binary not being on PATH.
-    # We test this by using the '--strict' option which only exists for bazelisk, but not bazel
-    bazel = which("bazel")
-    if bazel and (
-        subprocess.run([bazel, "--strict", "--version"], shell=False, check=False, capture_output=True).returncode == 0
-    ):
-        return Path(bazel)
-
-    raise RuntimeError("No bazelisk binary or bazel symlink towards bazelisk available on your system")
 
 
 def make_cmd(example: Example, bazel_bin: Path, legacy_workspace: bool) -> list[str]:

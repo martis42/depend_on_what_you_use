@@ -7,7 +7,6 @@ from copy import deepcopy
 from os import environ
 from pathlib import Path
 from shlex import join as shlex_join
-from shutil import which
 
 from result import Error, ExpectedResult, Result, Success
 from version import CompatibleVersions, TestedVersions
@@ -49,8 +48,11 @@ class TestCaseBase(ABC):
     def default_aspect(self) -> str:
         return "//:aspect.bzl%dwyu"
 
-    def execute_test(self, version: TestedVersions, output_base: Path, extra_args: list[str]) -> Result:
+    def execute_test(
+        self, version: TestedVersions, bazel_bin: Path, output_base: Path, extra_args: list[str]
+    ) -> Result:
         self._tested_versions = version
+        self._bazel_bin = bazel_bin
         self._output_base = output_base
         self._extra_args = extra_args
         return self.execute_test_logic()
@@ -92,7 +94,7 @@ class TestCaseBase(ABC):
         test_env["USE_BAZEL_VERSION"] = self._tested_versions.bazel
 
         cmd = [
-            self._bazel_binary(),
+            str(self._bazel_bin),
             f"--output_base={self._output_base}",
             # Testing over many Bazel versions does work well with a static bazelrc file including flags which might not
             # be available in a some tested Bazel version.
@@ -112,10 +114,3 @@ class TestCaseBase(ABC):
         logging.debug(f"Executing: {shlex_join(cmd)}\n")
 
         return subprocess.run(cmd, env=test_env, capture_output=True, text=True, check=False)
-
-    @staticmethod
-    def _bazel_binary() -> str:
-        bazel = which("bazel") or which("bazelisk")
-        if not bazel:
-            raise RuntimeError("No bazel or bazelisk binary available on your system")
-        return bazel
