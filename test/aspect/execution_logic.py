@@ -3,7 +3,9 @@ from __future__ import annotations
 import logging
 import subprocess
 import sys
+from copy import deepcopy
 from importlib.machinery import SourceFileLoader
+from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -54,6 +56,22 @@ def get_current_workspace() -> Path:
     return Path(process.stdout.strip())
 
 
+def get_bazel_rolling_version(bazel_bin: Path) -> str:
+    run_env = deepcopy(environ)
+    run_env["USE_BAZEL_VERSION"] = "rolling"
+    process = subprocess.run(
+        [bazel_bin, "--version"], env=run_env, shell=False, check=True, capture_output=True, text=True
+    )
+    return process.stdout.split("bazel")[1].strip()
+
+
+def set_rolling_bazel_version(versions: list[TestedVersions], bazel_bin: Path) -> list[TestedVersions]:
+    for version in versions:
+        if version.bazel == "rolling":
+            version.bazel = get_bazel_rolling_version(bazel_bin)
+    return versions
+
+
 def file_to_test_name(test_file: Path) -> str:
     return test_file.parent.name + "/" + test_file.stem.replace("test_", "", 1)
 
@@ -91,10 +109,17 @@ def main(
         versions = tested_versions
 
     bazel_binary = get_bazel_binary()
+    versions = set_rolling_bazel_version(versions=versions, bazel_bin=bazel_binary)
 
     failed_tests = []
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
     for version in versions:
+        logging.info(f"""
+###
+### Aspect integration tests based on: Bazel '{version.bazel}' and Python '{version.python}'
+###
+""")
+
         output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
         output_base.mkdir(parents=True, exist_ok=True)
 
