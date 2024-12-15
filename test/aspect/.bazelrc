@@ -1,3 +1,6 @@
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=10
+
 # Always tell why tests fail
 test --test_output=errors
 
@@ -5,5 +8,5 @@ test --test_output=errors
 # See https://github.com/bazelbuild/rules_python/issues/1653
 common --nolegacy_external_runfiles
 
-# The symlinks are annoying
-common --experimental_convenience_symlinks=clean
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore

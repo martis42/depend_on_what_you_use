@@ -52,7 +52,9 @@ def execute_test(
 
 
 def get_current_workspace() -> Path:
-    process = subprocess.run(["bazel", "info", "workspace"], check=True, capture_output=True, text=True)
+    process = subprocess.run(
+        ["bazel", "--max_idle_secs=5", "info", "workspace"], check=True, capture_output=True, text=True
+    )
     return Path(process.stdout.strip())
 
 

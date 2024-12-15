@@ -85,7 +85,8 @@ class TestCaseTests(unittest.TestCase):
             [
                 "/bazel/binary",
                 "--output_base=/some/path",
-                "--noworkspace_rc",
+                "--ignore_all_rc_files",
+                "--max_idle_secs=10",
                 "--windows_enable_symlinks",
                 "build",
                 "--experimental_convenience_symlinks=ignore",
@@ -116,7 +117,8 @@ class TestCaseTests(unittest.TestCase):
             [
                 "/bazel/binary",
                 "--output_base=/some/path",
-                "--noworkspace_rc",
+                "--ignore_all_rc_files",
+                "--max_idle_secs=10",
                 "--windows_enable_symlinks",
                 "build",
                 "--experimental_convenience_symlinks=ignore",
@@ -151,7 +153,8 @@ class TestCaseTests(unittest.TestCase):
             [
                 "/bazel/binary",
                 "--output_base=/some/path",
-                "--noworkspace_rc",
+                "--ignore_all_rc_files",
+                "--max_idle_secs=10",
                 "--windows_enable_symlinks",
                 "build",
                 "--experimental_convenience_symlinks=ignore",
