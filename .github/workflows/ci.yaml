@@ -62,6 +62,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/prepare_buildozer
         with:
-          version: '6.4.0'
+          version: '7.3.1'
       - name: Integration tests - Applying fixes
         run: python test/apply_fixes/execute_tests.py
