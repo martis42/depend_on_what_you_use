@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import subprocess
-import sys
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path, PosixPath
@@ -11,18 +10,11 @@ from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
-from result import Error
+from test.apply_fixes.result import Error
+from test.support.bazel import get_bazel_binary
 
 if TYPE_CHECKING:
-    from test_case import TestCaseBase
-
-# Allow importing common test support code. Relative imports do not work in our case.
-WORKSPACE_TEST_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(WORKSPACE_TEST_DIR))
-
-# We need to adjust the import path first before performing this import
-# ruff: noqa: E402
-from support.bazel import get_bazel_binary
+    from test.apply_fixes.test_case import TestCaseBase
 
 MODULE_FILE_TEMPLATE = """
 bazel_dep(name = "depend_on_what_you_use")

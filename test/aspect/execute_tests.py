@@ -5,6 +5,12 @@ from argparse import ArgumentParser, Namespace
 from os import chdir
 from pathlib import Path
 
+# Allow importing test support code. Relative imports do not work in our case.
+# We do this centrally here, so all code we import while executing this knows the extended PYTHONPATH
+# ruff: noqa: E402
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(WORKSPACE_ROOT))
+
 from execution_logic import main
 from test_case import CompatibleVersions, TestedVersions
 

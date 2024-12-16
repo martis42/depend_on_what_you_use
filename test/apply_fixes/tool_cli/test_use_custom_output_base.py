@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 
-from result import Result, Success
-from test_case import TestCaseBase
+from test.apply_fixes.result import Result, Success
+from test.apply_fixes.test_case import TestCaseBase
 
 
 class TestCase(TestCaseBase):
