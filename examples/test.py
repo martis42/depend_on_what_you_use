@@ -10,13 +10,13 @@ from dataclasses import dataclass
 from os import chdir
 from pathlib import Path
 
-# Allow importing common code from other parts of this workspace
-WORKSPACE_TEST_DIR = Path(__file__).resolve().parent.parent / "test"
-sys.path.append(str(WORKSPACE_TEST_DIR))
-
-# We need to adjust the import path first before performing this import
+# Allow importing test support code. Relative imports do not work in our case.
+# We do this centrally here, so all code we import while executing this knows the extended PYTHONPATH
 # ruff: noqa: E402
-from support.bazel import get_bazel_binary
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(WORKSPACE_ROOT))
+
+from test.support.bazel import get_bazel_binary
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
