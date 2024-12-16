@@ -22,6 +22,7 @@
   "packageRules": [
     {
       "matchPackagePatterns": [
+        "com_google_protobuf",
         "rules_python",
         "rules_cc"
       ],
