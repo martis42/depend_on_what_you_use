@@ -18,6 +18,8 @@ py_library(
 py_binary(
     name = "analyze_includes",
     srcs = ["main.py"],
+    # Compatibility to --noexperimental_python_import_all_repositories
+    imports = ["../.."],
     legacy_create_init = False,
     main = "main.py",
     visibility = ["//visibility:public"],

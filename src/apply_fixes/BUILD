@@ -18,6 +18,8 @@ py_library(
 py_binary(
     name = "main",
     srcs = ["main.py"],
+    # Compatibility to --noexperimental_python_import_all_repositories
+    imports = ["../.."],
     visibility = ["//:__pkg__"],
     deps = [":lib"],
 )
