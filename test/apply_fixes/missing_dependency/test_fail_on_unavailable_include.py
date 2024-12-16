@@ -13,7 +13,7 @@ class TestCase(TestCaseBase):
 
         process = self._run_and_capture_cmd(
             cmd=[
-                "bazel",
+                self._bazel_bin,
                 "run",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
