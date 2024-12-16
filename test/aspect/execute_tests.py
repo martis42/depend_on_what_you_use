@@ -33,7 +33,9 @@ VERSION_SPECIFIC_ARGS = {
     # with bzlmod. bzlmod does not work for us before Bazel 6.2.
     "--enable_bzlmod=false": CompatibleVersions(minimum="6.0.0", before="6.2.0"),
     "--enable_bzlmod=true": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
-    # Incompatible changes
+    # Experimental changes we want to be compatible for
+    "--noexperimental_python_import_all_repositories": CompatibleVersions(minimum="1.0.0"),
+    # Preparation for incompatible changes
     "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),

@@ -40,6 +40,9 @@ common --nolegacy_external_runfiles
 
 # Useless as the workspace are thrown away after each creation
 common --lockfile_mode=off
+
+# Some users require this setting to mitigate issues due to a large PYTHONPATH created by rules_python
+build --noexperimental_python_import_all_repositories
 """
 
 BAZEL_VERSION = "7.4.1"
