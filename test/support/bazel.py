@@ -20,3 +20,15 @@ def get_bazel_binary() -> Path:
         return Path(bazel)
 
     raise RuntimeError("No bazelisk binary or bazel symlink towards bazelisk available on your system")
+
+
+def get_current_workspace(bazel_bin: Path) -> Path:
+    cmd = [
+        str(bazel_bin),
+        # Make sure no idle server lives forever wasting RAM
+        "--max_idle_secs=10",
+        "info",
+        "workspace",
+    ]
+    process = subprocess.run(cmd, shell=False, check=True, capture_output=True, text=True)
+    return Path(process.stdout.strip())

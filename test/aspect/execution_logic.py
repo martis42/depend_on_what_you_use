@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from version import CompatibleVersions, TestedVersions
 
-from test.support.bazel import get_bazel_binary
+from test.support.bazel import get_bazel_binary, get_current_workspace
 from test.support.result import Error
 
 if TYPE_CHECKING:
@@ -44,13 +44,6 @@ def execute_test(
     return succeeded
 
 
-def get_current_workspace() -> Path:
-    process = subprocess.run(
-        ["bazel", "--max_idle_secs=5", "info", "workspace"], check=True, capture_output=True, text=True
-    )
-    return Path(process.stdout.strip())
-
-
 def get_bazel_rolling_version(bazel_bin: Path) -> str:
     run_env = deepcopy(environ)
     run_env["USE_BAZEL_VERSION"] = "rolling"
@@ -80,7 +73,8 @@ def main(
     list_tests: bool = False,
     only_default_version: bool = False,
 ) -> int:
-    workspace_path = get_current_workspace()
+    bazel_binary = get_bazel_binary()
+    workspace_path = get_current_workspace(bazel_binary)
     test_files = sorted([Path(x) for x in workspace_path.glob("*/test_*.py")])
 
     if list_tests:
@@ -103,7 +97,6 @@ def main(
     else:
         versions = tested_versions
 
-    bazel_binary = get_bazel_binary()
     versions = set_rolling_bazel_version(versions=versions, bazel_bin=bazel_binary)
 
     failed_tests = []
