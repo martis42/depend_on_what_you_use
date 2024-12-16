@@ -10,7 +10,7 @@ from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
-from test.support.bazel import get_bazel_binary
+from test.support.bazel import get_bazel_binary, get_current_workspace
 from test.support.result import Error
 
 if TYPE_CHECKING:
@@ -50,11 +50,6 @@ def dwyu_path_as_string(dwyu_path: Path) -> str:
     We can't use the path directly on Windows as we need escaped backslashes
     """
     return str(dwyu_path) if isinstance(dwyu_path, PosixPath) else str(dwyu_path).replace("\\", "\\\\")
-
-
-def get_current_workspace(bazel_binary: Path) -> Path:
-    process = subprocess.run([bazel_binary, "info", "workspace"], check=True, capture_output=True, text=True)
-    return Path(process.stdout.strip())
 
 
 @dataclass
