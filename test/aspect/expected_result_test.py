@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import unittest
 
-from result import (
+from expected_result import (
     CATEGORY_INVALID_INCLUDES,
     CATEGORY_NON_PRIVATE_DEPS,
     CATEGORY_UNUSED_PRIVATE_DEPS,
     CATEGORY_UNUSED_PUBLIC_DEPS,
     DWYU_FAILURE,
     ERRORS_PREFIX,
-    Error,
     ExpectedResult,
-    Success,
 )
+
+from test.support.result import Error, Success
 
 
 class TestExpectedResult(unittest.TestCase):

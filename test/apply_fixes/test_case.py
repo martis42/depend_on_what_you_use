@@ -6,7 +6,7 @@ import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from test.apply_fixes.result import Error, Result
+from test.support.result import Error, Result
 
 
 class TestCaseBase(ABC):

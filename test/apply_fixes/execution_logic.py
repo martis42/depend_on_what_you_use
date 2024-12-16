@@ -10,8 +10,8 @@ from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
-from test.apply_fixes.result import Error
 from test.support.bazel import get_bazel_binary
+from test.support.result import Error
 
 if TYPE_CHECKING:
     from test.apply_fixes.test_case import TestCaseBase

@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from result import ExpectedResult, Result
+from expected_result import ExpectedResult
 from test_case import TestCaseBase
+
+from test.support.result import Result
 
 
 class TestCase(TestCaseBase):
