@@ -10,9 +10,10 @@ from result import Error, Result
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str, test_sources: Path) -> None:
+    def __init__(self, name: str, test_sources: Path, bazel_binary: Path) -> None:
         self._name = name
         self._test_sources = test_sources
+        self._bazel_bin = str(bazel_binary)
         self._workspace = Path()
 
     #
@@ -71,7 +72,7 @@ class TestCaseBase(ABC):
         cmd_startup_args = startup_args if startup_args else []
         cmd_extra_args = extra_args if extra_args else []
         return [
-            "bazel",
+            self._bazel_bin,
             *cmd_startup_args,
             "build",
             f"--aspects=//:aspect.bzl%{aspect}",
@@ -102,7 +103,7 @@ class TestCaseBase(ABC):
 
         self._run_cmd(
             cmd=[
-                "bazel",
+                self._bazel_bin,
                 "run",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
@@ -117,7 +118,9 @@ class TestCaseBase(ABC):
         """
         Returns a set to ensure ordering is no issue
         """
-        process = self._run_and_capture_cmd(cmd=["bazel", "query", f"labels({attribute}, {target})"], check=True)
+        process = self._run_and_capture_cmd(
+            cmd=[self._bazel_bin, "query", f"labels({attribute}, {target})"], check=True
+        )
         return {dep for dep in process.stdout.split("\n") if dep}
 
     def _run_cmd(self, cmd: list[str], **kwargs) -> None:

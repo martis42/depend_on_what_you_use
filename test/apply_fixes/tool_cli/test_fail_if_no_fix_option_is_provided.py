@@ -11,7 +11,13 @@ class TestCase(TestCaseBase):
         self._create_reports()
 
         process = self._run_and_capture_cmd(
-            cmd=["bazel", "run", "@depend_on_what_you_use//:apply_fixes", "--", f"--workspace={self._workspace}"],
+            cmd=[
+                self._bazel_bin,
+                "run",
+                "@depend_on_what_you_use//:apply_fixes",
+                "--",
+                f"--workspace={self._workspace}",
+            ],
             check=False,
         )
         if process.returncode == 0:
