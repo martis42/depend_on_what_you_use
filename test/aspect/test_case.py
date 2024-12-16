@@ -101,9 +101,6 @@ class TestCaseBase(ABC):
             "--ignore_all_rc_files",
             # Do not waste memory by keeping idle Bazel servers around
             "--max_idle_secs=10",
-            # Can improve performance in Windows workers
-            # See https://github.com/bazelbuild/rules_python/blob/7bba79de34b6352001cb42b801245d0de33ce225/docs/sphinx/pypi-dependencies.md#L40
-            "--windows_enable_symlinks",
             "build",
             "--experimental_convenience_symlinks=ignore",
             "--noshow_progress",
