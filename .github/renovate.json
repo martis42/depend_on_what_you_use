@@ -18,7 +18,6 @@
     "bazel-module",
     "github-actions",
     "pip_requirements",
-    "poetry",
     "pre-commit"
   ],
   "pip_requirements": {
