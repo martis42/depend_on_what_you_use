@@ -7,9 +7,14 @@ from copy import deepcopy
 from os import environ
 from pathlib import Path
 from shlex import join as shlex_join
+from typing import TYPE_CHECKING
 
-from result import Error, ExpectedResult, Result, Success
 from version import CompatibleVersions, TestedVersions
+
+from test.support.result import Error, Result, Success
+
+if TYPE_CHECKING:
+    from expected_result import ExpectedResult
 
 
 class TestCaseBase(ABC):

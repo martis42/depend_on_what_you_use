@@ -4,9 +4,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from result import Error, Result, Success
 from test_case import TestCaseBase
 from version import TestedVersions
+
+from test.support.result import Error, Result, Success
 
 
 class TestCaseMock(TestCaseBase):

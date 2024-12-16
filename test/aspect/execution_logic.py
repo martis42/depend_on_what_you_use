@@ -8,10 +8,10 @@ from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from result import Error
 from version import CompatibleVersions, TestedVersions
 
 from test.support.bazel import get_bazel_binary
+from test.support.result import Error
 
 if TYPE_CHECKING:
     from test_case import TestCaseBase
