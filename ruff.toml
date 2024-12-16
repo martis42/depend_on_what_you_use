@@ -38,7 +38,7 @@ ignore = [
     "COM812",
     # It is fine that some line are longer than the length limit whenever the formatter finds not better option
     "E501",
-    # We prefer simple code to performance.
+    # The performance benefits are not measurable. We prefer simple code with increased readability.
     "G004",
     # We use implicit namespace packages by design
     "INP001",
