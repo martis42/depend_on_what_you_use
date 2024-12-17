@@ -25,6 +25,12 @@ def cli() -> Namespace:
         " Only relevant when analyzing the target under inspection itself. This is irrelevant for dependencies.",
     )
     parser.add_argument(
+        "--external_includes",
+        nargs="*",
+        help="Include paths available to the compiler for include statements pointing to headers from external targets."
+        " Only relevant when analyzing the target under inspection itself. This is irrelevant for dependencies.",
+    )
+    parser.add_argument(
         "--system_includes",
         nargs="*",
         help="Include paths available to the compiler for system include statements"
@@ -55,6 +61,7 @@ def main(args: Namespace) -> int:
     logging.debug(f"Header files         '{args.header_files}'")
     logging.debug(f"Includes             '{args.includes}'")
     logging.debug(f"Quote includes       '{args.quote_includes}'")
+    logging.debug(f"External includes    '{args.external_includes}'")
     logging.debug(f"System includes      '{args.system_includes}'")
     logging.debug(f"Defines              '{args.defines}'")
 
@@ -63,6 +70,8 @@ def main(args: Namespace) -> int:
         output["includes"] = args.includes
     if args.quote_includes is not None:
         output["quote_includes"] = args.quote_includes
+    if args.external_includes is not None:
+        output["external_includes"] = args.external_includes
     if args.system_includes is not None:
         output["system_includes"] = args.system_includes
     if args.defines is not None:

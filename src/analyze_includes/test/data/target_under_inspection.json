@@ -5,6 +5,7 @@
   ],
   "includes": ["."],
   "quote_includes": ["some/dir"],
+  "external_includes": ["external/dir"],
   "system_includes": ["another/dir"],
   "header_files": [
     "self/header_1.h",

@@ -64,8 +64,10 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
     if is_target_under_inspection:
+        external_includes = cc_context.external_includes if hasattr(cc_context, "external_includes") else []
         args.add_all("--includes", cc_context.includes, omit_if_empty = False)
         args.add_all("--quote_includes", cc_context.quote_includes, omit_if_empty = False)
+        args.add_all("--external_includes", external_includes, omit_if_empty = False)
         args.add_all("--system_includes", cc_context.system_includes, omit_if_empty = False)
         args.add_all("--defines", defines)
     if verbose:

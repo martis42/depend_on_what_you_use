@@ -106,6 +106,7 @@ def _get_include_paths(target_info: dict[str, list[str]]) -> list[str]:
     return (
         replace_dot(target_info["includes"])
         + replace_dot(target_info["quote_includes"])
+        + replace_dot(target_info["external_includes"])
         + replace_dot(target_info["system_includes"])
     )
 

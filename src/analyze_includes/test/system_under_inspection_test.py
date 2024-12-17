@@ -112,7 +112,7 @@ class TestGetSystemUnderInspection(unittest.TestCase):
         self.assertEqual(sui.impl_deps[1].header_files, ["private/dep/bar_1.h", "private/dep/bar_2.h"])
         self.assertEqual(sui.impl_deps[1].usage.usage, UsageStatus.NONE)
 
-        self.assertEqual(sui.include_paths, ["", "some/dir", "another/dir"])
+        self.assertEqual(sui.include_paths, ["", "some/dir", "external/dir", "another/dir"])
         self.assertEqual(sui.defines, ["SOME_DEFINE", "ANOTHER_DEFINE 42"])
 
     def test_load_empty_file(self) -> None:
