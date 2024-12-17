@@ -18,18 +18,6 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "com_google_protobuf",
-        "rules_python",
-        "rules_cc"
-      ],
-      "matchManagers": [
-        "bazel",
-        "bazel-module"
-      ],
-      "enabled": false
-    },
-    {
       "matchManagers": [
         "bazel",
         "bazel-module"
@@ -37,5 +25,10 @@
       "groupName": "Bazel dependencies",
       "groupSlug": "bazel_deps"
     }
-  ]
+  ],
+  "ignoreDeps": [
+    "com_google_protobuf",
+    "protobuf",
+    "rules_python",
+    "rules_cc"]
 }
