@@ -16,16 +16,6 @@
     "github-actions",
     "pre-commit"
   ],
-  "packageRules": [
-    {
-      "matchManagers": [
-        "bazel",
-        "bazel-module"
-      ],
-      "groupName": "Bazel dependencies",
-      "groupSlug": "bazel_deps"
-    }
-  ],
   "ignoreDeps": [
     "com_google_protobuf",
     "protobuf",
