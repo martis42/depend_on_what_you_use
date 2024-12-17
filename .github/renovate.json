@@ -17,6 +17,7 @@
     "pre-commit"
   ],
   "ignoreDeps": [
+    "bazel_skylib",
     "com_google_protobuf",
     "protobuf",
     "rules_python",
