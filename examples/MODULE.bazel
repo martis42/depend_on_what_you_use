@@ -1,15 +1,18 @@
 module(name = "dwyu_examples")
 
+##
+## Public part of the examples
+##
+
 bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../",
 )
 
-#
-# One can use DWYU without the content below. The hermetic Python toolchain increases the reproducibility when
-# executing the examples as integration test.
-#
+##
+## The content below is required for using the examples as tests, but is not required for using DWYU
+##
 
 # Keep in sync with //examples/WORKSPACE
 bazel_dep(name = "rules_python", version = "0.37.2", dev_dependency = True)
@@ -20,10 +23,6 @@ python = use_extension(
     dev_dependency = True,
 )
 python.toolchain(python_version = "3.8")
-
-#
-# Support to make the examples work
-#
 
 bazel_dep(name = "external_targets", dev_dependency = True)
 local_path_override(
