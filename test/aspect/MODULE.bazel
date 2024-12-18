@@ -10,12 +10,7 @@ local_path_override(
 ## Python toolchains for testing compatibility to various Python versions
 ##
 
-# We use a newer rules_python version than the one DWYU depends on to profit from the ability to select a toolchain
-# without specifying the patch version, which is possible from >= 0.30.0 onward.
-# Furthermore, this allows ensuring that we are compatible to new rules_python versions. The most crucial parts of DWYU
-# do not depend on rules_python and therefore we are confident in the example integration tests and unit tests finding
-# all issues related to the rules_python version DWYU depends on.
-bazel_dep(name = "rules_python", version = "0.32.2")
+bazel_dep(name = "rules_python", version = "0.37.2")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 
