@@ -29,3 +29,9 @@ local_path_override(
     module_name = "external_targets",
     path = "support/external_targets",
 )
+
+# Uncomment for testing exactly the versions required by DWYU without transitive dependencies or @bazel_tools
+# influencing version resolution.
+#single_version_override(module_name="rules_cc", version = "0.0.15")
+#single_version_override(module_name="rules_python", version = "0.37.2")
+#single_version_override(module_name="bazel_skylib", version = "1.7.1")
