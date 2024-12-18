@@ -12,7 +12,7 @@ local_path_override(
 #
 
 # Keep in sync with //examples/WORKSPACE
-bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "0.37.2", dev_dependency = True)
 
 python = use_extension(
     "@rules_python//python/extensions:python.bzl",

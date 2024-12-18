@@ -16,7 +16,8 @@ setup_step_2()
 ##
 ## Python toolchains for testing compatibility to various Python versions
 ##
-## We rely on rules_python provided by DWYU as dependency, since we we do not profit from using a custom version.
+## We rely on rules_python provided by DWYU as dependency as we don't want to duplicate and keep in sync which version
+## DWYU requests.
 ##
 
 load("@rules_python//python:repositories.bzl", "python_register_multi_toolchains")
