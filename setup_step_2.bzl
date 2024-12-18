@@ -1,4 +1,5 @@
 load("@bazel_skylib//lib:versions.bzl", "versions")
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@rules_python//python:repositories.bzl", "py_repositories")
 
 def setup_step_2():
@@ -13,3 +14,6 @@ def setup_step_2():
     )
 
     py_repositories()
+
+    # We need to manage protobuf in the legacy WORKSPACE setup as rules_cc does not manage it properly itself
+    protobuf_deps()

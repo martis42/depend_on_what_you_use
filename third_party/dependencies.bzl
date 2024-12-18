@@ -19,13 +19,22 @@ def dependencies():
         urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.15/rules_cc-0.0.15.tar.gz"],
     )
 
-    # rules_cc uses this but does not add it to https://github.com/bazelbuild/rules_cc/blob/0.0.15/cc/repositories.bzl
+    # rules_cc uses protobuf, but does not add it to https://github.com/bazelbuild/rules_cc/blob/0.0.15/cc/repositories.bzl
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "da288bf1daa6c04d03a9051781caa52aceb9163586bff9aa6cfb12f69b9395aa",
-        strip_prefix = "protobuf-27.0",
-        url = "https://github.com/protocolbuffers/protobuf/releases/download/v27.0/protobuf-27.0.tar.gz",
+        sha256 = "10a0d58f39a1a909e95e00e8ba0b5b1dc64d02997f741151953a2b3659f6e78c",
+        strip_prefix = "protobuf-29.0",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v29.0/protobuf-29.0.tar.gz",
+    )
+
+    # protobuf together with Bazel 8 depends on rules_java >= 8.5.0. But, before we call protobuf_deps() an too old
+    # version is already registered and protobuf_deps() does not overwrite it.
+    maybe(
+        http_archive,
+        name = "rules_java",
+        url = "https://github.com/bazelbuild/rules_java/releases/download/8.5.1/rules_java-8.5.1.tar.gz",
+        sha256 = "1389206b2208c5f33a05dd96e51715b0855c480c082b7bb4889a8e07fcff536c",
     )
 
     # Keep in sync with MODULE.bazel
