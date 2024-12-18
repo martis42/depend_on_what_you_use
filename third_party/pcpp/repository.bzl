@@ -9,4 +9,11 @@ def pcpp():
         urls = [
             "https://files.pythonhosted.org/packages/41/07/876153f611f2c610bdb8f706a5ab560d888c938ea9ea65ed18c374a9014a/pcpp-1.30.tar.gz",
         ],
+        patches = [
+            # Tested for 'cuda.h' by reporter of https://github.com/martis42/depend_on_what_you_use/issues/300
+            # Corresponding pcpp issue: https://github.com/ned14/pcpp/issues/72
+            # We tested that this patch resolves pcpp issue #72 and all pcpp unit test remain green.
+            # pcpp will hopefully see development again in 2025 and then we should be able to drop this patch.
+            Label("//third_party/pcpp:recursion_fix.patch"),
+        ],
     )
