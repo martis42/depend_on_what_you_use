@@ -46,3 +46,10 @@ cc_library(
         "//defines/support:some_defines",
     ],
 )
+
+# This target can only be analyzed by setting the correct defines via the command line
+cc_library(
+    name = "use_command_line_defines",
+    hdrs = ["use_command_line_defines.h"],
+    tags = ["manual"],
+)
