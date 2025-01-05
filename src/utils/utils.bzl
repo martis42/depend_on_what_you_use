@@ -19,6 +19,8 @@ def print_compilation_context(cc_info, headline = None):
     cc = cc_info.compilation_context
     headline_str = "\n" + headline if headline else ""
     external_includes = cc.external_includes if hasattr(cc, "external_includes") else "NA"
+
+    # buildifier: disable=print
     print("""{headline}
   defines                : {d}
   local_defines          : {ld}

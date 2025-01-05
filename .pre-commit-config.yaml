@@ -28,15 +28,23 @@ repos:
         additional_dependencies:
           - mdformat-gfm
 
+  # Ground truth for available checks: https://github.com/bazelbuild/buildtools/blob/main/warn/warn.go
+  # Documentation for checks: https://github.com/bazelbuild/buildtools/blob/main/WARNINGS.md?plain=1
+  # An example config file can be generated with command 'buildifier --config=example'
+  # We use all checks, even non default ones with those exceptions:
+  # - function-docstring: Not all functions require a docstring. If a docstring exists other checks ensure its sanity.
+  # - function-docstring-header: A dedicated docstring header often provides no added value.
+  # - module-docstring: Too noisy, not all modules require a docstring
+  # - naive-<some_language>: The auto fix uses the deprecated defs.bzl approach
   - repo: https://github.com/keith/pre-commit-buildifier
     rev: 7.3.1
     hooks:
       - id: buildifier
-        args: [ "--warnings=-load,+unsorted-dict-items,+native-py" ]
+        args: [ "--config=.buildifier.json" ]
       - id: buildifier-lint
         args: [
           "--diff_command='diff'",
-          "--warnings=-module-docstring,-function-docstring,-function-docstring-header,-print"
+          "--config=.buildifier.json",
         ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
