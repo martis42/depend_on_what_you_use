@@ -9,4 +9,4 @@ bcr_test_module:
       platform: ${{ platform }}
       bazel: ${{ bazel }}
       shell_commands:
-        - python test.py
+        - python test.py --bazel-bin bazel

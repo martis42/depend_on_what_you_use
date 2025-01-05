@@ -105,15 +105,15 @@ class Result:
     success: bool
 
 
-def make_cmd(example: Example, bazel_bin: Path, legacy_workspace: bool) -> list[str]:
-    cmd = [str(bazel_bin), "build"]
+def make_cmd(example: Example, bazel_bin: str, legacy_workspace: bool) -> list[str]:
+    cmd = [bazel_bin, "build"]
     if legacy_workspace:
         cmd.append("--noenable_bzlmod")
     cmd.extend(shlex.split(example.build_cmd))
     return cmd
 
 
-def execute_example(example: Example, bazel_bin: Path, legacy_workspace: bool) -> Result:
+def execute_example(example: Example, bazel_bin: str, legacy_workspace: bool) -> Result:
     cmd = make_cmd(example=example, bazel_bin=bazel_bin, legacy_workspace=legacy_workspace)
     cmd_str = shlex.join(cmd)
     logging.info(f"\n##\n## Executing: '{cmd_str}'\n##\n")
@@ -134,20 +134,29 @@ def cli() -> Namespace:
         action="store_true",
         help="Use the WORKSPACE file based project setup instead of bzlmod.",
     )
+    parser.add_argument(
+        "--bazel-bin",
+        "-b",
+        type=str,
+        help="""
+Manually define the Bazel binary used by the test commands instead of automatically discovering and ensuring bazelisk.
+This is relevant for test environments outside our control managing Bazel versions for testing without bazelisk.
+""".strip(),
+    )
     return parser.parse_args()
 
 
-def main(legacy_workspace: bool) -> int:
+def main(args: Namespace) -> int:
     """
     Basic testing if the examples behave as desired.
 
     We ony look for the return code of a command. If a command fails as expected we do not analyze if it fails for the
     correct reason. These kind of detailed testing is done in the aspect integration tests.
     """
-    bazel_binary = get_bazel_binary()
+    bazel_binary = args.bazel_bin if args.bazel_bin else str(get_bazel_binary())
 
     results = [
-        execute_example(example=ex, bazel_bin=bazel_binary, legacy_workspace=legacy_workspace) for ex in EXAMPLES
+        execute_example(example=ex, bazel_bin=bazel_binary, legacy_workspace=args.legacy_workspace) for ex in EXAMPLES
     ]
     failed_examples = [res.example for res in results if not res.success]
 
@@ -166,4 +175,4 @@ if __name__ == "__main__":
     # Ensure we can invoke the script from various places
     chdir(Path(__file__).parent)
 
-    sys.exit(main(args.legacy_workspace))
+    sys.exit(main(args))
