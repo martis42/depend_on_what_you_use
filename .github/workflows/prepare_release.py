@@ -14,10 +14,9 @@ import subprocess
 from pathlib import Path
 
 RELEASE_NOTES_TEMPLATE = """
-## Using Bzlmod (Recommended)
+:construction: **DO NOT USE. THIS IS STILL A DRAFT** :construction:
 
-> :construction: Not yet deployed to BCR :construction:
-> Release will become usable via bzlmod as soon as it is no longer the pre-release phase.
+## Using Bzlmod (Recommended)
 
 Add to your `MODULE.bazel` file:
 
@@ -67,7 +66,7 @@ def cli() -> argparse.Namespace:
 def make_archive(tag: str) -> Path:
     """
     The prefix is the same as what GitHub generates for source archives.
-    Thus, users cans easily switch between the released archives and the source archives generated for reach commit.
+    Thus, users can easily switch between the released archives and the source archives generated for reach commit.
 
     We can filter out some files via a .gitignore file. see:
     https://github.com/bazel-contrib/rules-template/blob/4e541c8083645da37eb570c23e04dc65e1d6446c/.gitattributes
