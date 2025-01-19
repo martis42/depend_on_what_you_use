@@ -1,0 +1,2 @@
+# The symlinks have no value for us, but clutter the project view in the IDE
+build --experimental_convenience_symlinks=clean

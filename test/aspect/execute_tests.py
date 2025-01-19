@@ -30,7 +30,7 @@ TESTED_VERSIONS = [
 
 VERSION_SPECIFIC_ARGS = {
     # We test Bazel 6 once with bzlmod and once with legacy WORKSPACE setup. Newer Bazel versions are only tested
-    # with bzlmod. bzlmod does not work for us before Bazel 6.2.
+    # with bzlmod. bzlmod does not work for with rules_python before Bazel 6.2.
     "--enable_bzlmod=false": CompatibleVersions(minimum="6.0.0", before="6.2.0"),
     "--enable_bzlmod=true": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
     # Experimental changes we want to be compatible for

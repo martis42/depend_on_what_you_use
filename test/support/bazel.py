@@ -1,4 +1,6 @@
+import os
 import subprocess
+from copy import deepcopy
 from pathlib import Path
 from shutil import which
 
@@ -20,6 +22,24 @@ def get_bazel_binary() -> Path:
         return Path(bazel)
 
     raise RuntimeError("No bazelisk binary or bazel symlink towards bazelisk available on your system")
+
+
+def get_bazel_rolling_version(bazel_bin: Path) -> str:
+    process = subprocess.run(
+        [bazel_bin, "--version"],
+        env=make_bazel_version_env("rolling"),
+        shell=False,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return process.stdout.split("bazel")[1].strip()
+
+
+def make_bazel_version_env(version: str) -> os._Environ:
+    run_env = deepcopy(os.environ)
+    run_env["USE_BAZEL_VERSION"] = version
+    return run_env
 
 
 def get_current_workspace(bazel_bin: Path) -> Path:
