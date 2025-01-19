@@ -1,0 +1,7 @@
+module(name = "dwyu_workspace_integration_tests")
+
+bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
+local_path_override(
+    module_name = "depend_on_what_you_use",
+    path = "../../",
+)
