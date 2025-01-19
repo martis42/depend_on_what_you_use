@@ -13,6 +13,8 @@ repos:
       - id: check-shebang-scripts-are-executable
       - id: check-toml
       - id: check-json
+      - id: mixed-line-ending
+        args: [ --fix=lf ]
       # Code style
       - id: end-of-file-fixer
         exclude: *generated_doc_files
@@ -48,7 +50,6 @@ repos:
         ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.8.4
     hooks:
       - id: ruff-format
@@ -59,7 +60,6 @@ repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.14.1
     hooks:
-      # We require separate instances due to several files being named the same which mypy cannot handle
       - id: mypy
         name: "mypy"
         # We overwrite the args as we configure mypy via our mypy.ini
