@@ -2,7 +2,7 @@ module(
     name = "depend_on_what_you_use",
     version = "0.0.0",
     # Keep in sync with setup_step_2.bzl, .bcr/presubmit.yml and the README.md
-    bazel_compatibility = [">=6.0.0"],
+    bazel_compatibility = [">=6.4.0"],
 )
 
 bazel_dep(name = "rules_cc", version = "0.0.15")
