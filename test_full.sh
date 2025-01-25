@@ -15,6 +15,11 @@ echo ""
 ./examples/test.py --legacy-workspace
 
 echo ""
+echo "Execute workspace integration tests"
+echo ""
+./test/workspace_integration/test.py
+
+echo ""
 echo "Execute integration tests - Aspect"
 echo ""
 ./test/aspect/execute_tests.py

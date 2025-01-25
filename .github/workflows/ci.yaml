@@ -24,6 +24,14 @@ jobs:
       - name: Build examples
         run: ./scripts/build_examples.sh
 
+  integration-tests-workspace_integration:
+    runs-on: ubuntu-24.04
+    needs: [ fast-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integration tests - Workspace integration
+        run: python test/workspace_integration/test.py
+
   integration-tests-examples:
     strategy:
       matrix:
