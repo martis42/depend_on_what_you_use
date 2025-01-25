@@ -6,24 +6,9 @@ local_path_override(
     path = "../",
 )
 
-#
-# One can use DWYU without the content below. The hermetic Python toolchain increases the reproducibility when
-# executing the examples as integration test.
-#
-
-# Keep in sync with //examples/WORKSPACE
-bazel_dep(name = "rules_python", version = "0.27.1", dev_dependency = True)
-
-python = use_extension(
-    "@rules_python//python/extensions:python.bzl",
-    "python",
-    dev_dependency = True,
-)
-python.toolchain(python_version = "3.8")
-
-#
-# Support to make the examples work
-#
+##
+## One can use DWYU without the content below. We simply need some further things so all examples work.
+##
 
 bazel_dep(name = "external_targets", dev_dependency = True)
 local_path_override(

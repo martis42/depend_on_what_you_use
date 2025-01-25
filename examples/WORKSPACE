@@ -13,33 +13,9 @@ load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
 
 setup_step_2()
 
-#
-# One can use DWYU without the content below. The hermetic Python toolchain increases the reproducibility when
-# executing the examples as integration test.
-#
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-
-# Keep in sync with //examples/MODULE.bazel
-maybe(
-    http_archive,
-    name = "rules_python",
-    sha256 = "e85ae30de33625a63eca7fc40a94fea845e641888e52f32b6beea91e8b1b2793",
-    strip_prefix = "rules_python-0.27.1",
-    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz"],
-)
-
-load("@rules_python//python:repositories.bzl", "python_register_toolchains")
-
-python_register_toolchains(
-    name = "python",
-    python_version = "3.8",
-)
-
-#
-# Support to make the examples work
-#
+##
+## One can use DWYU without the content below. We simply need some further things so all examples work.
+##
 
 load("//:support/external_targets.bzl", "load_external_targets")
 
