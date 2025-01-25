@@ -5,3 +5,13 @@ local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../../",
 )
+
+# Uncomment for testing if Bazel itself (e.g. @bazel_tools) or our transitive dependencies overwrite the versions
+# requested by DWYU. In such cases, Bazel will print a warning in the command line output.
+#bazel_dep(name = "rules_cc", version = "0.0.15")
+#bazel_dep(name = "rules_python", version = "0.37.2")
+
+# Uncomment for testing exactly the versions required by DWYU without Bazel itself (e.g. @bazel_tools) or our
+# transitive dependencies influencing version resolution.
+#single_version_override(module_name="rules_cc", version = "0.0.15")
+#single_version_override(module_name="rules_python", version = "0.37.2")
