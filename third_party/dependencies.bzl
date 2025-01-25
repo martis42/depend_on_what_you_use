@@ -6,9 +6,9 @@ def dependencies():
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "e85ae30de33625a63eca7fc40a94fea845e641888e52f32b6beea91e8b1b2793",
-        strip_prefix = "rules_python-0.27.1",
-        urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz"],
+        sha256 = "c6fb25d0ba0246f6d5bd820dd0b2e66b339ccc510242fd4956b9a639b548d113",
+        strip_prefix = "rules_python-0.37.2",
+        urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.37.2/rules_python-0.37.2.tar.gz"],
     )
 
     maybe(

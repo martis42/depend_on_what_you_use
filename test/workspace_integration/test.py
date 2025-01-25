@@ -19,7 +19,7 @@ from test.support.bazel import get_bazel_binary, get_bazel_rolling_version, make
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 BAZEL_VERSIONS_UNDER_TEST = [
-    "6.0.0",
+    "6.4.0",
     "6.5.0",
     "7.0.0",
     "7.4.1",
