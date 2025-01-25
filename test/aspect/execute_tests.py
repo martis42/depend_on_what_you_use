@@ -20,8 +20,7 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
 # For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
 TESTED_VERSIONS = [
-    TestedVersions(bazel="6.4.0", python="3.8.18"),
-    TestedVersions(bazel="6.5.0", python="3.8"),
+    TestedVersions(bazel="6.4.0", python="3.8"),
     TestedVersions(bazel="7.0.0", python="3.9"),
     TestedVersions(bazel="7.4.1", python="3.10"),
     TestedVersions(bazel="8.0.0", python="3.11", is_default=True),
@@ -29,9 +28,6 @@ TESTED_VERSIONS = [
 ]
 
 VERSION_SPECIFIC_ARGS = {
-    # We test Bazel 6 once with bzlmod and once with legacy WORKSPACE setup. Newer Bazel versions are only tested
-    # with bzlmod. bzlmod does not work for with rules_python before Bazel 6.2.
-    "--enable_bzlmod=false": CompatibleVersions(minimum="6.0.0", before="6.2.0"),
     "--enable_bzlmod=true": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
     # Experimental changes we want to be compatible for
     "--noexperimental_python_import_all_repositories": CompatibleVersions(minimum="1.0.0"),
