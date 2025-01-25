@@ -30,6 +30,12 @@ python.toolchain(python_version = "3.11")
 python.toolchain(python_version = "3.12")
 
 ##
+## Test Dependencies
+##
+
+bazel_dep(name = "platforms", version = "0.0.11")
+
+##
 ## Workspaces for test purposes
 ##
 
@@ -50,12 +56,3 @@ local_path_override(
     module_name = "skip_external_deps_test_repo",
     path = "skip_external_targets/external_dep",
 )
-
-##
-## The Migration phase using WORKSPACE.bzlmod and MODULE.bazel together does not support properly loading the implicit
-## Bazel dependencies. Thus, we need to load some basic things directly. This should become superfluous when we are
-## only using bzlmod eventually
-## Reference https://github.com/bazelbuild/bazel/blob/master/src/MODULE.tools
-##
-
-bazel_dep(name = "platforms", version = "0.0.7")
