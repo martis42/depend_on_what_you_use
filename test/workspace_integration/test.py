@@ -45,7 +45,7 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
         cmd = ["bazel", "--max_idle_secs=10", "build", *bzlmod_arg, *enable_workspace, *ASPECT_TEST_CMD]
         logging.info(f"## Executing: {shlex_join(cmd)}\n")
         if subprocess.run(cmd, check=False, env=env).returncode != 0:
-            failures.append(f"WORKSPACE: {bazel_version}")
+            failures.append(f"{mode}: {bazel_version}")
 
     return failures
 
