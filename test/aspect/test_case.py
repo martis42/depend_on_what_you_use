@@ -109,7 +109,6 @@ class TestCaseBase(ABC):
             "build",
             "--experimental_convenience_symlinks=ignore",
             "--noshow_progress",
-            "--nolegacy_external_runfiles",
             *self._extra_args,
             *extra_args,
             "--",
