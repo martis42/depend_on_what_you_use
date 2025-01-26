@@ -108,7 +108,7 @@ class Result:
 def make_cmd(example: Example, bazel_bin: str, legacy_workspace: bool) -> list[str]:
     cmd = [bazel_bin, "build"]
     if legacy_workspace:
-        cmd.append("--noenable_bzlmod")
+        cmd.extend(["--noenable_bzlmod", "--enable_workspace"])
     cmd.extend(shlex.split(example.build_cmd))
     return cmd
 

@@ -37,10 +37,6 @@ python.toolchain(python_version = "3.8")
 """
 
 BAZEL_RC_FILE = """
-# Decrease Python toolchain overhead
-# See https://github.com/bazelbuild/rules_python/issues/1653
-common --nolegacy_external_runfiles
-
 # Useless as the workspace are thrown away after each creation
 common --lockfile_mode=off
 
@@ -48,7 +44,7 @@ common --lockfile_mode=off
 build --noexperimental_python_import_all_repositories
 """
 
-BAZEL_VERSION = "7.4.1"
+BAZEL_VERSION = "8.0.1"
 
 
 def dwyu_path_as_string(dwyu_path: Path) -> str:
