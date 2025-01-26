@@ -58,7 +58,7 @@ jobs:
         run: python test/aspect/execute_tests.py
       - name: Integration tests - Aspect
         if: runner.os == 'Windows'
-        run: python test/aspect/execute_tests.py -b 7.0.0 -p 3.8.18
+        run: python test/aspect/execute_tests.py --only-default-version
 
   integration-tests-apply-fixes:
     strategy:
