@@ -21,7 +21,7 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 BAZEL_VERSIONS_UNDER_TEST = [
     "6.4.0",
     "7.0.0",
-    "7.4.1",
+    "7.5.0",
     "8.0.0",
     "8.0.1",
     "rolling",

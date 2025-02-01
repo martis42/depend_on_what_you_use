@@ -22,7 +22,7 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 TESTED_VERSIONS = [
     TestedVersions(bazel="6.4.0", python="3.8"),
     TestedVersions(bazel="7.0.0", python="3.9"),
-    TestedVersions(bazel="7.4.1", python="3.10"),
+    TestedVersions(bazel="7.5.0", python="3.10"),
     TestedVersions(bazel="8.0.0", python="3.11"),
     TestedVersions(bazel="8.0.1", python="3.12", is_default=True),
     TestedVersions(bazel="rolling", python="3.13"),
