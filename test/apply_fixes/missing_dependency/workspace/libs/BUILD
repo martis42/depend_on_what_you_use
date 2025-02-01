@@ -18,3 +18,12 @@ cc_library(
     strip_include_prefix = ".",
     visibility = ["//visibility:public"],
 )
+
+# Ensure we can parse attributes which are explicitly set to an empty list. Those are represented differently in a query
+# compared to omitting the targets completely.
+cc_library(
+    name = "empty_lists",
+    srcs = [],
+    hdrs = [],
+    visibility = ["//visibility:public"],
+)
