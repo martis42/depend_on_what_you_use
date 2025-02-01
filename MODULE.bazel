@@ -16,7 +16,7 @@ use_repo(non_module_dependencies, "dwyu_pcpp")
 ### Development Dependencies
 ###
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.10.0", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.13.0", dev_dependency = True)
 
 # Hidden dependencies of aspect_bazel_lib macro stardoc_with_diff_test
 bazel_dep(name = "platforms", version = "0.0.11", dev_dependency = True)
