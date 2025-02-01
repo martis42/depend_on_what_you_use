@@ -82,6 +82,7 @@ cc_library(
     deps = [
         ":root_file_lib",
         "//libs:bar",
+        "//libs:empty_lists",
         "//libs:foo",
     ],
 )
