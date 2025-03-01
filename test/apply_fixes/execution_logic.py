@@ -109,7 +109,7 @@ class ApplyFixesIntegrationTestsExecutor:
             succeeded = True
         else:
             logging.info(result.error)
-        logging.info(f'<<< {"OK" if succeeded else "FAILURE"}\n')
+        logging.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
 
         return succeeded
 
@@ -169,7 +169,7 @@ def main(requested_tests: list[str] | None = None, list_tests: bool = False) -> 
         return 0
 
     failed_tests = executor.execute_tests()
-    logging.info(f'Running tests {"FAILED" if failed_tests else "SUCCEEDED"}')
+    logging.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
     if failed_tests:
         logging.info("\nFailed tests:")
         logging.info("\n".join(f"- '{test}'" for test in failed_tests))

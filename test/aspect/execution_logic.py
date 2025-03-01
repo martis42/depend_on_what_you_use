@@ -39,7 +39,7 @@ def execute_test(
         succeeded = True
     else:
         logging.info(result.error)
-    logging.info(f'<<< {"OK" if succeeded else "FAILURE"}\n')
+    logging.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
 
     return succeeded
 
@@ -127,7 +127,7 @@ def main(
             ]
         )
 
-    logging.info(f'Running tests {"FAILED" if failed_tests else "SUCCEEDED"}')
+    logging.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
     if failed_tests:
         logging.info("\nFailed tests:")
         logging.info("\n".join(f"- {failed}" for failed in failed_tests))
