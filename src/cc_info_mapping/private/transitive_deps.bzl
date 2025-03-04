@@ -3,6 +3,8 @@ load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuCcInfoRemapInfo")
 
 def _aggregate_transitive_deps_aspect_impl(target, ctx):
+    if CcInfo not in target:
+        return DwyuCcInfoRemapInfo(target = target.label, cc_info = CcInfo())
     all_cc_info = [target[CcInfo]]
     all_cc_info.extend([dep[DwyuCcInfoRemapInfo].cc_info for dep in ctx.rule.attr.deps])
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
