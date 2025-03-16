@@ -3,9 +3,15 @@ load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuCcInfoRemapInfo")
 
 def _aggregate_direct_deps_aspect_impl(target, ctx):
+    """
+    We deliberately ignore implementation_deps since headers provided by them shall by design not be used by consumers
+    of the target.
+    """
+
+    # 'cc_*' targets can depend on things like sh_library not providing CcInfo
+    cc_targets = [target] + [dep for dep in ctx.rule.attr.deps if CcInfo in dep]
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
-        compilation_contexts =
-            [tgt[CcInfo].compilation_context for tgt in [target] + ctx.rule.attr.deps],
+        compilation_contexts = [tgt[CcInfo].compilation_context for tgt in cc_targets],
     )
 
     return DwyuCcInfoRemapInfo(target = target.label, cc_info = CcInfo(
