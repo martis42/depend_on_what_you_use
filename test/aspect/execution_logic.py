@@ -6,6 +6,7 @@ from copy import deepcopy
 from importlib.machinery import SourceFileLoader
 from os import environ
 from pathlib import Path
+from re import fullmatch
 from typing import TYPE_CHECKING
 
 from version import CompatibleVersions, TestedVersions
@@ -44,19 +45,29 @@ def execute_test(
     return succeeded
 
 
-def get_bazel_rolling_version(bazel_bin: Path) -> str:
+def get_explicit_bazel_version(bazel_bin: Path, dynamic_version: str) -> str:
     run_env = deepcopy(environ)
-    run_env["USE_BAZEL_VERSION"] = "rolling"
+    run_env["USE_BAZEL_VERSION"] = dynamic_version
     process = subprocess.run(
         [bazel_bin, "--version"], env=run_env, shell=False, check=True, capture_output=True, text=True
     )
     return process.stdout.split("bazel")[1].strip()
 
 
-def set_rolling_bazel_version(versions: list[TestedVersions], bazel_bin: Path) -> list[TestedVersions]:
+def make_bazel_versions_explicit(versions: list[TestedVersions], bazel_bin: Path) -> list[TestedVersions]:
+    """
+    We want to utilize dynamic version references like 'rolling' or '42.x'. However, for debugging and caching we
+    prefer using concrete version numbers in the test orechstrtion logic. Thus, we resolve the dynamic version
+    identifiers before using them.
+    """
+    logging.info("Parsing Bazel versions:")
     for version in versions:
-        if version.bazel == "rolling":
-            version.bazel = get_bazel_rolling_version(bazel_bin)
+        if not fullmatch(r"\d+\.\d+\.\d+", version.bazel):
+            dynamic_version = version.bazel
+            version.bazel = get_explicit_bazel_version(bazel_bin=bazel_bin, dynamic_version=dynamic_version)
+            logging.info(f"{dynamic_version} -> {version.bazel}")
+        else:
+            logging.info(version.bazel)
     return versions
 
 
@@ -97,7 +108,7 @@ def main(
     else:
         versions = tested_versions
 
-    versions = set_rolling_bazel_version(versions=versions, bazel_bin=bazel_binary)
+    versions = make_bazel_versions_explicit(versions=versions, bazel_bin=bazel_binary)
 
     failed_tests = []
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
