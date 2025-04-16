@@ -29,7 +29,8 @@ The main features are:
 - Finding include statements which are not available through a direct dependency, aka **preventing to rely on transitive dependencies for includes**.
 - Finding unused dependencies.
 - Given one uses [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps), making sure one distinguishes properly between public and private dependencies for `cc_library` targets.
-  For more details see [features chapter Implementation_deps](#Implementation_deps).
+  This has to be explicitly enabled.
+  See the [aspect documentation](docs/dwyu_aspect.md) for further details.
 
 More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs).
 
