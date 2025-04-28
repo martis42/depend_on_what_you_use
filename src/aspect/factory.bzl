@@ -5,6 +5,8 @@ _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 
 def dwyu_aspect_factory(
         experimental_set_cplusplus = False,
+        experimental_multi_core = False,
+        experimental_no_preprocessor = False,
         ignored_includes = None,
         recursive = False,
         skip_external_targets = False,
@@ -36,6 +38,16 @@ def dwyu_aspect_factory(
                                       If a common compiler option is used to set the C++ standard with an known value, set `__cplusplus` according to [this map](https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros).
                                     </li></ul>
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
+
+        experimental_multi_core: **Experimental** feature whose behavior is not yet stable and an change at any time.<br>
+                                 By default, DWYU uses a single core per library to run the preprocessor.
+                                 This makes it use as many as there are cores.
+
+        experimental_no_preprocessor: **Experimental** feature whose behavior is not yet stable and an change at any time.<br>
+                                      By default, DWYU uses the pcpp to pre-process the source code.
+                                      This is necessary to get the correct include statements and the correct set of dependencies.
+                                      However, for large projects this can take a lot of time.
+                                      If your code doesn't use conditional includes, you can use this option.
 
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
@@ -112,6 +124,12 @@ def dwyu_aspect_factory(
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
                 allow_files = [".json"],
+            ),
+            "_multi_core": attr.bool(
+                default = experimental_multi_core,
+            ),
+            "_no_preprocessor": attr.bool(
+                default = experimental_no_preprocessor,
             ),
             "_process_target": attr.label(
                 default = Label("@depend_on_what_you_use//src/aspect:process_target"),

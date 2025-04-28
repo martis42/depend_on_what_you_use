@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
@@ -77,7 +78,9 @@ class IgnoredIncludes:
         return is_ignored_path or is_ignored_pattern
 
 
-def get_includes_from_file(file: Path, defines: list[str], include_paths: list[str]) -> list[Include]:
+def get_includes_from_file(
+    file: Path, defines: list[str], include_paths: list[str], no_preprocessor: bool
+) -> list[Include]:
     """
     Parse a C/C++ file and extract include statements which are neither commented nor disabled through pre processor
     branching (e.g. #ifdef).
@@ -86,21 +89,24 @@ def get_includes_from_file(file: Path, defines: list[str], include_paths: list[s
     with a simple regex.
     """
     with file.open(encoding="utf-8") as fin:
-        pre_processor = make_pre_processor()
-        for define in defines:
-            pre_processor.define(define)
-        for path in include_paths:
-            pre_processor.add_path(path)
-
-        pre_processor.parse(fin.read())
         output_sink = StringIO()
-        pre_processor.write(output_sink)
+        if no_preprocessor:
+            output_sink.write(fin.read())
+        else:
+            pre_processor = make_pre_processor()
+            for define in defines:
+                pre_processor.define(define)
+            for path in include_paths:
+                pre_processor.add_path(path)
+
+            pre_processor.parse(fin.read())
+            pre_processor.write(output_sink)
 
         included_paths = []
         for include in re.findall(r"^\s*#include\s*(.+)", output_sink.getvalue(), re.MULTILINE):
             if include.startswith(('"', "<")) and include.endswith(('"', ">")):
                 included_paths.append(include)
-            elif include in pre_processor.macros:
+            elif not no_preprocessor and include in pre_processor.macros:
                 # Either a malformed include statement or an include path defined through a pre processor token.
                 # We ignore malformed include paths as they violate our assumptions of use.
                 # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
@@ -121,11 +127,37 @@ def filter_includes(includes: list[Include], ignored_includes: IgnoredIncludes) 
 
 
 def get_relevant_includes_from_files(
-    files: list[str] | None, ignored_includes: IgnoredIncludes, defines: list[str], include_paths: list[str]
+    files: list[str] | None,
+    ignored_includes: IgnoredIncludes,
+    defines: list[str],
+    include_paths: list[str],
+    multi_core: bool,
+    no_preprocessor: bool,
 ) -> list[Include]:
     all_includes = []
     if files:
-        for file in files:
-            includes = get_includes_from_file(file=Path(file), defines=defines, include_paths=include_paths)
-            all_includes.extend(includes)
+        if multi_core:
+            with ProcessPoolExecutor() as executor:
+                futures = [
+                    executor.submit(
+                        get_includes_from_file,
+                        file=Path(file),
+                        defines=defines,
+                        include_paths=include_paths,
+                        no_preprocessor=no_preprocessor,
+                    )
+                    for file in files
+                ]
+                for future in as_completed(futures):
+                    all_includes.extend(future.result())
+        else:
+            for file in files:
+                all_includes.extend(
+                    get_includes_from_file(
+                        file=Path(file),
+                        defines=defines,
+                        include_paths=include_paths,
+                        no_preprocessor=no_preprocessor,
+                    )
+                )
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)
