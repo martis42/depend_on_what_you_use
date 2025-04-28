@@ -3,10 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 
 class UsageStatus(Enum):
@@ -56,6 +53,17 @@ class CcTarget:
     name: str
     header_files: list[str]
     usage: UsageStatusTracker = field(init=False)
+    _resolved_header_files: set[Path] | None = field(init=False, default=None)
+
+    @property
+    def resolved_header_files(self) -> set[Path]:
+        """The set of header files as fully resolved paths
+
+        This is memoized to avoid bad complexity.
+        """
+        if self._resolved_header_files is None:
+            self._resolved_header_files = {Path(file).resolve() for file in self.header_files}
+        return self._resolved_header_files
 
     def __post_init__(self) -> None:
         self.usage = UsageStatusTracker()
