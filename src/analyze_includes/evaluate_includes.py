@@ -17,16 +17,14 @@ if TYPE_CHECKING:
 def does_include_match_available_files(
     include_statement: str, include_paths: list[str], header_files: list[str]
 ) -> bool:
-    for header in header_files:
-        for inc in include_paths:
-            possible_file = inc + "/" + include_statement if inc else include_statement
-            if possible_file == header:
-                return True
-    return False
+    possible_files = set()
+    for inc in include_paths:
+        possible_files.add(inc + "/" + include_statement if inc else include_statement)
+    return any(header in possible_files for header in header_files)
 
 
-def _include_resolves_to_any_file(included_path: Path, files: list[str]) -> bool:
-    return any(included_path == Path(file).resolve() for file in files)
+def _include_resolves_to_any_file(included_path: Path, files: set[Path]) -> bool:
+    return included_path in files
 
 
 def _is_relative_include(
@@ -42,13 +40,15 @@ def _is_relative_include(
 
         # Relative include to target under inspection
         if _include_resolves_to_any_file(
-            included_path=path_matching_include_statement, files=target_under_inspection.header_files
+            included_path=path_matching_include_statement, files=target_under_inspection.resolved_header_files
         ):
             return True
 
         # Relative include to dependency
         for dep in dependencies:
-            if _include_resolves_to_any_file(included_path=path_matching_include_statement, files=dep.header_files):
+            if _include_resolves_to_any_file(
+                included_path=path_matching_include_statement, files=dep.resolved_header_files
+            ):
                 dep.usage.update(usage)
                 return True
 
