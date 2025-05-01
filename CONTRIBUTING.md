@@ -6,13 +6,13 @@ All contributions require a review from the [code owners](.github/CODEOWNERS).
 
 ## Code Quality
 
-The project uses several formatters and linters.
-[poetry](https://github.com/python-poetry/poetry) and [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) are used to manage and execute those.
+The project uses several formatters and linters which are executed with [pre-commit](https://github.com/pre-commit/pre-commit).
+Given you have installed `pre-commit`, you can run all basic checks via `pre-commit run --all-files`.
 
-When contributing code, please make sure to execute the checks.
+There are also bash scripts for executing most steps of the CI:
 
-After you have installed `poetry` for your platform install the tools required by DWYU: `poetry install`.
-Then, you can execute all relevant checks via `poetry run pre-commit run --all-files` or configure `pre-commit-hooks` to run automatically for each commit.
+- [test_basic.sh](./test_basic.sh) - Linting and fast tests
+- [test_full.sh](./test_full.sh) - Full test suite including integration tests
 
 ## Code Style
 
