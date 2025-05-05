@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,12 +15,18 @@ if TYPE_CHECKING:
     from src.analyze_includes.parse_source import Include
 
 
-def does_include_match_available_files(
-    include_statement: str, include_paths: list[str], header_files: list[str]
-) -> bool:
+@functools.lru_cache(maxsize=2048)
+def _possible_paths(include_statement: str, include_paths: frozenset[str]) -> set[str]:
     possible_files = set()
     for inc in include_paths:
         possible_files.add(inc + "/" + include_statement if inc else include_statement)
+    return possible_files
+
+
+def does_include_match_available_files(
+    include_statement: str, include_paths: frozenset[str], header_files: list[str]
+) -> bool:
+    possible_files = _possible_paths(include_statement, include_paths)
     return any(header in possible_files for header in header_files)
 
 
@@ -31,7 +38,7 @@ def _is_relative_include(
     target_under_inspection: CcTarget,
     include: Include,
     dependencies: list[CcTarget],
-    include_paths: list[str],
+    include_paths: frozenset[str],
     usage: UsageStatus,
 ) -> bool:
     roots_for_relative_includes = [Path(root) for root in [str(include.file.parent), *include_paths]]
@@ -60,7 +67,7 @@ def _check_for_invalid_includes(
     dependencies: list[CcTarget],
     usage: UsageStatus,
     target_under_inspection: CcTarget,
-    include_paths: list[str],
+    include_paths: frozenset[str],
 ) -> list[Include]:
     invalid_includes = []
 
@@ -128,19 +135,21 @@ def evaluate_includes(
     result = Result(system_under_inspection.target_under_inspection.name)
     system_under_inspection = _filter_empty_dependencies(system_under_inspection)
 
+    include_paths = frozenset(system_under_inspection.include_paths)
+
     result.public_includes_without_dep = _check_for_invalid_includes(
         includes=public_includes,
         dependencies=system_under_inspection.deps,
         usage=UsageStatus.PUBLIC,
         target_under_inspection=system_under_inspection.target_under_inspection,
-        include_paths=system_under_inspection.include_paths,
+        include_paths=include_paths,
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
         dependencies=system_under_inspection.deps + system_under_inspection.impl_deps,
         usage=UsageStatus.PRIVATE,
         target_under_inspection=system_under_inspection.target_under_inspection,
-        include_paths=system_under_inspection.include_paths,
+        include_paths=include_paths,
     )
 
     result.unused_deps = _check_for_unused_dependencies(system_under_inspection.deps)
