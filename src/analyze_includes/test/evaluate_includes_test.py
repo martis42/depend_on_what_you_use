@@ -12,32 +12,38 @@ from src.analyze_includes.system_under_inspection import CcTarget, SystemUnderIn
 class TestIncludeTofileMatching(unittest.TestCase):
     def test_match_with_standard_include_path(self) -> None:
         self.assertTrue(
-            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=["foo.h"])
+            does_include_match_available_files(
+                include_statement="foo.h", include_paths=frozenset([""]), header_files=["foo.h"]
+            )
         )
         self.assertTrue(
             does_include_match_available_files(
-                include_statement="some/path/foo.h", include_paths=[""], header_files=["some/path/foo.h"]
+                include_statement="some/path/foo.h", include_paths=frozenset([""]), header_files=["some/path/foo.h"]
             )
         )
         self.assertTrue(
             does_include_match_available_files(
                 include_statement="foo.h",
-                include_paths=["", "unrelated/path"],
+                include_paths=frozenset(["", "unrelated/path"]),
                 header_files=["foo.h", "unrelated/file.h"],
             )
         )
 
     def test_no_match_with_standard_include_path(self) -> None:
         self.assertFalse(
-            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=[])
+            does_include_match_available_files(
+                include_statement="foo.h", include_paths=frozenset([""]), header_files=[]
+            )
         )
         self.assertFalse(
-            does_include_match_available_files(include_statement="foo.h", include_paths=[""], header_files=["bar.h"])
+            does_include_match_available_files(
+                include_statement="foo.h", include_paths=frozenset([""]), header_files=["bar.h"]
+            )
         )
         self.assertFalse(
             does_include_match_available_files(
                 include_statement="foo.h",
-                include_paths=["", "unrelated/path"],
+                include_paths=frozenset(["", "unrelated/path"]),
                 header_files=["bar.h", "unrelated/file.h", "not/matching/foo.h"],
             )
         )
@@ -45,14 +51,16 @@ class TestIncludeTofileMatching(unittest.TestCase):
     def test_match_based_on_non_standard_include_path(self) -> None:
         self.assertTrue(
             does_include_match_available_files(
-                include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/foo.h"]
+                include_statement="foo.h", include_paths=frozenset(["some/dir"]), header_files=["some/dir/foo.h"]
             )
         )
 
     def test_no_match_based_on_non_standard_include_path(self) -> None:
         self.assertFalse(
             does_include_match_available_files(
-                include_statement="foo.h", include_paths=["some/dir"], header_files=["some/dir/bar.h", "wrong/foo.h"]
+                include_statement="foo.h",
+                include_paths=frozenset(["some/dir"]),
+                header_files=["some/dir/bar.h", "wrong/foo.h"],
             )
         )
 
