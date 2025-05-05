@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,26 +15,30 @@ if TYPE_CHECKING:
     from src.analyze_includes.parse_source import Include
 
 
+@functools.lru_cache(maxsize=2048)
+def _possible_paths(include_statement: str, include_paths: frozenset[str]) -> set[str]:
+    possible_files = set()
+    for inc in include_paths:
+        possible_files.add(inc + "/" + include_statement if inc else include_statement)
+    return possible_files
+
+
 def does_include_match_available_files(
-    include_statement: str, include_paths: list[str], header_files: list[str]
+    include_statement: str, include_paths: frozenset[str], header_files: list[str]
 ) -> bool:
-    for header in header_files:
-        for inc in include_paths:
-            possible_file = inc + "/" + include_statement if inc else include_statement
-            if possible_file == header:
-                return True
-    return False
+    possible_files = _possible_paths(include_statement, include_paths)
+    return any(header in possible_files for header in header_files)
 
 
-def _include_resolves_to_any_file(included_path: Path, files: list[str]) -> bool:
-    return any(included_path == Path(file).resolve() for file in files)
+def _include_resolves_to_any_file(included_path: Path, files: set[Path]) -> bool:
+    return included_path in files
 
 
 def _is_relative_include(
     target_under_inspection: CcTarget,
     include: Include,
     dependencies: list[CcTarget],
-    include_paths: list[str],
+    include_paths: frozenset[str],
     usage: UsageStatus,
 ) -> bool:
     roots_for_relative_includes = [Path(root) for root in [str(include.file.parent), *include_paths]]
@@ -42,13 +47,15 @@ def _is_relative_include(
 
         # Relative include to target under inspection
         if _include_resolves_to_any_file(
-            included_path=path_matching_include_statement, files=target_under_inspection.header_files
+            included_path=path_matching_include_statement, files=target_under_inspection.resolved_header_files
         ):
             return True
 
         # Relative include to dependency
         for dep in dependencies:
-            if _include_resolves_to_any_file(included_path=path_matching_include_statement, files=dep.header_files):
+            if _include_resolves_to_any_file(
+                included_path=path_matching_include_statement, files=dep.resolved_header_files
+            ):
                 dep.usage.update(usage)
                 return True
 
@@ -60,7 +67,7 @@ def _check_for_invalid_includes(
     dependencies: list[CcTarget],
     usage: UsageStatus,
     target_under_inspection: CcTarget,
-    include_paths: list[str],
+    include_paths: frozenset[str],
 ) -> list[Include]:
     invalid_includes = []
 
@@ -128,19 +135,21 @@ def evaluate_includes(
     result = Result(system_under_inspection.target_under_inspection.name)
     system_under_inspection = _filter_empty_dependencies(system_under_inspection)
 
+    include_paths = frozenset(system_under_inspection.include_paths)
+
     result.public_includes_without_dep = _check_for_invalid_includes(
         includes=public_includes,
         dependencies=system_under_inspection.deps,
         usage=UsageStatus.PUBLIC,
         target_under_inspection=system_under_inspection.target_under_inspection,
-        include_paths=system_under_inspection.include_paths,
+        include_paths=include_paths,
     )
     result.private_includes_without_dep = _check_for_invalid_includes(
         includes=private_includes,
         dependencies=system_under_inspection.deps + system_under_inspection.impl_deps,
         usage=UsageStatus.PRIVATE,
         target_under_inspection=system_under_inspection.target_under_inspection,
-        include_paths=system_under_inspection.include_paths,
+        include_paths=include_paths,
     )
 
     result.unused_deps = _check_for_unused_dependencies(system_under_inspection.deps)
