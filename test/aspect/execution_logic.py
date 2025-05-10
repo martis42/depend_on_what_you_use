@@ -17,21 +17,23 @@ from test.support.result import Error
 if TYPE_CHECKING:
     from test_case import TestCaseBase
 
+log = logging.getLogger(__name__)
+
 
 def execute_test(
     test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path, extra_args: list[str]
 ) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
-        logging.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
+        log.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
         return True
-    logging.info(f">>> Test '{test.name}' with Bazel {version.bazel} and Python {version.python}")
+    log.info(f">>> Test '{test.name}' with Bazel {version.bazel} and Python {version.python}")
 
     succeeded = False
     result = None
     try:
         result = test.execute_test(version=version, bazel_bin=bazel_bin, output_base=output_base, extra_args=extra_args)
     except Exception:
-        logging.exception("Test failed due to exception:")
+        log.exception("Test failed due to exception:")
 
     if result is None:
         result = Error("No result")
@@ -39,8 +41,8 @@ def execute_test(
     if result.is_success():
         succeeded = True
     else:
-        logging.info(result.error)
-    logging.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
+        log.info(result.error)
+    log.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
 
     return succeeded
 
@@ -60,14 +62,14 @@ def make_bazel_versions_explicit(versions: list[TestedVersions], bazel_bin: Path
     prefer using concrete version numbers in the test orechstrtion logic. Thus, we resolve the dynamic version
     identifiers before using them.
     """
-    logging.info("Parsing Bazel versions:")
+    log.info("Parsing Bazel versions:")
     for version in versions:
         if not fullmatch(r"\d+\.\d+\.\d+", version.bazel):
             dynamic_version = version.bazel
             version.bazel = get_explicit_bazel_version(bazel_bin=bazel_bin, dynamic_version=dynamic_version)
-            logging.info(f"{dynamic_version} -> {version.bazel}")
+            log.info(f"{dynamic_version} -> {version.bazel}")
         else:
-            logging.info(version.bazel)
+            log.info(version.bazel)
     return versions
 
 
@@ -90,8 +92,8 @@ def main(
 
     if list_tests:
         test_names = [file_to_test_name(test) for test in test_files]
-        logging.info("Available test cases:")
-        logging.info("\n".join(f"- {t}" for t in test_names))
+        log.info("Available test cases:")
+        log.info("\n".join(f"- {t}" for t in test_names))
         return 0
 
     tests = []
@@ -113,7 +115,7 @@ def main(
     failed_tests = []
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
     for version in versions:
-        logging.info(f"""
+        log.info(f"""
 ###
 ### Aspect integration tests based on: Bazel '{version.bazel}' and Python '{version.python}'
 ###
@@ -138,10 +140,10 @@ def main(
             ]
         )
 
-    logging.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
+    log.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
     if failed_tests:
-        logging.info("\nFailed tests:")
-        logging.info("\n".join(f"- {failed}" for failed in failed_tests))
+        log.info("\nFailed tests:")
+        log.info("\n".join(f"- {failed}" for failed in failed_tests))
         return 1
 
     return 0

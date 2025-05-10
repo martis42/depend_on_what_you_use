@@ -5,6 +5,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 
 def cli() -> Namespace:
@@ -50,20 +51,20 @@ def cli() -> Namespace:
     else:
         args = parser.parse_args()
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     return args
 
 
 def main(args: Namespace) -> int:
-    logging.debug(f"\nAnalyzing dependency '{args.target}'")
-    logging.debug(f"Output               '{args.output}'")
-    logging.debug(f"Header files         '{args.header_files}'")
-    logging.debug(f"Includes             '{args.includes}'")
-    logging.debug(f"Quote includes       '{args.quote_includes}'")
-    logging.debug(f"External includes    '{args.external_includes}'")
-    logging.debug(f"System includes      '{args.system_includes}'")
-    logging.debug(f"Defines              '{args.defines}'")
+    log.debug(f"\nAnalyzing dependency '{args.target}'")
+    log.debug(f"Output               '{args.output}'")
+    log.debug(f"Header files         '{args.header_files}'")
+    log.debug(f"Includes             '{args.includes}'")
+    log.debug(f"Quote includes       '{args.quote_includes}'")
+    log.debug(f"External includes    '{args.external_includes}'")
+    log.debug(f"System includes      '{args.system_includes}'")
+    log.debug(f"Defines              '{args.defines}'")
 
     output = {"target": args.target, "header_files": args.header_files}
     if args.includes is not None:

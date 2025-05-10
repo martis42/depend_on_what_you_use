@@ -15,6 +15,7 @@ from execution_logic import main
 from test_case import CompatibleVersions, TestedVersions
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
@@ -93,7 +94,7 @@ def cli() -> Namespace:
 
     parsed_args = parser.parse_args()
     if (parsed_args.bazel and not parsed_args.python) or (not parsed_args.bazel and parsed_args.python):
-        logging.error("ERROR: '--bazel' and '--python' have to be used together")
+        log.error("ERROR: '--bazel' and '--python' have to be used together")
         sys.exit(1)
 
     return parsed_args
@@ -102,7 +103,7 @@ def cli() -> Namespace:
 if __name__ == "__main__":
     args = cli()
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     # Ensure we can invoke the script from various places
     chdir(Path(__file__).parent)
