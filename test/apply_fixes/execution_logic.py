@@ -16,6 +16,8 @@ from test.support.result import Error
 if TYPE_CHECKING:
     from test.apply_fixes.test_case import TestCaseBase
 
+log = logging.getLogger(__name__)
+
 MODULE_FILE_TEMPLATE = """
 bazel_dep(name = "depend_on_what_you_use")
 local_path_override(module_name = "depend_on_what_you_use", path = "{dwyu_path}")
@@ -70,8 +72,8 @@ class ApplyFixesIntegrationTestsExecutor:
         self.test_definitions = self._get_test_definitions()
 
     def list_tests(self) -> None:
-        logging.info("Available test cases:")
-        logging.info("\n".join(f"- {t.name}" for t in self.test_definitions))
+        log.info("Available test cases:")
+        log.info("\n".join(f"- {t.name}" for t in self.test_definitions))
 
     def execute_tests(self) -> list[str]:
         """
@@ -87,10 +89,10 @@ class ApplyFixesIntegrationTestsExecutor:
 
     def _execute_test(self, test: TestCaseBase) -> bool:
         if not test.windows_compatible and system() == "Windows":
-            logging.info(f"--- Skipping Test due to Windows incompatibility '{test.name}'")
+            log.info(f"--- Skipping Test due to Windows incompatibility '{test.name}'")
             return True
 
-        logging.info(f">>> Test '{test.name}'")
+        log.info(f">>> Test '{test.name}'")
         succeeded = False
         result = None
 
@@ -100,7 +102,7 @@ class ApplyFixesIntegrationTestsExecutor:
                 self._setup_test_workspace(test=test, test_workspace=workspace_path)
                 result = test.execute_test(workspace_path)
             except Exception:
-                logging.exception("Test failed due to exception:")
+                log.exception("Test failed due to exception:")
             self._cleanup(workspace_path)
 
         if result is None:
@@ -108,8 +110,8 @@ class ApplyFixesIntegrationTestsExecutor:
         if result.is_success():
             succeeded = True
         else:
-            logging.info(result.error)
-        logging.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
+            log.info(result.error)
+        log.info(f"<<< {'OK' if succeeded else 'FAILURE'}\n")
 
         return succeeded
 
@@ -169,10 +171,10 @@ def main(requested_tests: list[str] | None = None, list_tests: bool = False) -> 
         return 0
 
     failed_tests = executor.execute_tests()
-    logging.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
+    log.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
     if failed_tests:
-        logging.info("\nFailed tests:")
-        logging.info("\n".join(f"- '{test}'" for test in failed_tests))
+        log.info("\nFailed tests:")
+        log.info("\n".join(f"- '{test}'" for test in failed_tests))
         return 1
 
     return 0

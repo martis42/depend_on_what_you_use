@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from argparse import Namespace
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 # Bazel sets this environment for 'bazel run' to document the workspace root
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
@@ -100,25 +101,25 @@ def perform_fixes(
 
 def main(args: Namespace) -> int:
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     buildozer = args.buildozer if args.buildozer else "buildozer"
 
     workspace = get_workspace(args)
     if not workspace:
-        logging.fatal(
+        log.fatal(
             "ERROR: "
             f"No workspace was explicitly provided and environment variable '{WORKSPACE_ENV_VAR}' is not available."
         )
         return 1
-    logging.debug(f"Workspace: '{workspace}'")
+    log.debug(f"Workspace: '{workspace}'")
 
     reports_search_dir = get_reports_search_dir(main_args=args, workspace_root=workspace)
-    logging.debug(f"Reports search directory: '{reports_search_dir}'")
+    log.debug(f"Reports search directory: '{reports_search_dir}'")
 
     reports = gather_reports(main_args=args, search_path=reports_search_dir)
     if not reports:
-        logging.fatal(
+        log.fatal(
             """
 ERROR: Did not find any DWYU report files.
 Did you forget to run DWYU beforehand?
@@ -140,7 +141,7 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
         dry=args.dry_run,
     )
     for report in reports:
-        logging.debug(f"Processing report file '{report}'")
+        log.debug(f"Processing report file '{report}'")
         perform_fixes(
             report=report, bazel_query=bazel_query, buildozer=buildozer_executor, requested_fixes=RequestedFixes(args)
         )

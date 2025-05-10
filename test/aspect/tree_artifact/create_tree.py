@@ -4,6 +4,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 
 def cli() -> Namespace:
@@ -14,15 +15,15 @@ def cli() -> Namespace:
 
     args = parser.parse_args()
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     return args
 
 
 def main(args: Namespace) -> int:
-    logging.debug(f"Tree root   : '{args.tree_root}'")
-    logging.debug(f"mode        : '{args.tree_part}'")
-    logging.debug(f"Working dir : '{Path.cwd()}'")
+    log.debug(f"Tree root   : '{args.tree_root}'")
+    log.debug(f"mode        : '{args.tree_part}'")
+    log.debug(f"Working dir : '{Path.cwd()}'")
 
     args.tree_root.mkdir(parents=True, exist_ok=True)
     if args.tree_part == "public_headers":

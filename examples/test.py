@@ -19,6 +19,7 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 from test.support.bazel import get_bazel_binary
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -116,7 +117,7 @@ def make_cmd(example: Example, bazel_bin: str, legacy_workspace: bool) -> list[s
 def execute_example(example: Example, bazel_bin: str, legacy_workspace: bool) -> Result:
     cmd = make_cmd(example=example, bazel_bin=bazel_bin, legacy_workspace=legacy_workspace)
     cmd_str = shlex.join(cmd)
-    logging.info(f"\n##\n## Executing: '{cmd_str}'\n##\n")
+    log.info(f"\n##\n## Executing: '{cmd_str}'\n##\n")
 
     process = subprocess.run(cmd, check=False)
     if (process.returncode == 0 and example.expected_success) or (
@@ -161,11 +162,11 @@ def main(args: Namespace) -> int:
     failed_examples = [res.example for res in results if not res.success]
 
     if failed_examples:
-        logging.info("\nFAILURE: The following examples did not behave as expected:")
-        logging.info("\n".join(f"- {failed}" for failed in failed_examples))
+        log.info("\nFAILURE: The following examples did not behave as expected:")
+        log.info("\n".join(f"- {failed}" for failed in failed_examples))
         return 1
 
-    logging.info("\nSUCCESS: All examples behaved as expected")
+    log.info("\nSUCCESS: All examples behaved as expected")
     return 0
 
 

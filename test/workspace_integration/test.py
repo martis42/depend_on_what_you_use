@@ -17,6 +17,7 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 from test.support.bazel import get_bazel_binary, get_bazel_rolling_version, make_bazel_version_env
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
 
 BAZEL_VERSIONS_UNDER_TEST = [
     "6.4.0",
@@ -36,14 +37,14 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
     mode = "bzlmod" if is_bzlmod else "WORKSPACE"
     failures = []
 
-    logging.info(f"\n##\n## Testing {mode} setup\n##")
+    log.info(f"\n##\n## Testing {mode} setup\n##")
     for bazel_version in bazel_versions:
-        logging.info(f"\n## Testing {mode} with Bazel '{bazel_version}'")
+        log.info(f"\n## Testing {mode} with Bazel '{bazel_version}'")
 
         env = make_bazel_version_env(bazel_version)
         enable_workspace = workspace_arg if bazel_version >= "8.0.0" else []
         cmd = ["bazel", "--max_idle_secs=10", "build", *bzlmod_arg, *enable_workspace, *ASPECT_TEST_CMD]
-        logging.info(f"## Executing: {shlex_join(cmd)}\n")
+        log.info(f"## Executing: {shlex_join(cmd)}\n")
         if subprocess.run(cmd, check=False, env=env).returncode != 0:
             failures.append(f"{mode}: {bazel_version}")
 
@@ -59,11 +60,11 @@ def main() -> int:
     failures.extend(run_tests(is_bzlmod=False, bazel_versions=bazel_versions))
 
     if failures:
-        logging.info("\nSome workspace integration tests FAILED")
-        logging.info("\n".join(f"- {fail}" for fail in sorted(failures)))
+        log.info("\nSome workspace integration tests FAILED")
+        log.info("\n".join(f"- {fail}" for fail in sorted(failures)))
         return 1
 
-    logging.info("\nAll workspace integration tests succeeded")
+    log.info("\nAll workspace integration tests succeeded")
     return 0
 
 

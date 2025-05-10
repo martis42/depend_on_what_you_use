@@ -16,6 +16,8 @@ from test.support.result import Error, Result, Success
 if TYPE_CHECKING:
     from expected_result import ExpectedResult
 
+log = logging.getLogger(__name__)
+
 
 class TestCaseBase(ABC):
     def __init__(self, name: str) -> None:
@@ -67,11 +69,11 @@ class TestCaseBase(ABC):
         as_expected = expected.matches_expectation(return_code=actual.returncode, dwyu_output=actual.stdout)
 
         log_level = logging.DEBUG if as_expected else logging.INFO
-        logging.log(log_level, "----- DWYU stdout -----")
-        logging.log(log_level, actual.stdout.strip())
-        logging.log(log_level, "----- DWYU stderr -----")
-        logging.log(log_level, actual.stderr.strip())
-        logging.log(log_level, "-----------------------")
+        log.log(log_level, "----- DWYU stdout -----")
+        log.log(log_level, actual.stdout.strip())
+        log.log(log_level, "----- DWYU stderr -----")
+        log.log(log_level, actual.stderr.strip())
+        log.log(log_level, "-----------------------")
 
         return Success() if as_expected else Error("DWYU did not behave as expected")
 
@@ -114,6 +116,6 @@ class TestCaseBase(ABC):
             "--",
             *targets,
         ]
-        logging.debug(f"Executing: {shlex_join(cmd)}\n")
+        log.debug(f"Executing: {shlex_join(cmd)}\n")
 
         return subprocess.run(cmd, env=test_env, capture_output=True, text=True, check=False)

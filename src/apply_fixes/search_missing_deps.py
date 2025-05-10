@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.apply_fixes.bazel_query import BazelQuery
 
+log = logging.getLogger(__name__)
+
 
 @dataclass
 class Dependency:
@@ -71,7 +73,7 @@ def match_deps_to_include(target: str, invalid_include: str, target_deps: list[D
         return deps_providing_included_path[0]
 
     if len(deps_providing_included_path) > 1:
-        logging.warning(
+        log.warning(
             f"""
 Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
  Cannot determine correct dependency.
@@ -92,7 +94,7 @@ Found multiple targets providing invalid include path '{invalid_include}' of tar
         return deps_providing_included_file[0]
 
     if len(deps_providing_included_file) > 1:
-        logging.warning(
+        log.warning(
             f"""
 Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
  Matching the full include path did not work. Cannot determine correct dependency.
@@ -101,7 +103,7 @@ Found multiple targets providing file '{included_file}' from invalid include '{i
         )
         return None
 
-    logging.warning(
+    log.warning(
         f"""
 Could not find a proper dependency for invalid include path '{invalid_include}' of target '{target}'.
  Is the header file maybe wrongly part of the 'srcs' attribute instead of 'hdrs' in the library which should provide the header?
