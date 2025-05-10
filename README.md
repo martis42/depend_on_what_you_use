@@ -10,7 +10,7 @@
   - [Use DWYU](#use-dwyu)
 - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
-- [Known problems](#known-problems)
+- [Known limitations](#known-limitations)
 - [Supported Platforms](#supported-platforms)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
@@ -172,7 +172,7 @@ For example, including header files which do not exist at the expected path.
 There shall not be multiple header files in the dependency tree of a target matching an include statement.
 Even if analysing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
 
-# Known problems
+# Known limitations
 
 ## Preprocessor statements
 
