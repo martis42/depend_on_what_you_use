@@ -69,6 +69,16 @@ def cli() -> Namespace:
         If this Bazel 5.0 feature is available, then check if some dependencies could be private instead of public.
         Meaning headers from them are only used in the private files.""",
     )
+    parser.add_argument(
+        "--multi_core",
+        action="store_true",
+        help="Use multiple cores to analyze the files.",
+    )
+    parser.add_argument(
+        "--no_preprocessor",
+        action="store_true",
+        help="Do not use the preprocessor to analyze the files.",
+    )
     return parser.parse_args()
 
 
@@ -85,12 +95,16 @@ def main(args: Namespace) -> int:
         ignored_includes=ignored_includes,
         defines=system_under_inspection.defines,
         include_paths=system_under_inspection.include_paths,
+        multi_core=args.multi_core,
+        no_preprocessor=args.no_preprocessor,
     )
     all_includes_from_private = get_relevant_includes_from_files(
         files=args.private_files,
         ignored_includes=ignored_includes,
         defines=system_under_inspection.defines,
         include_paths=system_under_inspection.include_paths,
+        multi_core=args.multi_core,
+        no_preprocessor=args.no_preprocessor,
     )
 
     result = evaluate_includes(
