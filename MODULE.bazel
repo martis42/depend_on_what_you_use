@@ -27,3 +27,5 @@ python = use_extension(
     dev_dependency = True,
 )
 python.toolchain(python_version = "3.8")
+
+bazel_dep(name = "googletest", version = "1.15.0", dev_dependency = True)

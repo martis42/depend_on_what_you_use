@@ -15,3 +15,6 @@ venv/
 .clwb
 .idea
 .vscode
+
+# Test data
+src/analyze_includes/test/benchmark/parsing_examples

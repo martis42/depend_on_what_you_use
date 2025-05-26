@@ -4,8 +4,9 @@ from pathlib import Path
 from src.analyze_includes.parse_source import (
     IgnoredIncludes,
     Include,
+    extract_includes,
+    fast_includes_extraction,
     filter_includes,
-    get_includes_from_file,
     get_relevant_includes_from_files,
 )
 
@@ -97,31 +98,22 @@ class TestFilterIncludes(unittest.TestCase):
         self.assertTrue(Include(file=Path("file8"), include="without_regex_no_matching_end") in result)
 
 
-class TestGetIncludesFromFile(unittest.TestCase):
+class TestGetIncludesFromFileFast(unittest.TestCase):
     def test_empty_header(self) -> None:
         test_file = Path("src/analyze_includes/test/data/empty_header.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = fast_includes_extraction(test_file)
 
         self.assertEqual(result, [])
 
     def test_single_include(self) -> None:
         test_file = Path("src/analyze_includes/test/data/another_header.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = fast_includes_extraction(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
 
-    def test_multiple_includes(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/some_header.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
-
-        self.assertEqual(len(result), 4)
-        self.assertTrue(Include(file=test_file, include="bar.h") in result)
-        self.assertTrue(Include(file=test_file, include="foo/bar/baz.h") in result)
-        self.assertTrue(Include(file=test_file, include="some/path/to_a/system_header.h") in result)
-
     def test_commented_includes_single_line_comments(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = fast_includes_extraction(test_file)
 
         self.assertEqual(len(result), 2)
         self.assertTrue(Include(file=test_file, include="active_a.h") in result)
@@ -129,7 +121,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
 
     def test_commented_includes_block_comments(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = fast_includes_extraction(test_file)
 
         self.assertEqual(len(result), 8)
         self.assertTrue(Include(file=test_file, include="active_a.h") in result)
@@ -143,13 +135,64 @@ class TestGetIncludesFromFile(unittest.TestCase):
 
     def test_commented_includes_mixed_style(self) -> None:
         test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = fast_includes_extraction(test_file)
+
+        self.assertEqual(result, [Include(file=test_file, include="active.h")])
+
+
+class TestGetIncludesFromFile(unittest.TestCase):
+    def test_empty_header(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/empty_header.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(result, [])
+
+    def test_single_include(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/another_header.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
+
+    def test_multiple_includes(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/some_header.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(len(result), 4)
+        self.assertTrue(Include(file=test_file, include="bar.h") in result)
+        self.assertTrue(Include(file=test_file, include="foo/bar/baz.h") in result)
+        self.assertTrue(Include(file=test_file, include="some/path/to_a/system_header.h") in result)
+
+    def test_commented_includes_single_line_comments(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(len(result), 2)
+        self.assertTrue(Include(file=test_file, include="active_a.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_b.h") in result)
+
+    def test_commented_includes_block_comments(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
+
+        self.assertEqual(len(result), 8)
+        self.assertTrue(Include(file=test_file, include="active_a.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_b.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_c.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_d.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_e.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_f.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_g.h") in result)
+        self.assertTrue(Include(file=test_file, include="active_h.h") in result)
+
+    def test_commented_includes_mixed_style(self) -> None:
+        test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
+        result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
 
     def test_includes_selected_through_defines(self) -> None:
         test_file = Path("src/analyze_includes/test/data/header_with_defines.h")
-        result = get_includes_from_file(test_file, defines=["FOO", "BAZ 42"], include_paths=[])
+        result = extract_includes(test_file, defines=["FOO", "BAZ 42"], include_paths=[])
 
         self.assertEqual(len(result), 4)
         self.assertTrue(Include(file=test_file, include="has_internal.h") in result)
@@ -159,7 +202,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
 
     def test_includes_selected_through_defines_from_header(self) -> None:
         test_file = Path("src/analyze_includes/test/data/use_defines.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 3)
         self.assertTrue(Include(file=test_file, include="src/analyze_includes/test/data/some_defines.h") in result)
@@ -168,7 +211,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
 
     def test_include_based_on_pre_processor_token(self) -> None:
         test_file = Path("src/analyze_includes/test/data/include_based_on_pre_processor_token.h")
-        result = get_includes_from_file(test_file, defines=[], include_paths=[])
+        result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 1)
         self.assertTrue(Include(file=test_file, include="some/header.h") in result)
@@ -181,6 +224,7 @@ class TestGetRelevantIncludesFromFiles(unittest.TestCase):
             ignored_includes=IgnoredIncludes(paths=["vector"], patterns=[]),
             defines=[],
             include_paths=[],
+            no_preprocessor=False,
         )
 
         self.assertEqual(len(result), 4)
