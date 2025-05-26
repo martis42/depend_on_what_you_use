@@ -329,6 +329,8 @@ def dwyu_aspect_impl(target, ctx):
         args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
     if _do_ensure_private_deps(ctx):
         args.add("--implementation_deps_available")
+    if ctx.attr._no_preprocessor:
+        args.add("--no_preprocessor")
 
     all_hdrs = target[CcInfo].compilation_context.headers.to_list()
     analysis_inputs = [processed_target] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
