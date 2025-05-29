@@ -116,6 +116,15 @@ class TestCaseBase(ABC):
             check=True,
         )
 
+    def _get_target_deps(self, target: str) -> set[str]:
+        deps = self._get_target_attribute(target=target, attribute="deps")
+        # cc_binary and cc_test rules automatically depend on this, bit it is irrelevant for our analysis
+        # Since, this is added in macro scope to the deps list, query options like '--noimplicit_deps' do not work
+        return deps - {"@rules_cc//:link_extra_lib"}
+
+    def _get_target_impl_deps(self, target: str) -> set[str]:
+        return self._get_target_attribute(target=target, attribute="implementation_deps")
+
     def _get_target_attribute(self, target: str, attribute: str) -> set[str]:
         """
         Returns a set to ensure ordering is no issue

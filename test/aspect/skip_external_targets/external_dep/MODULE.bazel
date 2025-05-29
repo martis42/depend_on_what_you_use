@@ -1,1 +1,6 @@
 module(name = "skip_external_deps_test_repo")
+
+# We specify by design an outdated rules_cc version.
+# bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
+# Specifying an ancient version here gives us in the end at least whatever rules_cc version DWYU defines as dependency.
+bazel_dep(name = "rules_cc", version = "0.0.1")

@@ -118,12 +118,14 @@ int main() {{
 """
 
 BUILD_FILE = """
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
 cc_binary(
     name = "foo",
     srcs = ["main.cpp"] + glob(["lib/*.h"]),
     tags = ["manual"],
 )
-"""
+""".lstrip()
 
 
 def prepare_directory_layout() -> None:

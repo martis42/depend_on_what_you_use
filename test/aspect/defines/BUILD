@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 cc_library(
     name = "in_file_defines",
     hdrs = ["in_file_defines.h"],

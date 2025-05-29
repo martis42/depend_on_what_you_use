@@ -13,10 +13,8 @@ class TestCase(TestCaseBase):
         )
         self._run_automatic_fix(extra_args=["--fix-deps-which-should-be-private"])
 
-        target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
-        target_implementation_deps = self._get_target_attribute(
-            target=self.test_target, attribute="implementation_deps"
-        )
+        target_deps = self._get_target_deps(self.test_target)
+        target_implementation_deps = self._get_target_impl_deps(self.test_target)
         expected_deps = {"//:lib_c"}
         expected_implementation_deps = {"//:lib_a", "//:lib_b"}
         if expected_deps != target_deps or expected_implementation_deps != target_implementation_deps:

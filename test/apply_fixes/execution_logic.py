@@ -28,9 +28,14 @@ local_path_override(module_name = "depend_on_what_you_use", path = "{dwyu_path}"
 
 bazel_dep(name = "bazel_skylib", version = "1.6.1")
 
+# We specify by design an outdated rules_cc version.
+# bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
+# Specifying an ancient version here gives us in the end at least whatever rules_cc version DWYU defines as dependency.
+bazel_dep(name = "rules_cc", version = "0.0.1")
+
 # We specify by design an outdated rules_python version.
 # bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
-# Specifying an ancient version here gives us in the end whatever rules_python version DWYU defines as dependency.
+# Specifying an ancient version here gives us in the end at least whatever rules_python version DWYU defines as dependency.
 bazel_dep(name = "rules_python", version = "0.12.0")
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(python_version = "3.8")

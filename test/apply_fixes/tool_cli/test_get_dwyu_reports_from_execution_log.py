@@ -17,10 +17,10 @@ class TestCase(TestCaseBase):
 
         self._run_automatic_fix(extra_args=["--fix-unused", f"--dwyu-log-file={log_file}"])
 
-        if len(deps := self._get_target_attribute(target="//:binary", attribute="deps")) > 0:
+        if len(deps := self._get_target_deps("//:binary")) > 0:
             return self._make_unexpected_deps_error(expected_deps=set(), actual_deps=deps)
-        if len(deps := self._get_target_attribute(target="//:another_binary", attribute="deps")) > 0:
+        if len(deps := self._get_target_deps("//:another_binary")) > 0:
             return self._make_unexpected_deps_error(expected_deps=set(), actual_deps=deps)
-        if len(deps := self._get_target_attribute(target="//sub/foo:foo", attribute="deps")) > 0:
+        if len(deps := self._get_target_deps("//sub/foo:foo")) > 0:
             return self._make_unexpected_deps_error(expected_deps=set(), actual_deps=deps)
         return Success()

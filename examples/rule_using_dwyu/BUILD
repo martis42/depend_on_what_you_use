@@ -1,3 +1,4 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load(":rule.bzl", "dwyu_rule")
 
 cc_library(
