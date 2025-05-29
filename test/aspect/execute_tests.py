@@ -47,7 +47,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_exclusive_test_sandboxed": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_strict_action_env": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_disable_starlark_host_transitions": CompatibleVersions(minimum="6.0.0"),
-    "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(minimum="6.0.0"),
+    "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(minimum="6.0.0", before="9.0.0"),
     "--incompatible_check_testonly_for_output_files": CompatibleVersions(minimum="6.0.0"),
     "--incompatible_check_visibility_for_toolchains": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_auto_exec_groups": CompatibleVersions(minimum="7.0.0"),
