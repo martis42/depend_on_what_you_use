@@ -33,6 +33,7 @@ python.toolchain(python_version = "3.13")
 ##
 
 bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_shell", version = "0.4.1")
 
 ##
 ## Workspaces for test purposes
