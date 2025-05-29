@@ -6,6 +6,7 @@ We only test the command line length limit for the target processing step. A tes
 enormous runtime. Such a scenario is unlikely in a real project and thus we skip it for now.
 """
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load(":make_large_arg.bzl", "make_large_defines")
 
 CHARACTERS_IN_COMMAND = 5000000

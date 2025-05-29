@@ -13,7 +13,7 @@ class TestCase(TestCaseBase):
         # processes for the core test logic. We simply do this to test the forwarding of multiple arguments.
         self._run_automatic_fix(extra_args=["--fix-unused", "--buildozer-arg", "-stdout -P=2"])
 
-        target_deps = self._get_target_attribute(target=self.test_target, attribute="deps")
+        target_deps = self._get_target_deps(self.test_target)
         if (expected := {"//:lib"}) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
         return Success()

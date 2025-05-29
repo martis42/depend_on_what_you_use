@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # Analysis of this can only succeed when ignoring preprocessing, as otherwise one dependency would be unused
 cc_library(
     name = "use_libs",

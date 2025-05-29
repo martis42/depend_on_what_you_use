@@ -1,3 +1,6 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # Has a diamond dependency towards C through A and B
 # main specifies its dependencies correctly, but C has an error
 cc_binary(

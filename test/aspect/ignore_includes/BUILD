@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 exports_files([
     "extra_ignore_include_paths.json",
     "ignore_include_paths.json",

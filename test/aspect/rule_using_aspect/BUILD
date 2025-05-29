@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//rule_using_aspect:rule.bzl", "dwyu_rule_direct", "dwyu_rule_recursive", "dwyu_rule_recursive_with_impl_deps")
 
 dwyu_rule_direct(

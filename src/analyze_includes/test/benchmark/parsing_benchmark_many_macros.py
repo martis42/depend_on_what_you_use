@@ -50,6 +50,8 @@ TEST(TEST_{N}, SOME_DESCRIPTION_{N}) {{
 """
 
 BUILD_FILE = """
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
 cc_test(
     name = "foo",
     srcs = ["foo.cpp"],
@@ -59,7 +61,7 @@ cc_test(
         "@googletest//:gtest_main",
     ],
 )
-"""
+""".lstrip()
 
 
 def prepare_directory_layout() -> None:

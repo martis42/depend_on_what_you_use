@@ -1,3 +1,5 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
 py_binary(
     name = "analyze_many_includes",
     srcs = ["analyze_many_includes.py"],

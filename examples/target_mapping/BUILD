@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
 cc_binary(
     name = "use_lib_b",
     srcs = ["use_lib_b.cpp"],
