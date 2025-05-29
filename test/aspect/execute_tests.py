@@ -30,9 +30,9 @@ TESTED_VERSIONS = [
 ]
 
 VERSION_SPECIFIC_ARGS = {
-    "--enable_bzlmod=true": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
+    "--enable_bzlmod": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
     # Experimental changes we want to be compatible for
-    "--noexperimental_python_import_all_repositories": CompatibleVersions(minimum="1.0.0"),
+    "--experimental_python_import_all_repositories=false": CompatibleVersions(minimum="1.0.0"),
     # Preparation for incompatible changes
     "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
     "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
@@ -58,7 +58,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_disable_native_repo_rules": CompatibleVersions(minimum="7.2.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
-    # "--noincompatible_enable_deprecated_label_apis": CompatibleVersions(minimum="7.0.0"),  # false is the forward path
+    # "--incompatible_enable_deprecated_label_apis=false": CompatibleVersions(minimum="7.0.0"),  # false is the forward path
 }
 
 
