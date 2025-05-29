@@ -37,7 +37,6 @@ repos:
   # - function-docstring: Not all functions require a docstring. If a docstring exists other checks ensure its sanity.
   # - function-docstring-header: A dedicated docstring header often provides no added value.
   # - module-docstring: Too noisy, not all modules require a docstring
-  # - naive-<some_language>: The auto fix uses the deprecated defs.bzl approach
   - repo: https://github.com/keith/pre-commit-buildifier
     rev: 8.0.3
     hooks:
