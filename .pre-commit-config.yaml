@@ -39,7 +39,7 @@ repos:
   # - module-docstring: Too noisy, not all modules require a docstring
   # - naive-<some_language>: The auto fix uses the deprecated defs.bzl approach
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 7.3.1
+    rev: 8.0.3
     hooks:
       - id: buildifier
         args: [ "--config=.buildifier.json" ]
