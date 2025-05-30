@@ -4,9 +4,9 @@ load(":dwyu.bzl", "dwyu_aspect_impl")
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 
 def dwyu_aspect_factory(
+        experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
         ignored_includes = None,
-        no_preprocessor = False,
         recursive = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
@@ -24,7 +24,17 @@ def dwyu_aspect_factory(
     ```
 
     Args:
-        experimental_set_cplusplus: **Experimental** feature whose behavior is not yet stable and an change at any time.<br>
+        experimental_no_preprocessor: **Experimental** feature whose behavior is not yet stable and might change at any time.<br>
+                                      This option disables the preprocessing before discovering the include statements in the files under inspection.
+                                      Do not use this option, unless you are sure you really need this performance boost and the downsides are not relevant to your project.
+                                      When the preprocessing is disabled, DWYU still ignores commented include statements.<br>
+                                      When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
+                                      A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.<br>
+                                      By defaut DWYU uses a preprocessor to resolve such cases.
+                                      This preprocessor is however slow, when analyzing complex files.
+                                      Using this option can speed up the DWYU analysis significantly.
+
+        experimental_set_cplusplus: **Experimental** feature whose behavior is not yet stable and might change at any time.<br>
                                     `__cplusplus` is a macro defined by the compiler specifying if C++ is used to compile the file and which C++ standard is used.<br>
                                     DWYU cannot treat this like other preprocessor defines, as this is often not coming from the command line or the Bazel C++ toolchain.
                                     The compiler itself defines the value for `__cplusplus` and sets it internally during preprocessing.<br>
@@ -54,16 +64,6 @@ def dwyu_aspect_factory(
                             The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
-
-        no_preprocessor: This option disables the preprocessing before discovering the include statements in the files under inspection.
-                         It is recommended not do so, unless you are sure you really need this performance boost and the downsides are not relevant to your project.
-                         When the preprocessing is disabled, DWYU still ignores include statements which are commented.<br>
-                         However, DWYU will no longer be able to correctly resolve #ifdef logic or any other preprocessor directives or macros influencing which include statements are present in the file under inspection.
-                         A common example for requiring preprocessign is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.<br>
-                         By defaut DWYU uses a preprocessor to resolve such cases.
-                         This preprocessor is however slow, when analyzing complex files with many macro expsansions or if many include statements have to be traversed.
-                         In worst case scenarios, the preprocessing stept can take several minutes for a single file.
-                         Using this option can speed up the DWYU analysis significantly.
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
                    You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
@@ -125,7 +125,7 @@ def dwyu_aspect_factory(
                 allow_files = [".json"],
             ),
             "_no_preprocessor": attr.bool(
-                default = no_preprocessor,
+                default = experimental_no_preprocessor,
             ),
             "_process_target": attr.label(
                 default = Label("@depend_on_what_you_use//src/aspect:process_target"),
