@@ -6,8 +6,9 @@ import sys
 from pathlib import Path
 from shutil import rmtree
 
-# No benefit for using logging, and we deliberately use '/tmp' which has no risk in this context
+# No benefit for using logging
 # ruff: noqa: T201
+# We deliberately use '/tmp' which has no risk in this context
 # ruff: noqa: S108
 
 BCR_DATA_TEMPLATE = """{{
@@ -29,7 +30,8 @@ BCR_DATA_TEMPLATE = """{{
 }}
 """
 
-BCR_FORK_REPO = "git@github.com:martis42/bazel-central-registry-fork.git"
+BCR_FORK_REPO = "martis42/bazel-central-registry-fork"
+BCR_FORK_CLONE_SRC = f"git@github.com:{BCR_FORK_REPO}.git"
 BCR_FORK_DIR = Path("/tmp/bcr_fork")
 
 
@@ -45,10 +47,33 @@ def get_dwyu_files() -> tuple[Path, Path]:
 
 
 def setup_bcr_fork() -> None:
-    print(f"\nSetup BCR fork at '{BCR_FORK_DIR}'\n")
+    token = input(
+        "Please provide an access token with repository permissions 'Contents: Read and write' and 'Workflows: Read and write':\n"
+    )
+    print("\nUpdating BCR fork '{BCR_FORK_REPO}' to latest upstream")
+    subprocess.run(
+        [
+            "curl",
+            "-L",
+            "-X",
+            "POST",
+            "-H",
+            "Accept: application/vnd.github+json",
+            "-H",
+            f"Authorization: Bearer {token}",
+            "-H",
+            "X-GitHub-Api-Version: 2022-11-28",
+            f"https://api.github.com/repos/{BCR_FORK_REPO}/merge-upstream",
+            "-d",
+            '{"branch":"main"}',
+        ],
+        check=True,
+    )
+
+    print(f"\nCloning BCR fork to '{BCR_FORK_DIR}'\n")
     if BCR_FORK_DIR.exists():
         rmtree(BCR_FORK_DIR)
-    subprocess.run(["git", "clone", BCR_FORK_REPO, BCR_FORK_DIR], check=True)
+    subprocess.run(["git", "clone", BCR_FORK_CLONE_SRC, BCR_FORK_DIR], check=True)
 
 
 def prepare_bcr_data(version: str) -> Path:
