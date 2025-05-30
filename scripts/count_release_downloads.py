@@ -11,7 +11,8 @@ statistics.
 import json
 import subprocess
 
-token = input("Please provide an access token with repository permission 'Read access to metadata': ")
+token = input("Please provide an access token with repository permission 'Read access to metadata':\n")
+print()
 
 cmd = [
     "curl",
