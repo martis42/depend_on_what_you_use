@@ -216,25 +216,26 @@ While DWYU cannot generally know the values of all those compiler defined macros
 
 ## Layering check
 
-To make sure no headers from transitive dependencies or private headers from dependencies are used you can use [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang) which is natively supported by Bazel.
+To make sure no headers from transitive are used you can use [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang), which is natively supported by Bazel.
+An example for a CC toolchain supporting this feature is https://github.com/bazel-contrib/toolchains_llvm.
 The main benefit of this approach is it being directly integrated into Bazel without need of further tooling like DWYU.
 
-Still, there are reasons to use DWYU instead of or in addition to layering_check:
+Still, there are reasons to consider using DWYU instead of or in addition to layering_check:
 
-- DWYU does not require a compiler, it works purely by text parsing.
-  The only requirement towards your platform is the availability of a Python interpreter.
+- DWYU does not require a full compilation, it only executes the preprocessing step.
 - DWYU is able to analyze header only libraries.
+- DWYU is not limited to LLVM based toolchains (`layering_check` is based on LLVM's implementation of modules).
 - DWYU detects unused dependencies.
-- DWYU allows optimizing [implementation_deps](#implementation_deps).
+- DWYU allows optimizing the usage of [implementation_deps](#implementation_deps).
 - DWYU offers automatic fixes for detected issues.
 
 ## Gazelle
 
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
-It seems there is no public and established C++ extension for gazelle.
+Unfortunately, it seems there is no public and established C++ extension for gazelle.
 
-Still, if one agrees with the best practices enforced by DWYU but cannot use it, investing time into a gazelle C++ extension might be worth it.
-Automatically generating correct BUILD files based on your source code is a more efficient approach compared to having to manually execute DWYU regularly to make sure no error was introduced.
+Still, if one agrees with the best practices enforced by DWYU, investing time into a gazelle C++ extension might be worth it.
+Automatically generating correct BUILD files based on your source code is a more efficient approach compared to executing DWYU regularly to make sure no error was introduced.
 
 # Versioning
 
