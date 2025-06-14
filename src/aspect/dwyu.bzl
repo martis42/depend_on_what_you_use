@@ -55,6 +55,8 @@ def _get_relevant_header(target_context, is_target_under_inspection):
 def _process_target(ctx, target, defines, output_path, is_target_under_inspection, verbose):
     processing_output = ctx.actions.declare_file(output_path)
     cc_context = target.cc_info.compilation_context
+
+    # print_compilation_context(target.cc_info)
     header_files = _get_relevant_header(
         target_context = cc_context,
         is_target_under_inspection = is_target_under_inspection,

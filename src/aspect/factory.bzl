@@ -115,6 +115,7 @@ def dwyu_aspect_factory(
         # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
         # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
         # required_providers = [CcInfo],
+        # TODO use @rules_cc
         toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
         attrs = {
             # Remove this legacy pattern after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0

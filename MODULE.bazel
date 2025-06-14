@@ -21,11 +21,32 @@ bazel_dep(name = "aspect_bazel_lib", version = "2.17.1", dev_dependency = True)
 # Hidden dependencies of aspect_bazel_lib macro stardoc_with_diff_test
 bazel_dep(name = "platforms", version = "1.0.0", dev_dependency = True)
 
-python = use_extension(
-    "@rules_python//python/extensions:python.bzl",
-    "python",
-    dev_dependency = True,
-)
+python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
 python.toolchain(python_version = "3.8")
 
 bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
+
+# bazel 6 or earlier add --incompatible_enable_cc_toolchain_resolution for all toolchain test cmds
+
+bazel_dep(name = "toolchains_llvm", version = "1.4.0", dev_dependency = True)
+
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
+llvm.toolchain(llvm_version = "19.1.7")
+
+# Test via:
+# bazel build --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1 --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1  //src/toolchain_headers:toolchain_headers
+
+# List available toolchains via:
+# bazel query 'kind(toolchain, @llvm_toolchain//:all)'
+use_repo(llvm, "llvm_toolchain")
+
+#register_toolchains("@llvm_toolchain//:all")
+
+# Test via:
+# bazel build --extra_toolchains=@toolchains_llvm_bootstrapped//toolchain:linux_amd64 --experimental_cc_static_library --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1 --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1  //src/toolchain_headers:toolchain_headers
+
+# List available toolchains via:
+# bazel query 'kind(toolchain, @toolchains_llvm_bootstrapped//toolchain:all) except kind(cc_toolchain, @toolchains_llvm_bootstrapped//toolchain:all)'
+bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.2.3", dev_dependency = True)
+
+# TODO look into https://github.com/uber/hermetic_cc_toolchain for tests of a hermetic toolchain with Windows, the others are Linux/macos only

@@ -1,0 +1,90 @@
+_abi = "local"
+_abi_glibc_version = "local"
+_additional_make_variables = {"STACK_FRAME_UNLIMITED": ""}
+_aggregate_ddi = <source file tools/cpp/modules_tools/aggregate-ddi>
+_all_files_including_libc = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+_allowlist_for_layering_check = struct()
+_ar_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+_as_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+_build_info_files = struct(_hidden_top_level_INTERNAL_ = depset([])
+non_redacted_build_info_files = depset([<generated file external/bazel_tools/tools/build_defs/build_info/non_volatile_file.h>
+<generated file external/bazel_tools/tools/build_defs/build_info/volatile_file.h>])
+redacted_build_info_files = depset([<generated file external/bazel_tools/tools/build_defs/build_info/redacted_file.h>]))
+_build_variables = <unknown object com.google.devtools.build.lib.rules.cpp.CcToolchainVariables$MapVariables>
+_build_variables_dict = {}
+_builtin_include_files = []
+_cc_info = struct(compilation_context = <unknown object com.google.devtools.build.lib.rules.cpp.CcCompilationContext>
+linking_context = <unknown object com.google.devtools.build.lib.rules.cpp.CcLinkingContext>)
+_compiler_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+_compiler_files_without_includes = depset([])
+_coverage_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+_cpp_configuration = <unknown object com.google.devtools.build.lib.rules.cpp.CppConfiguration>
+_crosstool_top_path = "external/rules_cc++cc_configure_extension+local_config_cc"
+_default_sysroot = None
+_dwp_files = depset([])
+_dynamic_runtime_lib_depset = None
+_fdo_context = struct()
+_generate_modmap = <source file tools/cpp/modules_tools/generate-modmap>
+_grep_includes = None
+_if_so_builder = <source file cc/private/toolchain/build_interface_so>
+_is_sibling_repository_layout = False
+_is_tool_configuration = False
+_legacy_cc_flags_make_variable = ""
+_link_dynamic_library_tool = <source file cc/private/toolchain/link_dynamic_library.sh>
+_linker_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>
+<source file cc/private/toolchain/build_interface_so>
+<source file cc/private/toolchain/link_dynamic_library.sh>])
+_objcopy_files = depset([])
+_runtime_sysroot = None
+_solib_dir = "_solib_k8"
+_stamp_binaries = False
+_static_runtime_lib_depset = None
+_strip_files = depset([])
+_supports_header_parsing = True
+_supports_param_files = True
+_tool_paths = {"ar": "/usr/bin/ar", "ld": "/usr/bin/ld","cpp": "/usr/bin/cpp", "gcc": "/usr/bin/gcc", "dwp": "/usr/bin/dwp",  "gcov": "/usr/bin/gcov", "nm": "/usr/bin/nm", "objcopy": "/usr/bin/objcopy", "objdump": "/usr/bin/objdump", "c++filt": "/usr/bin/c++filt", "cpp-module-deps-scanner": "external/rules_cc++cc_configure_extension+local_config_cc/deps_scanner_wrapper.sh", "parse_headers": "external/rules_cc++cc_configure_extension+local_config_cc/cc_wrapper.sh"
+"validate_static_library": "external/rules_cc++cc_configure_extension+local_config_cc/validate_static_library.sh"}
+_toolchain_features = <unknown object com.google.devtools.build.lib.rules.cpp.CcToolchainFeatures>
+_toolchain_label = Label("@@rules_cc++cc_configure_extension+local_config_cc//:cc-compiler-k8")
+all_files = depset([<source file builtin_include_directory_paths>
+<source file cc_wrapper.sh>
+<source file deps_scanner_wrapper.sh>
+<source file validate_static_library.sh>])
+ar_executable = "/usr/bin/ar"
+built_in_include_directories = ["/usr/lib/gcc/x86_64-linux-gnu/11/include", "/usr/local/include", "/usr/include/x86_64-linux-gnu", "/usr/include", "/usr/include/c++/11", "/usr/include/x86_64-linux-gnu/c++/11", "/usr/include/c++/11/backward", "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"]
+compiler = "gcc"
+compiler_executable = "/usr/bin/gcc"
+cpu = "k8"
+dynamic_runtime_lib = <function dynamic_runtime_lib_func from @@_builtins//:common/cc/cc_toolchain_info.bzl>
+dynamic_runtime_solib_dir = "bazel-out/k8-fastbuild/bin/_solib__rules_Ucc++cc_Uconfigure_Uextension+local_Uconfig_Ucc_A_Ccc-compiler-k8"
+gcov_executable = "/usr/bin/gcov"
+ld_executable = "/usr/bin/ld"
+libc = "local"
+needs_pic_for_dynamic_libraries = <function _needs_pic_for_dynamic_libraries from @@_builtins//:common/cc/cc_toolchain_info.bzl>
+nm_executable = "/usr/bin/nm"
+objcopy_executable = "/usr/bin/objcopy"
+objdump_executable = "/usr/bin/objdump"
+preprocessor_executable = "/usr/bin/cpp"
+static_runtime_lib = <function static_runtime_lib_func from @@_builtins//:common/cc/cc_toolchain_info.bzl>
+strip_executable = "/usr/bin/strip"
+sysroot = None
+target_gnu_system_name = "local"
+toolchain_id = "local"

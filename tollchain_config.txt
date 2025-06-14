@@ -1,0 +1,1335 @@
+
+struct(proto = "toolchain_identifier: "foo"
+host_system_name: ""
+target_system_name: ""
+target_cpu: ""
+target_libc: ""
+compiler: "clang"
+abi_version: ""
+abi_libc_version: ""
+feature {
+  name: "legacy_compile_flags"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "%{legacy_compile_flags}"
+      iterate_over: "legacy_compile_flags"
+      expand_if_all_available: "legacy_compile_flags"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "dependency_file"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-MD"
+      flag: "-MF"
+      flag: "%{dependency_file}"
+      expand_if_all_available: "dependency_file"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "random_seed"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    flag_group {
+      flag: "-frandom-seed=%{output_file}"
+      expand_if_all_available: "output_file"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "pic"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "linkstamp-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-fPIC"
+      expand_if_all_available: "pic"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "per_object_debug_info"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-module-codegen"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-gsplit-dwarf"
+      flag: "-g"
+      expand_if_all_available: "per_object_debug_info_file"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "preprocessor_defines"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-D%{preprocessor_defines}"
+      iterate_over: "preprocessor_defines"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "includes"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-include"
+      flag: "%{includes}"
+      iterate_over: "includes"
+      expand_if_all_available: "includes"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "include_paths"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-iquote"
+      flag: "%{quote_include_paths}"
+      iterate_over: "quote_include_paths"
+    }
+    flag_group {
+      flag: "-I%{include_paths}"
+      iterate_over: "include_paths"
+    }
+    flag_group {
+      flag: "-isystem"
+      flag: "%{system_include_paths}"
+      iterate_over: "system_include_paths"
+    }
+    flag_group {
+      flag: "-F%{framework_include_paths}"
+      iterate_over: "framework_include_paths"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "fdo_instrument"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-fprofile-generate=%{fdo_instrument_path}"
+      flag: "-fno-data-sections"
+      expand_if_all_available: "fdo_instrument_path"
+    }
+  }
+  provides: "profile"
+  enabled: false
+}
+feature {
+  name: "fdo_optimize"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    flag_group {
+      flag: "-fprofile-use=%{fdo_profile_path}"
+      flag: "-Wno-profile-instr-unprofiled"
+      flag: "-Wno-profile-instr-out-of-date"
+      flag: "-fprofile-correction"
+      expand_if_all_available: "fdo_profile_path"
+    }
+  }
+  provides: "profile"
+  enabled: false
+}
+feature {
+  name: "cs_fdo_instrument"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-backend"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-fcs-profile-generate=%{cs_fdo_instrument_path}"
+      expand_if_all_available: "cs_fdo_instrument_path"
+    }
+  }
+  provides: "csprofile"
+  enabled: false
+}
+feature {
+  name: "cs_fdo_optimize"
+  flag_set {
+    action: "lto-backend"
+    flag_group {
+      flag: "-fprofile-use=%{fdo_profile_path}"
+      flag: "-Wno-profile-instr-unprofiled"
+      flag: "-Wno-profile-instr-out-of-date"
+      flag: "-fprofile-correction"
+      expand_if_all_available: "fdo_profile_path"
+    }
+  }
+  provides: "csprofile"
+  enabled: false
+}
+feature {
+  name: "fdo_prefetch_hints"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "lto-backend"
+    flag_group {
+      flag: "-mllvm"
+      flag: "-prefetch-hints-file=%{fdo_prefetch_hints_path}"
+      expand_if_all_available: "fdo_prefetch_hints_path"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "autofdo"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    flag_group {
+      flag: "-fauto-profile=%{fdo_profile_path}"
+      flag: "-fprofile-correction"
+      expand_if_all_available: "fdo_profile_path"
+    }
+  }
+  provides: "profile"
+  enabled: false
+}
+feature {
+  name: "propeller_optimize_thinlto_compile_actions"
+  enabled: false
+}
+feature {
+  name: "propeller_optimize"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "lto-backend"
+    flag_group {
+      flag: "-fbasic-block-sections=list=%{propeller_optimize_cc_path}"
+      flag: "-DBUILD_PROPELLER_TYPE=\\"full\\""
+      expand_if_all_available: "propeller_optimize_cc_path"
+    }
+  }
+  flag_set {
+    action: "c++-link-executable"
+    flag_group {
+      flag: "-Wl,--symbol-ordering-file=%{propeller_optimize_ld_path}"
+      expand_if_true: "propeller_optimize_ld_path"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "memprof_optimize"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    flag_group {
+      flag: "-memprof-profile-file=%{memprof_profile_path}"
+      expand_if_all_available: "memprof_profile_path"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "build_interface_libraries"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "%{generate_interface_library}"
+      flag: "%{interface_library_builder_path}"
+      flag: "%{interface_library_input_path}"
+      flag: "%{interface_library_output_path}"
+      expand_if_all_available: "generate_interface_library"
+    }
+    with_feature {
+      feature: "supports_interface_shared_libraries"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "dynamic_library_linker_tool"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "DUMMY_LINKER_TOOL"
+      expand_if_all_available: "generate_interface_library"
+    }
+    with_feature {
+      feature: "supports_interface_shared_libraries"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "shared_flag"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-shared"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "linkstamps"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "%{linkstamp_paths}"
+      iterate_over: "linkstamp_paths"
+      expand_if_all_available: "linkstamp_paths"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "output_execpath_flags"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-o"
+      flag: "%{output_execpath}"
+      expand_if_all_available: "output_execpath"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "runtime_library_search_directories"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag_group {
+        flag: "-Xlinker"
+        flag: "-rpath"
+        flag: "-Xlinker"
+        flag: "$EXEC_ORIGIN/%{runtime_library_search_directories}"
+        expand_if_true: "is_cc_test"
+      }
+      flag_group {
+        flag: "-Xlinker"
+        flag: "-rpath"
+        flag: "-Xlinker"
+        flag: "$ORIGIN/%{runtime_library_search_directories}"
+        expand_if_false: "is_cc_test"
+      }
+      iterate_over: "runtime_library_search_directories"
+      expand_if_all_available: "runtime_library_search_directories"
+    }
+    with_feature {
+      feature: "static_link_cpp_runtimes"
+    }
+  }
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag_group {
+        flag: "-Xlinker"
+        flag: "-rpath"
+        flag: "-Xlinker"
+        flag: "$ORIGIN/%{runtime_library_search_directories}"
+      }
+      iterate_over: "runtime_library_search_directories"
+      expand_if_all_available: "runtime_library_search_directories"
+    }
+    with_feature {
+      not_feature: "static_link_cpp_runtimes"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "library_search_directories"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-L%{library_search_directories}"
+      iterate_over: "library_search_directories"
+      expand_if_all_available: "library_search_directories"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "archiver_flags"
+  flag_set {
+    action: "c++-link-static-library"
+    flag_group {
+      flag: "rcsD"
+    }
+    flag_group {
+      flag: "%{output_execpath}"
+      expand_if_all_available: "output_execpath"
+    }
+  }
+  flag_set {
+    action: "c++-link-static-library"
+    flag_group {
+      flag_group {
+        flag: "%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file"
+        }
+      }
+      flag_group {
+        flag: "%{libraries_to_link.object_files}"
+        iterate_over: "libraries_to_link.object_files"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file_group"
+        }
+      }
+      iterate_over: "libraries_to_link"
+      expand_if_all_available: "libraries_to_link"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "libraries_to_link"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-Wl,@%{thinlto_param_file}"
+      expand_if_true: "thinlto_param_file"
+    }
+    flag_group {
+      flag_group {
+        flag: "-Wl,--start-lib"
+        expand_if_false: "libraries_to_link.is_whole_archive"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file_group"
+        }
+      }
+      flag_group {
+        flag: "-Wl,-whole-archive"
+        expand_if_true: "libraries_to_link.is_whole_archive"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "static_library"
+        }
+      }
+      flag_group {
+        flag: "%{libraries_to_link.object_files}"
+        iterate_over: "libraries_to_link.object_files"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file_group"
+        }
+      }
+      flag_group {
+        flag: "%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file"
+        }
+      }
+      flag_group {
+        flag: "%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "interface_library"
+        }
+      }
+      flag_group {
+        flag: "%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "static_library"
+        }
+      }
+      flag_group {
+        flag: "-l%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "dynamic_library"
+        }
+      }
+      flag_group {
+        flag: "-l:%{libraries_to_link.name}"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "versioned_dynamic_library"
+        }
+      }
+      flag_group {
+        flag: "-Wl,-no-whole-archive"
+        expand_if_true: "libraries_to_link.is_whole_archive"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "static_library"
+        }
+      }
+      flag_group {
+        flag: "-Wl,--end-lib"
+        expand_if_false: "libraries_to_link.is_whole_archive"
+        expand_if_equal {
+          variable: "libraries_to_link.type"
+          value: "object_file_group"
+        }
+      }
+      iterate_over: "libraries_to_link"
+      expand_if_all_available: "libraries_to_link"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "force_pic_flags"
+  flag_set {
+    action: "c++-link-executable"
+    action: "lto-index-for-executable"
+    flag_group {
+      flag: "-pie"
+      expand_if_all_available: "force_pic"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "user_link_flags"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "%{user_link_flags}"
+      iterate_over: "user_link_flags"
+      expand_if_all_available: "user_link_flags"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "legacy_link_flags"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "%{legacy_link_flags}"
+      iterate_over: "legacy_link_flags"
+      expand_if_all_available: "legacy_link_flags"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "static_libgcc"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    flag_group {
+      flag: "-static-libgcc"
+    }
+    with_feature {
+      feature: "static_link_cpp_runtimes"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "fission_support"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-Wl,--gdb-index"
+      expand_if_all_available: "is_using_fission"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "strip_debug_symbols"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "-Wl,-S"
+      expand_if_all_available: "strip_debug_symbols"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "coverage"
+  enabled: false
+}
+feature {
+  name: "llvm_coverage_map_format"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-module-compile"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-fprofile-instr-generate"
+      flag: "-fcoverage-mapping"
+    }
+  }
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    action: "objc-executable"
+    action: "objc++-executable"
+    flag_group {
+      flag: "-fprofile-instr-generate"
+    }
+  }
+  requires {
+    feature: "coverage"
+  }
+  provides: "profile"
+  enabled: false
+}
+feature {
+  name: "gcc_coverage_map_format"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-module-compile"
+    action: "objc-compile"
+    action: "objc-executable"
+    action: "objc++-compile"
+    action: "objc++-executable"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-fprofile-arcs"
+      flag: "-ftest-coverage"
+      expand_if_all_available: "gcov_gcno_file"
+    }
+  }
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "--coverage"
+    }
+  }
+  requires {
+    feature: "coverage"
+  }
+  provides: "profile"
+  enabled: false
+}
+feature {
+  name: "fully_static_link"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    flag_group {
+      flag: "-static"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "user_compile_flags"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "%{user_compile_flags}"
+      iterate_over: "user_compile_flags"
+      expand_if_all_available: "user_compile_flags"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "sysroot"
+  flag_set {
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "--sysroot=%{sysroot}"
+      expand_if_all_available: "sysroot"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "unfiltered_compile_flags"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "clif-match"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "%{unfiltered_compile_flags}"
+      iterate_over: "unfiltered_compile_flags"
+      expand_if_all_available: "unfiltered_compile_flags"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "linker_param_file"
+  flag_set {
+    action: "c++-link-dynamic-library"
+    action: "c++-link-executable"
+    action: "c++-link-nodeps-dynamic-library"
+    action: "lto-index-for-dynamic-library"
+    action: "lto-index-for-executable"
+    action: "lto-index-for-nodeps-dynamic-library"
+    flag_group {
+      flag: "@%{linker_param_file}"
+      expand_if_all_available: "linker_param_file"
+    }
+  }
+  flag_set {
+    action: "c++-link-static-library"
+    flag_group {
+      flag: "@%{linker_param_file}"
+      expand_if_all_available: "linker_param_file"
+    }
+  }
+  enabled: false
+}
+feature {
+  name: "compiler_input_flags"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-c"
+      flag: "%{source_file}"
+      expand_if_all_available: "source_file"
+    }
+  }
+  enabled: true
+}
+feature {
+  name: "compiler_output_flags"
+  flag_set {
+    action: "assemble"
+    action: "c-compile"
+    action: "c++-compile"
+    action: "c++-header-parsing"
+    action: "c++-module-codegen"
+    action: "c++-module-compile"
+    action: "linkstamp-compile"
+    action: "lto-backend"
+    action: "objc-compile"
+    action: "objc++-compile"
+    action: "preprocess-assemble"
+    flag_group {
+      flag: "-S"
+      expand_if_all_available: "output_assembly_file"
+    }
+    flag_group {
+      flag: "-E"
+      expand_if_all_available: "output_preprocess_file"
+    }
+    flag_group {
+      flag: "-o"
+      flag: "%{output_file}"
+      expand_if_all_available: "output_file"
+    }
+  }
+  enabled: true
+}
+action_config {
+  config_name: "assemble"
+  action_name: "assemble"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "preprocess-assemble"
+  action_name: "preprocess-assemble"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "linkstamp-compile"
+  action_name: "linkstamp-compile"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "lto-backend"
+  action_name: "lto-backend"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c-compile"
+  action_name: "c-compile"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c++-compile"
+  action_name: "c++-compile"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c++-header-parsing"
+  action_name: "c++-header-parsing"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c++-module-compile"
+  action_name: "c++-module-compile"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c++-module-codegen"
+  action_name: "c++-module-codegen"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "legacy_compile_flags"
+  implies: "user_compile_flags"
+  implies: "sysroot"
+  implies: "unfiltered_compile_flags"
+  implies: "compiler_input_flags"
+  implies: "compiler_output_flags"
+  enabled: false
+}
+action_config {
+  config_name: "c++-link-executable"
+  action_name: "c++-link-executable"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "strip_debug_symbols"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "force_pic_flags"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "lto-index-for-executable"
+  action_name: "lto-index-for-executable"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "strip_debug_symbols"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "force_pic_flags"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "c++-link-nodeps-dynamic-library"
+  action_name: "c++-link-nodeps-dynamic-library"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "build_interface_libraries"
+  implies: "dynamic_library_linker_tool"
+  implies: "strip_debug_symbols"
+  implies: "shared_flag"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "lto-index-for-nodeps-dynamic-library"
+  action_name: "lto-index-for-nodeps-dynamic-library"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "build_interface_libraries"
+  implies: "dynamic_library_linker_tool"
+  implies: "strip_debug_symbols"
+  implies: "shared_flag"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "c++-link-dynamic-library"
+  action_name: "c++-link-dynamic-library"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "build_interface_libraries"
+  implies: "dynamic_library_linker_tool"
+  implies: "strip_debug_symbols"
+  implies: "shared_flag"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "lto-index-for-dynamic-library"
+  action_name: "lto-index-for-dynamic-library"
+  tool {
+    tool_path: "DUMMY_GCC_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "build_interface_libraries"
+  implies: "dynamic_library_linker_tool"
+  implies: "strip_debug_symbols"
+  implies: "shared_flag"
+  implies: "linkstamps"
+  implies: "output_execpath_flags"
+  implies: "runtime_library_search_directories"
+  implies: "library_search_directories"
+  implies: "libraries_to_link"
+  implies: "user_link_flags"
+  implies: "legacy_link_flags"
+  implies: "linker_param_file"
+  implies: "fission_support"
+  implies: "sysroot"
+  enabled: false
+}
+action_config {
+  config_name: "c++-link-static-library"
+  action_name: "c++-link-static-library"
+  tool {
+    tool_path: "DUMMY_AR_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  implies: "archiver_flags"
+  implies: "linker_param_file"
+  enabled: false
+}
+action_config {
+  config_name: "strip"
+  action_name: "strip"
+  tool {
+    tool_path: "DUMMY_STRIP_TOOL"
+    tool_path_origin: CROSSTOOL_PACKAGE
+  }
+  flag_set {
+    flag_group {
+      flag: "-S"
+      flag: "-p"
+      flag: "-o"
+      flag: "%{output_file}"
+    }
+    flag_group {
+      flag: "%{stripopts}"
+      iterate_over: "stripopts"
+    }
+    flag_group {
+      flag: "%{input_file}"
+    }
+  }
+  enabled: false
+}
+artifact_name_pattern {
+  category_name: "static_library"
+  prefix: "lib"
+  extension: ".a"
+}
+artifact_name_pattern {
+  category_name: "alwayslink_static_library"
+  prefix: "lib"
+  extension: ".lo"
+}
+artifact_name_pattern {
+  category_name: "dynamic_library"
+  prefix: "lib"
+  extension: ".so"
+}
+artifact_name_pattern {
+  category_name: "executable"
+  prefix: ""
+  extension: ""
+}
+artifact_name_pattern {
+  category_name: "interface_library"
+  prefix: "lib"
+  extension: ".ifso"
+}
+artifact_name_pattern {
+  category_name: "pic_file"
+  prefix: ""
+  extension: ".pic"
+}
+artifact_name_pattern {
+  category_name: "included_file_list"
+  prefix: ""
+  extension: ".d"
+}
+artifact_name_pattern {
+  category_name: "serialized_diagnostics_file"
+  prefix: ""
+  extension: ".dia"
+}
+artifact_name_pattern {
+  category_name: "object_file"
+  prefix: ""
+  extension: ".o"
+}
+artifact_name_pattern {
+  category_name: "pic_object_file"
+  prefix: ""
+  extension: ".pic.o"
+}
+artifact_name_pattern {
+  category_name: "cpp_module"
+  prefix: ""
+  extension: ".pcm"
+}
+artifact_name_pattern {
+  category_name: "cpp_module_gcm"
+  prefix: ""
+  extension: ".gcm"
+}
+artifact_name_pattern {
+  category_name: "cpp_module_ifc"
+  prefix: ""
+  extension: ".ifc"
+}
+artifact_name_pattern {
+  category_name: "cpp_modules_info"
+  prefix: ""
+  extension: ".CXXModules.json"
+}
+artifact_name_pattern {
+  category_name: "cpp_modules_ddi"
+  prefix: ""
+  extension: ".ddi"
+}
+artifact_name_pattern {
+  category_name: "cpp_modules_modmap"
+  prefix: ""
+  extension: ".modmap"
+}
+artifact_name_pattern {
+  category_name: "cpp_modules_modmap_input"
+  prefix: ""
+  extension: ".modmap.input"
+}
+artifact_name_pattern {
+  category_name: "generated_assembly"
+  prefix: ""
+  extension: ".s"
+}
+artifact_name_pattern {
+  category_name: "processed_header"
+  prefix: ""
+  extension: ".processed"
+}
+artifact_name_pattern {
+  category_name: "generated_header"
+  prefix: ""
+  extension: ".h"
+}
+artifact_name_pattern {
+  category_name: "preprocessed_c_source"
+  prefix: ""
+  extension: ".i"
+}
+artifact_name_pattern {
+  category_name: "preprocessed_cpp_source"
+  prefix: ""
+  extension: ".ii"
+}
+artifact_name_pattern {
+  category_name: "coverage_data_file"
+  prefix: ""
+  extension: ".gcno"
+}
+artifact_name_pattern {
+  category_name: "clif_output_proto"
+  prefix: ""
+  extension: ".opb"
+}
+")

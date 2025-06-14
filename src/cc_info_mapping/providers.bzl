@@ -1,3 +1,4 @@
+# TODO rename to 'DwyuCcInfoRemappingInfo' (no s)
 DwyuCcInfoRemappingsInfo = provider(
     "Mapping of targets to CcInfo providers which DWYU should use for analysis instead of the targets original CcInfo.",
     fields = {

@@ -1,0 +1,5 @@
+Use more symbols from rules_cc,
+  like https://github.com/bazelbuild/rules_cc/blob/3dce172deec2a4563c28eae02a8bb18555abafb2/cc/action_names.bzl#L22
+  https://github.com/bazelbuild/rules_cc/blob/3dce172deec2a4563c28eae02a8bb18555abafb2/cc/find_cc_toolchain.bzl#L64
+  https://github.com/bazelbuild/rules_cc/blob/3dce172deec2a4563c28eae02a8bb18555abafb2/cc/BUILD#L37C13-L37C27
+
