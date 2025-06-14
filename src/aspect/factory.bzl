@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
@@ -7,6 +8,7 @@ def dwyu_aspect_factory(
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
         ignored_includes = None,
+        infer_system_headers_from_toolchain = False,
         recursive = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
@@ -30,7 +32,7 @@ def dwyu_aspect_factory(
                                       When the preprocessing is disabled, DWYU still ignores commented include statements.<br>
                                       When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
                                       A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.<br>
-                                      By defaut DWYU uses a preprocessor to resolve such cases.
+                                      By default DWYU uses a preprocessor to resolve such cases.
                                       This preprocessor is however slow, when analyzing complex files.
                                       Using this option can speed up the DWYU analysis significantly.
 
@@ -54,7 +56,7 @@ def dwyu_aspect_factory(
                           Specification of possible files in the json file:
                           <ul><li>
                             `ignore_include_paths` : List of include paths which are ignored by the analysis.
-                            Setting this **disables ignoring the standard library include paths**.
+                            Setting this **disables ignoring the system and standard library include paths**.
                           </li><li>
                             `extra_ignore_include_paths` : List of concrete include paths which are ignored by the analysis.
                             Those are always ignored, no matter what other fields you provide.
@@ -64,6 +66,12 @@ def dwyu_aspect_factory(
                             The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
+
+        infer_system_headers_from_toolchain: Infer automatically which header files can be reached through the active CC toolchain without the target under inspection having to declare any explicit dependency.
+                                             Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
+                                             Automatically inferring the system headers will become the default behavior in a future release.<br>
+                                             If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
+                                             This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
                    You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
@@ -109,6 +117,7 @@ def dwyu_aspect_factory(
         # required_providers = [CcInfo],
         toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
         attrs = {
+            # Remove this legacy pattern after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
             "_cc_toolchain": attr.label(
                 default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
             ),
@@ -123,6 +132,9 @@ def dwyu_aspect_factory(
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
                 allow_files = [".json"],
+            ),
+            "_infer_system_headers_from_toolchain": attr.bool(
+                default = infer_system_headers_from_toolchain,
             ),
             "_no_preprocessor": attr.bool(
                 default = experimental_no_preprocessor,
@@ -149,6 +161,10 @@ def dwyu_aspect_factory(
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoRemappingsInfo],
                 default = aspect_target_mapping,
+            ),
+            "_toolchain_headers": attr.label(
+                default = Label("@depend_on_what_you_use//src/toolchain_headers:toolchain_headers"),
+                providers = [DwyuCcToolchainHeadersInfo],
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

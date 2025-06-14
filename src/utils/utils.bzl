@@ -49,3 +49,29 @@ def print_compilation_context(cc_info, headline = None):
         ei = external_includes,
         si = cc.system_includes,
     ))
+
+def print_cc_toolchain(cc_toolchain):
+    include_directories = "\n".join(["  {}".format(id) for id in cc_toolchain.built_in_include_directories])
+    if include_directories:
+        include_directories = "\n" + include_directories
+
+    # buildifier: disable=print
+    print(
+        """
+  toolchain_id                 : {id}
+  cpu                          : {cpu}
+  compiler                     : {compiler}
+  built_in_include_directories : {include_dirs}
+  sysroot                      : {root}
+  libc                         : {libc}
+  compiler_executable          : {ce}
+    """.rstrip().format(
+            id = cc_toolchain.toolchain_id,
+            cpu = cc_toolchain.cpu,
+            compiler = cc_toolchain.compiler,
+            ce = cc_toolchain.compiler_executable,
+            include_dirs = include_directories,
+            root = cc_toolchain.sysroot,
+            libc = cc_toolchain.libc,
+        ),
+    )

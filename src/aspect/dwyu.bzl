@@ -1,6 +1,7 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 
@@ -331,9 +332,11 @@ def dwyu_aspect_impl(target, ctx):
         args.add("--implementation_deps_available")
     if ctx.attr._no_preprocessor:
         args.add("--no_preprocessor")
+    if ctx.attr._infer_system_headers_from_toolchain:
+        args.add("--system_headers_info", ctx.attr._toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
 
     all_hdrs = target[CcInfo].compilation_context.headers.to_list()
-    analysis_inputs = [processed_target] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
+    analysis_inputs = [processed_target, ctx.attr._toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
         inputs = analysis_inputs,

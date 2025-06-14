@@ -68,6 +68,7 @@ class IgnoredIncludes:
     or headers chosen by the user.
     """
 
+    # TODO make set for lookup speed
     paths: list[str]
     patterns: list[str]
 
