@@ -31,7 +31,7 @@ def dwyu_aspect_factory(
                                       When the preprocessing is disabled, DWYU still ignores commented include statements.<br>
                                       When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
                                       A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.<br>
-                                      By defaut DWYU uses a preprocessor to resolve such cases.
+                                      By default, DWYU uses a preprocessor to resolve such cases.
                                       This preprocessor is however slow, when analyzing complex files.
                                       Using this option can speed up the DWYU analysis significantly.
 
