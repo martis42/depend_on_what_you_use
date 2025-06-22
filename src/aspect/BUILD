@@ -12,11 +12,11 @@ bzl_library(
     srcs = [
         "dwyu.bzl",
         "factory.bzl",
-        "@bazel_tools//tools/build_defs/cc:action_names.bzl",
     ],
     visibility = ["//visibility:public"],
     deps = [
         "//src/cc_info_mapping",
+        "@rules_cc//cc:action_names_bzl",
         "@rules_cc//cc:find_cc_toolchain_bzl",
         "@rules_cc//cc/common",
     ],
