@@ -17,6 +17,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/cc_info_mapping",
+        "@rules_cc//cc:find_cc_toolchain_bzl",
         "@rules_cc//cc/common",
     ],
 )

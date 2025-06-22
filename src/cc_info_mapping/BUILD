@@ -5,8 +5,6 @@ bzl_library(
     srcs = [
         "cc_info_mapping.bzl",
         "providers.bzl",
-        "@bazel_tools//tools/cpp:toolchain_utils.bzl",
-        "@rules_cc//cc:bzl_srcs",
     ],
     visibility = ["//visibility:public"],
     deps = [

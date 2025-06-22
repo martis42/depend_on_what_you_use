@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
@@ -107,11 +108,10 @@ def dwyu_aspect_factory(
         # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
         # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
         # required_providers = [CcInfo],
-        toolchains = ["@bazel_tools//tools/cpp:toolchain_type"],
+        toolchains = use_cc_toolchain(),
         attrs = {
-            "_cc_toolchain": attr.label(
-                default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
-            ),
+            # Remove CC_TOOLCHAIN_ATTRS after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
+            "_cc_toolchain": attr.label(default = Label("@rules_cc//cc:current_cc_toolchain")),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
                 allow_files = True,
