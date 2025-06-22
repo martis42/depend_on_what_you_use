@@ -1,0 +1,5 @@
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=5
+
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore

@@ -1,4 +1,6 @@
 """
+DEPRECATED - The forward path is automatically discovering all headers reachable by the active CC toolchain
+
 List is based on:
 C++     - https://en.cppreference.com/w/cpp/header
 C       - https://en.cppreference.com/w/c/header

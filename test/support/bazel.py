@@ -36,6 +36,15 @@ def get_bazel_rolling_version(bazel_bin: Path) -> str:
     return process.stdout.split("bazel")[1].strip()
 
 
+def get_explicit_bazel_version(bazel_bin: Path, dynamic_version: str) -> str:
+    run_env = deepcopy(os.environ)
+    run_env["USE_BAZEL_VERSION"] = dynamic_version
+    process = subprocess.run(
+        [bazel_bin, "--version"], env=run_env, shell=False, check=True, capture_output=True, text=True
+    )
+    return process.stdout.split("bazel")[1].strip()
+
+
 def make_bazel_version_env(version: str) -> os._Environ:
     run_env = deepcopy(os.environ)
     run_env["USE_BAZEL_VERSION"] = version
