@@ -4,13 +4,14 @@ import logging
 import subprocess
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
-from pathlib import Path, PosixPath
+from pathlib import Path
 from platform import system
 from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
 from test.support.bazel import get_bazel_binary, get_current_workspace
+from test.support.platform import path_to_starlark_format
 from test.support.result import Error
 
 if TYPE_CHECKING:
@@ -52,13 +53,6 @@ build --noexperimental_python_import_all_repositories
 """
 
 BAZEL_VERSION = "8.0.1"
-
-
-def dwyu_path_as_string(dwyu_path: Path) -> str:
-    """
-    We can't use the path directly on Windows as we need escaped backslashes
-    """
-    return str(dwyu_path) if isinstance(dwyu_path, PosixPath) else str(dwyu_path).replace("\\", "\\\\")
 
 
 @dataclass
@@ -125,7 +119,7 @@ class ApplyFixesIntegrationTestsExecutor:
         with test_workspace.joinpath("MODULE.bazel").open(mode="w", encoding="utf-8") as ws_file:
             ws_file.write(
                 MODULE_FILE_TEMPLATE.format(
-                    dwyu_path=dwyu_path_as_string(self.origin_workspace),
+                    dwyu_path=path_to_starlark_format(self.origin_workspace),
                     extra_content=test.extra_workspace_file_content,
                 )
             )

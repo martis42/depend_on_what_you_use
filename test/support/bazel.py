@@ -13,7 +13,7 @@ def get_bazel_binary() -> Path:
     if bazel := which("bazelisk"):
         return Path(bazel)
 
-    # Might be system where bazlisk was renamed to bazel or bazel links to a bazelisk binary not being on PATH.
+    # Might be system where bazelisk was renamed to bazel or bazel links to a bazelisk binary not being on PATH.
     # We test this by using the '--strict' option which only exists for bazelisk, but not bazel
     bazel = which("bazel")
     if bazel and (
@@ -24,22 +24,18 @@ def get_bazel_binary() -> Path:
     raise RuntimeError("No bazelisk binary or bazel symlink towards bazelisk available on your system")
 
 
-def get_bazel_rolling_version(bazel_bin: Path) -> str:
-    process = subprocess.run(
-        [bazel_bin, "--version"],
-        env=make_bazel_version_env("rolling"),
-        shell=False,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return process.stdout.split("bazel")[1].strip()
-
-
 def make_bazel_version_env(version: str) -> os._Environ:
     run_env = deepcopy(os.environ)
     run_env["USE_BAZEL_VERSION"] = version
     return run_env
+
+
+def get_explicit_bazel_version(bazel_bin: Path, dynamic_version: str) -> str:
+    run_env = make_bazel_version_env(dynamic_version)
+    process = subprocess.run(
+        [bazel_bin, "--version"], env=run_env, shell=False, check=True, capture_output=True, text=True
+    )
+    return process.stdout.split("bazel")[1].strip()
 
 
 def get_current_workspace(bazel_bin: Path) -> Path:

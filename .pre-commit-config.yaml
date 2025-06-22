@@ -1,6 +1,6 @@
 minimum_pre_commit_version: 4.0.0
 
-define: &generated_doc_files "^docs/(cc_info_mapping|dwyu_aspect).md"
+define: &generated_doc_files "^docs/(cc_info_mapping|cc_toolchain_headers|dwyu_aspect).md"
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

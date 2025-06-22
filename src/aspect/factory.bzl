@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
@@ -7,11 +8,13 @@ _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 def dwyu_aspect_factory(
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
+        ignore_cc_toolchain_headers = False,
         ignored_includes = None,
         recursive = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
+        cc_toolchain_headers_info = None,
         use_implementation_deps = False,
         verbose = False):
     """
@@ -49,13 +52,31 @@ def dwyu_aspect_factory(
                                     </li></ul>
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
 
+        ignore_cc_toolchain_headers: Infer automatically which header files can be reached through the active CC toolchain without the target under inspection having to declare any explicit dependency.
+                                     Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
+                                     Automatically inferring the toolchain headers will become the default behavior in a future release.<br>
+                                     If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
+                                     This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
+                                     There is no reliable API available in Starlark to get all include paths to CC toolchain headers, since [CcToolchainInfo.built_in_include_directories](https://bazel.build/rules/lib/providers/CcToolchainInfo#built_in_include_directories) is an optional field without sanity checking.
+                                     Thus, DWYU uses knowledge about the most common compilers and how to extract the include paths available to them.
+                                     The supported compilers are GCC, clang and MSVC.
+                                     A best effort fallback strategy exists for CC toolchain with unknown compilers specifying [CcToolchainInfo.built_in_include_directories](https://bazel.build/rules/lib/providers/CcToolchainInfo#built_in_include_directories).
+                                     Consequently, there might be CC toolchains with which this feature does not work. In such a case you have multiple options:<br>
+                                     <ul><li>
+                                       Report a bug to DWYU if you believe your CC toolchain should be supported.
+                                     </li><li>
+                                       Use the [toolchain_headers_info](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-toolchain_headers_info) option to inject your own analysis of the CC toolchain.
+                                     </li><li>
+                                       Use the legacy behavior by setting this attribute to false.
+                                     </li></ul>
+
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
                           You can extend this list of ignored headers or replace it with a custom one by providing a json file with the information to this attribute.<br>
                           Specification of possible files in the json file:
                           <ul><li>
                             `ignore_include_paths` : List of include paths which are ignored by the analysis.
-                            Setting this **disables ignoring the standard library include paths**.
+                            Setting this **disables ignoring the system and standard library include paths**.
                           </li><li>
                             `extra_ignore_include_paths` : List of concrete include paths which are ignored by the analysis.
                             Those are always ignored, no matter what other fields you provide.
@@ -84,6 +105,13 @@ def dwyu_aspect_factory(
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).
 
+        cc_toolchain_headers_info: Requires setting [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers) to True.
+                                   Use this option to inject your own analysis of the CC toolchain.
+                                   Provide the label to a target offering the provider [DwyuCcToolchainHeadersInfo](/src/cc_toolchain_headers/providers.bzl).
+                                   It is your choice if you simply use a hard coded list or implement a logic looking up the information dynamically.
+                                   Please note, the required information are not the include paths where the compiler looks for toolchain headers, but all the sub paths to header files relative to those include directories.
+                                   In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
+
         use_implementation_deps: `cc_library` offers the attribute [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies.
                                  Headers from the private dependencies are not made available to users of the library.<br>
                                  Setting this to True allows DWYU to raise an error if headers from a `deps` dependency are used only in private files.
@@ -101,6 +129,10 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
+    if ignore_cc_toolchain_headers:
+        cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//src/aspect/support:cc_toolchain_headers")
+    else:
+        cc_toolchain_headers = Label("//src/aspect/support:cc_toolchain_headers_stub")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -108,10 +140,14 @@ def dwyu_aspect_factory(
         # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
         # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
         # required_providers = [CcInfo],
-        toolchains = use_cc_toolchain(),
+        toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
-            # Remove CC_TOOLCHAIN_ATTRS after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
+            # Remove after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
             "_cc_toolchain": attr.label(default = Label("@rules_cc//cc:current_cc_toolchain")),
+            "_cc_toolchain_headers": attr.label(
+                default = cc_toolchain_headers,
+                providers = [DwyuCcToolchainHeadersInfo],
+            ),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
                 allow_files = True,
@@ -119,6 +155,9 @@ def dwyu_aspect_factory(
                 cfg = "exec",
                 doc = "Tool Analyzing the include statement in the source code under inspection" +
                       " and comparing them to the available dependencies.",
+            ),
+            "_ignore_cc_toolchain_headers": attr.bool(
+                default = ignore_cc_toolchain_headers,
             ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,

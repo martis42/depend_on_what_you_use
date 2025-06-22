@@ -57,7 +57,7 @@ class TestFilterIncludes(unittest.TestCase):
                 Include(file=Path("file4"), include="some/other/baz.h"),
                 Include(file=Path("file5"), include="bar/baz.h"),
             ],
-            ignored_includes=IgnoredIncludes(paths=["foo", "bar/baz.h"], patterns=[]),
+            ignored_includes=IgnoredIncludes(paths={"foo", "bar/baz.h"}, patterns=[]),
         )
 
         self.assertEqual(len(result), 3)
@@ -79,7 +79,7 @@ class TestFilterIncludes(unittest.TestCase):
                 Include(file=Path("file8"), include="without_regex_no_matching_end"),
             ],
             ignored_includes=IgnoredIncludes(
-                paths=[],
+                paths=set(),
                 patterns=[
                     "foo/.*",
                     ".*_partial_name.h",
@@ -221,7 +221,7 @@ class TestGetRelevantIncludesFromFiles(unittest.TestCase):
     def test_get_relevant_includes_from_files(self) -> None:
         result = get_relevant_includes_from_files(
             files=["src/analyze_includes/test/data/some_header.h", "src/analyze_includes/test/data/another_header.h"],
-            ignored_includes=IgnoredIncludes(paths=["vector"], patterns=[]),
+            ignored_includes=IgnoredIncludes(paths={"vector"}, patterns=[]),
             defines=[],
             include_paths=[],
             no_preprocessor=False,
