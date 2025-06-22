@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 import logging
-import subprocess
-from copy import deepcopy
 from importlib.machinery import SourceFileLoader
-from os import environ
 from pathlib import Path
 from re import fullmatch
 from typing import TYPE_CHECKING
 
 from version import CompatibleVersions, TestedVersions
 
-from test.support.bazel import get_bazel_binary, get_current_workspace
+from test.support.bazel import get_bazel_binary, get_current_workspace, get_explicit_bazel_version
 from test.support.result import Error
 
 if TYPE_CHECKING:
@@ -47,19 +44,10 @@ def execute_test(
     return succeeded
 
 
-def get_explicit_bazel_version(bazel_bin: Path, dynamic_version: str) -> str:
-    run_env = deepcopy(environ)
-    run_env["USE_BAZEL_VERSION"] = dynamic_version
-    process = subprocess.run(
-        [bazel_bin, "--version"], env=run_env, shell=False, check=True, capture_output=True, text=True
-    )
-    return process.stdout.split("bazel")[1].strip()
-
-
 def make_bazel_versions_explicit(versions: list[TestedVersions], bazel_bin: Path) -> list[TestedVersions]:
     """
     We want to utilize dynamic version references like 'rolling' or '42.x'. However, for debugging and caching we
-    prefer using concrete version numbers in the test orechstrtion logic. Thus, we resolve the dynamic version
+    prefer using concrete version numbers in the test orchestration logic. Thus, we resolve the dynamic version
     identifiers before using them.
     """
     log.info("Parsing Bazel versions:")

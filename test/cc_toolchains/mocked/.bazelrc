@@ -1,0 +1,8 @@
+# Always tell why tests fail
+test --test_output=errors
+
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=10
+
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore

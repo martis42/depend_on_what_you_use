@@ -68,7 +68,7 @@ class IgnoredIncludes:
     or headers chosen by the user.
     """
 
-    paths: list[str]
+    paths: set[str]
     patterns: list[str]
 
     def is_ignored(self, include: str) -> bool:

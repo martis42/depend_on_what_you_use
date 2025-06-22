@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# verbose output of gcc and clang is piped to stderr
+echo_to_stderr()
+{
+    echo "$@" >&2;
+}
+
+# Hard coding this is brittle, but generating this file is also problematic due to it then residing in the bin dir instead of relative to the toolchain root dir
+ROOT_DIR="external/test_toolchain_rule_based+"
+
+echo_to_stderr 'Some unrelated text'
+
+echo_to_stderr '#include "..." search starts here:'
+echo_to_stderr " ${ROOT_DIR}/data/fizz"
+echo_to_stderr " ${ROOT_DIR}/data/fizz/buzz"
+echo_to_stderr '#include <...> search starts here:'
+echo_to_stderr " ${ROOT_DIR}/data/foobar"
+echo_to_stderr 'End of search list.'
+
+echo_to_stderr 'More unrelated stuff'

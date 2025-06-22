@@ -14,7 +14,7 @@ from shlex import join as shlex_join
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(WORKSPACE_ROOT))
 
-from test.support.bazel import get_bazel_binary, get_bazel_rolling_version, make_bazel_version_env
+from test.support.bazel import get_bazel_binary, get_explicit_bazel_version, make_bazel_version_env
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -51,10 +51,16 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
     return failures
 
 
+def resolve_bazel_versions(dynamic_versions: list[str], bazel_bin: Path) -> list[str]:
+    """
+    To clearly understand what we are testing, we translate dynamic Bazel versions to fully resolved ones
+    """
+    return [get_explicit_bazel_version(bazel_bin=bazel_bin, dynamic_version=version) for version in dynamic_versions]
+
+
 def main() -> int:
     bazel_bin = get_bazel_binary()
-    rolling_bazel = get_bazel_rolling_version(bazel_bin)
-    bazel_versions = [v if v != "rolling" else rolling_bazel for v in BAZEL_VERSIONS_UNDER_TEST]
+    bazel_versions = resolve_bazel_versions(dynamic_versions=BAZEL_VERSIONS_UNDER_TEST, bazel_bin=bazel_bin)
 
     failures = run_tests(is_bzlmod=True, bazel_versions=bazel_versions)
     failures.extend(run_tests(is_bzlmod=False, bazel_versions=bazel_versions))

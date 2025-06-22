@@ -19,6 +19,7 @@ test/aspect/defines
 test/aspect/external_repo
 test/aspect/generated_code
 test/aspect/ignore_includes
+test/aspect/ignore_toolchain_headers
 test/aspect/implementation_deps
 test/aspect/includes
 test/aspect/platforms
@@ -34,5 +35,7 @@ test/aspect/unused_dep
 test/aspect/using_transitive_dep
 test/aspect/valid
 test/aspect/virtual_includes
+
+test/cc_toolchains/mocked
 
 test/workspace_integration

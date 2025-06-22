@@ -14,6 +14,7 @@ py_test(
         "data/config/extra_ignore_paths.json",
         "data/config/ignore_patterns.json",
         "data/config/overwrite_default_ignore_paths.json",
+        "data/config/system_headers_info.json",
     ],
     deps = ["//src/analyze_includes:lib"],
 )
