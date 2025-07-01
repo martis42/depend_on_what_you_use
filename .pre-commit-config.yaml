@@ -38,7 +38,7 @@ repos:
   # - function-docstring-header: A dedicated docstring header often provides no added value.
   # - module-docstring: Too noisy, not all modules require a docstring
   - repo: https://github.com/keith/pre-commit-buildifier
-    rev: 8.0.3
+    rev: 8.2.0
     hooks:
       - id: buildifier
         args: [ "--config=.buildifier.json" ]
