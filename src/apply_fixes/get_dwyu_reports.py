@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import platform
 import sys
 from os import walk
 from pathlib import Path
@@ -14,9 +15,7 @@ if TYPE_CHECKING:
 
 def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Path]:
     if main_args.dwyu_log_file:
-        from platform import system
-
-        bin_dir = "\\bin\\" if system() == "Windows" else "/bin/"
+        bin_dir = "\\bin\\" if platform.system() == "Windows" else "/bin/"
         return [search_path / log.split(bin_dir, 1)[1] for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
 
     reports = []
