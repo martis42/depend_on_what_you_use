@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+logging.basicConfig(format="%(message)s", level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 

@@ -2,6 +2,7 @@ load("@rules_cc//cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("//src/toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
+load("//src/utils:utils.bzl", "print_cc_toolchain")
 
 # We compare the compiler name via substring matching to the compiler specified by the toolchain.
 # Structure: {<compiler_name>: [<options_for_specifying_include_paths>]}
@@ -41,6 +42,18 @@ def _create_minimal_compile_cmd(ctx, cc_toolchain):
     feature_configuration = cc_common.configure_features(ctx = ctx, cc_toolchain = cc_toolchain, language = "c++")
     compile_variables = cc_common.create_compile_variables(cc_toolchain = cc_toolchain, feature_configuration = feature_configuration)
 
+    env = cc_common.get_environment_variables(
+        feature_configuration = feature_configuration,
+        action_name = CPP_COMPILE_ACTION_NAME,
+        variables = compile_variables,
+    )
+
+    # buildifier: disable=print
+    print("COMPILE ENV", len(env))
+    for var, value in env.items():
+        # buildifier: disable=print
+        print("{} : {}".format(var, value))
+
     # We cannot properly distinguish between C and C++ here. Either way, the C++ command should also work for C projects
     # with respect to what we want to achieve, as long as the active toolchain did not choose to implement solely C actions.
     return cc_common.get_memory_inefficient_command_line(feature_configuration = feature_configuration, action_name = CPP_COMPILE_ACTION_NAME, variables = compile_variables)
@@ -67,10 +80,19 @@ def _get_command_line_includes(ctx, cc_toolchain):
     [0]: https://bazel.build/rules/lib/toplevel/cc_common#create_cc_toolchain_config_info
     """
     compile_cmd = _create_minimal_compile_cmd(ctx, cc_toolchain)
+
+    # buildifier: disable=print
+    print("COMPILE_CMD ", compile_cmd)
+
     return extract_include_paths(compile_cmd, cc_toolchain.compiler)
 
 def _gather_toolchain_headers_impl(ctx):
     cc_toolchain = find_cc_toolchain(ctx)
+
+    print_cc_toolchain(cc_toolchain)
+
+    # buildifier: disable=print
+    print("SHELL ENV ", ctx.configuration.default_shell_env)
 
     # Relevant include paths on top of 'CcToolchainInfo.built_in_include_directories'
     toolchain_include_directories = _get_command_line_includes(ctx, cc_toolchain)

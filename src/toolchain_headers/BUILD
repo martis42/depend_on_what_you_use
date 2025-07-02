@@ -7,7 +7,10 @@ bzl_library(
         "toolchain_headers.bzl",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//src/toolchain_headers/private:gather_toolchain_headers_bzl"],
+    deps = [
+        "//src/toolchain_headers/private:gather_toolchain_headers_bzl",
+        "//src/utils",
+    ],
 )
 
 exports_files(
