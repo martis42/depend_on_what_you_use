@@ -49,3 +49,40 @@ def print_compilation_context(cc_info, headline = None):
         ei = external_includes,
         si = cc.system_includes,
     ))
+
+def print_cc_toolchain(cc_toolchain):
+    """
+    Print CcToolchainInfo which is most relevant for us in a structured way.
+
+    Debugging is eased by those flags which prevent print statements being omitted on subsequent execution:
+    --nokeep_state_after_build
+    --notrack_incremental_state
+
+    Args:
+        cc_toolchain: A CcToolchainInfo object
+    """
+
+    include_directories = "\n".join(["    {}".format(id) for id in cc_toolchain.built_in_include_directories])
+    if include_directories:
+        include_directories = "\n" + include_directories
+
+    # buildifier: disable=print
+    print(
+        """
+  toolchain_id                 : {id}
+  cpu                          : {cpu}
+  compiler                     : {compiler}
+  built_in_include_directories : {include_dirs}
+  sysroot                      : {root}
+  libc                         : {libc}
+  compiler_executable          : {ce}
+    """.rstrip().format(
+            id = cc_toolchain.toolchain_id,
+            cpu = cc_toolchain.cpu,
+            compiler = cc_toolchain.compiler,
+            ce = cc_toolchain.compiler_executable,
+            include_dirs = include_directories,
+            root = cc_toolchain.sysroot,
+            libc = cc_toolchain.libc,
+        ),
+    )

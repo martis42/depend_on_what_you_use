@@ -10,4 +10,9 @@ stardoc_with_diff_test(
     bzl_library_target = "//src/aspect:factory",
 )
 
+stardoc_with_diff_test(
+    name = "toolchain_headers",
+    bzl_library_target = "//src/toolchain_headers:toolchain_headers",
+)
+
 update_docs()
