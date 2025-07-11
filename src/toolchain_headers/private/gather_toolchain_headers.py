@@ -7,6 +7,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
+# TODO back to info
 logging.basicConfig(format="%(message)s", level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
@@ -14,6 +15,13 @@ log = logging.getLogger(__name__)
 def cli() -> Namespace:
     parser = ArgumentParser()
 
+    parser.add_argument(
+        "--include_directories",
+        metavar="PATH",
+        type=Path,
+        nargs="*",
+        help="Directories below which any number of header files could be located.",
+    )
     parser.add_argument(
         "--built_in_include_directories",
         metavar="PATH",
@@ -39,6 +47,12 @@ def cli() -> Namespace:
         help="Include directories provided to the compiler to discover the headers from the files provided via '--toolchain_files'.",
     )
     parser.add_argument(
+        "--gcc_like_include_paths_info",
+        metavar="FILE",
+        type=Path,
+        help="TBD",
+    )
+    parser.add_argument(
         "--output",
         metavar="FILE",
         type=Path,
@@ -58,10 +72,17 @@ def cli() -> Namespace:
     if args.param_file:
         args = parser.parse_args(args.param_file.read_text().splitlines())
 
+    if args.include_directories and args.gcc_like_include_paths_info:
+        print(
+            "ERROR: Cannot use '--include_directories' and 'gcc_like_include_paths_info' together. Choose one of both."
+        )
+        sys.exit(1)
+
     return args
 
 
 def is_relevant_file(file: Path) -> bool:
+    # TODO are there other postifxes and what about capslock?
     if file.suffix in [".h", ".hh", ".hpp"]:
         return True
 
@@ -72,8 +93,8 @@ def is_relevant_file(file: Path) -> bool:
 
 def gather_built_in_headers(include_directories: list[Path]) -> list[str]:
     headers = []
-    for ip in include_directories:
-        headers.extend([str(f.relative_to(ip)) for f in ip.glob("**/*") if is_relevant_file(f)])
+    for id in include_directories:
+        headers.extend([str(f.relative_to(id)) for f in id.glob("**/*") if is_relevant_file(f)])
     return headers
 
 
@@ -89,20 +110,59 @@ def gather_toolchain_headers(toolchain_files: list[Path], toolchain_include_dirs
 
 
 def main(args: Namespace) -> int:
-    built_in_headers = gather_built_in_headers(args.built_in_include_directories)
-    log.debug(f"Discovered built in headers: {len(built_in_headers)}")
+    # print("-----------------------------")
+    # print(args.stdout.read_text())
+    # print("-----------------------------")
+    # print(args.gcc_like_include_paths_info.read_text())
+    # print("-----------------------------")
 
-    toolchain_headers = gather_toolchain_headers(
-        toolchain_files=args.toolchain_files, toolchain_include_dirs=args.toolchain_include_directories
-    )
-    log.debug(f"Discovered toolchain headers: {len(toolchain_headers)}")
+    if args.gcc_like_include_paths_info:
+        include_paths = []
 
-    # We do not want to report duplicate values
-    all_headers = list(set(built_in_headers + toolchain_headers))
-    log.debug(f"Total unique headers: {len(all_headers)}")
+        data = args.gcc_like_include_paths_info.read_text()
+        # print("-----------------------------")
+        # print(data)
+        # print("-----------------------------")
+        found_include_paths_section = False
+        for raw_line in data.splitlines():
+            line = raw_line.strip()
+
+            if line == '#include "..." search starts here:':
+                found_include_paths_section = True
+                continue
+
+            if line == "#include <...> search starts here:":
+                continue
+
+            if line == "End of search list.":
+                break
+
+            if found_include_paths_section:
+                include_paths.append(Path(line))
+    else:
+        include_paths = args.include_directories
+
+
+    log.debug(f"Discovered CC toolchain include paths: {len(include_paths)}")
+    log.debug("\n".join([f"- {ip}" for ip in include_paths]))
+
+    headers = gather_built_in_headers(include_paths)
+    log.debug(f"Discovered toolchain headers: {len(headers)}")
+
+    # built_in_headers = gather_built_in_headers(args.built_in_include_directories)
+    # log.debug(f"Discovered built in headers: {len(built_in_headers)}")
+
+    # toolchain_headers = gather_toolchain_headers(
+    #     toolchain_files=args.toolchain_files, toolchain_include_dirs=args.toolchain_include_directories
+    # )
+    # log.debug(f"Discovered toolchain headers: {len(toolchain_headers)}")
+
+    # # We do not want to report duplicate values
+    # all_headers = list(set(built_in_headers + toolchain_headers))
+    # log.debug(f"Total unique headers: {len(all_headers)}")
 
     with args.output.open(mode="wt", encoding="utf-8") as output:
-        json.dump(all_headers, output)
+        json.dump(headers, output)
 
     return 0
 

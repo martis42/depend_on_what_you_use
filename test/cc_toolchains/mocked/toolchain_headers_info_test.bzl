@@ -51,15 +51,29 @@ def _toolchain_classic_transition_impl(settings, attr):
     _ignore = (settings, attr)
     return {"//command_line_option:extra_toolchains": "@test_toolchain_classic//:toolchain"}
 
+def _toolchain_classic_gcc_like_transition_impl(settings, attr):
+    # buildifier: disable=unused-variable
+    _ignore = (settings, attr)
+    return {"//command_line_option:extra_toolchains": "@test_toolchain_classic//:gcc_like_toolchain"}
+
+def _toolchain_classic_msvc_like_transition_impl(settings, attr):
+    # buildifier: disable=unused-variable
+    _ignore = (settings, attr)
+    return {"//command_line_option:extra_toolchains": "@test_toolchain_classic//:msvc_like_toolchain"}
+
 def _toolchain_rule_based_transition_impl(settings, attr):
     # buildifier: disable=unused-variable
     _ignore = (settings, attr)
     return {"//command_line_option:extra_toolchains": "@test_toolchain_rule_based//:toolchain"}
 
 _toolchain_classic_test = _rule_factory(_transition_factory(_toolchain_classic_transition_impl))
+_toolchain_classic_gcc_like_test = _rule_factory(_transition_factory(_toolchain_classic_gcc_like_transition_impl))
+_toolchain_classic_msvc_like_test = _rule_factory(_transition_factory(_toolchain_classic_msvc_like_transition_impl))
 _toolchain_rule_based_test = _rule_factory(_transition_factory(_toolchain_rule_based_transition_impl))
 
 _RULES_MAP = {
+    "@test_toolchain_classic//:gcc_like_toolchain": _toolchain_classic_gcc_like_test,
+    "@test_toolchain_classic//:msvc_like_toolchain": _toolchain_classic_msvc_like_test,
     "@test_toolchain_classic//:toolchain": _toolchain_classic_test,
     "@test_toolchain_rule_based//:toolchain": _toolchain_rule_based_test,
 }

@@ -19,3 +19,5 @@ bzl_library(
         "@rules_cc//cc/common",
     ],
 )
+
+exports_files(["empty.cpp"])

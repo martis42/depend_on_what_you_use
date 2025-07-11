@@ -78,7 +78,8 @@ register_toolchains("@llvm_toolchain//:all")
         source="https://github.com/cerisier/toolchains_llvm_bootstrapped",
         bazel_versions=[BazelVersion("7.x"), BazelVersion("8.0.0")],
         # Theoretically supports Darwin, practically tries to download unaccessible artifacts
-        platforms=["Linux"],
+        # Does use gcc although it should use clang, is somehow broken ...
+        platforms=[],
         extra_args=["--experimental_cc_static_library"],
         module_snippet="""
 bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.2.4")
@@ -90,8 +91,7 @@ register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
         name="hermetic_cc_toolchain",
         source="https://github.com/uber/hermetic_cc_toolchain",
         bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.0.0"), BazelVersion("rolling")],
-        # We disable this by not being compatible to any toolchain until we can process toolchains with invalid built in include dirs
-        platforms=[],
+        platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="""
 bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.0")
@@ -106,8 +106,7 @@ register_toolchains("@zig_sdk//...")
         name="toolchains_musl",
         source="https://github.com/bazel-contrib/musl-toolchain",
         bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.0.0"), BazelVersion("rolling")],
-        # We disable this by not being compatible to any toolchain until we can process toolchains with invalid built in include dirs
-        platforms=[],
+        platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="""
 bazel_dep(name = "toolchains_musl", version = "0.1.20")

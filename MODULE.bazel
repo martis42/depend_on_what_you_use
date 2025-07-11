@@ -8,6 +8,7 @@ module(
 bazel_dep(name = "rules_cc", version = "0.0.15")
 bazel_dep(name = "rules_python", version = "0.37.2")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "rules_shell", version = "0.5.0")
 
 non_module_dependencies = use_extension("//third_party:extensions.bzl", "non_module_dependencies")
 use_repo(non_module_dependencies, "dwyu_pcpp")
@@ -25,3 +26,34 @@ python = use_extension("@rules_python//python/extensions:python.bzl", "python", 
 python.toolchain(python_version = "3.8")
 
 bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
+
+# -------------
+
+# bazel_dep(name = "toolchains_llvm", version = "1.4.0")
+
+# llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+# llvm.toolchain(llvm_version = "19.1.7")
+# use_repo(llvm, "llvm_toolchain")
+
+# register_toolchains("@llvm_toolchain//:all")
+
+# -------------
+
+# TODO why is gcc selected as compiler executable for this clang toolchain ?!?
+
+# bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.2.4")
+
+# register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
+
+# -----------
+
+# bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.0")
+
+# toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
+# use_repo(toolchains, "zig_sdk")
+
+# register_toolchains("@zig_sdk//...")
+
+# -------------
+
+# bazel_dep(name = "toolchains_musl", version = "0.1.20")
