@@ -8,6 +8,8 @@ common --lockfile_mode=off
 # We are not interested in dependency resolution here
 build --check_direct_dependencies=off
 
+build:no_default_toolchain --toolchain_resolution_debug=.*
+
 build:no_default_toolchain --incompatible_enable_cc_toolchain_resolution  # Can be dropped when Bazel 7 is the minimum version
 build:no_default_toolchain --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 build:no_default_toolchain --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
