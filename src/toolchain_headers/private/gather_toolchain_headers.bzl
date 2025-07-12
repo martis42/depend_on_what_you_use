@@ -124,12 +124,11 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
     args = ctx.actions.args()
     args.use_param_file("--param_file=%s")
     args.add("--gcc_like_include_paths_info", stderr)
-    args.add("--debug", stdout)
     args.add("--output", output)
 
     ctx.actions.run(
         executable = ctx.executable._gatherer,
-        inputs = cc_toolchain.all_files.to_list() + [stderr, stdout],
+        inputs = cc_toolchain.all_files.to_list() + [stderr],
         outputs = [output],
         mnemonic = "DWYUGatherToolchainHeaders",
         arguments = [args],

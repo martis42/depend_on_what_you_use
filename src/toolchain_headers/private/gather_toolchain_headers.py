@@ -7,8 +7,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-# TODO back to info
-logging.basicConfig(format="%(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
@@ -23,37 +22,7 @@ def cli() -> Namespace:
         help="Directories below which any number of header files could be located.",
     )
     parser.add_argument(
-        "--built_in_include_directories",
-        metavar="PATH",
-        type=Path,
-        nargs="*",
-        help="""
-        Directories below any number of header files could be located.
-        Mostly used by the non hermetic parts of the CC toolchain.
-        """,
-    )
-    parser.add_argument(
-        "--toolchain_files",
-        metavar="FILE",
-        type=Path,
-        nargs="*",
-        help="All files provided hermetically by the toolchain. Those are headers as well as libraries and tools.",
-    )
-    parser.add_argument(
-        "--toolchain_include_directories",
-        metavar="PATH",
-        type=Path,
-        nargs="*",
-        help="Include directories provided to the compiler to discover the headers from the files provided via '--toolchain_files'.",
-    )
-    parser.add_argument(
         "--gcc_like_include_paths_info",
-        metavar="FILE",
-        type=Path,
-        help="TBD",
-    )
-    parser.add_argument(
-        "--debug",
         metavar="FILE",
         type=Path,
         help="TBD",
@@ -79,7 +48,7 @@ def cli() -> Namespace:
         args = parser.parse_args(args.param_file.read_text().splitlines())
 
     if args.include_directories and args.gcc_like_include_paths_info:
-        print(
+        log.error(
             "ERROR: Cannot use '--include_directories' and 'gcc_like_include_paths_info' together. Choose one of both."
         )
         sys.exit(1)
@@ -120,11 +89,6 @@ def main(args: Namespace) -> int:
         include_paths = []
 
         data = args.gcc_like_include_paths_info.read_text()
-        print("-----------------------------")
-        print(data)
-        print("-----------------------------")
-        print(args.debug.read_text())
-        print("#############################")
         found_include_paths_section = False
         for raw_line in data.splitlines():
             line = raw_line.strip()
@@ -132,10 +96,8 @@ def main(args: Namespace) -> int:
             if line == '#include "..." search starts here:':
                 found_include_paths_section = True
                 continue
-
             if line == "#include <...> search starts here:":
                 continue
-
             if line == "End of search list.":
                 break
 
@@ -144,24 +106,11 @@ def main(args: Namespace) -> int:
     else:
         include_paths = args.include_directories
 
-
     log.debug(f"Discovered CC toolchain include paths: {len(include_paths)}")
     log.debug("\n".join([f"- {ip}" for ip in include_paths]))
 
     headers = gather_built_in_headers(include_paths)
     log.debug(f"Discovered toolchain headers: {len(headers)}")
-
-    # built_in_headers = gather_built_in_headers(args.built_in_include_directories)
-    # log.debug(f"Discovered built in headers: {len(built_in_headers)}")
-
-    # toolchain_headers = gather_toolchain_headers(
-    #     toolchain_files=args.toolchain_files, toolchain_include_dirs=args.toolchain_include_directories
-    # )
-    # log.debug(f"Discovered toolchain headers: {len(toolchain_headers)}")
-
-    # # We do not want to report duplicate values
-    # all_headers = list(set(built_in_headers + toolchain_headers))
-    # log.debug(f"Total unique headers: {len(all_headers)}")
 
     with args.output.open(mode="wt", encoding="utf-8") as output:
         json.dump(headers, output)

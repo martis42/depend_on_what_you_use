@@ -76,8 +76,7 @@ register_toolchains("@llvm_toolchain//:all")
     ToolchainConfig(
         name="toolchains_llvm_bootstrapped",
         source="https://github.com/cerisier/toolchains_llvm_bootstrapped",
-        bazel_versions=[BazelVersion("7.x"), BazelVersion("8.0.0")],
-        # Theoretically supports Darwin, practically tries to download unaccessible artifacts
+        bazel_versions=[BazelVersion("7.0.0"), BazelVersion("8.0.0")],
         # Does use gcc although it should use clang, is somehow broken ...
         platforms=[],
         extra_args=["--experimental_cc_static_library"],
@@ -90,7 +89,8 @@ register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
     ToolchainConfig(
         name="hermetic_cc_toolchain",
         source="https://github.com/uber/hermetic_cc_toolchain",
-        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.0.0"), BazelVersion("rolling")],
+        # On GitHub worker das not work with Bazel >= 9.0.0 for an unknown reason. Compiler is executable but does provide empty output when called.
+        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.0.0"), BazelVersion("8.0.0")],
         platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="""
@@ -105,7 +105,7 @@ register_toolchains("@zig_sdk//...")
     ToolchainConfig(
         name="toolchains_musl",
         source="https://github.com/bazel-contrib/musl-toolchain",
-        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.0.0"), BazelVersion("rolling")],
+        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.0.0"), BazelVersion("8.0.0"), BazelVersion("rolling")],
         # Cannot compile from Darwin to Darwin, just cross compile from Darwin to Linux. Cross compilation is not yet supported/tested though.
         platforms=["Linux"],
         extra_args=[],
