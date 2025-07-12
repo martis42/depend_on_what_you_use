@@ -53,6 +53,12 @@ def cli() -> Namespace:
         help="TBD",
     )
     parser.add_argument(
+        "--debug",
+        metavar="FILE",
+        type=Path,
+        help="TBD",
+    )
+    parser.add_argument(
         "--output",
         metavar="FILE",
         type=Path,
@@ -110,19 +116,15 @@ def gather_toolchain_headers(toolchain_files: list[Path], toolchain_include_dirs
 
 
 def main(args: Namespace) -> int:
-    # print("-----------------------------")
-    # print(args.stdout.read_text())
-    # print("-----------------------------")
-    # print(args.gcc_like_include_paths_info.read_text())
-    # print("-----------------------------")
-
     if args.gcc_like_include_paths_info:
         include_paths = []
 
         data = args.gcc_like_include_paths_info.read_text()
-        # print("-----------------------------")
-        # print(data)
-        # print("-----------------------------")
+        print("-----------------------------")
+        print(data)
+        print("-----------------------------")
+        print(args.debug.read_text())
+        print("#############################")
         found_include_paths_section = False
         for raw_line in data.splitlines():
             line = raw_line.strip()
