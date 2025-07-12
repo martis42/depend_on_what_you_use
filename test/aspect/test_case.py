@@ -68,7 +68,8 @@ class TestCaseBase(ABC):
     def _check_result(actual: subprocess.CompletedProcess, expected: ExpectedResult) -> Result:
         as_expected = expected.matches_expectation(return_code=actual.returncode, dwyu_output=actual.stdout)
 
-        log_level = logging.DEBUG if as_expected else logging.INFO
+        #log_level = logging.DEBUG if as_expected else logging.INFO
+        log_level = logging.INFO
         log.log(log_level, "----- DWYU stdout -----")
         log.log(log_level, actual.stdout.strip())
         log.log(log_level, "----- DWYU stderr -----")
@@ -116,6 +117,7 @@ class TestCaseBase(ABC):
             "--",
             *targets,
         ]
-        log.debug(f"Executing: {shlex_join(cmd)}\n")
+        #log.debug(f"Executing: {shlex_join(cmd)}\n")
+        log.info(f"Executing: {shlex_join(cmd)}\n")
 
         return subprocess.run(cmd, env=test_env, capture_output=True, text=True, check=False)

@@ -1,0 +1,8 @@
+module(name = "test_toolchain_rule_based")
+
+# We need a modern rules_cc for rule based toolchains to work
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "bazel_skylib", version = "1.0.3")
+
+# Not part of root module, thus proper version requested
+bazel_dep(name = "rules_shell", version = "0.5.0")

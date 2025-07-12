@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
@@ -7,6 +8,7 @@ _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 def dwyu_aspect_factory(
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
+        ignore_toolchain_headers = False,
         ignored_includes = None,
         recursive = False,
         skip_external_targets = False,
@@ -49,13 +51,19 @@ def dwyu_aspect_factory(
                                     </li></ul>
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
 
+        ignore_toolchain_headers: Infer automatically which header files can be reached through the active Bazel CC toolchain without the target under inspection having to declare any explicit dependency.
+                                  Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
+                                  Automatically inferring the toolchain headers will become the default behavior in a future release.<br>
+                                  If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
+                                  This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).
+
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
                           You can extend this list of ignored headers or replace it with a custom one by providing a json file with the information to this attribute.<br>
                           Specification of possible files in the json file:
                           <ul><li>
                             `ignore_include_paths` : List of include paths which are ignored by the analysis.
-                            Setting this **disables ignoring the standard library include paths**.
+                            Setting this **disables ignoring the system and standard library include paths**.
                           </li><li>
                             `extra_ignore_include_paths` : List of concrete include paths which are ignored by the analysis.
                             Those are always ignored, no matter what other fields you provide.
@@ -108,7 +116,7 @@ def dwyu_aspect_factory(
         # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
         # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
         # required_providers = [CcInfo],
-        toolchains = use_cc_toolchain(),
+        toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
             # Remove CC_TOOLCHAIN_ATTRS after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
             "_cc_toolchain": attr.label(default = Label("@rules_cc//cc:current_cc_toolchain")),
@@ -119,6 +127,9 @@ def dwyu_aspect_factory(
                 cfg = "exec",
                 doc = "Tool Analyzing the include statement in the source code under inspection" +
                       " and comparing them to the available dependencies.",
+            ),
+            "_ignore_toolchain_headers": attr.bool(
+                default = ignore_toolchain_headers,
             ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
@@ -149,6 +160,10 @@ def dwyu_aspect_factory(
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoRemappingsInfo],
                 default = aspect_target_mapping,
+            ),
+            "_toolchain_headers": attr.label(
+                default = Label("@depend_on_what_you_use//src/aspect/support:toolchain_headers"),
+                providers = [DwyuCcToolchainHeadersInfo],
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

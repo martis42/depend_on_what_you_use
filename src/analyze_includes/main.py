@@ -63,6 +63,12 @@ def cli() -> Namespace:
         help="Config file in Json format specifying which include paths and patterns shall be ignored by the analysis.",
     )
     parser.add_argument(
+        "--toolchain_headers_info",
+        metavar="FILE",
+        type=Path,
+        help="Json file with a list of all include statements available through the Bazel CC toolchain.",
+    )
+    parser.add_argument(
         "--implementation_deps_available",
         action="store_true",
         help="""
@@ -81,7 +87,9 @@ def cli() -> Namespace:
 
 
 def main(args: Namespace) -> int:
-    ignored_includes = get_ignored_includes(args.ignored_includes_config)
+    ignored_includes = get_ignored_includes(
+        config_file=args.ignored_includes_config, toolchain_headers_info=args.toolchain_headers_info
+    )
 
     system_under_inspection = get_system_under_inspection(
         target_under_inspection=args.target_under_inspection,

@@ -5,6 +5,7 @@ py_library(
     testonly = True,
     srcs = [
         "bazel.py",
+        "platform.py",
         "result.py",
     ],
     visibility = ["//visibility:public"],

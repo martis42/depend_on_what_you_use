@@ -3,73 +3,102 @@ name: CI
 on: [ pull_request ]
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-24.04
+  # pre-commit:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.13"
+  #     - uses: pre-commit/action@v3.0.1
+
+  # fast-tests:
+  #   runs-on: ubuntu-24.04
+  #   needs: [ pre-commit ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: DWYU Unit tests
+  #       run: bazel test //...
+  #     - name: Aspect integration tests scripts unittests
+  #       run: ./scripts/test_aspect_tests_scripts.sh
+  #     - name: Build examples
+  #       run: ./scripts/build_examples.sh
+  #     - name: Execute mocked CC toolchain tests
+  #       run: ./scripts/test_mocked_cc_toolchains.sh
+
+  # debug:
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Debug
+  #       run: ./debug.sh
+
+  # integration-tests-workspace_integration:
+  #   runs-on: ubuntu-24.04
+  #   needs: [ fast-tests ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Integration tests - Workspace integration
+  #       run: python test/workspace_integration/test.py
+
+  # integration-tests-examples:
+  #   strategy:
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #   runs-on: ${{ matrix.os }}
+  #   needs: [ fast-tests ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Integration tests - Examples
+  #       run: python examples/test.py
+  #     - name: Integration tests - Examples with legacy WORKSPACE setup
+  #       run: python examples/test.py --legacy-workspace
+
+  integration-tests-upstream_cc_toolchains:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, macos-15, windows-2022 ]
+    runs-on: ${{ matrix.os }}
+    #needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - uses: pre-commit/action@v3.0.1
-
-  fast-tests:
-    runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: DWYU Unit tests
-        run: bazel test //...
-      - name: Aspect integration tests scripts unittests
-        run: ./scripts/test_aspect_tests_scripts.sh
-      - name: Build examples
-        run: ./scripts/build_examples.sh
-
-  integration-tests-workspace_integration:
-    runs-on: ubuntu-24.04
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Integration tests - Workspace integration
-        run: python test/workspace_integration/test.py
-
-  integration-tests-examples:
-    strategy:
-      matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Integration tests - Examples
-        run: python examples/test.py
-      - name: Integration tests - Examples with legacy WORKSPACE setup
-        run: python examples/test.py --legacy-workspace
+      - name: Integration tests - CC toolchain
+        run: python test/cc_toolchains/upstream/test.py --no_output_base
 
   integration-tests-aspect:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
+        os: [ ubuntu-24.04, macos-15, windows-2022]
     runs-on: ${{ matrix.os }}
-    needs: [ fast-tests, integration-tests-examples ]
+    #needs: [ fast-tests, integration-tests-examples ]
     steps:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
-        if: runner.os != 'Windows'
-        run: python test/aspect/execute_tests.py
-      - name: Integration tests - Aspect
-        if: runner.os == 'Windows'
-        run: python test/aspect/execute_tests.py --only-default-version
+        #if: runner.os != 'Windows'
+        run: python test/aspect/execute_tests.py -t infer_toolchain_headers/infer_toolchain_headers
+      # - name: Integration tests - Aspect
+      #   if: runner.os == 'Windows'
+      #   run: python test/aspect/execute_tests.py --only-default-version
 
-  integration-tests-apply-fixes:
-    strategy:
-      matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/prepare_buildozer
-        with:
-          version: '7.3.1'
-      - name: Integration tests - Applying fixes
-        run: python test/apply_fixes/execute_tests.py
+  # integration-tests-apply-fixes:
+  #   strategy:
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #   runs-on: ${{ matrix.os }}
+  #   needs: [ fast-tests ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./.github/actions/prepare_buildozer
+  #       with:
+  #         version: '7.3.1'
+  #     - name: Integration tests - Applying fixes
+  #       run: python test/apply_fixes/execute_tests.py

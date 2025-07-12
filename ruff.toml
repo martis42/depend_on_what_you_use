@@ -47,7 +47,7 @@ ignore = [
     # High false positive rate. Often a plain number is the most expressive, e.g. when checking lengths.
     "PLR2004",
     # XML is not an attack vector for DWYU, as we don't process user provided xml content. We generate the xml content
-    # we use oureselves via bazel (c)query. If somebody can manipulate bazel (c)query to inject malicious xml code, the
+    # we use ourselves via bazel (c)query. If somebody can manipulate bazel (c)query to inject malicious xml code, the
     # attacker has either way already access to the system.
     "S314",
     # We prefer the best practice to not use a shell for executing subprocess calls. The risk that we execute an invalid
@@ -59,6 +59,6 @@ ignore = [
     "TRY003",
 ]
 unfixable = [
-    # Removing unused imports while writing new code is annoying when execting Ruff via the IDE
+    # Removing unused imports while writing new code is annoying when expecting Ruff via the IDE
     "F401",
 ]
