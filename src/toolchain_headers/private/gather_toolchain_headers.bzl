@@ -89,6 +89,10 @@ load("//src/utils:utils.bzl", "print_cc_toolchain")
 
 #     return extract_include_paths(compile_cmd, cc_toolchain.compiler)
 
+def _make_verbose(ctx, args):
+    if "DWYU_VERBOSE" in ctx.configuration.default_shell_env:
+        args.add("--verbose")
+
 def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
     """
     TBD doc
@@ -117,7 +121,6 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
         outputs = [stdout, stderr],
         command = cmd,
         mnemonic = "DwyuQueryGccLikeCompilerIncludeDirs",
-        use_default_shell_env = False,
         env = compile_env,
     )
 
@@ -125,6 +128,7 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
     args.use_param_file("--param_file=%s")
     args.add("--gcc_like_include_paths_info", stderr)
     args.add("--output", output)
+    _make_verbose(ctx, args)
 
     ctx.actions.run(
         executable = ctx.executable._gatherer,
@@ -158,10 +162,10 @@ def _get_headers_for_msvc_like_toolchain(ctx, cc_toolchain, output):
     compile_env = cc_common.get_environment_variables(feature_configuration = feature_configuration, action_name = CPP_COMPILE_ACTION_NAME, variables = compile_variables)
     compile_cmd = cc_common.get_memory_inefficient_command_line(feature_configuration = feature_configuration, action_name = CPP_COMPILE_ACTION_NAME, variables = compile_variables)
 
-    print("#############")
-    print("\n", compile_env)
-    print("\n", compile_cmd)
-    print("#############")
+    # print("#############")
+    # print("\n", compile_env)
+    # print("\n", compile_cmd)
+    # print("#############")
 
     include_paths = _extract_msvc_include_paths(ctx, compile_env, compile_cmd)
 
@@ -169,6 +173,7 @@ def _get_headers_for_msvc_like_toolchain(ctx, cc_toolchain, output):
     args.use_param_file("--param_file=%s")
     args.add_all("--include_directories", include_paths, omit_if_empty = False)
     args.add("--output", output)
+    _make_verbose(ctx, args)
 
     ctx.actions.run(
         executable = ctx.executable._gatherer,

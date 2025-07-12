@@ -34,6 +34,11 @@ def cli() -> Namespace:
         help="Store all discovered headers in the specified file as list in json format.",
     )
     parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Verbose output for debugging",
+    )
+    parser.add_argument(
         "--param_file",
         metavar="FILE",
         type=Path,
@@ -85,6 +90,9 @@ def gather_toolchain_headers(toolchain_files: list[Path], toolchain_include_dirs
 
 
 def main(args: Namespace) -> int:
+    if args.verbose:
+        log.setLevel(logging.DEBUG)
+
     if args.gcc_like_include_paths_info:
         include_paths = []
 

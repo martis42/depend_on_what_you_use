@@ -57,6 +57,14 @@ class ToolchainConfig:
 
 
 TOOLCHAINS = [
+    # ToolchainConfig(
+    #     name="host_toolchain",
+    #     source="N/A",
+    #     bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.0.0"), BazelVersion("8.0.0"), BazelVersion("rolling")],
+    #     platforms=["Linux", "Darwin", "Windows"],
+    #     extra_args=[],
+    #     module_snippet="",
+    # ),
     ToolchainConfig(
         name="toolchains_llvm",
         source="https://github.com/bazel-contrib/toolchains_llvm",
@@ -89,8 +97,8 @@ register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
     ToolchainConfig(
         name="hermetic_cc_toolchain",
         source="https://github.com/uber/hermetic_cc_toolchain",
-        # On GitHub worker das not work with Bazel >= 9.0.0 for an unknown reason. Compiler is executable but does provide empty output when called.
-        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.0.0"), BazelVersion("8.0.0")],
+        # On GitHub worker das not work with Bazel >= 9.0.0 or 7.0.0 for an unknown reason. Compiler is executable but does provide empty output when called.
+        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.1.0"), BazelVersion("8.0.0")],
         platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="""
