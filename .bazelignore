@@ -34,3 +34,5 @@ test/aspect/unused_dep
 test/aspect/using_transitive_dep
 test/aspect/valid
 test/aspect/virtual_includes
+
+test/workspace_integration
