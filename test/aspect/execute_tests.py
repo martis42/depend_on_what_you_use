@@ -49,7 +49,8 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_disable_starlark_host_transitions": CompatibleVersions(minimum="6.0.0"),
     "--incompatible_sandbox_hermetic_tmp": CompatibleVersions(minimum="6.0.0", before="9.0.0"),
     "--incompatible_check_testonly_for_output_files": CompatibleVersions(minimum="6.0.0"),
-    "--incompatible_check_visibility_for_toolchains": CompatibleVersions(minimum="7.0.0"),
+    # Broken for rules_cc >= 0.1.2 which is automatically pulled when using Bazel 9
+    "--incompatible_check_visibility_for_toolchains": CompatibleVersions(minimum="7.0.0", before="9.0.0"),
     "--incompatible_auto_exec_groups": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
