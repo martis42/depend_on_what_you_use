@@ -39,6 +39,10 @@ def get_dependencies(bazel_query: BazelQuery, target: str) -> list[Dependency]:
         query=f'kind("rule", deps({target}) except deps({target}, 1))', args=[f"--output={output}", "--noimplicit_deps"]
     )
 
+    if not process.stdout:
+        # Targets without any dependency return nothing to stdout
+        return []
+
     if bazel_query.uses_cquery:
         full_query = json.loads(process.stdout)
         queried_targets = [result["target"] for result in full_query["results"]]
