@@ -23,6 +23,23 @@ class TestApplyFixesHelper(unittest.TestCase):
 
 
 class TestGetDependencies(unittest.TestCase):
+    def test_target_without_dependencies(self) -> None:
+        execute_query_mock = MagicMock()
+        execute_query_mock.configure_mock(
+            uses_cquery=False,
+            **{
+                "execute.return_value": CompletedProcess(
+                    args=[],
+                    returncode=0,
+                    stderr="",
+                    stdout="",
+                ),
+            },
+        )
+        deps = get_dependencies(bazel_query=execute_query_mock, target="")
+
+        self.assertEqual(deps, [])
+
     def test_parse_query_output(self) -> None:
         execute_query_mock = MagicMock()
         execute_query_mock.configure_mock(
