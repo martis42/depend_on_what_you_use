@@ -193,6 +193,14 @@ Some values are however set internally by the compiler while processing files an
 Common cases for such macros can be seen at [cppreference.com](https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros).
 While DWYU cannot generally know the values of all those compiler defined macros, we offer a feature to set `__cplusplus` based on a heuristic.
 
+## Specifying include paths via `copts` and similar
+
+Using the C/C++ rules attributes \[`copts`, `conlyopts`, `cxxopts`\] or the command line options \[`--copt`, `--copnlyopt`, `--cxxopt`\] to specify include paths is not supported.
+DWYU relies on the information in the `CcInfo` provider to analyze available include paths from dependencies, which does not include information provided via the copt options.
+
+If a targets has to define special include paths, it should use the proper Bazel API via the C/C++ rules attributes \[`includes`, `include_prefix`, `strip_include_prefix`\].
+Include paths specified by those attributes are respected by DWYU.
+
 # Supported Platforms
 
 ### Aspect
