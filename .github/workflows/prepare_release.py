@@ -88,8 +88,7 @@ def make_archive(tag: str) -> Path:
 def make_release_notes(archive: Path, tag: str) -> None:
     checksum_process = subprocess.run(["sha256sum", archive], check=True, capture_output=True, text=True)
     checksum = checksum_process.stdout.split(" ", 1)[0]
-    with Path("release_notes.txt").open(mode="w", encoding="utf-8") as release_notes:
-        release_notes.write(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag).strip())
+    Path("release_notes.txt").write_text(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag).strip())
 
 
 if __name__ == "__main__":

@@ -112,15 +112,13 @@ class ApplyFixesIntegrationTestsExecutor:
     def _setup_test_workspace(self, test: TestCaseBase, test_workspace: Path) -> None:
         shutil.copytree(src=test.test_sources, dst=str(test_workspace), dirs_exist_ok=True)
         shutil.copy(self.origin_workspace / ".bazelversion", test_workspace / ".bazelversion")
-        with test_workspace.joinpath("MODULE.bazel").open(mode="w", encoding="utf-8") as ws_file:
-            ws_file.write(
-                MODULE_FILE_TEMPLATE.format(
-                    dwyu_path=path_to_starlark_format(self.origin_workspace),
-                    extra_content=test.extra_workspace_file_content,
-                )
+        (test_workspace / "MODULE.bazel").write_text(
+            MODULE_FILE_TEMPLATE.format(
+                dwyu_path=path_to_starlark_format(self.origin_workspace),
+                extra_content=test.extra_workspace_file_content,
             )
-        with test_workspace.joinpath(".bazelrc").open(mode="w", encoding="utf-8") as ws_file:
-            ws_file.write(BAZEL_RC_FILE)
+        )
+        (test_workspace / ".bazelrc").write_text(BAZEL_RC_FILE)
 
     def _cleanup(self, test_workspace: Path) -> None:
         """

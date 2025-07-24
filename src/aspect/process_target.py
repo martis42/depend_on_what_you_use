@@ -78,8 +78,7 @@ def main(args: Namespace) -> int:
     if args.defines is not None:
         output["defines"] = args.defines
 
-    with args.output.open(mode="w", encoding="utf-8") as out:
-        out.write(json.dumps(output))
+    args.output.write_text(json.dumps(output), encoding="utf-8")
 
     return 0
 

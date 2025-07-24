@@ -29,9 +29,8 @@ def extract_header(text: str) -> list[str]:
 
 
 def main() -> None:
-    with INPUT.open(encoding="utf-8") as fin:
-        headers = extract_header(fin.read())
-        print("\n".join(f'"{h}",' for h in sorted(set(headers))))
+    headers = extract_header(INPUT.read_text())
+    print("\n".join(f'"{h}",' for h in sorted(set(headers))))
 
 
 if __name__ == "__main__":
