@@ -4,10 +4,8 @@ import json
 import logging
 from dataclasses import dataclass
 from itertools import chain
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from src.apply_fixes.bazel_query import BazelQuery
+from src.apply_fixes.bazel_query import BazelQuery
 
 log = logging.getLogger()
 

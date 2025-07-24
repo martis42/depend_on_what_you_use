@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import json
 import logging
+from argparse import Namespace
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from src.apply_fixes.bazel_query import BazelQuery
 from src.apply_fixes.buildozer_executor import BuildozerExecutor
 from src.apply_fixes.get_dwyu_reports import gather_reports, get_reports_search_dir
 from src.apply_fixes.search_missing_deps import search_missing_deps
 from src.apply_fixes.utils import args_string_to_list
-
-if TYPE_CHECKING:
-    from argparse import Namespace
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 log = logging.getLogger()

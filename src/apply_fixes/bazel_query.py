@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
+from subprocess import CompletedProcess
 
 from src.apply_fixes.utils import execute_and_capture
-
-if TYPE_CHECKING:
-    from pathlib import Path
-    from subprocess import CompletedProcess
 
 
 class BazelQuery:

@@ -3,10 +3,7 @@ from __future__ import annotations
 import logging
 import shlex
 import subprocess
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 log = logging.getLogger()
 

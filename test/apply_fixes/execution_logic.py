@@ -8,14 +8,11 @@ from pathlib import Path
 from platform import system
 from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING
 
+from test.apply_fixes.test_case import TestCaseBase
 from test.support.bazel import get_bazel_binary, get_current_workspace
 from test.support.platform import path_to_starlark_format
 from test.support.result import Error
-
-if TYPE_CHECKING:
-    from test.apply_fixes.test_case import TestCaseBase
 
 log = logging.getLogger()
 
