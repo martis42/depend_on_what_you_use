@@ -143,30 +143,29 @@ def extract_includes(file: Path, defines: list[str], include_paths: list[str]) -
     The preprocessor removes all comments and inactive code branches. This allows us then to find all include statements
     with a simple regex.
     """
-    with file.open(encoding="utf-8") as fin:
-        pre_processor = make_pre_processor()
-        for define in defines:
-            pre_processor.define(define)
-        for path in include_paths:
-            pre_processor.add_path(path)
+    pre_processor = make_pre_processor()
+    for define in defines:
+        pre_processor.define(define)
+    for path in include_paths:
+        pre_processor.add_path(path)
 
-        pre_processor.parse(fin.read())
-        output_sink = StringIO()
-        pre_processor.write(output_sink)
+    pre_processor.parse(file.read_text(encoding="utf-8"))
+    output_sink = StringIO()
+    pre_processor.write(output_sink)
 
-        included_paths = []
-        for include in re.findall(r"^\s*#include\s*(.+)", output_sink.getvalue(), re.MULTILINE):
-            if include.startswith(('"', "<")) and include.endswith(('"', ">")):
-                included_paths.append(include)
-            elif include in pre_processor.macros:
-                # Either a malformed include statement or an include path defined through a pre processor token.
-                # We ignore malformed include paths as they violate our assumptions of use.
-                # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
-                # The value is a list of 'LexToken' classes from 'ply.lex.LexToken'.
-                # In all our tests with include statements the list had always just one element.
-                included_paths.append(pre_processor.macros[include].value[0].value)
+    included_paths = []
+    for include in re.findall(r"^\s*#include\s*(.+)", output_sink.getvalue(), re.MULTILINE):
+        if include.startswith(('"', "<")) and include.endswith(('"', ">")):
+            included_paths.append(include)
+        elif include in pre_processor.macros:
+            # Either a malformed include statement or an include path defined through a pre processor token.
+            # We ignore malformed include paths as they violate our assumptions of use.
+            # 'macros' is a {str: 'Macro'} dictionary based on pcpp.parser.Macro.
+            # The value is a list of 'LexToken' classes from 'ply.lex.LexToken'.
+            # In all our tests with include statements the list had always just one element.
+            included_paths.append(pre_processor.macros[include].value[0].value)
 
-        return [Include(file=file, include=include.lstrip('"<').rstrip('">')) for include in included_paths]
+    return [Include(file=file, include=include.lstrip('"<').rstrip('">')) for include in included_paths]
 
 
 def filter_includes(includes: list[Include], ignored_includes: IgnoredIncludes) -> list[Include]:

@@ -71,14 +71,12 @@ def prepare_directory_layout() -> None:
 
 
 def create_files() -> None:
-    with TEST_FILE.open(mode="wt") as out:
-        tests = ""
-        for n in range(TEST_CASES):
-            tests += TEST_CASE.format(N=n)
-        out.write(TEMPLATE.format(TESTS=tests))
+    tests = ""
+    for n in range(TEST_CASES):
+        tests += TEST_CASE.format(N=n)
+    TEST_FILE.write_text(TEMPLATE.format(TESTS=tests))
 
-    with (OUTPUT_DIR / "BUILD").open(mode="wt") as out:
-        out.write(BUILD_FILE)
+    (OUTPUT_DIR / "BUILD").write_text(BUILD_FILE)
 
     # Ensure gtest was downlaoded
     subprocess.run(

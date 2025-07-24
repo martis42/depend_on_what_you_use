@@ -27,19 +27,16 @@ def main(args: Namespace) -> int:
 
     args.tree_root.mkdir(parents=True, exist_ok=True)
     if args.tree_part == "public_headers":
-        with args.tree_root.joinpath("tree_lib.h").open(mode="w", encoding="utf-8") as out:
-            out.write("int doTreeThings();\n")
+        (args.tree_root / "tree_lib.h").write_text("int doTreeThings();\n")
     elif args.tree_part == "private_headers":
-        with args.tree_root.joinpath("tree_impl.h").open(mode="w", encoding="utf-8") as out:
-            out.write("int doPrivateStuff() { return 1337; };\n")
+        (args.tree_root / "tree_impl.h").write_text("int doPrivateStuff() { return 1337; };\n")
     else:
-        with args.tree_root.joinpath("tree_lib.cc").open(mode="w", encoding="utf-8") as out:
-            out.write(
-                '#include "tree_artifact/public_hdrs.h/tree_lib.h"\n'
-                '#include "tree_artifact/private_hdrs.h/tree_impl.h"\n'
-                '#include "tree_artifact/some_lib.h"\n'
-                "int doTreeThings() { return doSomething() + doPrivateStuff(); };\n"
-            )
+        (args.tree_root / "tree_lib.cc").write_text(
+            '#include "tree_artifact/public_hdrs.h/tree_lib.h"\n'
+            '#include "tree_artifact/private_hdrs.h/tree_impl.h"\n'
+            '#include "tree_artifact/some_lib.h"\n'
+            "int doTreeThings() { return doSomething() + doPrivateStuff(); };\n"
+        )
 
     return 0
 

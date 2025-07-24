@@ -135,28 +135,24 @@ def prepare_directory_layout() -> None:
 
 
 def create_files() -> None:
-    with (LIB_DIR / "core_lib_header.h").open(mode="wt") as out:
-        out.write(CORE_LIB_HEADER)
+    (LIB_DIR / "core_lib_header.h").write_text(CORE_LIB_HEADER)
 
     for n in range(LIB_FILES):
-        with (LIB_DIR / f"lib_header_{n}.h").open(mode="wt") as out:
-            content = ""
-            for d in range(DUMMY_CLASSES_PER_FILE):
-                content += DUMMY_CLASS.format(N=f"{n}_{d}")
-                content += "\n"
-            out.write(LIB_HEADER_TEMPLATE.format(N=n, CONTENT=content))
+        content = ""
+        for d in range(DUMMY_CLASSES_PER_FILE):
+            content += DUMMY_CLASS.format(N=f"{n}_{d}")
+            content += "\n"
+        (LIB_DIR / f"lib_header_{n}.h").write_text(LIB_HEADER_TEMPLATE.format(N=n, CONTENT=content))
 
-    with MAIN.open(mode="wt") as out:
-        includes = "\n".join(f'#include "lib/lib_header_{n}.h"' for n in range(LIB_FILES))
-        movers = "\n".join(
-            f"    movers.push_back(std::make_shared<test_{n}::ByteMover_{n}_{d}>());"
-            for n in range(LIB_FILES)
-            for d in range(DUMMY_CLASSES_PER_FILE)
-        )
-        out.write(LIB_IMPL.format(INCLUDES=includes, MOVERS=movers))
+    includes = "\n".join(f'#include "lib/lib_header_{n}.h"' for n in range(LIB_FILES))
+    movers = "\n".join(
+        f"    movers.push_back(std::make_shared<test_{n}::ByteMover_{n}_{d}>());"
+        for n in range(LIB_FILES)
+        for d in range(DUMMY_CLASSES_PER_FILE)
+    )
+    MAIN.write_text(LIB_IMPL.format(INCLUDES=includes, MOVERS=movers))
 
-    with (OUTPUT_DIR / "BUILD").open(mode="wt") as out:
-        out.write(BUILD_FILE)
+    (OUTPUT_DIR / "BUILD").write_text(BUILD_FILE)
 
 
 def main() -> None:

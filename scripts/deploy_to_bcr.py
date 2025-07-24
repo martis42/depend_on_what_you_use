@@ -79,19 +79,16 @@ def setup_bcr_fork() -> None:
 def prepare_bcr_data(version: str) -> Path:
     module, presubmit = get_dwyu_files()
 
+    module_content = module.read_text()
     module_file_with_version = Path("/tmp/dwyu_with_version.MODULE.bazel")
-    with module.open(mode="rt", encoding="utf-8") as module_in:
-        module_content = module_in.read()
-    with module_file_with_version.open(mode="wt", encoding="utf-8") as module_out:
-        module_out.write(module_content.replace('version = "0.0.0",', f'version = "{version}",'))
+    module_file_with_version.write_text(module_content.replace('version = "0.0.0",', f'version = "{version}",'))
 
     bcr_data = Path("/tmp/dwyu_bcr_data.json")
-    with bcr_data.open(mode="wt", encoding="utf-8") as bcr_data_out:
-        bcr_data_out.write(
-            BCR_DATA_TEMPLATE.format(
-                version=version, module_dot_bazel=module_file_with_version, presubmit_dot_yml=presubmit
-            )
+    bcr_data.write_text(
+        BCR_DATA_TEMPLATE.format(
+            version=version, module_dot_bazel=module_file_with_version, presubmit_dot_yml=presubmit
         )
+    )
 
     return bcr_data
 

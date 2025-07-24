@@ -12,8 +12,7 @@ class TestCase(TestCaseBase):
         dwyu_process = self._run_and_capture_cmd(dwyu_cmd, check=False)
 
         log_file = self._workspace / "dwyu_log.log"
-        with log_file.open(mode="wt") as log:
-            log.write(dwyu_process.stdout)
+        log_file.write_text(dwyu_process.stdout)
 
         self._run_automatic_fix(extra_args=["--fix-unused", f"--dwyu-log-file={log_file}"])
 

@@ -120,8 +120,7 @@ def main(args: Namespace) -> int:
     result.report = args.report
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    with args.report.open(mode="w", encoding="utf-8") as report:
-        report.write(result.to_json())
+    args.report.write_text(result.to_json(), encoding="utf-8")
 
     if not result.is_ok():
         print(result.to_str())  # noqa: T201
