@@ -3,14 +3,13 @@ from __future__ import annotations
 import logging
 import subprocess
 from abc import ABC, abstractmethod
-from copy import deepcopy
-from os import environ
 from pathlib import Path
 from shlex import join as shlex_join
 from typing import TYPE_CHECKING
 
 from version import CompatibleVersions, TestedVersions
 
+from test.support.bazel import make_bazel_version_env
 from test.support.result import Error, Result, Success
 
 if TYPE_CHECKING:
@@ -97,9 +96,7 @@ class TestCaseBase(ABC):
         extra_args = extra_args if extra_args else []
         targets = target if isinstance(target, list) else [target]
 
-        test_env = deepcopy(environ)
-        test_env["USE_BAZEL_VERSION"] = self._tested_versions.bazel
-
+        test_env = make_bazel_version_env(self._tested_versions.bazel)
         cmd = [
             str(self._bazel_bin),
             f"--output_base={self._output_base}",
