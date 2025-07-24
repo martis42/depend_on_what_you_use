@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
+import shutil
 import subprocess
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from platform import system
-from shutil import copytree, rmtree
 from tempfile import TemporaryDirectory
 
 from test.apply_fixes.test_case import TestCaseBase
@@ -48,8 +48,6 @@ common --lockfile_mode=off
 # Some users require this setting to mitigate issues due to a large PYTHONPATH created by rules_python
 build --noexperimental_python_import_all_repositories
 """
-
-BAZEL_VERSION = "8.0.1"
 
 
 @dataclass
@@ -112,7 +110,8 @@ class ApplyFixesIntegrationTestsExecutor:
         return succeeded
 
     def _setup_test_workspace(self, test: TestCaseBase, test_workspace: Path) -> None:
-        copytree(src=test.test_sources, dst=str(test_workspace), dirs_exist_ok=True)
+        shutil.copytree(src=test.test_sources, dst=str(test_workspace), dirs_exist_ok=True)
+        shutil.copy(self.origin_workspace / ".bazelversion", test_workspace / ".bazelversion")
         with test_workspace.joinpath("MODULE.bazel").open(mode="w", encoding="utf-8") as ws_file:
             ws_file.write(
                 MODULE_FILE_TEMPLATE.format(
@@ -120,8 +119,6 @@ class ApplyFixesIntegrationTestsExecutor:
                     extra_content=test.extra_workspace_file_content,
                 )
             )
-        with test_workspace.joinpath(".bazelversion").open(mode="w", encoding="utf-8") as ws_file:
-            ws_file.write(BAZEL_VERSION)
         with test_workspace.joinpath(".bazelrc").open(mode="w", encoding="utf-8") as ws_file:
             ws_file.write(BAZEL_RC_FILE)
 
@@ -144,7 +141,7 @@ class ApplyFixesIntegrationTestsExecutor:
 
         # The hermetic Python toolchain contains read oly files which we can't remove without making them writable
         subprocess.run(["chmod", "-R", "+rw", output_base], check=True)
-        rmtree(output_base)
+        shutil.rmtree(output_base)
 
     def _get_test_definitions(self) -> list[TestDefinition]:
         tests_search_dir = self.origin_workspace / "test/apply_fixes"
