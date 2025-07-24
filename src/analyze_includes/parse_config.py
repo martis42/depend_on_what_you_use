@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from src.analyze_includes.parse_source import IgnoredIncludes
 from src.analyze_includes.std_header import STD_HEADER
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 IGNORED_PATHS_KEY = "ignore_include_paths"
 EXTRA_IGNORED_PATHS_KEY = "extra_ignore_include_paths"

@@ -2,12 +2,9 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from src.apply_fixes.summary import Summary
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 log = logging.getLogger()
 

@@ -1,16 +1,13 @@
 from __future__ import annotations
 
+import argparse
 import logging
 import platform
 import sys
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from src.apply_fixes.utils import args_string_to_list, execute_and_capture
-
-if TYPE_CHECKING:
-    import argparse
 
 
 def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Path]:

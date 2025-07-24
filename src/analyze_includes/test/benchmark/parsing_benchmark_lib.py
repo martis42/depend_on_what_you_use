@@ -1,10 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
 from time import time
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 from src.analyze_includes.parse_source import extract_includes, fast_includes_extraction
 

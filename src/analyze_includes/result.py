@@ -3,12 +3,9 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 from json import dumps
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from src.analyze_includes.parse_source import Include
+from src.analyze_includes.parse_source import Include
 
 
 @dataclass

@@ -55,6 +55,10 @@ ignore = [
     "S603",
     # We want the flexibility that the requested binary can be located at any path.
     "S607",
+    # We prefer lean import sections over this improvement which seems to have no measurable benefit
+    "TC001",
+    "TC002",
+    "TC003",
     # We prefer verbose exceptions
     "TRY003",
 ]

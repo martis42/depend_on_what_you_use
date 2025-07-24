@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from pathlib import PosixPath
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path, PosixPath
 
 
 def path_to_starlark_format(path: Path) -> str:

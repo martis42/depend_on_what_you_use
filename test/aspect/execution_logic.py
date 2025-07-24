@@ -4,15 +4,12 @@ import logging
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from re import fullmatch
-from typing import TYPE_CHECKING
 
+from test_case import TestCaseBase
 from version import CompatibleVersions, TestedVersions
 
 from test.support.bazel import get_bazel_binary, get_current_workspace, get_explicit_bazel_version
 from test.support.result import Error
-
-if TYPE_CHECKING:
-    from test_case import TestCaseBase
 
 log = logging.getLogger()
 

@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 import shutil
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 from test.support.platform import path_to_starlark_format
 

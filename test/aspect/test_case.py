@@ -5,15 +5,12 @@ import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
 from shlex import join as shlex_join
-from typing import TYPE_CHECKING
 
+from expected_result import ExpectedResult
 from version import CompatibleVersions, TestedVersions
 
 from test.support.bazel import make_bazel_version_env
 from test.support.result import Error, Result, Success
-
-if TYPE_CHECKING:
-    from expected_result import ExpectedResult
 
 log = logging.getLogger()
 
