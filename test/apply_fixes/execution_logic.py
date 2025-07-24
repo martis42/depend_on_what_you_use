@@ -17,7 +17,7 @@ from test.support.result import Error
 if TYPE_CHECKING:
     from test.apply_fixes.test_case import TestCaseBase
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 MODULE_FILE_TEMPLATE = """
 bazel_dep(name = "depend_on_what_you_use")

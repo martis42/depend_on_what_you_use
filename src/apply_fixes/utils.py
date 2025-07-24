@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 def args_string_to_list(args: str | None) -> list[str]:

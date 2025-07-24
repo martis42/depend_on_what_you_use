@@ -9,7 +9,7 @@ from src.apply_fixes.summary import Summary
 if TYPE_CHECKING:
     from pathlib import Path
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 class BuildozerExecutor:

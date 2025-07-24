@@ -5,7 +5,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 def cli() -> Namespace:

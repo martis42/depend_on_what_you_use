@@ -27,7 +27,7 @@ from test.support.bazel import (
 )
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 @dataclass

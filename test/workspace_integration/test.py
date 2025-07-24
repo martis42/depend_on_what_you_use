@@ -17,7 +17,7 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 from test.support.bazel import get_bazel_binary, get_explicit_bazel_version, make_bazel_version_env
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 BAZEL_VERSIONS_UNDER_TEST = [
     "6.4.0",

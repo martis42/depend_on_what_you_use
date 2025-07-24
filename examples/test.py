@@ -19,7 +19,7 @@ sys.path.insert(0, str(WORKSPACE_ROOT))
 from test.support.bazel import get_bazel_binary
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 @dataclass

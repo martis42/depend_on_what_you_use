@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from argparse import Namespace
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 # Bazel sets this environment for 'bazel run' to document the workspace root
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"

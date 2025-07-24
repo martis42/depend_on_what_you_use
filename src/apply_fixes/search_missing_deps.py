@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.apply_fixes.bazel_query import BazelQuery
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 @dataclass
