@@ -15,7 +15,7 @@ from execution_logic import main
 from test_case import CompatibleVersions, TestedVersions
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.

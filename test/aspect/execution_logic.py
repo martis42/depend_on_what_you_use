@@ -14,7 +14,7 @@ from test.support.result import Error
 if TYPE_CHECKING:
     from test_case import TestCaseBase
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 def execute_test(

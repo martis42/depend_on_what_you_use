@@ -8,7 +8,7 @@ from pathlib import Path
 
 from test.support.result import Error, Result
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 class TestCaseBase(ABC):

@@ -16,7 +16,7 @@ from test.support.result import Error, Result, Success
 if TYPE_CHECKING:
     from expected_result import ExpectedResult
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 class TestCaseBase(ABC):
