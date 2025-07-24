@@ -1,7 +1,7 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 bzl_library(
-    name = "bzl_srcs",
+    name = "cc_info_mapping_impl_bzl",
     srcs = [
         "direct_deps.bzl",
         "explicit.bzl",
