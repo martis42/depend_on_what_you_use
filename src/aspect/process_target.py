@@ -10,9 +10,21 @@ log = logging.getLogger()
 
 def cli() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument("--target", required=True, type=str, help="Target which is being analyzed.")
-    parser.add_argument("--output", required=True, type=Path, help="Stores the analysis in this file.")
-    parser.add_argument("--header_files", required=True, nargs="*", help="Header files associated with the target.")
+    parser.add_argument(
+        "--target",
+        type=str,
+        help="Target which is being analyzed.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Stores the analysis in this file.",
+    )
+    parser.add_argument(
+        "--header_files",
+        nargs="*",
+        help="Header files associated with the target.",
+    )
     parser.add_argument(
         "--includes",
         nargs="*",
@@ -43,13 +55,25 @@ def cli() -> Namespace:
         help="Defines for this target."
         " Only relevant when analyzing the target under inspection itself. This is irrelevant for dependencies.",
     )
-    parser.add_argument("--verbose", action="store_true", help="Print debugging output")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print debugging output",
+    )
+    parser.add_argument(
+        "--param_file",
+        metavar="FILE",
+        type=Path,
+        help="""
+        If the command line input would be too large, one can provide the arguments via a file.
+        Overwrites all other parameters which might have provided via the CLI in parallel to '--param_file'.
+        """,
+    )
 
-    if len(sys.argv) == 2 and sys.argv[1].startswith("--param_file="):
-        param_file = Path(sys.argv[1][len("--param_file=") :])
-        args = parser.parse_args(param_file.read_text().splitlines())
-    else:
-        args = parser.parse_args()
+    args = parser.parse_args()
+    if args.param_file:
+        args = parser.parse_args(args.param_file.read_text().splitlines())
+
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
