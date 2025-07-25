@@ -25,25 +25,25 @@ Then a test can specify only the dependency to `@com_google_googletest//:gtest_m
 
 load("@depend_on_what_you_use//src/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("@depend_on_what_you_use//src/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
-load("@depend_on_what_you_use//src/cc_info_mapping/private:providers.bzl", "DwyuCcInfoRemapInfo")
+load("@depend_on_what_you_use//src/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("@depend_on_what_you_use//src/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("@depend_on_what_you_use//src/utils:utils.bzl", "label_to_name")
-load(":providers.bzl", "DwyuCcInfoRemappingsInfo")
+load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
 MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
 
 def _make_remapping_info_impl(ctx):
-    return DwyuCcInfoRemappingsInfo(mapping = {
-        remap[DwyuCcInfoRemapInfo].target: remap[DwyuCcInfoRemapInfo].cc_info
+    return DwyuCcInfoMappingInfo(mapping = {
+        remap[DwyuRemappedCcInfo].target: remap[DwyuRemappedCcInfo].cc_info
         for remap in ctx.attr.remappings
     })
 
 _make_remapping_info = rule(
     implementation = _make_remapping_info_impl,
-    provides = [DwyuCcInfoRemappingsInfo],
+    provides = [DwyuCcInfoMappingInfo],
     attrs = {
-        "remappings": attr.label_list(providers = [DwyuCcInfoRemapInfo]),
+        "remappings": attr.label_list(providers = [DwyuRemappedCcInfo]),
     },
 )
 

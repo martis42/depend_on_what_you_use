@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("@depend_on_what_you_use//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
@@ -208,7 +208,7 @@ def _gather_defines(ctx, target_compilation_context, target_files):
 
 def _exchange_cc_info(deps, mapping):
     transformed = []
-    mapping_info = mapping[0][DwyuCcInfoRemappingsInfo].mapping
+    mapping_info = mapping[0][DwyuCcInfoMappingInfo].mapping
     for dep in deps:
         if dep.label in mapping_info:
             transformed.append(struct(label = dep.label, cc_info = mapping_info[dep.label]))

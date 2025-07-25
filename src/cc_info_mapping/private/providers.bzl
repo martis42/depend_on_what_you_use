@@ -1,4 +1,4 @@
-DwyuCcInfoRemapInfo = provider(
+DwyuRemappedCcInfo = provider(
     "An alternative CcInfo object for a target which can be used by DWYU during the analysis",
     fields = {
         "cc_info": "CcInfo provider",

@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
+load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("@depend_on_what_you_use//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(":dwyu.bzl", "dwyu_aspect_impl")
@@ -186,7 +186,7 @@ def dwyu_aspect_factory(
                 default = aspect_skipped_tags,
             ),
             "_target_mapping": attr.label_list(
-                providers = [DwyuCcInfoRemappingsInfo],
+                providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
             ),
             "_use_implementation_deps": attr.bool(
