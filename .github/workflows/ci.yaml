@@ -74,10 +74,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Integration tests - Aspect
         if: runner.os != 'Windows'
-        run: python test/aspect/execute_tests.py
+        run: python test/aspect/execute_tests.py --no_output_base
       - name: Integration tests - Aspect
         if: runner.os == 'Windows'
-        run: python test/aspect/execute_tests.py --only-default-version
+        run: python test/aspect/execute_tests.py --only-default-version --no_output_base
 
   integration-tests-apply-fixes:
     strategy:

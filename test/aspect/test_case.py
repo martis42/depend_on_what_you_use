@@ -19,7 +19,7 @@ class TestCaseBase(ABC):
     def __init__(self, name: str) -> None:
         self._name = name
         self._tested_versions = TestedVersions(bazel="", python="")
-        self._output_base = Path()
+        self._output_base: Path | None = None
         self._extra_args: list[str] = []
 
     #
@@ -52,7 +52,7 @@ class TestCaseBase(ABC):
         return "//:aspect.bzl%dwyu"
 
     def execute_test(
-        self, version: TestedVersions, bazel_bin: Path, output_base: Path, extra_args: list[str]
+        self, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
     ) -> Result:
         self._tested_versions = version
         self._bazel_bin = bazel_bin
@@ -90,13 +90,14 @@ class TestCaseBase(ABC):
     def _run_bazel_build(
         self, target: str | list[str], extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
+        output_base_arg = [f"--output_base={self._output_base}"] if self._output_base else []
         extra_args = extra_args if extra_args else []
         targets = target if isinstance(target, list) else [target]
 
         test_env = make_bazel_version_env(self._tested_versions.bazel)
         cmd = [
             str(self._bazel_bin),
-            f"--output_base={self._output_base}",
+            *output_base_arg,
             # Testing over many Bazel versions does work well with a static bazelrc file including flags which might not
             # be available in a some tested Bazel version.
             "--ignore_all_rc_files",
