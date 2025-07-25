@@ -90,6 +90,11 @@ def cli() -> Namespace:
         nargs="+",
         help="Run the specified test cases. Substrings will match against all test names including them.",
     )
+    parser.add_argument(
+        "--no_output_base",
+        action="store_true",
+        help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
+    )
 
     parsed_args = parser.parse_args()
     if (parsed_args.bazel and not parsed_args.python) or (not parsed_args.bazel and parsed_args.python):
@@ -116,5 +121,6 @@ if __name__ == "__main__":
             requested_tests=args.test,
             list_tests=args.list,
             only_default_version=args.only_default_version,
+            no_output_base=args.no_output_base,
         )
     )

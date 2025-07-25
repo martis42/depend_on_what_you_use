@@ -15,7 +15,7 @@ log = logging.getLogger()
 
 
 def execute_test(
-    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path, extra_args: list[str]
+    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
 ) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
         log.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
@@ -62,6 +62,13 @@ def file_to_test_name(test_file: Path) -> str:
     return test_file.parent.name + "/" + test_file.stem.replace("test_", "", 1)
 
 
+def prepare_output_base(version: TestedVersions) -> Path:
+    output_root = Path.home() / ".cache" / "bazel" / "dwyu"
+    output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
+    output_base.mkdir(parents=True, exist_ok=True)
+    return output_base
+
+
 def main(
     tested_versions: list[TestedVersions],
     version_specific_args: dict[str, CompatibleVersions],
@@ -70,6 +77,7 @@ def main(
     requested_tests: list[str] | None = None,
     list_tests: bool = False,
     only_default_version: bool = False,
+    no_output_base: bool = False,
 ) -> int:
     bazel_binary = get_bazel_binary()
     workspace_path = get_current_workspace(bazel_binary)
@@ -98,7 +106,6 @@ def main(
     versions = make_bazel_versions_explicit(versions=versions, bazel_bin=bazel_binary)
 
     failed_tests = []
-    output_root = Path.home() / ".cache" / "bazel" / "dwyu"
     for version in versions:
         log.info(f"""
 ###
@@ -106,15 +113,12 @@ def main(
 ###
 """)
 
-        output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
-        output_base.mkdir(parents=True, exist_ok=True)
-
+        output_base = prepare_output_base(version) if not no_output_base else None
         extra_args = [
             arg
             for arg, valid_versions in version_specific_args.items()
             if valid_versions.is_compatible_to(version.bazel)
         ]
-
         failed_tests.extend(
             [
                 f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
