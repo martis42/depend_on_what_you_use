@@ -1,6 +1,6 @@
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
-load(":providers.bzl", "DwyuCcInfoRemapInfo")
+load(":providers.bzl", "DwyuRemappedCcInfo")
 
 def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
@@ -14,23 +14,23 @@ def _aggregate_direct_deps_aspect_impl(target, ctx):
         compilation_contexts = [tgt[CcInfo].compilation_context for tgt in cc_targets],
     )
 
-    return DwyuCcInfoRemapInfo(target = target.label, cc_info = CcInfo(
+    return DwyuRemappedCcInfo(target = target.label, cc_info = CcInfo(
         compilation_context = aggregated_compilation_context,
         linking_context = target[CcInfo].linking_context,
     ))
 
 _aggregate_direct_deps_aspect = aspect(
     implementation = _aggregate_direct_deps_aspect_impl,
-    provides = [DwyuCcInfoRemapInfo],
+    provides = [DwyuRemappedCcInfo],
     attr_aspects = [],
 )
 
 def _mapping_to_direct_deps_impl(ctx):
-    return ctx.attr.target[DwyuCcInfoRemapInfo]
+    return ctx.attr.target[DwyuRemappedCcInfo]
 
 mapping_to_direct_deps = rule(
     implementation = _mapping_to_direct_deps_impl,
-    provides = [DwyuCcInfoRemapInfo],
+    provides = [DwyuRemappedCcInfo],
     attrs = {
         "target": attr.label(aspects = [_aggregate_direct_deps_aspect], providers = [CcInfo]),
     },
