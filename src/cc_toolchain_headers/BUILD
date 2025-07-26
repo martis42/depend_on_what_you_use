@@ -9,6 +9,5 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/cc_toolchain_headers/private:gather_cc_toolchain_headers_bzl",
-        "//src/private:utils",
     ],
 )
