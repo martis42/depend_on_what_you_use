@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from io import StringIO
@@ -82,7 +83,7 @@ def fast_includes_extraction(file: Path) -> list[Include]:  # noqa: C901
     Parse a C/C++ file and extract include statements which are not commented.
 
     Using this is not recommended as it has many limitations. However, pcpp is quite slow, so this can be a fallback
-    for users knwoing the known limitations do not apply to them or are acceptable.
+    for users knowing the known limitations do not apply to them or are acceptable.
 
     Constraints on include statements which are used to simplify the logic:
     - Only a single include statement can exist per line. If multiple include statement exist, the compiler ignores all
@@ -92,7 +93,7 @@ def fast_includes_extraction(file: Path) -> list[Include]:  # noqa: C901
       An appearing comment block end closes all existing comment block openings.
 
     Known limitations:
-    - Defines are inored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
+    - Defines are ignored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
       sure only a subset of headers is used for compilation.
     - Include statements which are added through a macro are not detected.
     - Include paths utilizing '../' are not resolved.
@@ -193,4 +194,14 @@ def get_relevant_includes_from_files(
             else:
                 includes = extract_includes(file=Path(file), defines=defines, include_paths=include_paths)
             all_includes.extend(includes)
+    return filter_includes(includes=all_includes, ignored_includes=ignored_includes)
+
+
+def aggregate_preprocessed_includes(preprocessed_includes: list[Path], ignored_includes: IgnoredIncludes,) -> list[Include]:
+    all_includes = []
+    for file in preprocessed_includes:
+        with file.open(mode="rt", encoding="utf-8") as fin:
+            data = json.load(fin)
+            all_includes.extend([Include(file=Path(data["file"]), include=inc) for inc in data["includes"]])
+
     return filter_includes(includes=all_includes, ignored_includes=ignored_includes)

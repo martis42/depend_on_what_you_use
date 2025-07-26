@@ -4,7 +4,7 @@ from pathlib import Path
 
 from src.analyze_includes.evaluate_includes import evaluate_includes
 from src.analyze_includes.parse_config import get_ignored_includes
-from src.analyze_includes.parse_source import get_relevant_includes_from_files
+from src.analyze_includes.parse_source import get_relevant_includes_from_files, aggregate_preprocessed_includes
 from src.analyze_includes.system_under_inspection import get_system_under_inspection
 
 
@@ -77,6 +77,13 @@ def cli() -> Namespace:
         Do not use this unless you have a performance problems and are sure the missing correctness is not hurting you.
         """,
     )
+    parser.add_argument(
+        "--preprocessed_input",
+        action="store_true",
+        help="""
+        TBD
+        """,
+    )
     return parser.parse_args()
 
 
@@ -88,20 +95,24 @@ def main(args: Namespace) -> int:
         deps=args.deps,
         impl_deps=args.implementation_deps,
     )
-    all_includes_from_public = get_relevant_includes_from_files(
-        files=args.public_files,
-        ignored_includes=ignored_includes,
-        defines=system_under_inspection.defines,
-        include_paths=system_under_inspection.include_paths,
-        no_preprocessor=args.no_preprocessor,
-    )
-    all_includes_from_private = get_relevant_includes_from_files(
-        files=args.private_files,
-        ignored_includes=ignored_includes,
-        defines=system_under_inspection.defines,
-        include_paths=system_under_inspection.include_paths,
-        no_preprocessor=args.no_preprocessor,
-    )
+    if args.preprocessed_input:
+        all_includes_from_public = aggregate_preprocessed_includes(preprocessed_includes=args.public_files, ignored_includes=ignored_includes)
+        all_includes_from_private = aggregate_preprocessed_includes(preprocessed_includes=args.private_files, ignored_includes=ignored_includes)
+    else:
+        all_includes_from_public = get_relevant_includes_from_files(
+            files=args.public_files,
+            ignored_includes=ignored_includes,
+            defines=system_under_inspection.defines,
+            include_paths=system_under_inspection.include_paths,
+            no_preprocessor=args.no_preprocessor,
+        )
+        all_includes_from_private = get_relevant_includes_from_files(
+            files=args.private_files,
+            ignored_includes=ignored_includes,
+            defines=system_under_inspection.defines,
+            include_paths=system_under_inspection.include_paths,
+            no_preprocessor=args.no_preprocessor,
+        )
 
     result = evaluate_includes(
         public_includes=all_includes_from_public,

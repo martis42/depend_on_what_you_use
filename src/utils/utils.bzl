@@ -49,3 +49,29 @@ def print_compilation_context(cc_info, headline = None):
         ei = external_includes,
         si = cc.system_includes,
     ))
+
+def print_cc_toolchain(cc_toolchain):
+    include_directories = "\n".join(["- {}".format(id) for  id in cc_toolchain.built_in_include_directories])
+    print(
+        """
+toolchain_id                 : {id}
+toolchain_label              : {label}
+cpu                          : {cpu}
+compiler                     : {compiler}
+compiler_executable          : {ce}
+preprocessor_executable      : {pe}
+built_in_include_directories : 
+{include_dirs}
+sysroot                      : {root}
+    """.rstrip().format(
+            id = cc_toolchain.toolchain_id,
+            label = cc_toolchain._toolchain_label,
+            cpu = cc_toolchain.cpu,
+            compiler = cc_toolchain.compiler,
+            ce = cc_toolchain.compiler_executable,
+            pe = cc_toolchain.preprocessor_executable,
+            include_dirs = include_directories,
+            root = cc_toolchain.sysroot,
+        ),
+    )
+    print_compilation_context(cc_info = cc_toolchain._cc_info, headline = "Toolchain CcInfo")

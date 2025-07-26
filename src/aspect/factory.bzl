@@ -114,7 +114,6 @@ def dwyu_aspect_factory(
             ),
             "_dwyu_binary": attr.label(
                 default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
-                allow_files = True,
                 executable = True,
                 cfg = "exec",
                 doc = "Tool Analyzing the include statement in the source code under inspection" +
@@ -133,6 +132,12 @@ def dwyu_aspect_factory(
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
                       " as separate action, since otherwise we can't look into TreeArtifact sources.",
+            ),
+            "_preprocessed_file_parser": attr.label(
+                default = Label("@depend_on_what_you_use//src/parse_preprocessed_file:parse_preprocessed_file"),
+                executable = True,
+                cfg = "exec",
+                doc = "TBD",
             ),
             "_recursive": attr.bool(
                 default = recursive,

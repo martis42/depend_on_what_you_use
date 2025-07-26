@@ -29,3 +29,22 @@ python = use_extension(
 python.toolchain(python_version = "3.8")
 
 bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
+
+
+# bazel_dep(name = "toolchains_llvm", version = "1.4.0")
+
+# llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+# llvm.toolchain(
+#   llvm_version = "16.0.0",
+# )
+
+# use_repo(llvm, "llvm_toolchain")
+
+# register_toolchains("@llvm_toolchain//:all")
+
+
+# bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.2.3")
+
+# register_toolchains(
+#     "@toolchains_llvm_bootstrapped//toolchain:all",
+# )

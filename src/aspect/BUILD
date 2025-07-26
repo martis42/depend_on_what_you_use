@@ -1,10 +1,21 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_python//python:py_binary.bzl", "py_binary")
+load(":toolchain_includes.bzl", "toolchain_includes")
 
 py_binary(
     name = "process_target",
     srcs = ["process_target.py"],
     visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "toolchain_includes",
+    srcs = ["toolchain_includes.py"],
+    visibility = ["//visibility:public"],
+)
+
+toolchain_includes(
+    name = "toolchain_headers",
 )
 
 bzl_library(

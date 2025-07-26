@@ -1,0 +1,42 @@
+# 0 "foo.c"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 0 "<command-line>" 2
+# 1 "foo.c"
+
+
+# 1 "c1.h" 1
+void DoC1() {}
+# 4 "foo.c" 2
+# 1 "../foo/c2.h" 1
+void DoC2() {}
+# 5 "foo.c" 2
+
+
+
+# 1 "a.h" 1
+# 1 "lib.h" 1
+# 1 "trans_lib.h" 1
+void TransStuff() {}
+# 2 "lib.h" 2
+
+void LibWork() {
+    TransStuff();
+}
+# 2 "a.h" 2
+
+void DoA() {
+    LibWork();
+}
+# 9 "foo.c" 2
+
+
+
+
+
+
+
+# 1 "d.h" 1
+void DoD() {}
+# 17 "foo.c" 2

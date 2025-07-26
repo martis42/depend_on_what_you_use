@@ -1,8 +1,9 @@
-load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME", "CPP_HEADER_PARSING_ACTION_NAME", "ASSEMBLE_ACTION_NAME", "PREPROCESS_ASSEMBLE_ACTION_NAME")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoRemappingsInfo")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
+load("//src/utils:utils.bzl", "print_cc_toolchain", "print_compilation_context")
 
 # Based on those references:
 # https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
@@ -259,6 +260,88 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
+def _create_compile_cmd(ctx, target, cc_toolchain, source_file, output_file):
+        feature_configuration = cc_common.configure_features(
+            ctx = ctx,
+            cc_toolchain = cc_toolchain,
+            language = "c++",
+            requested_features = ctx.features,
+            unsupported_features = ctx.disabled_features,
+        )
+
+        # What about external_includes ?
+        compile_variables = cc_common.create_compile_variables(
+            cc_toolchain = cc_toolchain,
+            feature_configuration = feature_configuration,
+            source_file = source_file,
+            output_file = output_file,
+            user_compile_flags = ctx.rule.attr.copts + ctx.fragments.cpp.cxxopts + ctx.fragments.cpp.copts,
+            include_directories = target[CcInfo].compilation_context.includes,
+            quote_include_directories = target[CcInfo].compilation_context.quote_includes,
+            system_include_directories = target[CcInfo].compilation_context.system_includes,
+            framework_include_directories = target[CcInfo].compilation_context.framework_includes,
+            preprocessor_defines = depset(transitive = [
+                target[CcInfo].compilation_context.defines,
+                target[CcInfo].compilation_context.local_defines,
+            ]),
+        )
+
+        # Action CPP_HEADER_PARSING_ACTION_NAME adds '-xc++-header -fsyntax-only' on top of what compilation does. This can be used to precompile headers and does more than is required
+        # Action PREPROCESS_ASSEMBLE_ACTION_NAME sounds related, but is not fitting due to ignoring the C++ standard, which can be relevant for deciding between includes
+
+        # We cannot directly work with 'compile_variables' in Starlark, thus we translate them into string representation
+        compiler_command_line_flags = cc_common.get_memory_inefficient_command_line(
+            feature_configuration = feature_configuration,
+            action_name = CPP_COMPILE_ACTION_NAME,
+            variables = compile_variables,
+        )
+
+        return compiler_command_line_flags
+
+def extract_includes(ctx, target, files, cc_toolchain):
+    # TODO give as arg
+    # TODO maybe Bazel bug that this is not part of compilation_context ?!?
+    impl_deps_hdrs = []
+    if hasattr(ctx.rule.attr, "implementation_deps"):
+        for dep in ctx.rule.attr.implementation_deps:
+            impl_deps_hdrs.extend(dep[CcInfo].compilation_context.headers.to_list())
+
+    extracted_includes = []
+    for file in files:
+        pp_file = ctx.actions.declare_file("{}.dwyu_pp".format(file.basename))
+
+        base_cmd = _create_compile_cmd(ctx, target, cc_toolchain, file.path, pp_file.path)
+        preprocess_cmd = base_cmd + ["-E"]
+
+        #print("Executing:\n", preprocess_cmd)
+
+        ctx.actions.run(
+            # We are not using the preprocessor, as we are reusing the command line args intended for the compiler
+            executable = cc_toolchain.compiler_executable,
+            inputs = cc_toolchain.all_files.to_list() + [file] + target[CcInfo].compilation_context.headers.to_list() + impl_deps_hdrs,
+            outputs = [pp_file],
+            #mnemonic = "FooBar",
+            #progress_message = "TBD",
+            arguments = preprocess_cmd,
+        )
+
+        includes_file = ctx.actions.declare_file("{}.dwyu_pp_includes.json".format(file.basename))
+        includes_args = ctx.actions.args()
+        includes_args.add("--input", pp_file)
+        includes_args.add("--output", includes_file)
+        ctx.actions.run(
+            executable = ctx.executable._preprocessed_file_parser,
+            inputs = [pp_file],
+            outputs = [includes_file],
+            #mnemonic = "FooBar",
+            #progress_message = "TBD",
+            arguments = [includes_args],
+        )
+
+        extracted_includes.append(includes_file)
+
+    return extracted_includes
+
 def dwyu_aspect_impl(target, ctx):
     """
     Implementation for the "Depend on What You Use" (DWYU) aspect.
@@ -270,6 +353,75 @@ def dwyu_aspect_impl(target, ctx):
     Returns:
         OutputGroup containing the generated report file
     """
+
+    cc_toolchain = find_cpp_toolchain(ctx)
+
+    public_files, private_files = _get_target_sources(ctx.rule)
+    public_includes = extract_includes(ctx, target, public_files, cc_toolchain)
+    private_includes = extract_includes(ctx, target, private_files, cc_toolchain)
+
+
+
+    # # Bazel bug that impl_deps are missing from headers ?!?
+    # impl_deps_hdrs = []
+    # if hasattr(ctx.rule.attr, "implementation_deps"):
+    #     #print(ctx.rule.attr.implementation_deps)
+    #     for x in ctx.rule.attr.implementation_deps:
+    #         #print(x)
+    #         #print_compilation_context(x[CcInfo])
+    #         impl_deps_hdrs.extend(x[CcInfo].compilation_context.headers.to_list())
+
+    # print(impl_deps_hdrs)
+
+    # preprocess_files = []
+
+    # public_files, private_files = _get_target_sources(ctx.rule)
+    
+    # for x in public_files + private_files:
+    #     #print(compiler_command_line_flags)
+
+    #     #print(x.path)
+    #     #print(x.basename)
+    #     pp_file = ctx.actions.declare_file("{}.dwyu_pp".format(x.basename))
+    #     #print(pp_file)
+    #     print(pp_file.path)
+    #     #print(pp_file.short_path)
+
+    #     base_cmd = _create_compile_cmd(ctx, target, cc_toolchain, x.path, pp_file.path)
+    #     preprocess_cmd = base_cmd + ["-E"]
+
+    #     print("Executing:\n", preprocess_cmd)
+
+    #     ctx.actions.run(
+    #         # We are not using the preprocessor, as we are reusing the command line args intended for the compiler
+    #         executable = cc_toolchain.compiler_executable,
+    #         inputs = cc_toolchain.all_files.to_list() + [x] + target[CcInfo].compilation_context.headers.to_list() + impl_deps_hdrs,
+    #         outputs = [pp_file],
+    #         #mnemonic = "FooBar",
+    #         #progress_message = "TBD",
+    #         arguments = preprocess_cmd,
+    #     )
+
+    #     preprocess_files.append(pp_file)
+
+    #     includes_file = ctx.actions.declare_file("{}.dwyu_pp_includes.json".format(x.basename))
+    #     includes_args = ctx.actions.args()
+    #     includes_args.add("--input", pp_file)
+    #     includes_args.add("--output", includes_file)
+    #     ctx.actions.run(
+    #         executable = ctx.executable._preprocessed_file_parser,
+    #         inputs = [pp_file],
+    #         outputs = [includes_file],
+    #         #mnemonic = "FooBar",
+    #         #progress_message = "TBD",
+    #         arguments = [includes_args],
+    #     )
+
+    #     preprocess_files.append(includes_file)
+
+
+    # foo = depset(direct = preprocess_files)
+    # return [OutputGroupInfo(dwyu = foo)]
 
     # Remove when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
     # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
@@ -317,11 +469,37 @@ def dwyu_aspect_impl(target, ctx):
     processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = ctx.attr._verbose)
     processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = ctx.attr._verbose)
 
+    # report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
+    # args = ctx.actions.args()
+    # args.add("--report", report_file)
+    # args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
+    # args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
+    # args.add("--target_under_inspection", processed_target)
+    # args.add_all("--deps", processed_deps, omit_if_empty = False)
+    # args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
+    # if ctx.attr._ignored_includes:
+    #     args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
+    # if _do_ensure_private_deps(ctx):
+    #     args.add("--implementation_deps_available")
+    # if ctx.attr._no_preprocessor:
+    #     args.add("--no_preprocessor")
+
+    # all_hdrs = target[CcInfo].compilation_context.headers.to_list()
+    # analysis_inputs = [processed_target] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
+    # ctx.actions.run(
+    #     executable = ctx.executable._dwyu_binary,
+    #     inputs = analysis_inputs,
+    #     outputs = [report_file],
+    #     mnemonic = "DwyuAnalyzeIncludes",
+    #     progress_message = "Analyze dependencies of {}".format(target.label),
+    #     arguments = [args],
+    # )
+
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
     args = ctx.actions.args()
     args.add("--report", report_file)
-    args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
-    args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
+    args.add_all("--public_files", public_includes, expand_directories = True, omit_if_empty = False)
+    args.add_all("--private_files", private_includes, expand_directories = True, omit_if_empty = False)
     args.add("--target_under_inspection", processed_target)
     args.add_all("--deps", processed_deps, omit_if_empty = False)
     args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
@@ -329,11 +507,10 @@ def dwyu_aspect_impl(target, ctx):
         args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
     if _do_ensure_private_deps(ctx):
         args.add("--implementation_deps_available")
-    if ctx.attr._no_preprocessor:
-        args.add("--no_preprocessor")
+    args.add("--preprocessed_input")        
 
     all_hdrs = target[CcInfo].compilation_context.headers.to_list()
-    analysis_inputs = [processed_target] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
+    analysis_inputs = [processed_target] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + public_includes + private_includes
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
         inputs = analysis_inputs,

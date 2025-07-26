@@ -1,0 +1,56 @@
+# 1 "foo.c"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 374 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "foo.c" 2
+
+
+#include "c1.h" /* clang -E -dI */
+# 3 "foo.c"
+# 1 "./c1.h" 1
+void DoC1() {}
+# 4 "foo.c" 2
+#include "../foo/c2.h" /* clang -E -dI */
+# 4 "foo.c"
+# 1 "./../foo/c2.h" 1
+void DoC2() {}
+# 5 "foo.c" 2
+
+
+
+#include "a.h" /* clang -E -dI */
+# 8 "foo.c"
+# 1 "./a.h" 1
+#include "lib.h" /* clang -E -dI */
+# 1 "./a.h"
+# 1 "./lib.h" 1
+#include "trans_lib.h" /* clang -E -dI */
+# 1 "./lib.h"
+# 1 "./trans_lib.h" 1
+void TransStuff() {}
+# 2 "./lib.h" 2
+
+void LibWork() {
+    TransStuff();
+}
+# 2 "./a.h" 2
+
+void DoA() {
+    LibWork();
+}
+# 9 "foo.c" 2
+
+
+
+
+
+
+
+#include "d.h" /* clang -E -dI */
+# 16 "foo.c"
+# 1 "./d.h" 1
+void DoD() {}
+# 16 "foo.c" 2
+
