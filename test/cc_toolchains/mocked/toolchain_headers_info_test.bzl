@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
+load("@depend_on_what_you_use//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 
 def _toolchain_headers_info_test_impl(ctx):
     # Distinguish between hermetic toolchain and system toolchain

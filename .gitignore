@@ -17,4 +17,4 @@ venv/
 .vscode
 
 # Test data
-src/aspect/private/analyze_includes/test/benchmark/parsing_examples
+dwyu/aspect/private/analyze_includes/test/benchmark/parsing_examples
