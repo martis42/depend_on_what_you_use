@@ -27,7 +27,7 @@ load("//src/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("//src/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//src/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("//src/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
-load("//src/utils:utils.bzl", "label_to_name")
+load("//src/private:utils.bzl", "label_to_name")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
