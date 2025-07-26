@@ -130,9 +130,9 @@ def dwyu_aspect_factory(
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
     if ignore_cc_toolchain_headers:
-        cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//src/aspect/support:cc_toolchain_headers")
+        cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//src/aspect/private:cc_toolchain_headers")
     else:
-        cc_toolchain_headers = Label("//src/aspect/support:cc_toolchain_headers_stub")
+        cc_toolchain_headers = Label("//src/aspect/private:cc_toolchain_headers_stub")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -167,7 +167,7 @@ def dwyu_aspect_factory(
                 default = experimental_no_preprocessor,
             ),
             "_process_target": attr.label(
-                default = Label("//src/aspect:process_target"),
+                default = Label("//src/aspect/private:process_target"),
                 executable = True,
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
