@@ -2,6 +2,8 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuRemappedCcInfo")
 
+visibility("//src/cc_info_mapping/...")
+
 def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
     We deliberately ignore implementation_deps since headers provided by them shall by design not be used by consumers

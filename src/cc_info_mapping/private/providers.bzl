@@ -1,3 +1,5 @@
+visibility("//src/cc_info_mapping/...")
+
 DwyuRemappedCcInfo = provider(
     "An alternative CcInfo object for a target which can be used by DWYU during the analysis",
     fields = {
