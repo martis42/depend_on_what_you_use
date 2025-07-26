@@ -1,5 +1,3 @@
-visibility("public")
-
 DwyuCcToolchainHeadersInfo = provider(
     "Information about header files which can be included without any explicit dependency through the CC toolchain.",
     fields = {

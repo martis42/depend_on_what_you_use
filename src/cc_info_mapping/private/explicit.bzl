@@ -2,6 +2,8 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuRemappedCcInfo")
 
+visibility("//src/cc_info_mapping/...")
+
 def _explicit_mapping_impl(ctx):
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
         compilation_contexts =

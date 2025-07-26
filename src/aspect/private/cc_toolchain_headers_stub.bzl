@@ -1,6 +1,6 @@
 load("//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 
-visibility("//src/aspect/...")
+visibility("private")
 
 def _cc_toolchain_headers_stub_impl(ctx):
     return DwyuCcToolchainHeadersInfo(headers_info = ctx.file._info)
