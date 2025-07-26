@@ -335,8 +335,11 @@ def dwyu_aspect_impl(target, ctx):
     if ctx.attr._ignore_cc_toolchain_headers:
         args.add("--toolchain_headers_info", ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
 
-    all_hdrs = target[CcInfo].compilation_context.headers.to_list()
-    analysis_inputs = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + ctx.files._ignored_includes + processed_deps + processed_impl_deps + private_files + all_hdrs
+    # Skip 'public_files' as those are included in the targets CcInfo.compilation_context.headers
+    analysis_inputs = depset(
+        direct = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
+        transitive = [target[CcInfo].compilation_context.headers],
+    )
     ctx.actions.run(
         executable = ctx.executable._dwyu_binary,
         inputs = analysis_inputs,

@@ -63,7 +63,7 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
     # Even if we don't utilize stdout capture it to not clutter the output without proper context to understand it
     cmd = "{COMPILER} {ARGS} > {STDOUT} 2> {STDERR}".format(COMPILER = cc_toolchain.compiler_executable, ARGS = " ".join(full_cmd), STDOUT = stdout.path, STDERR = stderr.path)
     ctx.actions.run_shell(
-        inputs = cc_toolchain.all_files.to_list() + [ctx.file._empty_cpp],
+        inputs = depset(direct = [ctx.file._empty_cpp], transitive = [cc_toolchain.all_files]),
         outputs = [stdout, stderr],
         command = cmd,
         mnemonic = "DwyuQueryGccLikeCompilerIncludeDirs",
