@@ -9,7 +9,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/cc_info_mapping/private:cc_info_mapping_impl_bzl",
-        "//src/utils",
+        "//src/private:utils",
     ],
 )
 

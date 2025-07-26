@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//src/utils:utils.bzl", "label_to_name")
+load("//src/private:utils.bzl", "label_to_name")
 
 def _label_to_name_test_impl(ctx):
     env = unittest.begin(ctx)
