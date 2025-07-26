@@ -1,6 +1,9 @@
 module(name = "dwyu_workspace_integration_tests")
 
-bazel_dep(name = "depend_on_what_you_use", dev_dependency = True)
+# Choose a custom name to prove we have no hard coded dependency on 'depend_on_what_you_use' being used as name
+# Strictly speaking this is only an issue with legacy WORKSPACE mode as bzlmod does module name mapping in the
+# background either way. Still, it does not hurt making sure explicitly this works as expected.
+bazel_dep(name = "depend_on_what_you_use", dev_dependency = True, repo_name = "custom_dwyu")
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../../",

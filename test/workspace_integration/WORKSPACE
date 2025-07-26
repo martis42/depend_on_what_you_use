@@ -1,14 +1,15 @@
 workspace(name = "dwyu_examples")
 
+# Choose a custom name to prove we have no hard coded dependency on 'depend_on_what_you_use' being used as name
 local_repository(
-    name = "depend_on_what_you_use",
+    name = "custom_dwyu",
     path = "../../",
 )
 
-load("@depend_on_what_you_use//:setup_step_1.bzl", "setup_step_1")
+load("@custom_dwyu//:setup_step_1.bzl", "setup_step_1")
 
 setup_step_1()
 
-load("@depend_on_what_you_use//:setup_step_2.bzl", "setup_step_2")
+load("@custom_dwyu//:setup_step_2.bzl", "setup_step_2")
 
 setup_step_2()
