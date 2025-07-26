@@ -2,6 +2,8 @@
 Utility functions for debugging. Those shall not be used in production code.
 """
 
+visibility("//dwyu/...")
+
 def print_compilation_context(cc_info, headline = None):
     """
     Print CcInfo's compilation_context in a structured way.
