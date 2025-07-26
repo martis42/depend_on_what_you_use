@@ -15,9 +15,9 @@ if not WS_DIR:
     ).stdout.strip()
 
 sys.path.append(WS_DIR)
-OUTPUT_DIR = Path(WS_DIR) / "src/analyze_includes/test/benchmark/parsing_examples/many_files"
+OUTPUT_DIR = Path(WS_DIR) / "src/aspect/private/analyze_includes/test/benchmark/parsing_examples/many_files"
 
-from src.analyze_includes.test.benchmark.parsing_benchmark_lib import run_benchmark  # noqa: E402
+from src.aspect.private.analyze_includes.test.benchmark.parsing_benchmark_lib import run_benchmark  # noqa: E402
 
 LIB_DIR = OUTPUT_DIR / "lib"
 MAIN = OUTPUT_DIR / "main.cpp"

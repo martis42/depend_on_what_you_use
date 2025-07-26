@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from src.analyze_includes.parse_source import Include
-from src.analyze_includes.result import Result
+from src.aspect.private.analyze_includes.parse_source import Include
+from src.aspect.private.analyze_includes.result import Result
 
 
 class TestResult(unittest.TestCase):

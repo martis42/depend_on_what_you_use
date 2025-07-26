@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.analyze_includes.parse_source import IgnoredIncludes
-from src.analyze_includes.std_header import STD_HEADER
+from src.aspect.private.analyze_includes.parse_source import IgnoredIncludes
+from src.aspect.private.analyze_includes.std_header import STD_HEADER
 
 IGNORED_PATHS_KEY = "ignore_include_paths"
 EXTRA_IGNORED_PATHS_KEY = "extra_ignore_include_paths"

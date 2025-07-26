@@ -3,7 +3,7 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 py_binary(
     name = "analyze_many_includes",
     srcs = ["analyze_many_includes.py"],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )
 
 py_binary(
@@ -21,5 +21,5 @@ py_binary(
 py_library(
     name = "parsing_benchmark_lib",
     srcs = ["parsing_benchmark_lib.py"],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )

@@ -15,9 +15,9 @@ if not WS_DIR:
     ).stdout.strip()
 
 sys.path.append(WS_DIR)
-OUTPUT_DIR = Path(WS_DIR) / "src/analyze_includes/test/benchmark/parsing_examples/many_macros"
+OUTPUT_DIR = Path(WS_DIR) / "src/aspect/private/analyze_includes/test/benchmark/parsing_examples/many_macros"
 
-from src.analyze_includes.test.benchmark.parsing_benchmark_lib import run_benchmark  # noqa: E402
+from src.aspect.private.analyze_includes.test.benchmark.parsing_benchmark_lib import run_benchmark  # noqa: E402
 
 TEST_FILE = OUTPUT_DIR / "foo.cpp"
 
@@ -85,7 +85,7 @@ def create_files() -> None:
             "--max_idle_secs=1",
             "build",
             "--nobuild",
-            "//src/analyze_includes/test/benchmark/parsing_examples/many_macros:all",
+            "//src/aspect/private/analyze_includes/test/benchmark/parsing_examples/many_macros:all",
         ],
         cwd=WS_DIR,
         shell=False,

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from src.analyze_includes.parse_source import (
+from src.aspect.private.analyze_includes.parse_source import (
     IgnoredIncludes,
     Include,
     extract_includes,
@@ -9,6 +9,8 @@ from src.analyze_includes.parse_source import (
     filter_includes,
     get_relevant_includes_from_files,
 )
+
+TEST_DATA = Path("src/aspect/private/analyze_includes/test/data")
 
 
 class TestInclude(unittest.TestCase):
@@ -100,19 +102,19 @@ class TestFilterIncludes(unittest.TestCase):
 
 class TestGetIncludesFromFileFast(unittest.TestCase):
     def test_empty_header(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/empty_header.h")
+        test_file = TEST_DATA / "empty_header.h"
         result = fast_includes_extraction(test_file)
 
         self.assertEqual(result, [])
 
     def test_single_include(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/another_header.h")
+        test_file = TEST_DATA / "another_header.h"
         result = fast_includes_extraction(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
 
     def test_commented_includes_single_line_comments(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
+        test_file = TEST_DATA / "commented_includes/single_line_comments.h"
         result = fast_includes_extraction(test_file)
 
         self.assertEqual(len(result), 2)
@@ -120,7 +122,7 @@ class TestGetIncludesFromFileFast(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_b.h") in result)
 
     def test_commented_includes_block_comments(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
+        test_file = TEST_DATA / "commented_includes/block_comments.h"
         result = fast_includes_extraction(test_file)
 
         self.assertEqual(len(result), 8)
@@ -134,7 +136,7 @@ class TestGetIncludesFromFileFast(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_h.h") in result)
 
     def test_commented_includes_mixed_style(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
+        test_file = TEST_DATA / "commented_includes/mixed_style.h"
         result = fast_includes_extraction(test_file)
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
@@ -142,19 +144,19 @@ class TestGetIncludesFromFileFast(unittest.TestCase):
 
 class TestGetIncludesFromFile(unittest.TestCase):
     def test_empty_header(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/empty_header.h")
+        test_file = TEST_DATA / "empty_header.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [])
 
     def test_single_include(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/another_header.h")
+        test_file = TEST_DATA / "another_header.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [Include(file=test_file, include="foo/bar.h")])
 
     def test_multiple_includes(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/some_header.h")
+        test_file = TEST_DATA / "some_header.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 4)
@@ -163,7 +165,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="some/path/to_a/system_header.h") in result)
 
     def test_commented_includes_single_line_comments(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/single_line_comments.h")
+        test_file = TEST_DATA / "commented_includes/single_line_comments.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 2)
@@ -171,7 +173,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_b.h") in result)
 
     def test_commented_includes_block_comments(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/block_comments.h")
+        test_file = TEST_DATA / "commented_includes/block_comments.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 8)
@@ -185,13 +187,13 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="active_h.h") in result)
 
     def test_commented_includes_mixed_style(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/commented_includes/mixed_style.h")
+        test_file = TEST_DATA / "commented_includes/mixed_style.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(result, [Include(file=test_file, include="active.h")])
 
     def test_includes_selected_through_defines(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/header_with_defines.h")
+        test_file = TEST_DATA / "header_with_defines.h"
         result = extract_includes(test_file, defines=["FOO", "BAZ 42"], include_paths=[])
 
         self.assertEqual(len(result), 4)
@@ -201,16 +203,16 @@ class TestGetIncludesFromFile(unittest.TestCase):
         self.assertTrue(Include(file=test_file, include="baz_greater_40.h") in result)
 
     def test_includes_selected_through_defines_from_header(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/use_defines.h")
+        test_file = TEST_DATA / "use_defines.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 3)
-        self.assertTrue(Include(file=test_file, include="src/analyze_includes/test/data/some_defines.h") in result)
+        self.assertTrue(Include(file=test_file, include=str(TEST_DATA / "some_defines.h")) in result)
         self.assertTrue(Include(file=test_file, include="expected/include_a.h") in result)
         self.assertTrue(Include(file=test_file, include="expected/include_b.h") in result)
 
     def test_include_based_on_pre_processor_token(self) -> None:
-        test_file = Path("src/analyze_includes/test/data/include_based_on_pre_processor_token.h")
+        test_file = TEST_DATA / "include_based_on_pre_processor_token.h"
         result = extract_includes(test_file, defines=[], include_paths=[])
 
         self.assertEqual(len(result), 1)
@@ -220,7 +222,7 @@ class TestGetIncludesFromFile(unittest.TestCase):
 class TestGetRelevantIncludesFromFiles(unittest.TestCase):
     def test_get_relevant_includes_from_files(self) -> None:
         result = get_relevant_includes_from_files(
-            files=["src/analyze_includes/test/data/some_header.h", "src/analyze_includes/test/data/another_header.h"],
+            files=[str(TEST_DATA / "some_header.h"), str(TEST_DATA / "another_header.h")],
             ignored_includes=IgnoredIncludes(paths={"vector"}, patterns=[]),
             defines=[],
             include_paths=[],
@@ -228,17 +230,10 @@ class TestGetRelevantIncludesFromFiles(unittest.TestCase):
         )
 
         self.assertEqual(len(result), 4)
-        self.assertTrue(Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="bar.h") in result)
-        self.assertTrue(
-            Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="foo/bar/baz.h") in result
-        )
-        self.assertTrue(
-            Include(file=Path("src/analyze_includes/test/data/some_header.h"), include="some/path/to_a/system_header.h")
-            in result
-        )
-        self.assertTrue(
-            Include(file=Path("src/analyze_includes/test/data/another_header.h"), include="foo/bar.h") in result
-        )
+        self.assertTrue(Include(file=TEST_DATA / "some_header.h", include="bar.h") in result)
+        self.assertTrue(Include(file=TEST_DATA / "some_header.h", include="foo/bar/baz.h") in result)
+        self.assertTrue(Include(file=TEST_DATA / "some_header.h", include="some/path/to_a/system_header.h") in result)
+        self.assertTrue(Include(file=TEST_DATA / "another_header.h", include="foo/bar.h") in result)
 
 
 if __name__ == "__main__":

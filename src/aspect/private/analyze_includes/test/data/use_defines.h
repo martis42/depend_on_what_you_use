@@ -1,4 +1,4 @@
-#include "src/analyze_includes/test/data/some_defines.h"
+#include "src/aspect/private/analyze_includes/test/data/some_defines.h"
 
 #ifdef MY_DEFINE
 #include "expected/include_a.h"

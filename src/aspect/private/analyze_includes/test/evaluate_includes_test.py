@@ -1,12 +1,12 @@
 import unittest
 from pathlib import Path
 
-from src.analyze_includes.evaluate_includes import (
+from src.aspect.private.analyze_includes.evaluate_includes import (
     does_include_match_available_files,
     evaluate_includes,
 )
-from src.analyze_includes.parse_source import Include
-from src.analyze_includes.system_under_inspection import CcTarget, SystemUnderInspection
+from src.aspect.private.analyze_includes.parse_source import Include
+from src.aspect.private.analyze_includes.system_under_inspection import CcTarget, SystemUnderInspection
 
 
 class TestIncludeTofileMatching(unittest.TestCase):
