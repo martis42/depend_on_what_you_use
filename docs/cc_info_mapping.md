@@ -28,7 +28,7 @@ Then a test can specify only the dependency to `@com_google_googletest//:gtest_m
 ## dwyu_make_cc_info_mapping
 
 <pre>
-load("@depend_on_what_you_use//src/cc_info_mapping:cc_info_mapping.bzl", "dwyu_make_cc_info_mapping")
+load("@depend_on_what_you_use//dwyu/cc_info_mapping:cc_info_mapping.bzl", "dwyu_make_cc_info_mapping")
 
 dwyu_make_cc_info_mapping(<a href="#dwyu_make_cc_info_mapping-name">name</a>, <a href="#dwyu_make_cc_info_mapping-mapping">mapping</a>)
 </pre>

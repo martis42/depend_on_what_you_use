@@ -2,9 +2,9 @@
 Public symbols available to DWYU users.
 """
 
-load("//src/aspect:factory.bzl", _dwyu_aspect_factory = "dwyu_aspect_factory")
+load("//dwyu/aspect:factory.bzl", _dwyu_aspect_factory = "dwyu_aspect_factory")
 load(
-    "//src/cc_info_mapping:cc_info_mapping.bzl",
+    "//dwyu/cc_info_mapping:cc_info_mapping.bzl",
     _MAP_DIRECT_DEPS = "MAP_DIRECT_DEPS",
     _MAP_TRANSITIVE_DEPS = "MAP_TRANSITIVE_DEPS",
     _dwyu_make_cc_info_mapping = "dwyu_make_cc_info_mapping",
