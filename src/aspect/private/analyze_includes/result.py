@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
 
-from src.analyze_includes.parse_source import Include
+from src.aspect.private.analyze_includes.parse_source import Include
 
 
 @dataclass

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from time import time
 
-from src.analyze_includes.parse_source import extract_includes, fast_includes_extraction
+from src.aspect.private.analyze_includes.parse_source import extract_includes, fast_includes_extraction
 
 # No benefit for using logging here
 # ruff: noqa: T201

@@ -1,9 +1,9 @@
 import time
 from pathlib import Path
 
-from src.analyze_includes.evaluate_includes import evaluate_includes
-from src.analyze_includes.parse_source import Include
-from src.analyze_includes.system_under_inspection import CcTarget, SystemUnderInspection
+from src.aspect.private.analyze_includes.evaluate_includes import evaluate_includes
+from src.aspect.private.analyze_includes.parse_source import Include
+from src.aspect.private.analyze_includes.system_under_inspection import CcTarget, SystemUnderInspection
 
 INCLUDES = 250
 FILES_PER_TARGET = 250

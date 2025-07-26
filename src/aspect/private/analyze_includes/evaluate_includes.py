@@ -3,9 +3,9 @@ from __future__ import annotations
 import functools
 from pathlib import Path
 
-from src.analyze_includes.parse_source import Include
-from src.analyze_includes.result import Result
-from src.analyze_includes.system_under_inspection import (
+from src.aspect.private.analyze_includes.parse_source import Include
+from src.aspect.private.analyze_includes.result import Result
+from src.aspect.private.analyze_includes.system_under_inspection import (
     CcTarget,
     SystemUnderInspection,
     UsageStatus,

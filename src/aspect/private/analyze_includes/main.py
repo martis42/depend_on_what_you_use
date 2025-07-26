@@ -2,10 +2,10 @@ import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from src.analyze_includes.evaluate_includes import evaluate_includes
-from src.analyze_includes.parse_config import get_ignored_includes
-from src.analyze_includes.parse_source import get_relevant_includes_from_files
-from src.analyze_includes.system_under_inspection import get_system_under_inspection
+from src.aspect.private.analyze_includes.evaluate_includes import evaluate_includes
+from src.aspect.private.analyze_includes.parse_config import get_ignored_includes
+from src.aspect.private.analyze_includes.parse_source import get_relevant_includes_from_files
+from src.aspect.private.analyze_includes.system_under_inspection import get_system_under_inspection
 
 
 def cli() -> Namespace:

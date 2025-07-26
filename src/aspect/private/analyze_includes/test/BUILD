@@ -3,7 +3,7 @@ load("@rules_python//python:py_test.bzl", "py_test")
 py_test(
     name = "evaluate_includes_test",
     srcs = ["evaluate_includes_test.py"],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )
 
 py_test(
@@ -16,7 +16,7 @@ py_test(
         "data/config/overwrite_default_ignore_paths.json",
         "data/config/system_headers_info.json",
     ],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )
 
 py_test(
@@ -34,13 +34,13 @@ py_test(
         "data/some_header.h",
         "data/use_defines.h",
     ],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )
 
 py_test(
     name = "result_test",
     srcs = ["result_test.py"],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )
 
 py_test(
@@ -54,5 +54,5 @@ py_test(
         "data/target_under_inspection.json",
         "data/target_under_inspection_empty.json",
     ],
-    deps = ["//src/analyze_includes:lib"],
+    deps = ["//src/aspect/private/analyze_includes:lib"],
 )

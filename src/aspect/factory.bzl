@@ -56,7 +56,7 @@ def dwyu_aspect_factory(
                                      Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
                                      Automatically inferring the toolchain headers will become the default behavior in a future release.<br>
                                      If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
-                                     This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
+                                     This list of headers can be seen in [std_header.py](/src/aspect/private/analyze_includes/std_header.py).<br>
                                      There is no reliable API available in Starlark to get all include paths to CC toolchain headers, since [CcToolchainInfo.built_in_include_directories](https://bazel.build/rules/lib/providers/CcToolchainInfo#built_in_include_directories) is an optional field without sanity checking.
                                      Thus, DWYU uses knowledge about the most common compilers and how to extract the include paths available to them.
                                      The supported compilers are GCC, clang and MSVC.
@@ -71,7 +71,7 @@ def dwyu_aspect_factory(
                                      </li></ul>
 
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
-                          This list of headers can be seen in [std_header.py](/src/analyze_includes/std_header.py).<br>
+                          This list of headers can be seen in [std_header.py](/src/aspect/private/analyze_includes/std_header.py).<br>
                           You can extend this list of ignored headers or replace it with a custom one by providing a json file with the information to this attribute.<br>
                           Specification of possible files in the json file:
                           <ul><li>
@@ -149,7 +149,7 @@ def dwyu_aspect_factory(
                 providers = [DwyuCcToolchainHeadersInfo],
             ),
             "_dwyu_binary": attr.label(
-                default = Label("//src/analyze_includes:analyze_includes"),
+                default = Label("//src/aspect/private/analyze_includes:analyze_includes"),
                 allow_files = True,
                 executable = True,
                 cfg = "exec",

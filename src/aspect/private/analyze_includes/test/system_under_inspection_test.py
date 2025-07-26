@@ -1,12 +1,14 @@
 import unittest
 from pathlib import Path
 
-from src.analyze_includes.system_under_inspection import (
+from src.aspect.private.analyze_includes.system_under_inspection import (
     CcTarget,
     UsageStatus,
     UsageStatusTracker,
     get_system_under_inspection,
 )
+
+TEST_DATA = Path("src/aspect/private/analyze_includes/test/data")
 
 
 class TestUsageStatusTracker(unittest.TestCase):
@@ -81,15 +83,9 @@ class TestCcTarget(unittest.TestCase):
 class TestGetSystemUnderInspection(unittest.TestCase):
     def test_load_full_file(self) -> None:
         sui = get_system_under_inspection(
-            target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection.json"),
-            deps=[
-                Path("src/analyze_includes/test/data/dep_info_foo.json"),
-                Path("src/analyze_includes/test/data/dep_info_bar.json"),
-            ],
-            impl_deps=[
-                Path("src/analyze_includes/test/data/implementation_dep_info_foo.json"),
-                Path("src/analyze_includes/test/data/implementation_dep_info_bar.json"),
-            ],
+            target_under_inspection=TEST_DATA / "target_under_inspection.json",
+            deps=[TEST_DATA / "dep_info_foo.json", TEST_DATA / "dep_info_bar.json"],
+            impl_deps=[TEST_DATA / "implementation_dep_info_foo.json", TEST_DATA / "implementation_dep_info_bar.json"],
         )
 
         self.assertEqual(sui.target_under_inspection.name, "//:baz")
@@ -117,9 +113,7 @@ class TestGetSystemUnderInspection(unittest.TestCase):
 
     def test_load_empty_file(self) -> None:
         sui = get_system_under_inspection(
-            target_under_inspection=Path("src/analyze_includes/test/data/target_under_inspection_empty.json"),
-            deps=[],
-            impl_deps=[],
+            target_under_inspection=TEST_DATA / "target_under_inspection_empty.json", deps=[], impl_deps=[]
         )
 
         self.assertEqual(sui.target_under_inspection.name, "//:foo")
