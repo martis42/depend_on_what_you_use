@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@depend_on_what_you_use//third_party/pcpp:repository.bzl", "pcpp")
+load("//third_party/pcpp:repository.bzl", "pcpp")
 
 def dependencies():
     maybe(

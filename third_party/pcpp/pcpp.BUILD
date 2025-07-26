@@ -4,5 +4,7 @@ py_library(
     name = "pcpp",
     srcs = glob(["pcpp/**/*"]),
     imports = ["."],
-    visibility = ["@depend_on_what_you_use//:__subpackages__"],
+    # Users are not supposed to reuse this directly. However, since users can include this project under
+    # a custom name, we can't restrict visibility.
+    visibility = ["//visibility:public"],
 )

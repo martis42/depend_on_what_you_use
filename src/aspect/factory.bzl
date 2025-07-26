@@ -1,6 +1,6 @@
-load("@depend_on_what_you_use//src/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load("@depend_on_what_you_use//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
+load("//src/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
+load("//src/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
@@ -149,7 +149,7 @@ def dwyu_aspect_factory(
                 providers = [DwyuCcToolchainHeadersInfo],
             ),
             "_dwyu_binary": attr.label(
-                default = Label("@depend_on_what_you_use//src/analyze_includes:analyze_includes"),
+                default = Label("//src/analyze_includes:analyze_includes"),
                 allow_files = True,
                 executable = True,
                 cfg = "exec",
@@ -167,7 +167,7 @@ def dwyu_aspect_factory(
                 default = experimental_no_preprocessor,
             ),
             "_process_target": attr.label(
-                default = Label("@depend_on_what_you_use//src/aspect:process_target"),
+                default = Label("//src/aspect:process_target"),
                 executable = True,
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
