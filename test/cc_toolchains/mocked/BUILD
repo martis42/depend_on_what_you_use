@@ -7,5 +7,5 @@ toolchain_headers_info_tests(
         "fizz",
         "foobar.h",
     ],
-    headers_info = "@depend_on_what_you_use//src/aspect/support:cc_toolchain_headers",
+    headers_info = "@depend_on_what_you_use//src/aspect/private:cc_toolchain_headers",
 )

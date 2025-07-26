@@ -10,7 +10,7 @@ cc_toolchain_headers_stub = rule(
     provides = [DwyuCcToolchainHeadersInfo],
     attrs = {"_info": attr.label(
         allow_single_file = True,
-        default = Label("//src/aspect/support:cc_toolchain_headers_info_stub.json"),
+        default = Label("//src/aspect/private:cc_toolchain_headers_info_stub.json"),
     )},
     doc = "Stub target doing nothing so the DWYU aspect does not needlessly try to analyze the CC toolchain if the user sets 'ignore_cc_toolchain_headers' to False",
 )
