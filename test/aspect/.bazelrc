@@ -4,7 +4,7 @@ startup --max_idle_secs=10
 # Always tell why tests fail
 test --test_output=errors
 
-# The integration tests don't are about higher versions than expected for our dependencies being used
+# The integration tests don't care about higher versions than expected for our dependencies being used
 common --check_direct_dependencies=off
 
 # The symlinks are cluttering the file tree without much value
