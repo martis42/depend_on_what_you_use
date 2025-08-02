@@ -18,3 +18,4 @@ venv/
 
 # Test data
 dwyu/aspect/private/analyze_includes/test/benchmark/parsing_examples
+test/benchmark/generated
