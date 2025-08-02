@@ -78,7 +78,7 @@ def create_files() -> None:
 
     (OUTPUT_DIR / "BUILD").write_text(BUILD_FILE)
 
-    # Ensure gtest was downlaoded
+    # Ensure gtest was downloaded
     subprocess.run(
         [
             "bazel",
@@ -133,8 +133,8 @@ def main() -> None:
     include_paths.extend(get_system_include_paths())
 
     # There is actually no major performance difference in the range 1 to 1'000 test macros in the test file. The main
-    # probelm is parsing the complex gtest headers including their transitive inclusions. When having 10'000
-    # test macros, the oparsing runtime increases significantly as then expanding the macros consumes the most time
+    # problem is parsing the complex gtest headers including their transitive inclusions. When having 10'000
+    # test macros, the parsing runtime increases significantly as then expanding the macros consumes the most time
     # during preprocessing.
     run_benchmark(file=TEST_FILE, defines=defines, include_paths=include_paths, iterations=5)
 

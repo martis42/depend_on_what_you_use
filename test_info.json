@@ -1,0 +1,13 @@
+{
+    "header_files": [
+        "external/test_toolchain_classic+/data/fizz/fizz",
+        "external/test_toolchain_classic+/data/fizz/buzz/buzz.h",
+        "external/test_toolchain_classic+/data/foobar/foobar.h"
+    ],
+    "include_statements": [
+        "buzz/buzz.h",
+        "buzz.h",
+        "foobar.h",
+        "fizz"
+    ]
+}

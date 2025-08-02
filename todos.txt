@@ -1,0 +1,33 @@
+===
+=== Preprocessing
+===
+
+
+# TODO add this to action.run for preprocessing to ensure to catch things influenced by env
+# see https://github.com/bazelbuild/rules_cc/blob/3dce172deec2a4563c28eae02a8bb18555abafb2/examples/my_c_compile/my_c_compile.bzl
+# env = cc_common.get_environment_variables(
+#     feature_configuration = feature_configuration,
+#     action_name = CPP_COMPILE_ACTION_NAME,
+#     variables = compile_variables,
+# )
+# print(env)
+
+# for preprocessor usage: https://learn.microsoft.com/en-us/cpp/build/reference/showincludes-list-include-files?view=msvc-170
+# easier then parsing the preprocessed file ?
+
+
+===
+=== Refactoring
+===
+
+TODO consistently use _bzl for .bzl file libraries and use doc_hub indirections to make stardoc_with_diff_test happy
+TODO try patching stardoc to revert https://github.com/bazelbuild/stardoc/pull/216 to exclude load statements. We need to maintain them manually, but can combine documentation
+
+TODO update release process to include attestation
+
+TODO common mnemonic style with DwyuFoo..
+
+TODO think about making a permanent test with "single_version_override(..)" to ensure our dependency assumptions are correct?
+TODO should we not just try old versions with "single_version_override(..)", but also the latest to see forward path problems early?
+
+TODO look into early pre-commit ty https://github.com/astral-sh/ty/issues/269#issuecomment-3036849199 

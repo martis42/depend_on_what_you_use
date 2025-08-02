@@ -1,5 +1,8 @@
 # Always tell why tests fail
 test --test_output=errors
 
+build:dwyu --aspects=//_test:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
+
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc

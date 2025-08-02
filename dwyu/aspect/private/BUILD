@@ -13,6 +13,18 @@ cc_toolchain_headers_stub(
 )
 
 py_binary(
+    name = "parse_preprocessor_output",
+    srcs = ["parse_gcc_like_preprocessor_output.py"],
+    # Compatibility to --noexperimental_python_import_all_repositories
+    imports = ["../../.."],
+    legacy_create_init = False,
+    main = "parse_gcc_like_preprocessor_output.py",
+    visibility = ["//visibility:public"],
+    # TODO make lib target
+    deps = ["//dwyu/cc_toolchain_headers/private:gather_cc_toolchain_headers_tool"],
+)
+
+py_binary(
     name = "process_target",
     srcs = ["process_target.py"],
     visibility = ["//visibility:public"],

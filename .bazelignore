@@ -14,6 +14,7 @@ test/apply_fixes/unused_dependency
 
 test/aspect
 test/aspect/alias
+test/aspect/cc_toolchain_preprocessor
 test/aspect/complex_includes
 test/aspect/defines
 test/aspect/external_repo

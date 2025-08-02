@@ -189,6 +189,14 @@ def main() -> None:
         iterations=ITERATIONS,
         jobs=JOBS,
     )
+    run_benchmark(
+        aspect="dwyu_cc_toolchain",
+        primer=primer,
+        bench_target=target,
+        description="CC toolchain based DWYU",
+        iterations=ITERATIONS,
+        jobs=JOBS,
+    )
 
 
 if __name__ == "__main__":
