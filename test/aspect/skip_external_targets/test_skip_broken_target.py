@@ -5,12 +5,17 @@ from test.support.result import Result
 
 
 class TestCase(TestCaseBase):
+    @property
+    def test_aspect(self) -> str:
+        aspect = "//skip_external_targets:aspect.bzl%dwyu_skip_external"
+        return aspect + "_cct" if self._cc_toolchain_based else aspect
+
     def execute_test_logic(self) -> Result:
         # If we would not skip al external targets the analysis would find an issue with the broken dependency
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="@skip_external_deps_test_repo//:broken_dep",
-            aspect="//skip_external_targets:aspect.bzl%dwyu_skip_external",
+            aspect=self.test_aspect,
         )
 
         return self._check_result(actual=actual, expected=expected)

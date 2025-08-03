@@ -16,8 +16,9 @@ log = logging.getLogger()
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, cc_toolchain_based: bool) -> None:
         self._name = name
+        self._cc_toolchain_based = cc_toolchain_based
         self._tested_versions = TestedVersions(bazel="", python="")
         self._output_base: Path | None = None
         self._extra_args: list[str] = []
@@ -39,6 +40,20 @@ class TestCaseBase(ABC):
         """
         return CompatibleVersions()
 
+    @property
+    def compatible_to_cc_toolchain_based(self) -> bool:
+        """
+        Overwrite this if the test case is not compatible to the CC toolchain based approach
+        """
+        return True
+
+    @property
+    def compatible_to_legacy_pcpp_based(self) -> bool:
+        """
+        Overwrite this if the test case is not compatible to the legacy pcpp based approach
+        """
+        return True
+
     #
     # Base Implementation
     #
@@ -49,7 +64,13 @@ class TestCaseBase(ABC):
 
     @property
     def default_aspect(self) -> str:
-        return "//:aspect.bzl%dwyu"
+        aspect = "//:aspect.bzl%dwyu"
+        return aspect + "_cct" if self._cc_toolchain_based else aspect
+
+    @property
+    def default_aspect_impl_deps(self) -> str:
+        aspect = "//:aspect.bzl%dwyu_impl_deps"
+        return aspect + "_cct" if self._cc_toolchain_based else aspect
 
     def execute_test(
         self, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]

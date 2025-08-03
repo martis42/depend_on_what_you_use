@@ -1,0 +1,202 @@
+###
+### many targets
+###
+
+#### Running Benchmark - Default legacy DWYU
+>> Iteration 0
+>> Duration 19.308 [s]
+
+>> Iteration 1
+>> Duration 16.489 [s]
+
+>> Iteration 2
+>> Duration 19.012 [s]
+
+>> Iteration 3
+>> Duration 16.752 [s]
+
+>> Iteration 4
+>> Duration 18.714 [s]
+
+Summary
+  Average runtime    : 18.055 [s]
+  Standard deviation : 1.329 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU
+>> Iteration 0
+>> Duration 20.009 [s]
+
+>> Iteration 1
+>> Duration 17.345 [s]
+
+>> Iteration 2
+>> Duration 17.375 [s]
+
+>> Iteration 3
+>> Duration 19.201 [s]
+
+>> Iteration 4
+>> Duration 19.202 [s]
+
+Summary
+  Average runtime    : 18.626 [s]
+  Standard deviation : 1.202 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU V2
+>> Iteration 0
+>> Duration 17.569 [s]
+
+>> Iteration 1
+>> Duration 17.478 [s]
+
+>> Iteration 2
+>> Duration 19.086 [s]
+
+>> Iteration 3
+>> Duration 19.068 [s]
+
+>> Iteration 4
+>> Duration 17.567 [s]
+
+Summary
+  Average runtime    : 18.153 [s]
+  Standard deviation : 0.844 [s]
+
+
+###
+### complex code
+###
+
+
+#### Running Benchmark - Default legacy DWYU
+>> Iteration 0
+>> Duration 3.880 [s]
+
+>> Iteration 1
+>> Duration 5.361 [s]
+
+>> Iteration 2
+>> Duration 3.843 [s]
+
+>> Iteration 3
+>> Duration 3.804 [s]
+
+>> Iteration 4
+>> Duration 3.734 [s]
+
+Summary
+  Average runtime    : 4.125 [s]
+  Standard deviation : 0.693 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU
+>> Iteration 0
+>> Duration 0.685 [s]
+
+>> Iteration 1
+>> Duration 0.677 [s]
+
+>> Iteration 2
+>> Duration 0.685 [s]
+
+>> Iteration 3
+>> Duration 0.677 [s]
+
+>> Iteration 4
+>> Duration 0.710 [s]
+
+Summary
+  Average runtime    : 0.687 [s]
+  Standard deviation : 0.013 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU V2
+>> Iteration 0
+>> Duration 0.679 [s]
+
+>> Iteration 1
+>> Duration 0.693 [s]
+
+>> Iteration 2
+>> Duration 0.664 [s]
+
+>> Iteration 3
+>> Duration 0.659 [s]
+
+>> Iteration 4
+>> Duration 0.657 [s]
+
+Summary
+  Average runtime    : 0.670 [s]
+  Standard deviation : 0.015 [s]
+
+
+
+###
+### many files
+###
+
+
+#### Running Benchmark - Default legacy DWYU
+>> Iteration 0
+>> Duration 6.169 [s]
+
+>> Iteration 1
+>> Duration 7.787 [s]
+
+>> Iteration 2
+>> Duration 6.216 [s]
+
+>> Iteration 3
+>> Duration 6.163 [s]
+
+>> Iteration 4
+>> Duration 6.162 [s]
+
+Summary
+  Average runtime    : 6.499 [s]
+  Standard deviation : 0.720 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU
+>> Iteration 0
+>> Duration 3.365 [s]
+
+>> Iteration 1
+>> Duration 3.348 [s]
+
+>> Iteration 2
+>> Duration 3.511 [s]
+
+>> Iteration 3
+>> Duration 3.248 [s]
+
+>> Iteration 4
+>> Duration 3.449 [s]
+
+Summary
+  Average runtime    : 3.384 [s]
+  Standard deviation : 0.101 [s]
+
+
+#### Running Benchmark - CC toolchain based DWYU V2
+>> Iteration 0
+>> Duration 3.204 [s]
+
+>> Iteration 1
+>> Duration 3.159 [s]
+
+>> Iteration 2
+>> Duration 3.030 [s]
+
+>> Iteration 3
+>> Duration 3.204 [s]
+
+>> Iteration 4
+>> Duration 3.200 [s]
+
+Summary
+  Average runtime    : 3.159 [s]
+  Standard deviation : 0.075 [s]

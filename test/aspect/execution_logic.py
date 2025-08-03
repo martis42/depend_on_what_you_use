@@ -15,10 +15,21 @@ log = logging.getLogger()
 
 
 def execute_test(
-    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
+    test: TestCaseBase,
+    version: TestedVersions,
+    bazel_bin: Path,
+    output_base: Path | None,
+    extra_args: list[str],
+    cc_toolchain_based: bool,
 ) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
         log.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
+        return True
+    if cc_toolchain_based and not test.compatible_to_cc_toolchain_based:
+        log.info(f"--- Skip '{test.name}' due to incompatibility to the CC toolchain based approach\n")
+        return True
+    if not cc_toolchain_based and not test.compatible_to_legacy_pcpp_based:
+        log.info(f"--- Skip '{test.name}' due to incompatibility to the legacy pcpp based approach\n")
         return True
     log.info(f">>> Test '{test.name}' with Bazel {version.bazel} and Python {version.python}")
 
@@ -76,6 +87,7 @@ def main(
     python: str | None = None,
     requested_tests: list[str] | None = None,
     list_tests: bool = False,
+    cc_toolchain_based: bool = False,
     only_default_version: bool = False,
     no_output_base: bool = False,
 ) -> int:
@@ -94,7 +106,7 @@ def main(
         name = file_to_test_name(test)
         if (requested_tests and any(requested in name for requested in requested_tests)) or (not requested_tests):
             module = SourceFileLoader("", str(test.resolve())).load_module()
-            tests.append(module.TestCase(name))
+            tests.append(module.TestCase(name=name, cc_toolchain_based=cc_toolchain_based))
 
     if bazel and python:
         versions = [TestedVersions(bazel=bazel, python=python)]
@@ -124,7 +136,12 @@ def main(
                 f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
                 for test in tests
                 if not execute_test(
-                    test=test, version=version, bazel_bin=bazel_binary, output_base=output_base, extra_args=extra_args
+                    test=test,
+                    version=version,
+                    bazel_bin=bazel_binary,
+                    output_base=output_base,
+                    extra_args=extra_args,
+                    cc_toolchain_based=cc_toolchain_based,
                 )
             ]
         )

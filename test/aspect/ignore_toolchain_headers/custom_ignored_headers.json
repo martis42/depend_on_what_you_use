@@ -1,5 +1,8 @@
-[
-    "toolchain/header_a.h",
-    "toolchain/header_b.hh",
-    "toolchain_header_c"
-]
+{
+    "header_files": [],
+    "include_statements": [
+        "toolchain/header_a.h",
+        "toolchain/header_b.hh",
+        "toolchain_header_c"
+    ]
+}
