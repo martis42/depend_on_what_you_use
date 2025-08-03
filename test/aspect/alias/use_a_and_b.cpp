@@ -1,7 +1,6 @@
 #include "alias/a.h"
 #include "alias/b.h"
 
-int main()
-{
+int main() {
     return doA() + doB();
 }

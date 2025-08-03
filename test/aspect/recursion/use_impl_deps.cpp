@@ -1,6 +1,5 @@
 #include "recursion/a.h"
 
-int doSth()
-{
+int doSth() {
     return 42;
 }

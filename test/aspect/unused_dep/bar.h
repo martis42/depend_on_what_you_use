@@ -1,8 +1,7 @@
 #ifndef BAR_H
 #define BAR_H
 
-int doStuff()
-{
+int doStuff() {
     return 1;
 }
 

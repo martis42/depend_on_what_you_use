@@ -1,6 +1,5 @@
 #include "unused_dep/bar.h"
 
-int main()
-{
+int main() {
     return doStuff();
 }

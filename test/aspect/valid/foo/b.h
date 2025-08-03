@@ -1,8 +1,7 @@
 #ifndef B_H
 #define B_H
 
-int doB()
-{
+int doB() {
     return 1;
 }
 

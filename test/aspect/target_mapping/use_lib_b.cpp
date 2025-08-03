@@ -1,6 +1,5 @@
 #include "target_mapping/libs/b.h"
 
-int main()
-{
+int main() {
     return doB();
 }

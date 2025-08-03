@@ -1,6 +1,5 @@
 #include "target_mapping/libs/c.h"
 
-int main()
-{
+int main() {
     return doC();
 }

@@ -3,8 +3,7 @@
 
 #include "implementation_deps/bar.h"
 
-int wrapBar()
-{
+int wrapBar() {
     return doBar() * 2;
 }
 

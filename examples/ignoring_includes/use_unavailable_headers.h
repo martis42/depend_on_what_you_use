@@ -5,5 +5,5 @@
 #include "some/header.h"
 
 // If all headers we want to ignore share a common path we can use patterns in the config to ease maintenance
-#include "some_pkg/foo.h"
 #include "some_pkg/bar.h"
+#include "some_pkg/foo.h"

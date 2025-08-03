@@ -1,8 +1,7 @@
 // Header is available via multiple paths
-#include <sub/dir/includes.h>
 #include <dir/includes.h>
+#include <sub/dir/includes.h>
 
-int main()
-{
+int main() {
     return doIncludes();
 }
