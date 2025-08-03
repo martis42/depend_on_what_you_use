@@ -63,3 +63,9 @@ repos:
         name: "mypy"
         # We overwrite the args as we configure mypy via our mypy.ini
         args: [ ]
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v20.1.8
+    hooks:
+    -   id: clang-format
+        types_or: [c++, c]
