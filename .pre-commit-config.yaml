@@ -15,6 +15,7 @@ repos:
       - id: check-json
       - id: check-yaml
       - id: check-symlinks
+      - id: check-merge-conflict
       - id: mixed-line-ending
         args: [ --fix=lf ]
       # Code style
