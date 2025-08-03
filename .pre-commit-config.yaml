@@ -19,8 +19,6 @@ repos:
       - id: end-of-file-fixer
         exclude: *generated_doc_files
       - id: trailing-whitespace
-      # Python code quality
-      - id: debug-statements
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
