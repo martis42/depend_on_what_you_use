@@ -12,4 +12,4 @@
 // Ensure the 'conditional_defines.h' header was included and parsed correctly by using some of its content
 #if SOME_VALUE > 40
 #include "defines/support/b.h"
-#else
+#endif
