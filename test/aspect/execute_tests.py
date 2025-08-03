@@ -31,6 +31,8 @@ TESTED_VERSIONS = [
 
 VERSION_SPECIFIC_ARGS = {
     "--enable_bzlmod": CompatibleVersions(minimum="6.2.0", before="7.0.0"),
+    # Reduce noise in test logs
+    "--check_direct_dependencies=off": CompatibleVersions(minimum="6.0.0"),
     # Experimental changes we want to be compatible for
     "--experimental_python_import_all_repositories=false": CompatibleVersions(minimum="1.0.0"),
     # Preparation for incompatible changes
