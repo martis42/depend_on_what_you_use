@@ -1,6 +1,5 @@
 #include "implementation_deps/foo.h"
 
-int useLibs()
-{
+int useLibs() {
     return doFoo() + 11;
 }

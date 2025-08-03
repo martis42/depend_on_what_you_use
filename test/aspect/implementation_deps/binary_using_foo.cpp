@@ -1,6 +1,5 @@
 #include "implementation_deps/foo.h"
 
-int main()
-{
+int main() {
     return doFoo();
 }

@@ -4,7 +4,6 @@
 #include "valid/foo/b.h"
 #include "valid/foo/textual.cc"
 
-int doBar()
-{
+int doBar() {
     return doB() + doPrivateA() + doPrivateB();
 }

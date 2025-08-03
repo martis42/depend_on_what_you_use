@@ -1,6 +1,5 @@
 #include "sub/dir/stripped.h"
 
-int main()
-{
+int main() {
     return doStripped();
 }

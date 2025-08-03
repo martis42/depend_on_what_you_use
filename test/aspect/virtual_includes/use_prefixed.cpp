@@ -1,6 +1,5 @@
 #include "virtual/prefix/prefixed.h"
 
-int main()
-{
+int main() {
     return doPrefixed();
 }

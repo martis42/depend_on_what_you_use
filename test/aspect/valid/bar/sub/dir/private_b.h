@@ -1,8 +1,7 @@
 #ifndef PRIVATE_B_H
 #define PRIVATE_B_H
 
-int doPrivateB()
-{
+int doPrivateB() {
     return 5;
 }
 

@@ -2,8 +2,7 @@
 #define BAR_H
 #include "using_transitive_dep/foo.h"
 
-int doStuff()
-{
+int doStuff() {
     return theAnswer() + 1;
 }
 

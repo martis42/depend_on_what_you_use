@@ -3,8 +3,7 @@
 
 #include "alias/a.h"
 
-int doB()
-{
+int doB() {
     return doA() + 11;
 }
 

@@ -4,8 +4,7 @@
 #include "foo.h"
 #include "some/dir/bar.h"
 
-int useLibs()
-{
+int useLibs() {
     return doFoo() + doBar();
 }
 
