@@ -97,6 +97,11 @@ def cli() -> Namespace:
         action="store_true",
         help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
     )
+    parser.add_argument(
+        "--no_extra_args",
+        action="store_true",
+        help="Do not add the various arguments for experimental and incompatible changes.",
+    )
 
     parsed_args = parser.parse_args()
     if (parsed_args.bazel and not parsed_args.python) or (not parsed_args.bazel and parsed_args.python):
@@ -114,10 +119,11 @@ if __name__ == "__main__":
     # Ensure we can invoke the script from various places
     chdir(Path(__file__).parent)
 
+    bazel_args = VERSION_SPECIFIC_ARGS if not args.no_extra_args else {}
     sys.exit(
         main(
             tested_versions=TESTED_VERSIONS,
-            version_specific_args=VERSION_SPECIFIC_ARGS,
+            version_specific_args=bazel_args,
             bazel=args.bazel,
             python=args.python,
             requested_tests=args.test,
