@@ -65,7 +65,12 @@ VERSION_SPECIFIC_ARGS = {
 
 def cli() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument("--verbose", "-v", action="store_true", help="Show output of test runs.")
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show output of test runs.",
+    )
     parser.add_argument(
         "--bazel",
         "-b",
@@ -85,7 +90,12 @@ def cli() -> Namespace:
         action="store_true",
         help="Execute tests only for the default Bazel and Python version.",
     )
-    parser.add_argument("--list", "-l", action="store_true", help="List all available test cases and return.")
+    parser.add_argument(
+        "--list",
+        "-l",
+        action="store_true",
+        help="List all available test cases and return.",
+    )
     parser.add_argument(
         "--test",
         "-t",
