@@ -77,3 +77,82 @@ We need to know if header `a.h` was included directly in `c.cpp` or is used tran
 Without this distinction we cannot compare the include statements to the list of direct dependencies.
 
 At the time of writing this no way could be found to configure GCC to generate `.d` files matching our requirements.
+
+## Using the Bazel CC toolchain preprocessor
+
+Running our own preprocessing is slow and provides imperfect results.
+On a first glance it seems like using the highly optimized CC toolchain preprocessor which is also used while you compile code might be a better choice.
+Especially, given one can get information about the included headers from it by parsing the preprocessed output or by using the `-H` option with gcc or clang.
+However, this approach has loop holes which can falsify the results due to how include guards work.
+
+Assume we have the `BUILD` file
+
+```starlark
+cc_library(
+  name = "transitive",
+  hdrs = ["transitive.h"],
+)
+
+cc_library(
+  name = "lib",
+  hdrs = ["lib.h"],
+  deps = ["//:transitive],
+)
+
+cc_binary(
+  name = "main",
+  srcs = ["main.cpp"],
+  deps = ["//:lib"],
+)
+```
+
+with these source files
+
+`transitive.h`
+
+```c++
+#ifndef TRANSITIVE_H
+#define TRANSITIVE_H
+
+void doDetails() {}
+
+#endif
+```
+
+`lib.h`
+
+```c++
+#ifndef TRANSITIVE_H
+#define TRANSITIVE_H
+
+#include "transitive.h"
+
+void doSome() {
+  doDetails();
+}
+
+void doOther() {}
+
+#endif
+```
+
+`main.cpp`
+
+```c++
+#include "lib.h"
+// This include violates the DWYU principles since the cc_binary target does not depend directly on //:transitive
+#include "transitive.h"
+
+int main() {
+  doDetails();
+  doOther();
+  return 0
+}
+```
+
+This basic example shows a violation of the principles enforced by DWYU.
+However, this is invisible to the preprocessor.
+The preprocessor will neither with the `-H` option (in case of gcc or clang) nor in its preprocessed output mention that `main.cpp` includes `transitive.h`.
+This is due to `lib.h` including `transitive.h` itself.
+After this the include guard of `transitive.h` is active and the second inclusion in `main.cpp` is ignored without any trace or warning about it being skipped.
+Consequently, we are missing the information to report this problem.
