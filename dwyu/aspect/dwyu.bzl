@@ -260,6 +260,120 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
+def _create_compile_cmd(ctx, target, cc_toolchain, source_file, output_file):
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        language = "c++",
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+
+    external_includes = [target[CcInfo].compilation_context.external_includes] if hasattr(target[CcInfo].compilation_context, "external_includes") else []
+    compile_variables = cc_common.create_compile_variables(
+        cc_toolchain = cc_toolchain,
+        feature_configuration = feature_configuration,
+        source_file = source_file,
+        output_file = output_file,
+        # TODO are there more copt like things in fragments?
+        user_compile_flags = ctx.rule.attr.copts + ctx.fragments.cpp.cxxopts + ctx.fragments.cpp.copts,
+        include_directories = target[CcInfo].compilation_context.includes,
+        quote_include_directories = target[CcInfo].compilation_context.quote_includes,
+        system_include_directories = depset(transitive = [target[CcInfo].compilation_context.system_includes] + external_includes),
+        framework_include_directories = target[CcInfo].compilation_context.framework_includes,
+        preprocessor_defines = depset(transitive = [
+            target[CcInfo].compilation_context.defines,
+            target[CcInfo].compilation_context.local_defines,
+        ]),
+    )
+
+    # Action CPP_HEADER_PARSING_ACTION_NAME adds '-xc++-header -fsyntax-only' on top of what compilation does. This can be used to precompile headers and does more than is required
+    # Action PREPROCESS_ASSEMBLE_ACTION_NAME sounds related, but is not fitting due to ignoring the C++ standard, which can be relevant for deciding between includes
+
+    compile_env = cc_common.get_environment_variables(feature_configuration = feature_configuration, action_name = CPP_COMPILE_ACTION_NAME, variables = compile_variables)
+    compile_cmd = cc_common.get_memory_inefficient_command_line(feature_configuration = feature_configuration, action_name = CPP_COMPILE_ACTION_NAME, variables = compile_variables)
+
+    return compile_env, compile_cmd
+
+def _extract_includes_from_files(ctx, target, files, cc_toolchain):
+    """
+    TBD
+    """
+
+    # TODO give as arg
+    # TODO maybe Bazel bug that this is not part of compilation_context ?!?
+    if hasattr(ctx.rule.attr, "implementation_deps"):
+        impl_deps_hdrs = depset(direct = [], transitive = [dep[CcInfo].compilation_context.headers for dep in ctx.rule.attr.implementation_deps])
+    else:
+        impl_deps_hdrs = depset(direct = [], transitive = [])
+
+    extracted_includes = []
+    for file in files:
+        artifact_base_name = "{}_{}.dwyu".format(target.label.name, file.basename)
+
+        preprocessor_sink = ctx.actions.declare_file(artifact_base_name + ".pp_sink")
+
+        compile_env, compile_cmd = _create_compile_cmd(ctx, target, cc_toolchain, file.path, preprocessor_sink.path)
+
+        # TODO logic for gcc vs msvc
+        # As we can't reuse the gcc/clang stuff either way, we use '-H', which is the most elegant approach
+        preprocess_cmd = [
+            # We are only interested in preprocessing
+            "-E",
+            # Tell the compiler to print discovered include statements
+            #"-H",
+            # We need to tell the preprocessor explicitly about us wanting C++
+            "-x",
+            "c++",
+        ] + compile_cmd
+
+        # TODO if len(preprocess_cmd) > 100 write into file and provide to gcc via '@<file_path>'
+
+        # MSVC: /showIncludes
+        # Only absolute paths
+        # Will need env + include flags from compile cmd for creating relative include statements
+
+        #print("Executing:\n", preprocess_cmd)
+
+        #output = ctx.actions.declare_file(artifact_base_name + ".pp_output.txt")
+
+        # TODO hard to debug when preprocessing fails :/
+        # Even if we don't utilize stdout capture it to not clutter the output without proper context to understand it
+        # We use the compiler and not the preprocessor binary, as we constructed explicitly a compile command which we den modified
+        #cmd = "{COMPILER} {ARGS} > {STDOUT} 2> {STDERR}".format(COMPILER = cc_toolchain.compiler_executable, ARGS = " ".join(preprocess_cmd), STDOUT = stdout.path, STDERR = stderr.path)
+        # We print the captured output in case the command fails to allow debugging. Otherwise, the user never sees the actual problem without manually executing the command in the sandbox without the output capturing part.
+        #cmd = "{COMPILER} {ARGS} 2> {OUTPUT} ; cat {OUTPUT}".format(COMPILER = cc_toolchain.compiler_executable, ARGS = " ".join(preprocess_cmd), OUTPUT = output.path)
+        cmd = "{COMPILER} {ARGS}".format(COMPILER = cc_toolchain.compiler_executable, ARGS = " ".join(preprocess_cmd))
+        ctx.actions.run_shell(
+            # TODO all files from target under inspection
+            inputs = depset(direct = [file], transitive = [cc_toolchain.all_files, impl_deps_hdrs, target[CcInfo].compilation_context.headers]),
+            #outputs = [output, preprocessor_sink],
+            outputs = [preprocessor_sink],
+            command = cmd,
+            mnemonic = "DwyuGccLikePreprocessing",
+            env = compile_env,
+        )
+
+        includes_file = ctx.actions.declare_file(artifact_base_name + ".pp_included_headers.json")
+        includes_args = ctx.actions.args()
+        includes_args.add("--file_under_inspection", file)
+
+        #includes_args.add("--preprocessor_output", output)
+        includes_args.add("--preprocessor_output", preprocessor_sink)
+        includes_args.add("--output", includes_file)
+        ctx.actions.run(
+            executable = ctx.executable._tool_preprocessor_output_parser,
+            #inputs = [output],
+            inputs = [preprocessor_sink],
+            outputs = [includes_file],
+            mnemonic = "DwyuProcessGccLikePreprocessingOutput",
+            arguments = [includes_args],
+        )
+
+        extracted_includes.append(includes_file)
+
+    return extracted_includes
+
 def dwyu_aspect_impl(target, ctx):
     """
     Implementation for the "Depend on What You Use" (DWYU) aspect.
@@ -297,11 +411,22 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = _gather_defines(
-        ctx,
-        target_compilation_context = target[CcInfo].compilation_context,
-        target_files = public_files + private_files,
-    )
+    target_deps, target_impl_deps = _preprocess_deps(ctx)
+
+    # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
+    #      target_under_inspection have the same dependency
+    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = ctx.attr._verbose)
+    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = ctx.attr._verbose)
+
+    if ctx.attr._use_cc_toolchain_preprocessor:
+        defines = []
+    else:
+        defines = _gather_defines(
+            ctx,
+            target_compilation_context = target[CcInfo].compilation_context,
+            target_files = public_files + private_files,
+        )
+
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
@@ -311,43 +436,66 @@ def dwyu_aspect_impl(target, ctx):
         verbose = ctx.attr._verbose,
     )
 
-    target_deps, target_impl_deps = _preprocess_deps(ctx)
+    if ctx.attr._use_cc_toolchain_preprocessor:
+        cc_toolchain = find_cc_toolchain(ctx)
+        public_includes = _extract_includes_from_files(ctx, target, public_files, cc_toolchain)
+        private_includes = _extract_includes_from_files(ctx, target, private_files, cc_toolchain)
 
-    # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
-    #      target_under_inspection have the same dependency
-    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = ctx.attr._verbose)
-    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = ctx.attr._verbose)
-
-    report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
-    args = ctx.actions.args()
-    args.add("--report", report_file)
-    args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
-    args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
-    args.add("--target_under_inspection", processed_target)
-    args.add_all("--deps", processed_deps, omit_if_empty = False)
-    args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
-    if ctx.attr._ignored_includes:
-        args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
-    if _do_ensure_private_deps(ctx):
-        args.add("--implementation_deps_available")
-    if ctx.attr._no_preprocessor:
-        args.add("--no_preprocessor")
-    if ctx.attr._ignore_cc_toolchain_headers:
+        report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
+        args = ctx.actions.args()
+        args.add("--report", report_file)
+        args.add_all("--publicly_included_header", public_includes, expand_directories = True, omit_if_empty = False)
+        args.add_all("--privately_included_header", private_includes, expand_directories = True, omit_if_empty = False)
+        args.add("--target_under_inspection", processed_target)
+        args.add_all("--deps", processed_deps, omit_if_empty = False)
+        args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
         args.add("--toolchain_headers_info", ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
 
-    # Skip 'public_files' as those are included in the targets CcInfo.compilation_context.headers
-    analysis_inputs = depset(
-        direct = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
-        transitive = [target[CcInfo].compilation_context.headers],
-    )
-    ctx.actions.run(
-        executable = ctx.executable._dwyu_binary,
-        inputs = analysis_inputs,
-        outputs = [report_file],
-        mnemonic = "DwyuAnalyzeIncludes",
-        progress_message = "Analyze dependencies of {}".format(target.label),
-        arguments = [args],
-    )
+        # if ctx.attr._ignored_includes:
+        #     args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
+        if _do_ensure_private_deps(ctx):
+            args.add("--implementation_deps_available")
+
+        analysis_inputs = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + processed_deps + processed_impl_deps + ctx.files._ignored_includes + public_includes + private_includes
+        ctx.actions.run(
+            executable = ctx.executable._tool_compare_includes_to_deps,
+            inputs = analysis_inputs,
+            outputs = [report_file],
+            mnemonic = "DwyuAnalyzeIncludesNew",
+            progress_message = "Analyze dependencies of {}".format(target.label),
+            arguments = [args],
+        )
+    else:
+        report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
+        args = ctx.actions.args()
+        args.add("--report", report_file)
+        args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
+        args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
+        args.add("--target_under_inspection", processed_target)
+        args.add_all("--deps", processed_deps, omit_if_empty = False)
+        args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
+        if ctx.attr._ignored_includes:
+            args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
+        if _do_ensure_private_deps(ctx):
+            args.add("--implementation_deps_available")
+        if ctx.attr._no_preprocessor:
+            args.add("--no_preprocessor")
+        if ctx.attr._ignore_cc_toolchain_headers:
+            args.add("--toolchain_headers_info", ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
+
+        # Skip 'public_files' as those are included in the targets CcInfo.compilation_context.headers
+        analysis_inputs = depset(
+            direct = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
+            transitive = [target[CcInfo].compilation_context.headers],
+        )
+        ctx.actions.run(
+            executable = ctx.executable._dwyu_binary,
+            inputs = analysis_inputs,
+            outputs = [report_file],
+            mnemonic = "DwyuAnalyzeIncludes",
+            progress_message = "Analyze dependencies of {}".format(target.label),
+            arguments = [args],
+        )
 
     accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
     return [OutputGroupInfo(dwyu = accumulated_reports)]

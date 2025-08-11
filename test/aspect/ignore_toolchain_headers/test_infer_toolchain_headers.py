@@ -11,11 +11,16 @@ class TestCase(TestCaseBase):
     done in the integration tests specific to this feature.
     """
 
+    @property
+    def test_aspect(self) -> str:
+        aspect = "//ignore_toolchain_headers:aspect.bzl%dwyu_ignore_toolchain_headers"
+        return aspect + "_cct" if self._cc_toolchain_based else aspect
+
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="//ignore_toolchain_headers:use_toolchain_header",
-            aspect="//ignore_toolchain_headers:aspect.bzl%dwyu_ignore_toolchain_headers",
+            aspect=self.test_aspect,
         )
 
         return self._check_result(actual=actual, expected=expected)

@@ -21,11 +21,18 @@ def cli() -> Namespace:
         help="File containing discovered toolchain headers we compare to the provided list of expected discovered headers",
     )
     parser.add_argument(
-        "--expected_headers",
+        "--expected_header_files",
         metavar="FILE",
         nargs="*",
         required=True,
-        help="We expect this content in '--input'. Order does not matter.",
+        help="We expect those header files to be in the file provided via '--input'. Order does not matter.",
+    )
+    parser.add_argument(
+        "--expected_include_statements",
+        metavar="FILE",
+        nargs="*",
+        required=True,
+        help="We expect those include statements to be in the file provided via '--input'. Order does not matter.",
     )
 
     return parser.parse_args()
@@ -37,16 +44,23 @@ def main(args: Namespace) -> int:
     input_data = args.input.read_text()
     data = json.loads(input_data)
 
-    sorted_input = sorted(data)
-    sorted_expected = sorted(args.expected_headers)
+    sorted_header_files = sorted(data["header_files"])
+    sorted_include_statements = sorted(data["include_statements"])
 
-    if sorted_input == sorted_expected:
+    correct_header_files = sorted_header_files == sorted(args.expected_header_files)
+    correct_include_statements = sorted_include_statements == sorted(args.expected_include_statements)
+
+    if correct_header_files and correct_include_statements:
         log.info("Test succeeded")
         return 0
 
     log.error("ERROR: Input does not match expectations")
-    log.error(f"  Input    : {sorted_input}")
-    log.error(f"  Expected : {sorted_expected}")
+    if not correct_header_files:
+        log.error(f"  Input    header_files : {sorted_header_files}")
+        log.error(f"  Expected header_files : {sorted(args.expected_header_files)}")
+    if not correct_include_statements:
+        log.error(f"  Input    include_statements : {sorted_include_statements}")
+        log.error(f"  Expected include_statements : {sorted(args.expected_include_statements)}")
     return 1
 
 
