@@ -10,6 +10,7 @@ def _make_verbose(ctx, args):
         args.add("--verbose")
 
 def _get_minimal_compile_action(ctx, cc_toolchain):
+    # TODO add requested_features and unsupported_features ?!?
     feature_configuration = cc_common.configure_features(ctx = ctx, cc_toolchain = cc_toolchain, language = "c++")
     compile_variables = cc_common.create_compile_variables(cc_toolchain = cc_toolchain, feature_configuration = feature_configuration, source_file = ctx.file._empty_cpp.path)
 

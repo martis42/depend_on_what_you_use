@@ -82,7 +82,7 @@ def fast_includes_extraction(file: Path) -> list[Include]:  # noqa: C901
     Parse a C/C++ file and extract include statements which are not commented.
 
     Using this is not recommended as it has many limitations. However, pcpp is quite slow, so this can be a fallback
-    for users knwoing the known limitations do not apply to them or are acceptable.
+    for users knowing the known limitations do not apply to them or are acceptable.
 
     Constraints on include statements which are used to simplify the logic:
     - Only a single include statement can exist per line. If multiple include statement exist, the compiler ignores all
@@ -92,7 +92,7 @@ def fast_includes_extraction(file: Path) -> list[Include]:  # noqa: C901
       An appearing comment block end closes all existing comment block openings.
 
     Known limitations:
-    - Defines are inored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
+    - Defines are ignored. Thus, a superset of all mentioned headers is analyzed, even if normally a define would make
       sure only a subset of headers is used for compilation.
     - Include statements which are added through a macro are not detected.
     - Include paths utilizing '../' are not resolved.

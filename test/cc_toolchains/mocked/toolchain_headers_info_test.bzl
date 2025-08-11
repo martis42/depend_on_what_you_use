@@ -7,12 +7,13 @@ def _toolchain_headers_info_test_impl(ctx):
     else:
         python = ctx.attr._test_tool[PyRuntimeInfo].interpreter_path
 
-    executable_tpl = "{PYTHON} {TEST} --input {INPUT} --expected_headers {EXPECTED}\n"
+    executable_tpl = "{PYTHON} {TEST} --input {INPUT} --expected_header_files {EXPECTED_FILES} --expected_include_statements {EXPECTED_INCLUDES}\n"
     executable_content = executable_tpl.format(
         PYTHON = python,
         TEST = ctx.attr._test_tool[DefaultInfo].files_to_run.executable.short_path,
         INPUT = ctx.file.headers_info.short_path,
-        EXPECTED = " ".join(ctx.attr.expected_headers),
+        EXPECTED_FILES = " ".join(ctx.attr.expected_header_files),
+        EXPECTED_INCLUDES = " ".join(ctx.attr.expected_include_statements),
     )
 
     executable = ctx.actions.declare_file("{}.sh".format(ctx.label.name))
@@ -27,7 +28,8 @@ def _rule_factory(toolchain_transition):
     return rule(
         implementation = _toolchain_headers_info_test_impl,
         attrs = {
-            "expected_headers": attr.string_list(mandatory = True, doc = "Headers which we expect to be discovered by the toolchain"),
+            "expected_header_files": attr.string_list(mandatory = True, doc = "Headers files we expect to discover in the toolchain"),
+            "expected_include_statements": attr.string_list(mandatory = True, doc = "Possible include statements to header files we expect to discover in the toolchain"),
             "headers_info": attr.label(
                 allow_single_file = True,
                 providers = [DwyuCcToolchainHeadersInfo],
@@ -71,25 +73,26 @@ def _rule_based_msvc_like_transition_impl(settings, attr):
     _ignore = (settings, attr)
     return {"//command_line_option:extra_toolchains": "@test_toolchain_rule_based//:msvc_like_toolchain"}
 
-_classic_gcc_like_test = _rule_factory(_transition_factory(_classic_gcc_like_transition_impl))
-_classic_msvc_like_test = _rule_factory(_transition_factory(_classic_msvc_like_transition_impl))
-_classic_unknown_with_built_in_dirs_test = _rule_factory(_transition_factory(_classic_unknown_with_built_in_dirs_transition_impl))
-_rule_based_gcc_like_test = _rule_factory(_transition_factory(_rule_based_gcc_like_transition_impl))
-_rule_based_msvc_like_test = _rule_factory(_transition_factory(_rule_based_msvc_like_transition_impl))
+classic_gcc_like_headers_info_test = _rule_factory(_transition_factory(_classic_gcc_like_transition_impl))
+classic_msvc_like_headers_info_test = _rule_factory(_transition_factory(_classic_msvc_like_transition_impl))
+classic_unknown_with_built_in_dirs_headers_info_test = _rule_factory(_transition_factory(_classic_unknown_with_built_in_dirs_transition_impl))
+rule_based_gcc_like_headers_info_test = _rule_factory(_transition_factory(_rule_based_gcc_like_transition_impl))
+rule_based_msvc_like_headers_info_test = _rule_factory(_transition_factory(_rule_based_msvc_like_transition_impl))
 
-_RULES_MAP = {
-    "classic_gcc_like": _classic_gcc_like_test,
-    "classic_msvc_like": _classic_msvc_like_test,
-    "classic_unknown_with_built_in_dirs": _classic_unknown_with_built_in_dirs_test,
-    "rule_based_gcc_like": _rule_based_gcc_like_test,
-    "rule_based_msvc_like": _rule_based_msvc_like_test,
-}
+# _RULES_MAP = {
+#     "classic_gcc_like": _classic_gcc_like_test,
+#     "classic_msvc_like": _classic_msvc_like_test,
+#     "classic_unknown_with_built_in_dirs": _classic_unknown_with_built_in_dirs_test,
+#     "rule_based_gcc_like": _rule_based_gcc_like_test,
+#     "rule_based_msvc_like": _rule_based_msvc_like_test,
+# }
 
-def toolchain_headers_info_tests(headers_info, expected_headers, **kwargs):
-    for id, rule in _RULES_MAP.items():
-        rule(
-            name = "{}_test".format(id),
-            headers_info = headers_info,
-            expected_headers = expected_headers,
-            **kwargs
-        )
+# def toolchain_headers_info_tests(headers_info, expected_header_files, expected_include_statements, **kwargs):
+#     for id, rule in _RULES_MAP.items():
+#         rule(
+#             name = "{}_test".format(id),
+#             headers_info = headers_info,
+#             expected_header_files = expected_header_files,
+#             expected_include_statements = expected_include_statements,
+#             **kwargs
+#         )

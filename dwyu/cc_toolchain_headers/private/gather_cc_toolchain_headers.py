@@ -76,17 +76,22 @@ def is_relevant_file(file: Path, include_dir: Path) -> bool:
     return file.suffix == "" and file.parent == include_dir
 
 
-def gather_toolchain_headers(include_directories: list[Path]) -> list[str]:
-    headers = []
+def gather_toolchain_headers(include_directories: list[Path]) -> tuple[list[str], list[str]]:
+    include_statements = []
+    header_files = []
     for include_dir in include_directories:
-        headers.extend(
+        include_statements.extend(
             [
                 str(file.relative_to(include_dir))
                 for file in include_dir.glob("**/*")
                 if is_relevant_file(file=file, include_dir=include_dir)
             ]
         )
-    return headers
+        header_files.extend(
+            [str(file) for file in include_dir.glob("**/*") if is_relevant_file(file=file, include_dir=include_dir)]
+        )
+
+    return list(set(header_files)), list(set(include_statements))
 
 
 def extract_include_paths_from_gcc_like_output(text: str) -> list[Path]:
@@ -122,11 +127,13 @@ def main(args: Namespace) -> int:
     log.debug(f"Searching CC toolchain include paths: {len(include_paths)}")
     log.debug("\n".join([f"- {ip}" for ip in include_paths]))
 
-    headers = gather_toolchain_headers(include_paths)
-    log.debug(f"Discovered toolchain headers: {len(headers)}")
+    header_files, include_statements = gather_toolchain_headers(include_paths)
+    log.debug(f"Discovered toolchain header files       : {len(header_files)}")
+    log.debug(f"Discovered toolchain include statements : {len(include_statements)}")
 
     with args.output.open(mode="wt", encoding="utf-8") as output:
-        json.dump(headers, output)
+        indent = 2 if args.verbose else None
+        json.dump({"header_files": header_files, "include_statements": include_statements}, output, indent=indent)
 
     return 0
 

@@ -11,8 +11,16 @@ EXTRA_IGNORED_PATHS_KEY = "extra_ignore_include_paths"
 IGNORED_PATTERNS_KEY = "ignore_include_patterns"
 
 
+def _get_ignored_paths(toolchain_headers_info: Path | None) -> set[str]:
+    if toolchain_headers_info:
+        data = json.loads(toolchain_headers_info.read_text())
+        return set(data["include_statements"])
+
+    return STD_HEADER
+
+
 def get_ignored_includes(config_file: Path | None, toolchain_headers_info: Path | None) -> IgnoredIncludes:
-    ignored_paths = set(json.loads(toolchain_headers_info.read_text())) if toolchain_headers_info else STD_HEADER
+    ignored_paths = _get_ignored_paths(toolchain_headers_info)
     ignored_patterns = []
 
     if config_file:

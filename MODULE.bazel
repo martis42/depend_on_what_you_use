@@ -25,3 +25,9 @@ python = use_extension("@rules_python//python/extensions:python.bzl", "python", 
 python.toolchain(python_version = "3.8")
 
 bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
+
+# TODO get 'fmt' library and use it instead of cout
+bazel_dep(name = "boost.algorithm", version = "1.87.0")
+bazel_dep(name = "boost.filesystem", version = "1.87.0")
+bazel_dep(name = "boost.json", version = "1.87.0")
+bazel_dep(name = "boost.program_options", version = "1.87.0")

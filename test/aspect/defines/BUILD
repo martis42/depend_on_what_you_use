@@ -49,6 +49,18 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "include_using_pre_processor_token_cct",
+    hdrs = ["include_using_pre_processor_token.h"],
+    copts = ["-DCONDITIONAL_DEFINES_HEADER='\"defines/support/conditional_defines.h\"'"],
+    deps = [
+        "//defines/support:conditional_defines",
+        "//defines/support:lib_a",
+        "//defines/support:lib_b",
+        "//defines/support:some_defines",
+    ],
+)
+
 # This target can only be analyzed by setting the correct defines via the command line
 cc_library(
     name = "use_command_line_defines",

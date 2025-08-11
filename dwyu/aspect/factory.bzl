@@ -15,6 +15,7 @@ def dwyu_aspect_factory(
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         cc_toolchain_headers_info = None,
+        use_cc_toolchain_preprocessor = False,
         use_implementation_deps = False,
         verbose = False):
     """
@@ -112,6 +113,8 @@ def dwyu_aspect_factory(
                                    Please note, the required information are not the include paths where the compiler looks for toolchain headers, but all the sub paths to header files relative to those include directories.
                                    In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
 
+        use_cc_toolchain_preprocessor: implies `ignore_cc_toolchain_headers`
+
         use_implementation_deps: `cc_library` offers the attribute [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies.
                                  Headers from the private dependencies are not made available to users of the library.<br>
                                  Setting this to True allows DWYU to raise an error if headers from a `deps` dependency are used only in private files.
@@ -129,7 +132,7 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
-    if ignore_cc_toolchain_headers:
+    if ignore_cc_toolchain_headers or use_cc_toolchain_preprocessor:
         cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
@@ -188,6 +191,22 @@ def dwyu_aspect_factory(
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
+            ),
+            "_tool_compare_includes_to_deps": attr.label(
+                default = Label("//dwyu/aspect/private/analyze_includes_new:main"),
+                executable = True,
+                cfg = "exec",
+                doc = "Tool for parsing the preprocessor output to extract the include statements.",
+            ),
+            "_tool_preprocessor_output_parser": attr.label(
+                #default = Label("//dwyu/aspect/private/parse_preprocessor_output:main"),
+                default = Label("//dwyu/aspect/private/parse_preprocessor_output:main_py"),
+                executable = True,
+                cfg = "exec",
+                doc = "Tool for parsing the preprocessor output to extract the include statements.",
+            ),
+            "_use_cc_toolchain_preprocessor": attr.bool(
+                default = use_cc_toolchain_preprocessor,
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

@@ -32,19 +32,33 @@ unrelated/path
 
 class TestGatherBuiltInHeaders(unittest.TestCase):
     def test_empty_input(self) -> None:
-        result = gather_toolchain_headers([])
-        self.assertEqual(result, [])
+        header_files, include_statements = gather_toolchain_headers([])
+        self.assertEqual(header_files, [])
+        self.assertEqual(include_statements, [])
 
     def test_filter_and_gather_files(self) -> None:
-        result = gather_toolchain_headers(
+        header_files, include_statements = gather_toolchain_headers(
             [
                 Path("dwyu/cc_toolchain_headers/private/test/data/include_root"),
                 Path("dwyu/cc_toolchain_headers/private/test/data/include_root/bar"),
             ]
         )
 
-        expected = ["bar/bar.h", "bar.h", "relevant_no_extension", "relevant.h", "foo/header.hpp"]
-        self.assertEqual(sorted(result), sorted(expected))
+        self.assertEqual(
+            sorted(header_files),
+            sorted(
+                [
+                    "dwyu/cc_toolchain_headers/private/test/data/include_root/bar/bar.h",
+                    "dwyu/cc_toolchain_headers/private/test/data/include_root/foo/header.hpp",
+                    "dwyu/cc_toolchain_headers/private/test/data/include_root/relevant.h",
+                    "dwyu/cc_toolchain_headers/private/test/data/include_root/relevant_no_extension",
+                ]
+            ),
+        )
+        self.assertEqual(
+            sorted(include_statements),
+            sorted(["bar/bar.h", "bar.h", "relevant_no_extension", "relevant.h", "foo/header.hpp"]),
+        )
 
 
 if __name__ == "__main__":

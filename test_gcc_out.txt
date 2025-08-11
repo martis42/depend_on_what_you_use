@@ -1,0 +1,85 @@
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04)
+COLLECT_GCC_OPTIONS='-H' '-v' '-E' '-o' 'tmp.pp' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/11/cc1plus -E -quiet -v -imultiarch x86_64-linux-gnu -H -D_GNU_SOURCE foo.cc -o tmp.pp -mtune=generic -march=x86-64 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -dumpbase tmp.cc -dumpbase-ext .cc
+ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/11"
+ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/11/include-fixed"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/11/../../../../x86_64-linux-gnu/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/include/c++/11
+ /usr/include/x86_64-linux-gnu/c++/11
+ /usr/include/c++/11/backward
+ /usr/lib/gcc/x86_64-linux-gnu/11/include
+ /usr/local/include
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+. /usr/include/c++/11/vector
+.. /usr/include/c++/11/bits/stl_algobase.h
+... /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h
+.... /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h
+..... /usr/include/features.h
+...... /usr/include/features-time64.h
+....... /usr/include/x86_64-linux-gnu/bits/wordsize.h
+....... /usr/include/x86_64-linux-gnu/bits/timesize.h
+........ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+...... /usr/include/x86_64-linux-gnu/sys/cdefs.h
+....... /usr/include/x86_64-linux-gnu/bits/wordsize.h
+....... /usr/include/x86_64-linux-gnu/bits/long-double.h
+...... /usr/include/x86_64-linux-gnu/gnu/stubs.h
+....... /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+.... /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h
+.... /usr/include/c++/11/pstl/pstl_config.h
+... /usr/include/c++/11/bits/functexcept.h
+.... /usr/include/c++/11/bits/exception_defines.h
+... /usr/include/c++/11/bits/cpp_type_traits.h
+... /usr/include/c++/11/ext/type_traits.h
+... /usr/include/c++/11/ext/numeric_traits.h
+... /usr/include/c++/11/bits/stl_pair.h
+.... /usr/include/c++/11/bits/move.h
+..... /usr/include/c++/11/type_traits
+... /usr/include/c++/11/bits/stl_iterator_base_types.h
+... /usr/include/c++/11/bits/stl_iterator_base_funcs.h
+.... /usr/include/c++/11/bits/concept_check.h
+.... /usr/include/c++/11/debug/assertions.h
+... /usr/include/c++/11/bits/stl_iterator.h
+.... /usr/include/c++/11/bits/ptr_traits.h
+... /usr/include/c++/11/debug/debug.h
+... /usr/include/c++/11/bits/predefined_ops.h
+.. /usr/include/c++/11/bits/allocator.h
+... /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h
+.... /usr/include/c++/11/ext/new_allocator.h
+..... /usr/include/c++/11/new
+...... /usr/include/c++/11/bits/exception.h
+... /usr/include/c++/11/bits/memoryfwd.h
+.. /usr/include/c++/11/bits/stl_construct.h
+.. /usr/include/c++/11/bits/stl_uninitialized.h
+... /usr/include/c++/11/ext/alloc_traits.h
+.... /usr/include/c++/11/bits/alloc_traits.h
+.. /usr/include/c++/11/bits/stl_vector.h
+... /usr/include/c++/11/initializer_list
+.. /usr/include/c++/11/bits/stl_bvector.h
+... /usr/include/c++/11/bits/functional_hash.h
+.... /usr/include/c++/11/bits/hash_bytes.h
+.. /usr/include/c++/11/bits/range_access.h
+.. /usr/include/c++/11/bits/vector.tcc
+. ./_test/sub/lib.h
+. _test/sub/lib.h
+. _test/../_test/sub/lib.h
+. /usr/include/c++/11/array
+.. /usr/include/c++/11/utility
+... /usr/include/c++/11/bits/stl_relops.h
+. _test/b.h
+Multiple include guards may be useful for:
+./_test/sub/lib.h
+/usr/include/features-time64.h
+/usr/include/x86_64-linux-gnu/bits/long-double.h
+/usr/include/x86_64-linux-gnu/bits/timesize.h
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+/usr/include/x86_64-linux-gnu/gnu/stubs.h
+_test/../_test/sub/lib.h
+_test/b.h
+_test/sub/lib.h
