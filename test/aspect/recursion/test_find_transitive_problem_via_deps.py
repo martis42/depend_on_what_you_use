@@ -5,8 +5,13 @@ from test.support.result import Result
 
 
 class TestCase(TestCaseBase):
+    @property
+    def test_aspect(self) -> str:
+        aspect = "//recursion:aspect.bzl%dwyu_recursive"
+        return aspect + "_cct" if self._cc_toolchain_based else aspect
+
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=False, unused_public_deps=["//recursion:e"])
-        actual = self._run_dwyu(target="//recursion:main", aspect="//recursion:aspect.bzl%dwyu_recursive")
+        actual = self._run_dwyu(target="//recursion:main", aspect=self.test_aspect)
 
         return self._check_result(actual=actual, expected=expected)

@@ -13,7 +13,7 @@ class TestCase(TestCaseBase):
                 "//implementation_deps:binary_using_foo",
                 "//implementation_deps:test_using_foo",
             ],
-            aspect="//:aspect.bzl%dwyu_impl_deps",
+            aspect=self.default_aspect_impl_deps,
             extra_args=["--experimental_cc_implementation_deps"],
         )
 

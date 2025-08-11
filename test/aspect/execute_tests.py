@@ -103,6 +103,16 @@ def cli() -> Namespace:
         help="Run the specified test cases. Substrings will match against all test names including them.",
     )
     parser.add_argument(
+        "--cc_toolchain_based",
+        "-cct",
+        action="store_true",
+        help="""
+        We have a new implementation of DWYU utilizing the Bazel CC toolchain for information gathering and with more efficient C++ based tools.
+        Since this a change involving almost all DWYU aspects we cannot just create dedicated test cases without duplicating most things uselessly.
+        Thus, we use this central switch to either test legacyDWYU or the new CC toolchain based approach ann all existing test cases.
+        """,
+    )
+    parser.add_argument(
         "--no_output_base",
         action="store_true",
         help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
@@ -138,6 +148,7 @@ if __name__ == "__main__":
             python=args.python,
             requested_tests=args.test,
             list_tests=args.list,
+            cc_toolchain_based=args.cc_toolchain_based,
             only_default_version=args.only_default_version,
             no_output_base=args.no_output_base,
         )
