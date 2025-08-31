@@ -16,8 +16,9 @@ log = logging.getLogger()
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, cpp_impl_based: bool) -> None:
         self._name = name
+        self._cpp_impl_based = cpp_impl_based
         self._tested_versions = TestedVersions(bazel="", python="")
         self._output_base: Path | None = None
         self._extra_args: list[str] = []
@@ -49,7 +50,14 @@ class TestCaseBase(ABC):
 
     @property
     def default_aspect(self) -> str:
-        return "//:aspect.bzl%dwyu"
+        return self.choose_aspect("//:aspect.bzl%dwyu")
+
+    @property
+    def default_aspect_impl_deps(self) -> str:
+        return self.choose_aspect("//:aspect.bzl%dwyu_impl_deps")
+
+    def choose_aspect(self, aspect: str) -> str:
+        return aspect + "_cpp" if self._cpp_impl_based else aspect
 
     def execute_test(
         self, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]

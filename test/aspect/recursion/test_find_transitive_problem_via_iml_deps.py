@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=False, unused_public_deps=["//recursion:e"])
         actual = self._run_dwyu(
             target="//recursion:use_impl_deps",
-            aspect="//recursion:aspect.bzl%dwyu_recursive_impl_deps",
+            aspect=self.choose_aspect("//recursion:aspect.bzl%dwyu_recursive_impl_deps"),
             extra_args=["--experimental_cc_implementation_deps"],
         )
 

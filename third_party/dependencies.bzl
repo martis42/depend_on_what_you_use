@@ -19,11 +19,19 @@ def dependencies():
         urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.0/rules_cc-0.1.0.tar.gz"],
     )
 
-    # Keep in sync with MODULE.bazel
     http_archive(
         name = "bazel_skylib",
         sha256 = "bc283cdfcd526a52c3201279cda4bc298652efa898b10b4db0837dc51652756f",
         urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz"],
+    )
+
+    # Keep in sync with MODULE.bazel
+    maybe(
+        http_archive,
+        name = "nlohmann_json",
+        sha256 = "4b92eb0c06d10683f7447ce9406cb97cd4b453be18d7279320f7b2f025c10187",
+        urls = ["https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.tar.gz"],
+        strip_prefix = "json-3.12.0",
     )
 
     pcpp()
