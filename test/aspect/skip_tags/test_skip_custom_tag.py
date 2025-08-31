@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="//skip_tags:ignored_by_custom_tag",
-            aspect="//skip_tags:aspect.bzl%dwyu_custom_tags",
+            aspect=self.choose_aspect("//skip_tags:aspect.bzl%dwyu_custom_tags"),
         )
 
         return self._check_result(actual=actual, expected=expected)

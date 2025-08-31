@@ -30,6 +30,12 @@ echo ""
 ./test/aspect/execute_tests.py
 
 echo ""
+echo "Execute integration tests - Aspect with C++ implementation"
+echo ""
+# We only test the default versions, as the C++ implementation is supposed to be a function neutral drop in
+./test/aspect/execute_tests.py --only-default-version --cpp_impl_based
+
+echo ""
 echo "Execute integration tests - Applying fixes"
 echo ""
 ./test/apply_fixes/execute_tests.py

@@ -76,6 +76,7 @@ def main(
     python: str | None = None,
     requested_tests: list[str] | None = None,
     list_tests: bool = False,
+    cpp_impl_based: bool = False,
     only_default_version: bool = False,
     no_output_base: bool = False,
 ) -> int:
@@ -94,7 +95,7 @@ def main(
         name = file_to_test_name(test)
         if (requested_tests and any(requested in name for requested in requested_tests)) or (not requested_tests):
             module = SourceFileLoader("", str(test.resolve())).load_module()
-            tests.append(module.TestCase(name))
+            tests.append(module.TestCase(name=name, cpp_impl_based=cpp_impl_based))
 
     if bazel and python:
         versions = [TestedVersions(bazel=bazel, python=python)]

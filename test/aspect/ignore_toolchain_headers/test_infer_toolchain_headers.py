@@ -15,7 +15,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="//ignore_toolchain_headers:use_toolchain_header",
-            aspect="//ignore_toolchain_headers:aspect.bzl%dwyu_ignore_toolchain_headers",
+            aspect=self.choose_aspect("//ignore_toolchain_headers:aspect.bzl%dwyu_ignore_toolchain_headers"),
         )
 
         return self._check_result(actual=actual, expected=expected)

@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="//target_mapping:use_lib_b",
-            aspect="//target_mapping:aspect.bzl%map_specific_deps",
+            aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_specific_deps"),
         )
 
         return self._check_result(actual=actual, expected=expected)

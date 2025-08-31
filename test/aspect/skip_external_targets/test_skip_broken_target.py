@@ -10,7 +10,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="@skip_external_deps_test_repo//:broken_dep",
-            aspect="//skip_external_targets:aspect.bzl%dwyu_skip_external",
+            aspect=self.choose_aspect("//skip_external_targets:aspect.bzl%dwyu_skip_external"),
         )
 
         return self._check_result(actual=actual, expected=expected)
