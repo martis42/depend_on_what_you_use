@@ -79,7 +79,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
 
     ctx.actions.run(
         inputs = header_files,
-        executable = ctx.executable._process_target,
+        executable = ctx.executable._tool_process_target,
         arguments = [args],
         mnemonic = "DwyuProcessTargetInfo",
         outputs = [processing_output],

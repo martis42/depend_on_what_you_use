@@ -1,5 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("//third_party:rules_boost.bzl", "rules_boost")
 load("//third_party/pcpp:repository.bzl", "pcpp")
 
 def dependencies():
@@ -27,3 +28,4 @@ def dependencies():
     )
 
     pcpp()
+    rules_boost()

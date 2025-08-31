@@ -9,17 +9,23 @@ bazel_dep(name = "rules_cc", version = "0.0.15")
 bazel_dep(name = "rules_python", version = "0.37.2")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
-non_module_dependencies = use_extension("//third_party:extensions.bzl", "non_module_dependencies")
-use_repo(non_module_dependencies, "dwyu_pcpp")
+# Required for boost to work due to fetching boost via extensions
+bazel_dep(name = "platforms", version = "0.0.10")
+
+non_module_dependencies_step_1 = use_extension("//third_party:extensions_step_1.bzl", "non_module_dependencies_step_1")
+use_repo(non_module_dependencies_step_1, "com_github_nelhage_rules_boost", "dwyu_pcpp")
+
+non_module_dependencies_step_2 = use_extension("//third_party:extensions_step_2.bzl", "non_module_dependencies_step_2")
+
+# We do not use the BCR version of boost as this would require making DWYU bzlmod only and abandon Bazel 6.4.0 support.
+# While the latter is happening either way until end of 2025, it is still too early for the former.
+use_repo(non_module_dependencies_step_2, "boost")
 
 ###
 ### Development Dependencies
 ###
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.21.1", dev_dependency = True)
-
-# Hidden dependencies of aspect_bazel_lib macro stardoc_with_diff_test
-bazel_dep(name = "platforms", version = "1.0.0", dev_dependency = True)
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
 python.toolchain(python_version = "3.8")

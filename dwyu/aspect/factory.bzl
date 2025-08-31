@@ -15,6 +15,7 @@ def dwyu_aspect_factory(
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         cc_toolchain_headers_info = None,
+        use_cpp_implementation = False,
         use_implementation_deps = False,
         verbose = False):
     """
@@ -112,6 +113,13 @@ def dwyu_aspect_factory(
                                    Please note, the required information are not the include paths where the compiler looks for toolchain headers, but all the sub paths to header files relative to those include directories.
                                    In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
 
+        use_cpp_implementation: Switch parts of the internal tools executed by DWYU to a C++ based implementation instead of Python scripting.
+                                This is performance improvement not changing DWYU behavior.
+                                For now only some parts of the implementation are available in C++.
+                                We will migrate more parts of the implementation step by step in future releases.
+                                Since, the C++ based implementation is new, this is for now an opt-in.
+                                However this will become the default eventually.
+
         use_implementation_deps: `cc_library` offers the attribute [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies.
                                  Headers from the private dependencies are not made available to users of the library.<br>
                                  Setting this to True allows DWYU to raise an error if headers from a `deps` dependency are used only in private files.
@@ -133,6 +141,7 @@ def dwyu_aspect_factory(
         cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
+    target_processor = Label("//dwyu/aspect/private/process_target:main_cc") if use_cpp_implementation else Label("//dwyu/aspect/private/process_target:main_py")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -166,13 +175,6 @@ def dwyu_aspect_factory(
             "_no_preprocessor": attr.bool(
                 default = experimental_no_preprocessor,
             ),
-            "_process_target": attr.label(
-                default = Label("//dwyu/aspect/private:process_target"),
-                executable = True,
-                cfg = "exec",
-                doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
-                      " as separate action, since otherwise we can't look into TreeArtifact sources.",
-            ),
             "_recursive": attr.bool(
                 default = recursive,
             ),
@@ -188,6 +190,13 @@ def dwyu_aspect_factory(
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
+            ),
+            "_tool_process_target": attr.label(
+                default = target_processor,
+                executable = True,
+                cfg = "exec",
+                doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
+                      " as separate action, since otherwise we can't look into TreeArtifact sources.",
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

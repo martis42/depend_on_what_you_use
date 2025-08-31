@@ -6,5 +6,6 @@ AllowShortFunctionsOnASingleLine: Inline
 AllowShortBlocksOnASingleLine: Empty
 BinPackParameters: OnePerLine
 BreakBeforeBraces: Custom
+AlwaysBreakTemplateDeclarations: true
 BraceWrapping:
     BeforeElse: true
