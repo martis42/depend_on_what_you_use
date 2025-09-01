@@ -32,7 +32,7 @@ def run_benchmark(aspect: str, primer: str, bench_target: str, description: str,
         "--check_direct_dependencies=off",
         "--output_groups=dwyu",
     ]
-    cmd_dwyu = [*cmd_base, f"--aspects=//test/benchmark:aspect.bzl%{aspect}"]
+    cmd_dwyu = [*cmd_base, f"--aspects=//:aspect.bzl%{aspect}"]
 
     log.info(f"#### Running Benchmark - {description}")
     times = []
