@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 from shutil import rmtree
@@ -32,8 +33,8 @@ JOBS = -1
 # Generation templates
 #
 
-TEST_DIR = "test/benchmark/generated/many_targets"
-OUTPUT_DIR = WS_ROOT / TEST_DIR
+BENCHMARKS_DIR = WS_ROOT / "test/benchmark"
+OUTPUT_DIR = BENCHMARKS_DIR / "generated/many_targets"
 
 LIB_TEMPLATE = """
 #ifndef LIB_HEADER_{N}_H
@@ -116,8 +117,11 @@ def main() -> None:
     """
     create_test_setup()
 
-    primer = "//test/benchmark/generated/many_targets:primer"
-    target = "//test/benchmark/generated/many_targets/..."
+    # Execute the Bazel commands from within the benchmarks workspace
+    os.chdir(BENCHMARKS_DIR)
+
+    primer = "//generated/many_targets:primer"
+    target = "//generated/many_targets/..."
     run_benchmark(
         aspect="dwyu_legacy_default",
         primer=primer,

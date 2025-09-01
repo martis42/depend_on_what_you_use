@@ -36,7 +36,7 @@ test/aspect/using_transitive_dep
 test/aspect/valid
 test/aspect/virtual_includes
 
-test/benchmark/generated
+test/benchmark
 
 test/cc_toolchains/mocked
 

@@ -1,0 +1,14 @@
+module(name = "dwyu_benchmarks")
+
+bazel_dep(name = "depend_on_what_you_use")
+local_path_override(
+    module_name = "depend_on_what_you_use",
+    path = "../../",
+)
+
+bazel_dep(name = "googletest", version = "1.17.0")
+
+# We specify by design an outdated rules_cc version.
+# bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
+# Specifying an ancient version here gives us in the end at least whatever rules_cc version DWYU defines as dependency.
+bazel_dep(name = "rules_cc", version = "0.0.1")

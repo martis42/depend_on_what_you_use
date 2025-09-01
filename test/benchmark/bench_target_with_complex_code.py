@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 from shutil import rmtree
@@ -29,7 +30,8 @@ JOBS = 1
 # Generation templates
 #
 
-OUTPUT_DIR = WS_ROOT / "test/benchmark/generated/complex_code"
+BENCHMARKS_DIR = WS_ROOT / "test/benchmark"
+OUTPUT_DIR = BENCHMARKS_DIR / "generated/complex_code"
 
 TEMPLATE = """
 #include "gmock/gmock.h"
@@ -110,8 +112,11 @@ def main() -> None:
     """
     create_test_setup()
 
-    primer = "//test/benchmark/generated/complex_code:primer"
-    target = "//test/benchmark/generated/complex_code:benchmark"
+    # Execute the Bazel commands from within the benchmarks workspace
+    os.chdir(BENCHMARKS_DIR)
+
+    primer = "//generated/complex_code:primer"
+    target = "//generated/complex_code:benchmark"
     run_benchmark(
         aspect="dwyu_legacy_default",
         primer=primer,
