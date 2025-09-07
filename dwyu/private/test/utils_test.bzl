@@ -7,7 +7,7 @@ def _label_to_name_test_impl(ctx):
     # No changes
     asserts.equals(env, "some_unchanged_string", label_to_name("some_unchanged_string"))
 
-    # Replace characters which are not valid inf ile names
+    # Replace characters which are not valid for file names
     asserts.equals(env, "foo_some_path_to_a_target", label_to_name("@foo//some/path/to/a:target"))
 
     return unittest.end(env)
