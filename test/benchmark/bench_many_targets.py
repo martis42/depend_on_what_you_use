@@ -94,7 +94,7 @@ def create_test_setup() -> None:
         for num_lib in range(LIBS):
             (lib_dir / f"lib_{num_lib}.h").write_text(LIB_TEMPLATE.format(N=num_lib))
 
-        ws_relative_include_path = lib_dir.relative_to(WS_ROOT)
+        ws_relative_include_path = lib_dir.relative_to(WS_ROOT / BENCHMARKS_DIR)
         use_libs_includes = "\n".join(f'#include "{ws_relative_include_path}/lib_{n}.h"' for n in range(LIBS))
         use_libs_calls = "\n".join(f"    doLibThings_{n}();" for n in range(LIBS))
         for n in range(LIB_USAGE_PER_DIR):
