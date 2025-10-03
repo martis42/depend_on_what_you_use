@@ -8,7 +8,7 @@ class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
-            target="//ignore_includes:use_multiple_arcane_headers",
+            target="//ignore_includes:use_multiple_ignored_headers",
             aspect=self.choose_aspect("//ignore_includes:aspect.bzl%ignore_include_paths_aspect"),
         )
 
