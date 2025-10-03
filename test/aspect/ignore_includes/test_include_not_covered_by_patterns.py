@@ -11,7 +11,7 @@ class TestCase(TestCaseBase):
         expected = ExpectedResult(
             success=False,
             invalid_includes=[
-                f"File='{Path('ignore_includes/use_not_ignored_header.h')}', include='example_substring_matching_does_not_work_here.h'"
+                f"File='{Path('ignore_includes/use_not_ignored_header.h')}', include='support/a_substring_match_does_not_work_here.h'"
             ],
         )
         actual = self._run_dwyu(

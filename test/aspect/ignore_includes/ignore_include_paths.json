@@ -1,8 +1,8 @@
 {
     "ignore_include_paths": [
-        "some_arcane_header_a.h"
+        "support/some_header.h"
     ],
     "extra_ignore_include_paths": [
-        "some_arcane_header_b.h"
+        "support/some_other_header.h"
     ]
 }
