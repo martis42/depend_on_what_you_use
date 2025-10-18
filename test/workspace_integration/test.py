@@ -22,9 +22,9 @@ log = logging.getLogger()
 BAZEL_VERSIONS_UNDER_TEST = [
     "6.4.0",
     "7.0.0",
-    "7.5.0",
+    "7.x",
     "8.0.0",
-    "8.0.1",
+    "8.x",
     "rolling",
 ]
 
