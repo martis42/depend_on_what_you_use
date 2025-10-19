@@ -1,7 +1,7 @@
-#ifndef __cplusplus
+#ifdef __cplusplus
 
-// If '__cplusplus' would not be set, this invalid include would fail in the DWYU analysis
-#include "not/existing/dep.h"
+// If '__cplusplus' would not be set, we fail the DWYU analysis due to an unused dependency
+#include "set_cpp_standard/lib.h"
 
 #endif
 
