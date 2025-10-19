@@ -5,7 +5,7 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from re import fullmatch
 
-from test_case import TestCaseBase
+from test_case import DwyuImplCompatibility, TestCaseBase
 from version import CompatibleVersions, TestedVersions
 
 from test.support.bazel import get_bazel_binary, get_current_workspace, get_explicit_bazel_version
@@ -15,10 +15,21 @@ log = logging.getLogger()
 
 
 def execute_test(
-    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
+    test: TestCaseBase,
+    version: TestedVersions,
+    bazel_bin: Path,
+    output_base: Path | None,
+    extra_args: list[str],
+    cpp_impl_based: bool,
 ) -> bool:
     if not test.compatible_bazel_versions.is_compatible_to(version.bazel):
         log.info(f"--- Skip '{test.name}' due to incompatible Bazel '{version.bazel}'\n")
+        return True
+    if cpp_impl_based and test.dwyu_impl_compatibility == DwyuImplCompatibility.LEGACY_ONLY:
+        log.info(f"--- Skip '{test.name}' due to not supporting the new C++ based implementation'\n")
+        return True
+    if not cpp_impl_based and test.dwyu_impl_compatibility == DwyuImplCompatibility.CPP_ONLY:
+        log.info(f"--- Skip '{test.name}' due to not supporting the legacy implementation'\n")
         return True
     log.info(f">>> Test '{test.name}' with Bazel {version.bazel} and Python {version.python}")
 
@@ -125,7 +136,12 @@ def main(
                 f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
                 for test in tests
                 if not execute_test(
-                    test=test, version=version, bazel_bin=bazel_binary, output_base=output_base, extra_args=extra_args
+                    test=test,
+                    version=version,
+                    bazel_bin=bazel_binary,
+                    output_base=output_base,
+                    extra_args=extra_args,
+                    cpp_impl_based=cpp_impl_based,
                 )
             ]
         )
