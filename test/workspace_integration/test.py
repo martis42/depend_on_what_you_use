@@ -28,8 +28,6 @@ BAZEL_VERSIONS_UNDER_TEST = [
     "rolling",
 ]
 
-ASPECT_TEST_CMD = ["--aspects=//:aspect.bzl%dwyu_aspect", "--output_groups=dwyu", "//:valid_target"]
-
 
 def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
     bzlmod_arg = ["--enable_bzlmod=true"] if is_bzlmod else ["--enable_bzlmod=false"]
@@ -37,16 +35,38 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
     mode = "bzlmod" if is_bzlmod else "WORKSPACE"
     failures = []
 
-    log.info(f"\n##\n## Testing {mode} setup\n##")
+    log.info(f"\n###\n### Testing {mode} setup\n###")
     for bazel_version in bazel_versions:
-        log.info(f"\n## Testing {mode} with Bazel '{bazel_version}'")
-
         env = make_bazel_version_env(bazel_version)
         enable_workspace = workspace_arg if bazel_version >= "8.0.0" else []
-        cmd = ["bazel", "--max_idle_secs=10", "build", *bzlmod_arg, *enable_workspace, *ASPECT_TEST_CMD]
-        log.info(f"## Executing: {shlex_join(cmd)}\n")
-        if subprocess.run(cmd, check=False, env=env).returncode != 0:
-            failures.append(f"{mode}: {bazel_version}")
+
+        cmd_legacy = [
+            "bazel",
+            "--max_idle_secs=10",
+            "build",
+            *bzlmod_arg,
+            *enable_workspace,
+            "--config=dwyu",
+            "//:valid_target",
+        ]
+        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}' for legacy DWYU")
+        log.info(f"## Executing: {shlex_join(cmd_legacy)} for legacy DWYU\n##\n")
+        if subprocess.run(cmd_legacy, check=False, env=env).returncode != 0:
+            failures.append(f"{mode}: {bazel_version} for legacy DWYU")
+
+        cmd_new = [
+            "bazel",
+            "--max_idle_secs=10",
+            "build",
+            *bzlmod_arg,
+            *enable_workspace,
+            "--config=dwyu_cpp",
+            "//:valid_target",
+        ]
+        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}' for new DWYU")
+        log.info(f"## Executing: {shlex_join(cmd_new)} for new DWYU\n##\n")
+        if subprocess.run(cmd_new, check=False, env=env).returncode != 0:
+            failures.append(f"{mode}: {bazel_version} for new DWYU")
 
     return failures
 
