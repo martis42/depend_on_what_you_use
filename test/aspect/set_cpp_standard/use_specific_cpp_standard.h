@@ -1,6 +1,6 @@
-#if __cplusplus != 201703
+#if __cplusplus == 201703
 
-// If '__cplusplus' would not be set to the expected value, this invalid include would fail in the DWYU analysis
-#include "not/existing/dep.h"
+// If '__cplusplus' would not be set as desired, we fail the DWYU analysis due to an unused dependency
+#include "set_cpp_standard/lib.h"
 
 #endif
