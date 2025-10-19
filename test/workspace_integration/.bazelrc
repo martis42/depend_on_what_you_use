@@ -1,2 +1,8 @@
 # The symlinks have no value for us, but clutter the project view in the IDE
 build --experimental_convenience_symlinks=clean
+
+build:dwyu --output_groups=dwyu
+build:dwyu --aspects=//:aspect.bzl%dwyu
+
+build:dwyu_cpp --output_groups=dwyu
+build:dwyu_cpp --aspects=//:aspect.bzl%dwyu_cpp
