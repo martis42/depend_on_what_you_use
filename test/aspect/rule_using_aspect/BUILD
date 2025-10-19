@@ -1,6 +1,14 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
-load("//rule_using_aspect:rule.bzl", "dwyu_rule_direct", "dwyu_rule_recursive", "dwyu_rule_recursive_with_impl_deps")
+load(
+    "//rule_using_aspect:rule.bzl",
+    "dwyu_rule_direct",
+    "dwyu_rule_direct_cpp",
+    "dwyu_rule_recursive",
+    "dwyu_rule_recursive_cpp",
+    "dwyu_rule_recursive_with_impl_deps",
+    "dwyu_rule_recursive_with_impl_deps_cpp",
+)
 
 dwyu_rule_direct(
     name = "dwyu_direct_main",
@@ -17,6 +25,27 @@ dwyu_rule_recursive(
 
 dwyu_rule_recursive_with_impl_deps(
     name = "dwyu_recursive_with_impl_deps",
+    tags = [
+        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
+    ],
+    deps = [":use_impl_deps"],
+)
+
+dwyu_rule_direct_cpp(
+    name = "dwyu_direct_main_cpp",
+    deps = [":main"],
+)
+
+dwyu_rule_recursive_cpp(
+    name = "dwyu_recursive_main_cpp",
+    tags = [
+        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
+    ],
+    deps = [":main"],
+)
+
+dwyu_rule_recursive_with_impl_deps_cpp(
+    name = "dwyu_recursive_with_impl_deps_cpp",
     tags = [
         "manual",  # This target is supposed to fail, thus only build it if explicitly requested
     ],
