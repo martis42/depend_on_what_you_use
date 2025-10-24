@@ -13,7 +13,7 @@
 The project started with Python as it eased coming up with the first prototype.
 Also, C++ has a quite limited standard library compared to Python and in the past not many Bazel ready c++ libraries were available.
 
-Given, bzlmod made it far easier to depend on many established C++ dependencies and in general more things support Bazel nowadays, we might switch to a C++ implementation eventually.
+Given, bzlmod made it far easier to depend on many established C++ dependencies and in general more things support Bazel nowadays, we plan to switch to a C++ implementation.
 
 ## Why use a multi step automatic fixes workflow
 
@@ -156,3 +156,25 @@ The preprocessor will neither with the `-H` option (in case of gcc or clang) nor
 This is due to `lib.h` including `transitive.h` itself.
 After this the include guard of `transitive.h` is active and the second inclusion in `main.cpp` is ignored without any trace or warning about it being skipped.
 Consequently, we are missing the information to report this problem.
+
+## Preprocessing the complete source tree including all transitive includes down to system level
+
+After realizing we [can't use the CC toolchain preprocessor](#using-the-bazel-cc-toolchain-preprocessor) we investigated finding a C/C++ preprocessor library.
+While implementing prototypes for the new C++ based preprocessing step, we tried performing a full preprocessing, like the real compilation step does.
+The approach to fully preprocess all transitive includes down to system level ans standard library headers failed, though.
+
+To preprocess those low level headers, a lot of defines have to be set properly.
+We don't know all the relevant defines and their correct value.
+Even when fetching all defines known to the real compilation step by running it with `-dM` (assuming a gcc or clang toolchain) and forwarding those to our own preprocessing, we still encountered issues in system and standard library headers.
+
+Performing preprocessing at all is already an edge case only relevant for projects using conditional preprocessor statements to control their include statements.
+Many projects don't use conditional includes at all.<br>
+Preprocessing all system and standard library headers would only be relevant if defines set in those low level headers are used in controlling conditional include statements in project or external code.
+In other words, this is an edge case of an edge case.
+Therefore, we consider DWYU not supporting this as acceptable.
+
+Thus, DWYU ignores system and standard library headers and preprocesses only the workspace code and external dependencies.
+Given the learnings we made, there are no plans to work on full preprocessing again.
+
+Consequently, DWYU can only resolve conditional include statements based on macros defined in the workspace code or external dependencies.
+If macros defined in system or toolchain headers are required to resolve conditional include statements, the user has to define those manually when invoking DWYU (e.g. via `--cxxopt`).

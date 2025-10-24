@@ -1,0 +1,31 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+cc_library(
+    name = "wave",
+    srcs = glob(["src/**"]),
+    hdrs = glob(["include/**"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@boost//:assert",
+        "@boost//:concept_check",
+        "@boost//:config",
+        "@boost//:core",
+        "@boost//:filesystem",
+        "@boost//:format",
+        "@boost//:iterator",
+        "@boost//:lexical_cast",
+        "@boost//:mpl",
+        "@boost//:multi_index",
+        "@boost//:optional",
+        "@boost//:pool",
+        "@boost//:preprocessor",
+        "@boost//:serialization",
+        "@boost//:smart_ptr",
+        "@boost//:spirit",
+        "@boost//:static_assert",
+        "@boost//:thread",
+        "@boost//:throw_exception",
+        "@boost//:type_traits",
+    ],
+)

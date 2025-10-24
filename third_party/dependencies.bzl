@@ -1,6 +1,12 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("//third_party/boost/wave:repository.bzl", "boost_wave")
+load("//third_party/bzip2:repository.bzl", "bzip2")
 load("//third_party/pcpp:repository.bzl", "pcpp")
+load("//third_party/rules_boost:rules_boost_step_1.bzl", "rules_boost_step_1")
+load("//third_party/xz:repository.bzl", "xz")
+load("//third_party/zlib:repository.bzl", "zlib")
+load("//third_party/zstd:repository.bzl", "zstd")
 
 def dependencies():
     maybe(
@@ -35,3 +41,14 @@ def dependencies():
     )
 
     pcpp()
+
+    rules_boost_step_1()
+
+    # Transitive dependencies of rules_boost. We manage them here manually as rules_boost does not offer a function
+    # for fetching its dependencies.
+    bzip2()
+    xz()
+    zlib()
+    zstd()
+
+    boost_wave()

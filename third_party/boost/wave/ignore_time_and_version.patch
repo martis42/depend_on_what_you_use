@@ -1,0 +1,61 @@
+--- include/boost/wave/util/cpp_macromap_predef.hpp
++++ include/boost/wave/util/cpp_macromap_predef.hpp
+@@ -77,6 +77,7 @@ namespace util {
+     protected:
+         void reset_datestr()
+         {
++            /*
+             static const char *const monthnames[] = {
+                 "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+@@ -98,10 +99,13 @@ namespace util {
+             else {
+                 datestr_ = "\"??? ?? ????\"";
+             }
++            */
++           datestr_ = "\"redacted\"";
+         }
+
+         void reset_timestr()
+         {
++            /*
+             // for some systems sprintf, time_t etc. is in namespace std
+             using namespace std;
+
+@@ -118,10 +122,13 @@ namespace util {
+             else {
+                 timestr_ = "\"??:??:??\"";
+             }
++            */
++           timestr_ = "\"redacted\"";
+         }
+
+         void reset_version()
+         {
++            /*
+             // for some systems sprintf, time_t etc. is in namespace std
+             using namespace std;
+
+@@ -142,10 +149,13 @@ namespace util {
+                                 % BOOST_WAVE_VERSION_MINOR
+                                 % BOOST_WAVE_VERSION_SUBMINOR
+                                 % (seconds/(3600*24))).str());
++            */
++            version_ = "0.0.0";
+         }
+
+         void reset_versionstr()
+         {
++            /*
+             // for some systems sprintf, time_t etc. is in namespace std
+             using namespace std;
+
+@@ -167,6 +177,8 @@ namespace util {
+                                    % (seconds/(3600*24))
+                                    % BOOST_PLATFORM
+                                    % BOOST_COMPILER).str());
++            */
++            versionstr_ = "0.0.0";
+         }
+
+         // dynamic predefined macros

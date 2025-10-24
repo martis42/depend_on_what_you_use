@@ -11,7 +11,7 @@ py_library(
         "std_header.py",
         "system_under_inspection.py",
     ],
-    visibility = [":__subpackages__"],
+    visibility = ["//dwyu/aspect/private:__subpackages__"],
     deps = ["@dwyu_pcpp//:pcpp"],
 )
 

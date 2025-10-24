@@ -1,0 +1,1 @@
+Patch taken from https://github.com/bazelbuild/bazel-central-registry/blob/43585652a95b238e7499ef9e83688d07bc2dd348/modules/xz/5.4.5.bcr.2/patches/patch.diff so we can support WORKSPACE until it is fully deprecated
