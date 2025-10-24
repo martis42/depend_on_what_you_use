@@ -1,0 +1,48 @@
+--- include/boost/wave/cpp_context.hpp
++++ include/boost/wave/cpp_context.hpp
+@@ -228,7 +228,7 @@ public:
+             has_params, is_predefined, pos, parameters, definition);
+     }
+     template <typename StringT>
+-    bool remove_macro_definition(StringT const& undefname, bool even_predefined = false)
++    bool remove_macro_definition(StringT const& undefname, bool even_predefined = false, bool even_special = false)
+     {
+         // strip leading and trailing whitespace
+         string_type name = util::to_string<string_type>(undefname);
+@@ -243,7 +243,7 @@ public:
+         includes.remove_pragma_once_header(
+             util::to_string<std::string>(name));
+ #endif
+-        return macros.remove_macro(name, macros.get_main_pos(), even_predefined);
++        return macros.remove_macro(name, macros.get_main_pos(), even_predefined, even_special);
+     }
+     void reset_macro_definitions()
+         { macros.reset_macromap(); macros.init_predefined_macros(); }
+
+--- include/boost/wave/util/cpp_macromap.hpp
++++ include/boost/wave/util/cpp_macromap.hpp
+@@ -129,7 +129,7 @@ public:
+
+     //  Remove a macro name from the given macro scope
+     bool remove_macro(string_type const &name, position_type const& pos,
+-        bool even_predefined = false);
++        bool even_predefined = false, bool even_special = false);
+
+     template <typename IteratorT, typename ContainerT>
+     token_type const &expand_tokensequence(IteratorT &first,
+@@ -627,13 +627,13 @@ macromap<ContextT>::get_macro(string_type const &name, bool &has_parameters,
+ template <typename ContextT>
+ inline bool
+ macromap<ContextT>::remove_macro(string_type const &name,
+-    position_type const& pos, bool even_predefined)
++    position_type const& pos, bool even_predefined, bool even_special)
+ {
+     typename defined_macros_type::iterator it = current_macros->find(name);
+
+     if (it != current_macros->end()) {
+         if ((*it).second->is_predefined) {
+-            if (!even_predefined || impl::is_special_macroname(ctx, name)) {
++            if (!even_predefined || (impl::is_special_macroname(ctx, name) && !even_special)) {
+                 BOOST_WAVE_THROW_CTX(ctx, preprocess_exception,
+                     bad_undefine_statement, name.c_str(), main_pos);
+                 return false;

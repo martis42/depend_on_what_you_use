@@ -3,7 +3,9 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace dwyu {
 
@@ -25,6 +27,8 @@ void abortWithError(Args&&... args) {
     std::cerr << "\n";
     std::exit(1);
 }
+
+std::string listToStr(const std::vector<std::string>& list);
 
 } // namespace dwyu
 

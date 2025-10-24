@@ -1,3 +1,20 @@
-// Ensure the header only code defines all required includes and enable tools like clang-tidy which require a
-// compilation unit for analyzing code
 #include "dwyu/private/utils.h"
+
+namespace dwyu {
+
+std::string listToStr(const std::vector<std::string>& list) {
+    std::string out{"["};
+    for (const auto& element : list) {
+        out += element + ", ";
+    }
+    if (out.size() > 1) {
+        out.pop_back();
+        out.back() = ']';
+    }
+    else {
+        out += "]";
+    }
+    return out;
+}
+
+} // namespace dwyu

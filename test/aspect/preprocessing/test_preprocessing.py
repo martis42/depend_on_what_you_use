@@ -7,14 +7,11 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     @property
     def dwyu_impl_compatibility(self) -> DwyuImplCompatibility:
-        # The first implementation of the C++ based preprocessor does not yet support this operation mode
-        return DwyuImplCompatibility.LEGACY_ONLY
+        # The Python based preprocessor does not support all cases we test here
+        return DwyuImplCompatibility.CPP_ONLY
 
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
-        actual = self._run_dwyu(
-            target="//no_preprocessor:use_libs",
-            aspect=self.choose_aspect("//no_preprocessor:aspect.bzl%dwyu_no_preprocessor"),
-        )
+        actual = self._run_dwyu(target="//preprocessing:all", aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=expected)

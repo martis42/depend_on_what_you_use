@@ -114,11 +114,12 @@ def dwyu_aspect_factory(
                                    In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
 
         use_cpp_implementation: Switch parts of the internal tools executed by DWYU to a C++ based implementation instead of Python scripting.
-                                This is performance improvement not changing DWYU behavior.
-                                For now only some parts of the implementation are available in C++.
+                                This is mostly a performance improvement and DWYU should not behave significantly different.
+                                That much said, different behavior in certain edge cases is possible.
+                                For now only parts of the implementation are switched to C++.
                                 We will migrate more parts of the implementation step by step in future releases.
                                 Since, the C++ based implementation is new, this is for now an opt-in.
-                                However this will become the default eventually.
+                                However, this will become the default eventually.
 
         use_implementation_deps: `cc_library` offers the attribute [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies.
                                  Headers from the private dependencies are not made available to users of the library.<br>
@@ -191,12 +192,27 @@ def dwyu_aspect_factory(
                 providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
             ),
+            "_tool_analyze_preprocessing_results": attr.label(
+                default = Label("//dwyu/aspect/private/analyze_preprocessor_results:main"),
+                executable = True,
+                cfg = "exec",
+                doc = "Alternative for '_dwyu_binary' for comparing include statements to dependencies when using the C++ implementation with a dedicated preprocessing per source file under inspection.",
+            ),
+            "_tool_preprocessing": attr.label(
+                default = Label("//dwyu/aspect/private/preprocessing:main"),
+                executable = True,
+                cfg = "exec",
+                doc = "Preprocess the source code under inspection to resolve conditional preprocessor statements and discover include statements.",
+            ),
             "_tool_process_target": attr.label(
                 default = target_processor,
                 executable = True,
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
                       " as separate action, since otherwise we can't look into TreeArtifact sources.",
+            ),
+            "_use_cpp_implementation": attr.bool(
+                default = use_cpp_implementation,
             ),
             "_use_implementation_deps": attr.bool(
                 default = use_implementation_deps,

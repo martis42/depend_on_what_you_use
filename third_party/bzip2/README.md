@@ -1,0 +1,1 @@
+Patch taken from https://github.com/bazelbuild/bazel-central-registry/blob/2e38be281c26c4758de12b0f36fa5ed2ffe812b3/modules/bzip2/1.0.8/patches/add_build_file.patch so we can support WORKSPACE until it is fully deprecated

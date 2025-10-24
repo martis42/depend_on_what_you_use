@@ -22,6 +22,9 @@ def _extract_defines_from_compiler_flags_test_impl(ctx):
     # Define previously undefined value
     asserts.equals(env, ["Foo=42"], extract_defines_from_compiler_flags(["-UFoo", "-DFoo=42"]))
 
+    # Escape double quoted input
+    asserts.equals(env, ['Foo=\"bar\"'], extract_defines_from_compiler_flags(['-DFoo=\\"bar\\"']))
+
     # Define with complex value
     asserts.equals(
         env,

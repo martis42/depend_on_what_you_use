@@ -1,5 +1,6 @@
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@rules_python//python:repositories.bzl", "py_repositories")
+load("//third_party/rules_boost:rules_boost_step_2.bzl", "rules_boost_step_2")
 
 def setup_step_2():
     """
@@ -13,3 +14,5 @@ def setup_step_2():
     )
 
     py_repositories()
+
+    rules_boost_step_2()
