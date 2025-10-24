@@ -21,7 +21,7 @@ from test.benchmark.lib import common_main, run_benchmark  # noqa: E402
 # Test Parameters
 #
 
-TEST_CASES = 1000
+TEST_CASES = 5000
 
 ITERATIONS = 3
 JOBS = 1
@@ -74,6 +74,7 @@ cc_test(
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
+    defines=["__cplusplus=201703"],
 )
 
 cc_library(
@@ -83,6 +84,7 @@ cc_library(
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
+    defines=["__cplusplus=201703"],
 )
 """.lstrip()
 
