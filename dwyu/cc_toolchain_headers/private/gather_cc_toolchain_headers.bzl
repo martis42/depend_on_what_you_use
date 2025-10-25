@@ -60,7 +60,7 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
     stdout = ctx.actions.declare_file("{}_gcc_like_stdout".format(ctx.label.name))
     stderr = ctx.actions.declare_file("{}_gcc_like_stderr".format(ctx.label.name))
 
-    # Even if we don't utilize stdout capture it to not clutter the output without proper context to understand it
+    # Even if we don't utilize the stdout capture, we capture it to not clutter the output without proper context to understand the displayed lines
     cmd = "{COMPILER} {ARGS} > {STDOUT} 2> {STDERR}".format(COMPILER = cc_toolchain.compiler_executable, ARGS = " ".join(full_cmd), STDOUT = stdout.path, STDERR = stderr.path)
     ctx.actions.run_shell(
         inputs = depset(direct = [ctx.file._empty_cpp], transitive = [cc_toolchain.all_files]),
