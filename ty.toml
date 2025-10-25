@@ -1,0 +1,5 @@
+[environment]
+extra-paths = ["./test/aspect"]
+
+[rules]
+unresolved-attribute = "ignore"
