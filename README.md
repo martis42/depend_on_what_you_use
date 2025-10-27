@@ -240,10 +240,12 @@ Still, there are reasons to consider using DWYU instead of or in addition to lay
 ## Gazelle
 
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
-Unfortunately, it seems there is no public and established C++ extension for gazelle.
+`rules_cc` does not offer a standard Gazelle plugin for C/C++, like other language rules do.
+However, another party open sources [gazelle_cc](https://github.com/EngFlow/gazelle_cc) to provide Gazelle support for C/C++.
 
-Still, if one agrees with the best practices enforced by DWYU, investing time into a gazelle C++ extension might be worth it.
 Automatically generating correct BUILD files based on your source code is a more efficient approach compared to executing DWYU regularly to make sure no error was introduced.
+
+That much said, if using Gazelle is not possible for you or `gazelle_cc` is somehow not suitable for your project, using DWYU might still be a good choice for you.
 
 # Versioning
 
