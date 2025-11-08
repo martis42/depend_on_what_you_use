@@ -2,4 +2,5 @@
 extra-paths = ["./test/aspect"]
 
 [rules]
+# Does not work with how the dynamically load modules for integration testing
 unresolved-attribute = "ignore"
