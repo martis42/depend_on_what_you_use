@@ -142,7 +142,7 @@ def make_output_base(output_base: Path) -> list[str]:
     return [f"--output_base={output_base}"]
 
 
-def run_tests(workspace: Path, bazel_bin: Path, toolchain: ToolchainConfig, use_output_base: bool) -> list[str]:
+def run_tests(workspace: Path, bazel_bin: Path, toolchain: ToolchainConfig, ci_mode: bool) -> list[str]:
     log.info(f"\n##\n## Testing toolchain '{toolchain.name}'\n##")
     output_root = Path.home() / ".cache" / "bazel" / "dwyu" / "test_cc_toolchain"
     failures = []
@@ -154,8 +154,12 @@ def run_tests(workspace: Path, bazel_bin: Path, toolchain: ToolchainConfig, use_
     for bazel_version in toolchain.bazel_versions:
         log.info(f"\n>> Testing with Bazel '{bazel_version.resolved}'")
 
+        if ci_mode:
+            log.info("\n>> Clean Bazel artifacts\n")
+            subprocess.run(["bazel", "clean", "--expunge"], cwd=workspace, check=True)
+
         output_base_arg = (
-            make_output_base(output_root / f"{toolchain.name}_bazel_{bazel_version.dynamic}") if use_output_base else []
+            make_output_base(output_root / f"{toolchain.name}_bazel_{bazel_version.dynamic}") if not ci_mode else []
         )
         env = make_bazel_version_env(bazel_version.resolved)
         cmd = [
@@ -196,9 +200,9 @@ def cli() -> argparse.Namespace:
         help="Instead of running the integration tests, create a permanent workspace for manual testing. Has to be used with '--toolchain'",
     )
     parser.add_argument(
-        "--no_output_base",
+        "--ci_mode",
         action="store_true",
-        help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
+        help="In the CI we have limited disk space. Thus, we do not use output bases and perform cleans in between the tests.",
     )
 
     parsed_args = parser.parse_args()
@@ -243,7 +247,7 @@ def main(args: argparse.Namespace) -> int:
                     workspace=Path(tmp_workspace),
                     bazel_bin=bazel_bin,
                     toolchain=toolchain,
-                    use_output_base=not args.no_output_base,
+                    ci_mode=args.ci_mode,
                 )
             )
 

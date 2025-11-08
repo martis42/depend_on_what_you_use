@@ -65,7 +65,7 @@ jobs:
         with:
           python-version: "3.13"
       - name: Integration tests - CC toolchain
-        run: python test/cc_toolchains/upstream/test.py --no_output_base
+        run: python test/cc_toolchains/upstream/test.py --ci_mode
 
   integration-tests-aspect:
     strategy:
