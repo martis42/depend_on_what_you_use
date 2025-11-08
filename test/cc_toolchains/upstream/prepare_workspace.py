@@ -6,6 +6,7 @@ from pathlib import Path
 from test.support.platform import path_to_starlark_format
 
 ASPECT_TEMPLATE = "test/cc_toolchains/upstream/aspect.bzl.tpl"
+ASPECT_TEMPLATE_CPP = "test/cc_toolchains/upstream/aspect_cpp.bzl.tpl"
 BAZELRC_TEMPLATE = "test/cc_toolchains/upstream/bazelrc.tpl"
 BUILD_TEMPLATE = "test/cc_toolchains/upstream/BUILD.tpl"
 HEADER_TEMPLATE = "test/cc_toolchains/upstream/use_toolchain_headers.h.tpl"
@@ -25,10 +26,11 @@ bazel_dep(name = "rules_cc", version = "0.0.1")
 """
 
 
-def prepare_workspace(workspace: Path, dwyu_path: Path, module_extra_content: str) -> None:
+def prepare_workspace(workspace: Path, dwyu_path: Path, module_extra_content: str, use_cpp_impl: bool) -> None:
     workspace.mkdir(parents=True, exist_ok=True)
 
-    shutil.copy(dwyu_path / ASPECT_TEMPLATE, workspace / "aspect.bzl")
+    aspect_template = ASPECT_TEMPLATE_CPP if use_cpp_impl else ASPECT_TEMPLATE
+    shutil.copy(dwyu_path / aspect_template, workspace / "aspect.bzl")
     shutil.copy(dwyu_path / BAZELRC_TEMPLATE, workspace / ".bazelrc")
     shutil.copy(dwyu_path / BUILD_TEMPLATE, workspace / "BUILD")
     shutil.copy(dwyu_path / HEADER_TEMPLATE, workspace / "use_toolchain_headers.h")
