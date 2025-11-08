@@ -15,6 +15,11 @@ Also, C++ has a quite limited standard library compared to Python and in the pas
 
 Given, bzlmod made it far easier to depend on many established C++ dependencies and in general more things support Bazel nowadays, we plan to switch to a C++ implementation.
 
+## Why use Boost Wave instead of preprocessor X
+
+The decision was mostly based on Boost Wave being easy to integrate with Bazel and working for all our test cases.
+We do not intend to revisit this decision unless it turns out Boost Waver is unable to process standard conformant code.
+
 ## Why use a multi step automatic fixes workflow
 
 Having to execute a separate tool to apply fixes seems bothersome.
