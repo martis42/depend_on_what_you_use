@@ -201,6 +201,10 @@ DWYU relies on the information in the `CcInfo` provider to analyze available inc
 If a targets has to define special include paths, it should use the proper Bazel API via the C/C++ rules attributes \[`includes`, `include_prefix`, `strip_include_prefix`\].
 Include paths specified by those attributes are respected by DWYU.
 
+## Framework includes
+
+DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/CompilationContext.html#framework_includes) like system headers or CC toolchain headers and thus does not process them.
+
 # Supported Platforms
 
 ### Aspect
