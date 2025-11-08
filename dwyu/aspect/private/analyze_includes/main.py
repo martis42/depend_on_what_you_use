@@ -83,7 +83,21 @@ def cli() -> Namespace:
         Do not use this unless you have a performance problems and are sure the missing correctness is not hurting you.
         """,
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--param_file",
+        metavar="FILE",
+        type=Path,
+        help="""
+        If the command line input would be too large, one can provide the arguments via a file.
+        Overwrites all other parameters which might have provided via the CLI in parallel to '--param_file'.
+        """,
+    )
+
+    args = parser.parse_args()
+    if args.param_file:
+        args = parser.parse_args(args.param_file.read_text().splitlines())
+
+    return args
 
 
 def main(args: Namespace) -> int:
