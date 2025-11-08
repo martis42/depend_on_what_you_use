@@ -4,6 +4,7 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
+load("//dwyu/private:utils.bzl", "make_param_file_args")
 
 # Based on those references:
 # https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
@@ -60,7 +61,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         is_target_under_inspection = is_target_under_inspection,
     )
 
-    args = ctx.actions.args()
+    args = make_param_file_args(ctx)
     args.add("--target", str(target.label))
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
@@ -73,9 +74,6 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         args.add_all("--defines", defines)
     if verbose:
         args.add("--verbose")
-
-    args.set_param_file_format("multiline")
-    args.use_param_file("--param_file=%s")
 
     ctx.actions.run(
         inputs = header_files,
@@ -294,9 +292,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
         pp_output = ctx.actions.declare_file("{}_{}.dwyu_ppr.json".format(target.label.name, file.basename))
 
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
-        args = ctx.actions.args()
-        args.set_param_file_format("multiline")
-        args.use_param_file("--param_file=%s")
+        args = make_param_file_args(ctx)
         args.add_all("--files", [file])
         args.add_all("--include_paths", include_paths)
         args.add_all("--system_include_paths", system_include_paths)
@@ -384,7 +380,7 @@ def dwyu_aspect_impl(target, ctx):
         preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain)
         preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain)
 
-        args = ctx.actions.args()
+        args = make_param_file_args(ctx)
         args.add("--report", report_file)
         args.add_all("--preprocessed_public_files", preprocessed_public_files, omit_if_empty = False)
         args.add_all("--preprocessed_private_files", preprocessed_private_files, omit_if_empty = False)
@@ -412,7 +408,7 @@ def dwyu_aspect_impl(target, ctx):
         )
 
     else:
-        args = ctx.actions.args()
+        args = make_param_file_args(ctx)
         args.add("--report", report_file)
         args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
         args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)

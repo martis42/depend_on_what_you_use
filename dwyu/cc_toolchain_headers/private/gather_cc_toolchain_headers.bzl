@@ -2,6 +2,7 @@ load("@rules_cc//cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
+load("//dwyu/private:utils.bzl", "make_param_file_args")
 
 visibility("//dwyu/cc_toolchain_headers/...")
 
@@ -70,8 +71,7 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
         env = compile_env,
     )
 
-    args = ctx.actions.args()
-    args.use_param_file("--param_file=%s")
+    args = make_param_file_args(ctx)
     args.add("--gcc_like_include_paths_info", stderr)
     args.add("--output", output)
     _make_verbose(ctx, args)
@@ -97,8 +97,7 @@ def _get_headers_for_msvc_like_toolchain(ctx, cc_toolchain, output):
 
     include_paths = extract_msvc_include_paths(ctx, compile_env, compile_cmd)
 
-    args = ctx.actions.args()
-    args.use_param_file("--param_file=%s")
+    args = make_param_file_args(ctx)
     args.add_all("--include_directories", include_paths, omit_if_empty = False)
     args.add("--output", output)
     _make_verbose(ctx, args)
@@ -123,8 +122,7 @@ def _get_headers_without_compiler_knowledge(ctx, cc_toolchain, output):
         " This is a best effort without any guarantees. Please have a look at the documentation for the DWYU aspect attribute 'ignore_cc_toolchain_headers' for more information.",
     )
 
-    args = ctx.actions.args()
-    args.use_param_file("--param_file=%s")
+    args = make_param_file_args(ctx)
     args.add_all("--include_directories", cc_toolchain.built_in_include_directories)
     args.add("--output", output)
     _make_verbose(ctx, args)
