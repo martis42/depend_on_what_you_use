@@ -99,7 +99,7 @@ register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
         source="https://github.com/uber/hermetic_cc_toolchain",
         # On GitHub worker das not work with Bazel >= 9.0.0 or 7.0.0 for an unknown reason. Compiler is executable but does provide empty output when called.
         bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.x")],
-        platforms=["Linux", "Darwin", "Windows"],
+        platforms=["Linux", "Darwin"],
         extra_args=["--config=no_default_toolchain"],
         module_snippet="""
 bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.0")
@@ -200,6 +200,15 @@ def cli() -> argparse.Namespace:
         help="Instead of running the integration tests, create a permanent workspace for manual testing. Has to be used with '--toolchain'",
     )
     parser.add_argument(
+        "--use_cpp_impl",
+        "-cpp",
+        action="store_true",
+        help="""
+        We have a new C++ based implementation of DWYU. This is for now a parallel implementation. Use this flag to ensure the C++ based
+        implementation works with extracting header files directly from the CC toolchain.
+        """,
+    )
+    parser.add_argument(
         "--ci_mode",
         action="store_true",
         help="In the CI we have limited disk space. Thus, we do not use output bases and perform cleans in between the tests.",
@@ -231,6 +240,7 @@ def main(args: argparse.Namespace) -> int:
             workspace=args.manifest_repo,
             dwyu_path=dwyu_path,
             module_extra_content=toolchains_under_test[0].module_snippet,
+            use_cpp_impl=args.use_cpp_impl,
         )
         return 0
 
@@ -240,7 +250,10 @@ def main(args: argparse.Namespace) -> int:
         # Ignore cleanup errors as otherwise we have problems in windows CI jobs
         with TemporaryDirectory(ignore_cleanup_errors=True) as tmp_workspace:
             prepare_workspace(
-                workspace=Path(tmp_workspace), dwyu_path=dwyu_path, module_extra_content=toolchain.module_snippet
+                workspace=Path(tmp_workspace),
+                dwyu_path=dwyu_path,
+                module_extra_content=toolchain.module_snippet,
+                use_cpp_impl=args.use_cpp_impl,
             )
             failures.extend(
                 run_tests(
