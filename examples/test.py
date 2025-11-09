@@ -30,15 +30,15 @@ class Example:
 
 EXAMPLES = [
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //basic_usage:correct_dependencies",
+        build_cmd="--config=dwyu //basic_usage:correct_dependencies",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //basic_usage:false_dependencies",
+        build_cmd="--config=dwyu //basic_usage:false_dependencies",
         expected_success=False,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //basic_usage:not_using_lib",
+        build_cmd="--config=dwyu //basic_usage:not_using_lib",
         expected_success=False,
     ),
     Example(
@@ -50,15 +50,15 @@ EXAMPLES = [
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_ignoring_includes --output_groups=dwyu //ignoring_includes:use_unavailable_headers",
+        build_cmd="--config=dwyu_ignoring_includes //ignoring_includes:use_unavailable_headers",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //recursion:use_lib",
+        build_cmd="--config=dwyu //recursion:use_lib",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_recursive --output_groups=dwyu //recursion:use_lib",
+        build_cmd="--config=dwyu_recursive //recursion:use_lib",
         expected_success=False,
     ),
     Example(
@@ -66,43 +66,43 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_set_cplusplus --output_groups=dwyu //set_cpp_standard:cpp_lib",
+        build_cmd="--config=dwyu_set_cplusplus //set_cpp_standard:cpp_lib",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_set_cplusplus --output_groups=dwyu //set_cpp_standard:use_specific_cpp_standard",
+        build_cmd="--config=dwyu_set_cplusplus //set_cpp_standard:use_specific_cpp_standard",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //skipping_targets:bad_target",
+        build_cmd="--config=dwyu //skipping_targets:bad_target",
         expected_success=False,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu --output_groups=dwyu //skipping_targets:bad_target_skipped",
+        build_cmd="--config=dwyu //skipping_targets:bad_target_skipped",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_custom_skipping --output_groups=dwyu //skipping_targets:bad_target_custom_skip",
+        build_cmd="--config=dwyu_custom_skipping //skipping_targets:bad_target_custom_skip",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_recursive_skip_external --output_groups=dwyu //skipping_targets:use_broken_external_dependency",
+        build_cmd="--config=dwyu_skip_external //skipping_targets:use_broken_external_dependency",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_map_specific_deps --output_groups=dwyu //target_mapping:use_lib_b",
+        build_cmd="--config=dwyu_map_specific_deps //target_mapping:use_lib_b",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_map_direct_deps --output_groups=dwyu //target_mapping:use_lib_b",
+        build_cmd="--config=dwyu_map_direct_deps //target_mapping:use_lib_b",
         expected_success=True,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_map_direct_deps --output_groups=dwyu //target_mapping:use_lib_c",
+        build_cmd="--config=dwyu_map_direct_deps //target_mapping:use_lib_c",
         expected_success=False,
     ),
     Example(
-        build_cmd="--aspects=//:aspect.bzl%dwyu_map_transitive_deps --output_groups=dwyu //target_mapping:use_lib_c",
+        build_cmd="--config=dwyu_map_transitive_deps //target_mapping:use_lib_c",
         expected_success=True,
     ),
 ]

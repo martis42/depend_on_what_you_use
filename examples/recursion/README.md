@@ -5,10 +5,15 @@ Of course, one can also use more complex pattern or user bazel (c)query to compu
 For one common use case DWYU offers direct support: <br>
 **_Executing DWYU on a target and all its transitive dependencies_**
 
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu --output_groups=dwyu //recursion:use_lib` <br>
-shows the default behavior which is a success, as the target under inspection has no fault.
+Executing the following shows the default behavior which is a success, as the target under inspection has no fault.
 
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu_recursive --output_groups=dwyu //recursion:use_lib` <br>
-fails however as it automatically analyzes the fault dependency used by the target under inspection.
+```shell
+bazel build --config=dwyu //recursion:use_lib
+```
+
+Executing the following fails however as it automatically analyzes the fault dependency used by the target under inspection.
+See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the config and the aspect configuration.
+
+```shell
+bazel build --config=dwyu_recursive //recursion:use_lib
+```

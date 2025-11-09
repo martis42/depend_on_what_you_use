@@ -8,20 +8,30 @@ The targets in this example use headers from transitive dependencies.
 Still, we can analyze them without DWYU raising an error when using an aspect configured with the corresponding target mapping.
 You yee the mappings used in this example in [mapping](./mapping/BUILD).
 
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu_map_specific_deps --output_groups=dwyu //target_mapping:use_lib_b` <br>
-does not fail as we tell DWYU that library `a` provides the headers from library `b`.
+See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the configs and the aspect configurations.
 
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu_map_direct_deps --output_groups=dwyu //target_mapping:use_lib_b` <br>
-does not fail as we tell DWYU that library `a` provides the headers from all its direct dependencies and thus from library `b`.
+Executing the following does not fail as we tell DWYU that library `a` provides the headers from library `b`.
 
-DWYU still finds errors not covered by the provided mapping.
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu_map_direct_deps --output_groups=dwyu //target_mapping:use_lib_c` <br>
-fails due to library `c` being used but not being mapped to library `a`.
+```shell
+bazel build --config=dwyu_map_specific_deps //target_mapping:use_lib_b
+```
 
-We can fix this problem easily with another target mapping.
-Executing <br>
-`bazel build --aspects=//:aspect.bzl%dwyu_map_transitive_deps --output_groups=dwyu //target_mapping:use_lib_c` <br>
-succeeds as we tell DWYU to that library `a` provides the headers from all its transitive dependencies including library `c`.
+Executing the following does not fail as we tell DWYU that library `a` provides the headers from all its direct dependencies and thus from library `b`.
+
+```shell
+bazel build --config=dwyu_map_direct_deps //target_mapping:use_lib_b
+```
+
+DWYU can still discover errors not covered by the provided mapping.
+Executing the following fails due to library `c` being used but not being mapped to library `a`.
+
+```shell
+bazel build --config=dwyu_map_direct_deps //target_mapping:use_lib_c
+```
+
+We can fix this problem easily with another kind of target mapping.
+Executing the following succeeds as we tell DWYU to that library `a` provides the headers from all its transitive dependencies including library `c`.
+
+```shell
+bazel build --config=dwyu_map_transitive_deps //target_mapping:use_lib_c
+```

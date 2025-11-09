@@ -13,3 +13,27 @@ build:dwyu_with_macros --config=dwyu
 build:dwyu_with_macros --cxxopt=-DFOO
 # The C++ standard is set to C++20 when DWYU preprocesses the code
 build:dwyu_with_macros --cxxopt=-D__cplusplus=202002
+
+build:dwyu_ignoring_includes --aspects=//:aspect.bzl%dwyu_ignoring_includes
+build:dwyu_ignoring_includes --output_groups=dwyu
+
+build:dwyu_recursive --aspects=//:aspect.bzl%dwyu_recursive
+build:dwyu_recursive --output_groups=dwyu
+
+build:dwyu_set_cplusplus --aspects=//:aspect.bzl%dwyu_set_cplusplus
+build:dwyu_set_cplusplus --output_groups=dwyu
+
+build:dwyu_custom_skipping --aspects=//:aspect.bzl%dwyu_custom_skipping
+build:dwyu_custom_skipping --output_groups=dwyu
+
+build:dwyu_skip_external --aspects=//:aspect.bzl%dwyu_recursive_skip_external
+build:dwyu_skip_external --output_groups=dwyu
+
+build:dwyu_map_specific_deps --aspects=//:aspect.bzl%dwyu_map_specific_deps
+build:dwyu_map_specific_deps --output_groups=dwyu
+
+build:dwyu_map_direct_deps --aspects=//:aspect.bzl%dwyu_map_direct_deps
+build:dwyu_map_direct_deps --output_groups=dwyu
+
+build:dwyu_map_transitive_deps --aspects=//:aspect.bzl%dwyu_map_transitive_deps
+build:dwyu_map_transitive_deps --output_groups=dwyu
