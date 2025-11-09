@@ -281,7 +281,8 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
     include_paths = depset(transitive = [cc_context.quote_includes, cc_context.includes])
     system_include_paths = depset(transitive = [cc_context.system_includes, external_includes, cc_context.includes])
 
-    # TODO maybe Bazel bug that this is not part of compilation_context?
+    # Work around the bug described in https://github.com/bazelbuild/bazel/issues/19663
+    # Implementation_deps are not added to CcInfo.compilation_context
     if hasattr(ctx.rule.attr, "implementation_deps"):
         impl_deps_hdrs = depset(direct = [], transitive = [dep[CcInfo].compilation_context.headers for dep in ctx.rule.attr.implementation_deps])
     else:
