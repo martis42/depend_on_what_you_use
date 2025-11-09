@@ -5,7 +5,6 @@
     ":dependencyDashboard",
     ":enablePreCommit",
     "schedule:monthly",
-    ":rebaseStalePrs",
     ":semanticCommits",
     ":semanticPrefixChore",
     ":label(renovate)"
