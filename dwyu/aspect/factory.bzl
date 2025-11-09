@@ -39,7 +39,8 @@ def dwyu_aspect_factory(
                                       This preprocessor is however slow, when analyzing complex files.
                                       Using this option can speed up the DWYU analysis significantly.
 
-        experimental_set_cplusplus: **Experimental** feature whose behavior is not yet stable and might change at any time.<br>
+        experimental_set_cplusplus: **DEPRECATED**: This feature will be removed in the next release.
+                                    See the [define_macros](/examples/define_macros/) example for the forward path solution.<br><br>
                                     `__cplusplus` is a macro defined by the compiler specifying if C++ is used to compile the file and which C++ standard is used.<br>
                                     DWYU cannot treat this like other preprocessor defines, as this is often not coming from the command line or the Bazel C++ toolchain.
                                     The compiler itself defines the value for `__cplusplus` and sets it internally during preprocessing.<br>

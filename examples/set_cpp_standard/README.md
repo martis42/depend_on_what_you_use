@@ -1,4 +1,5 @@
-:warning: **Beware, this is an experimental feature which has not yet a stable behavior!**
+:warning: **Beware, this is a DEPRECATED feature which will be removed in the next release!** :warning:<br>
+See the [define_macros](/examples/define_macros/) example for the forward path solution.
 
 `__cplusplus` is a macro defined by the compiler specifying if C++ is used to compile the file and which C++ standard is used.
 `__cplusplus` typically is not passed on the compiler command line as defined value, but set internally by the preprocessor while processing a file.

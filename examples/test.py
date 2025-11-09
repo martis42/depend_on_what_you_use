@@ -42,6 +42,14 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
+        build_cmd="--config=dwyu //define_macros:main",
+        expected_success=False,
+    ),
+    Example(
+        build_cmd="--config=dwyu_with_macros //define_macros:main",
+        expected_success=True,
+    ),
+    Example(
         build_cmd="--aspects=//:aspect.bzl%dwyu_ignoring_includes --output_groups=dwyu //ignoring_includes:use_unavailable_headers",
         expected_success=True,
     ),
