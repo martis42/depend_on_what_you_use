@@ -3,3 +3,13 @@ startup --max_idle_secs=10
 
 # The symlinks are cluttering the file tree without much value
 common --experimental_convenience_symlinks=ignore
+
+# Ease using the DWYU aspect
+build:dwyu --aspects=//:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
+
+build:dwyu_with_macros --config=dwyu
+# 'FOO' is defined when DWYU preprocesses the code
+build:dwyu_with_macros --cxxopt=-DFOO
+# The C++ standard is set to C++20 when DWYU preprocesses the code
+build:dwyu_with_macros --cxxopt=-D__cplusplus=202002
