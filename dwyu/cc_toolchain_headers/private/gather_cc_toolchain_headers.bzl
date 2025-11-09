@@ -79,7 +79,7 @@ def _get_headers_for_gcc_like_toolchain(ctx, cc_toolchain, output):
         executable = ctx.executable._gatherer,
         inputs = depset(direct = [stderr], transitive = [cc_toolchain.all_files]),
         outputs = [output],
-        mnemonic = "DWYUGatherGccLikeToolchainHeaders",
+        mnemonic = "DwyuGatherGccLikeToolchainHeaders",
         arguments = [args],
     )
 
@@ -105,7 +105,7 @@ def _get_headers_for_msvc_like_toolchain(ctx, cc_toolchain, output):
         executable = ctx.executable._gatherer,
         inputs = cc_toolchain.all_files,
         outputs = [output],
-        mnemonic = "DWYUGatherMsvcLikeToolchainHeaders",
+        mnemonic = "DwyuGatherMsvcLikeToolchainHeaders",
         arguments = [args],
     )
 
@@ -130,7 +130,7 @@ def _get_headers_without_compiler_knowledge(ctx, cc_toolchain, output):
         executable = ctx.executable._gatherer,
         inputs = cc_toolchain.all_files,
         outputs = [output],
-        mnemonic = "DWYUGatherUnknownCompilerToolchainHeaders",
+        mnemonic = "DwyuGatherUnknownCompilerToolchainHeaders",
         arguments = [args],
     )
 
