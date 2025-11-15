@@ -69,10 +69,10 @@ repos:
     hooks:
       - id: ty
         name: ty
-        entry: uvx --python=3.12 ty==0.0.1-alpha.24 check
+        entry: uvx --python=3.12 ty==0.0.1-alpha.26 check
         types: [python]
         language: system
-        # To prevent API changes in one file breaking type annotations in another we run ont he full repository
+        # To prevent API changes in one file breaking type annotations in another we run on the full repository
         pass_filenames: false
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
