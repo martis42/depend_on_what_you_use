@@ -11,6 +11,7 @@
   ],
   "enabledManagers": [
     "bazel-module",
+    "bazelisk",
     "github-actions",
     "pre-commit"
   ],
