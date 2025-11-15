@@ -17,7 +17,13 @@
   ],
   "ignoreDeps": [
     "bazel_skylib",
+    "bzip2",
+    "nlohmann_json",
+    "platforms",
     "rules_python",
-    "rules_cc"
+    "rules_cc",
+    "xz",
+    "zlib",
+    "zstd"
   ]
 }
