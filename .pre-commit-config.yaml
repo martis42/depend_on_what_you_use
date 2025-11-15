@@ -4,7 +4,7 @@ define: &generated_doc_files "^docs/(cc_info_mapping|cc_toolchain_headers|dwyu_a
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       # Repository hygiene
       - id: check-added-large-files
