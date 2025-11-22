@@ -3,21 +3,11 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_cc//cc:cc_test.bzl", "cc_test")
 
 cc_library(
-    name = "foo",
-    hdrs = ["foo.h"],
-)
-
-cc_library(
-    name = "bar",
-    hdrs = ["bar.h"],
-)
-
-cc_library(
     name = "proper_private_deps",
     srcs = ["use_libs.cpp"],
     hdrs = ["use_libs.h"],
-    implementation_deps = [":foo"],
-    deps = [":bar"],
+    implementation_deps = ["//implementation_deps/support:lib_b"],
+    deps = ["//implementation_deps/support:lib_a"],
 )
 
 cc_library(
@@ -25,8 +15,8 @@ cc_library(
     srcs = ["use_libs.cpp"],
     hdrs = ["use_libs.h"],
     deps = [
-        ":bar",
-        ":foo",
+        "//implementation_deps/support:lib_a",
+        "//implementation_deps/support:lib_b",
     ],
 )
 
@@ -65,11 +55,11 @@ cc_library(
 cc_binary(
     name = "binary_using_foo",
     srcs = ["binary_using_foo.cpp"],
-    deps = [":foo"],
+    deps = ["//implementation_deps/support:lib_a"],
 )
 
 cc_test(
     name = "test_using_foo",
     srcs = ["binary_using_foo.cpp"],
-    deps = [":foo"],
+    deps = ["//implementation_deps/support:lib_a"],
 )
