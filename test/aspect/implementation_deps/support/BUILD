@@ -1,6 +1,18 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 cc_library(
+    name = "lib_a",
+    hdrs = ["lib_a.h"],
+    visibility = ["//implementation_deps:__pkg__"],
+)
+
+cc_library(
+    name = "lib_b",
+    hdrs = ["lib_b.h"],
+    visibility = ["//implementation_deps:__pkg__"],
+)
+
+cc_library(
     name = "lib_with_defines",
     hdrs = ["lib_with_defines.h"],
     defines = ["THE_ANSWER=42"],
