@@ -8,7 +8,7 @@
 #ifdef TOGGLE
 #include "support/lib_b.h"
 #else
-// If this would be included, it Would fail the DWYU analysis
+// If this would be included, it would fail the DWYU analysis
 #include "support/transitive.h"
 #endif
 
@@ -16,7 +16,7 @@
 #if THE_ANSWER > 10
 #include "support/lib_c.h"
 #else
-// If this would be included, it Would fail the DWYU analysis
+// If this would be included, it would fail the DWYU analysis
 #include "support/transitive.h"
 #endif
 
@@ -24,7 +24,7 @@
 #if SQUARE(5) > 10
 #include "support/lib_d.h"
 #else
-// If this would be included, it Would fail the DWYU analysis
+// If this would be included, it would fail the DWYU analysis
 #include "support/transitive.h"
 #endif
 

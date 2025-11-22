@@ -55,6 +55,12 @@ local_path_override(
     path = "complex_includes/ext_repo",
 )
 
+bazel_dep(name = "impl_deps_external_test_repo")
+local_path_override(
+    module_name = "impl_deps_external_test_repo",
+    path = "implementation_deps/external_repo",
+)
+
 bazel_dep(name = "skip_external_deps_test_repo")
 local_path_override(
     module_name = "skip_external_deps_test_repo",

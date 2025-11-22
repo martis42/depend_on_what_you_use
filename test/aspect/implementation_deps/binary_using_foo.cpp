@@ -1,5 +1,5 @@
-#include "implementation_deps/foo.h"
+#include "implementation_deps/support/lib_a.h"
 
 int main() {
-    return doFoo();
+    return libA();
 }

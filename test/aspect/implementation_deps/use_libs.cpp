@@ -1,5 +1,5 @@
-#include "implementation_deps/foo.h"
+#include "implementation_deps/support/lib_b.h"
 
 int useLibs() {
-    return doFoo() + 11;
+    return libB() + 11;
 }
