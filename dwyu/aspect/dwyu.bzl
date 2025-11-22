@@ -53,6 +53,28 @@ def _get_relevant_header(target_context, is_target_under_inspection):
     else:
         return target_context.direct_public_headers + target_context.direct_textual_headers
 
+def _get_includes(ctx, target_cc):
+    includes = [target_cc.includes]
+    quote_includes = [target_cc.quote_includes]
+    external_includes = [target_cc.external_includes] if hasattr(target_cc, "external_includes") else []
+    system_includes = [target_cc.system_includes]
+    if hasattr(ctx.rule.attr, "implementation_deps"):
+        # Because of bug https://github.com/bazelbuild/bazel/issues/19663 the compilation context is not actually
+        # containing the information to compile a target when it is using implementation_deps. Thus, we have to
+        # aggregate this information ourselves.
+        for impl_dep in ctx.rule.attr.implementation_deps:
+            impl_dep_cc = impl_dep[CcInfo].compilation_context
+            if impl_dep_cc.includes:
+                includes.append(impl_dep_cc.includes)
+            if impl_dep_cc.quote_includes:
+                quote_includes.append(impl_dep_cc.quote_includes)
+            if hasattr(impl_dep_cc, "external_includes") and impl_dep_cc.external_includes:
+                external_includes.append(impl_dep_cc.external_includes)
+            if impl_dep_cc.system_includes:
+                system_includes.append(impl_dep_cc.system_includes)
+
+    return includes, quote_includes, external_includes, system_includes
+
 def _process_target(ctx, target, defines, output_path, is_target_under_inspection, verbose):
     processing_output = ctx.actions.declare_file(output_path)
     cc_context = target.cc_info.compilation_context
@@ -66,11 +88,11 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
     if is_target_under_inspection:
-        external_includes = cc_context.external_includes if hasattr(cc_context, "external_includes") else []
-        args.add_all("--includes", cc_context.includes, omit_if_empty = False)
-        args.add_all("--quote_includes", cc_context.quote_includes, omit_if_empty = False)
-        args.add_all("--external_includes", external_includes, omit_if_empty = False)
-        args.add_all("--system_includes", cc_context.system_includes, omit_if_empty = False)
+        includes, quote_includes, external_includes, system_includes = _get_includes(ctx, cc_context)
+        args.add_all("--includes", depset(transitive = includes), omit_if_empty = False)
+        args.add_all("--quote_includes", depset(transitive = quote_includes), omit_if_empty = False)
+        args.add_all("--external_includes", depset(transitive = external_includes), omit_if_empty = False)
+        args.add_all("--system_includes", depset(transitive = system_includes), omit_if_empty = False)
         args.add_all("--defines", defines)
     if verbose:
         args.add("--verbose")
@@ -165,14 +187,24 @@ def _gather_defines(ctx, target_compilation_context, target_files):
         unsupported_features = ctx.disabled_features,
     )
 
+    defines = []
+    if hasattr(ctx.rule.attr, "implementation_deps"):
+        # Because of bug https://github.com/bazelbuild/bazel/issues/19663 the compilation context is not actually
+        # containing the information to compile a target when it is using implementation_deps. Thus, we have to
+        # aggregate this information ourselves.
+        for impl_dep in ctx.rule.attr.implementation_deps:
+            impl_dep_cc = impl_dep[CcInfo].compilation_context
+            if impl_dep_cc.defines:
+                defines.append(impl_dep_cc.defines)
+
+    # Add the target defines last in case the order is important for undefining already defined macros
+    defines.append(target_compilation_context.defines)
+
     compile_variables = cc_common.create_compile_variables(
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         user_compile_flags = ctx.rule.attr.copts + ctx.fragments.cpp.cxxopts + ctx.fragments.cpp.copts,
-        preprocessor_defines = depset(transitive = [
-            target_compilation_context.defines,
-            target_compilation_context.local_defines,
-        ]),
+        preprocessor_defines = depset(transitive = defines + [target_compilation_context.local_defines]),
     )
 
     # We cannot directly work with 'compile_variables' in Starlark, thus we translate them into string representation
@@ -265,8 +297,13 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
     """
     For each given file perform a preprocessing step to find all relevant include statements
     """
-    cc_context = target[CcInfo].compilation_context
-    external_includes = cc_context.external_includes if hasattr(cc_context, "external_includes") else depset()
+
+    # Work around the bug described in https://github.com/bazelbuild/bazel/issues/19663
+    # Implementation_deps are not added to CcInfo.compilation_context
+    if hasattr(ctx.rule.attr, "implementation_deps"):
+        impl_deps_hdrs = depset(direct = [], transitive = [dep[CcInfo].compilation_context.headers for dep in ctx.rule.attr.implementation_deps])
+    else:
+        impl_deps_hdrs = depset(direct = [], transitive = [])
 
     # Based on https://bazel.build/rules/lib/builtins/CompilationContext.html the logic is:
     # - includes -> Search paths for resolving include statements using angle brackets or quotes
@@ -278,15 +315,9 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
     # We are ignoring 'framework_includes'. Our preprocessor does not support this.
     # Furthermore, this is mostly used for the system and toolchain headers as well as external dependencies.
     # We want to ignore system and toolchain headers either way.
-    include_paths = depset(transitive = [cc_context.quote_includes, cc_context.includes])
-    system_include_paths = depset(transitive = [cc_context.system_includes, external_includes, cc_context.includes])
-
-    # Work around the bug described in https://github.com/bazelbuild/bazel/issues/19663
-    # Implementation_deps are not added to CcInfo.compilation_context
-    if hasattr(ctx.rule.attr, "implementation_deps"):
-        impl_deps_hdrs = depset(direct = [], transitive = [dep[CcInfo].compilation_context.headers for dep in ctx.rule.attr.implementation_deps])
-    else:
-        impl_deps_hdrs = depset(direct = [], transitive = [])
+    includes, quote_includes, external_includes, system_includes = _get_includes(ctx, target[CcInfo].compilation_context)
+    include_paths = depset(transitive = quote_includes + includes)
+    system_include_paths = depset(transitive = system_includes + external_includes + includes)
 
     preprocessor_results = []
     for file in files:
