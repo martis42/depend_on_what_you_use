@@ -25,7 +25,8 @@ BAZEL_VERSIONS_UNDER_TEST = [
     "7.x",
     "8.0.0",
     "8.x",
-    "rolling",
+    "9.*",
+    # No rolling until https://github.com/bazelbuild/bazel/issues/27749 is fixed
 ]
 
 

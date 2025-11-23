@@ -213,7 +213,7 @@ DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/Compi
 | ---------------- | ----------------------------------------------------------------------------------- |
 | Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022].                     |
 | Python           | Minimum version is 3.8. Integration tests check [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]. |
-| Bazel            | Minimum version is 6.4.0. Integration tests check [6.4, 7.x, 8.x, rolling].         |
+| Bazel            | Minimum version is 6.4.0. Integration tests check [6.4, 7.x, 8.x, 9.\*].            |
 
 ### Applying fixes
 
