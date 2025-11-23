@@ -10,7 +10,7 @@ bazel_dep(name = "rules_python", version = "0.37.2")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
 # Keep in sync with third_party/dependencies.bzl
-bazel_dep(name = "nlohmann_json", version = "3.12.0")
+bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
 
 non_module_dependencies_step_1 = use_extension("//third_party:extensions_step_1.bzl", "non_module_dependencies_step_1")
 use_repo(non_module_dependencies_step_1, "boost.wave", "com_github_nelhage_rules_boost", "dwyu_pcpp")
