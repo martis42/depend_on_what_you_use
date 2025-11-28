@@ -1,6 +1,9 @@
 --- /dev/null
 +++ BUILD.bazel
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,36 @@
++load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
++load("@rules_cc//cc:cc_library.bzl", "cc_library")
++
 +cc_binary(
 +    name = "bzip2",
 +    srcs = ["bzip2.c"],
