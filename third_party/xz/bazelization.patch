@@ -3,7 +3,7 @@ new file mode 100644
 index 00000000..ec299a3d
 --- /dev/null
 +++ b/BUILD.bazel
-@@ -0,0 +1,365 @@
+@@ -0,0 +1,368 @@
 +# Description
 +#    lzma is a general purpose data compression library https://tukaani.org/xz/
 +#    Public Domain
@@ -11,6 +11,9 @@ index 00000000..ec299a3d
 +load("@bazel_skylib//lib:selects.bzl", "selects")
 +load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 +load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
++load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
++load("@rules_cc//cc:cc_library.bzl", "cc_library")
++load("@rules_cc//cc:cc_test.bzl", "cc_test")
 +load("//:tools.bzl", "multi_test")
 +
 +package(default_visibility = ["//visibility:private"])
