@@ -11,7 +11,7 @@ def rules_boost_step_1():
     maybe(
         http_archive,
         name = "com_github_nelhage_rules_boost",
-        sha256 = "345c35bdddf386f7a602ae9b9ad194853f25e242cf6f9dbc9187beda6226055c",
-        strip_prefix = "rules_boost-84d6dbe4c5feb6f8a9191548190ee80ce902aef7",
-        urls = ["https://github.com/nelhage/rules_boost/archive/84d6dbe4c5feb6f8a9191548190ee80ce902aef7.tar.gz"],
+        sha256 = "4ebeaa6c71c11034efc9e1b85cc20a899a3ed54dc8e03c38ebd3caed362f652c",
+        strip_prefix = "rules_boost-9d42ebfa8ae231a5794040cc06926f467232ee43",
+        urls = ["https://github.com/nelhage/rules_boost/archive/9d42ebfa8ae231a5794040cc06926f467232ee43.tar.gz"],
     )
