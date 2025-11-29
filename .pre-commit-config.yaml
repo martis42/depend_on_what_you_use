@@ -17,7 +17,7 @@ repos:
       - id: check-symlinks
       - id: check-merge-conflict
       - id: mixed-line-ending
-        args: [ --fix=lf ]
+        args: [--fix=lf]
       # Code style
       - id: end-of-file-fixer
         exclude: *generated_doc_files
@@ -41,22 +41,22 @@ repos:
     hooks:
       - id: buildifier
       - id: buildifier-lint
-        args: [ --diff_command='diff' ]
+        args: [--diff_command='diff']
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.7
     hooks:
       - id: ruff-format
       - id: ruff-check
-        args: [ --fix ]
+        args: [--fix]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.2
     hooks:
       - id: mypy
-        name: "mypy"
+        name: mypy
         # We overwrite the args as we configure mypy via our mypy.ini
-        args: [ ]
+        args: []
 
   # https://github.com/astral-sh/ty
   - repo: local
