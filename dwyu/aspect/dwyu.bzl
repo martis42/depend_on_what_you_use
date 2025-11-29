@@ -326,9 +326,10 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
         args.add_all("--files", [file])
-        args.add_all("--include_paths", include_paths)
-        args.add_all("--system_include_paths", system_include_paths)
-        args.add_all("--defines", defines)
+        if not ctx.attr._no_preprocessor:
+            args.add_all("--include_paths", include_paths)
+            args.add_all("--system_include_paths", system_include_paths)
+            args.add_all("--defines", defines)
         args.add("--output", pp_output)
         if ctx.attr._verbose:
             args.add("--verbose")

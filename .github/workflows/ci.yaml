@@ -21,8 +21,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: DWYU Unit tests
         run: bazel test //...
-      - name: Ensure DWYU C++ code is compliant to the desired C++ versions range
-        run: ./scripts/test_cpp_version_compliance.sh
+      - name: Ensure DWYU C++ code is compliant to the desired C++ versions range and without warnings
+        run: ./scripts/test_cpp_version_compliance_and_warnings.sh
       - name: Aspect integration tests scripts unittests
         run: ./scripts/test_aspect_tests_scripts.sh
       - name: Build examples

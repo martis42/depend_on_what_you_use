@@ -1,15 +1,10 @@
 from expected_result import ExpectedResult
-from test_case import DwyuImplCompatibility, TestCaseBase
+from test_case import TestCaseBase
 
 from test.support.result import Result
 
 
 class TestCase(TestCaseBase):
-    @property
-    def dwyu_impl_compatibility(self) -> DwyuImplCompatibility:
-        # The first implementation of the C++ based preprocessor does not yet support this operation mode
-        return DwyuImplCompatibility.LEGACY_ONLY
-
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
