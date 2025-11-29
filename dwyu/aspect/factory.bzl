@@ -143,8 +143,12 @@ def dwyu_aspect_factory(
         cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
-    target_processor = Label("//dwyu/aspect/private/process_target:main_cc") if use_cpp_implementation else Label("//dwyu/aspect/private/process_target:main_py")
-    tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main") if use_cpp_implementation else Label("//dwyu/aspect/private/preprocessing:stub")
+    if use_cpp_implementation:
+        target_processor = Label("//dwyu/aspect/private/process_target:main_cc")
+        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if experimental_no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
+    else:
+        target_processor = Label("//dwyu/aspect/private/process_target:main_py")
+        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:stub")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
