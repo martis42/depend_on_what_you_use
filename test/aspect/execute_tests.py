@@ -26,7 +26,8 @@ TESTED_VERSIONS = [
     TestedVersions(bazel="7.x", python="3.10"),
     TestedVersions(bazel="8.0.0", python="3.11"),
     TestedVersions(bazel="8.x", python="3.12", is_default=True),
-    TestedVersions(bazel="rolling", python="3.13"),
+    TestedVersions(bazel="9.*", python="3.13"),
+    # No rolling until https://github.com/bazelbuild/bazel/issues/27749 is fixed
 ]
 
 VERSION_SPECIFIC_ARGS = {
