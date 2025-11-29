@@ -60,7 +60,7 @@ TOOLCHAINS = [
     ToolchainConfig(
         name="host_toolchain",
         source="https://github.com/bazelbuild/rules_cc",
-        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.x"), BazelVersion("rolling")],
+        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.x")],
         platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="",
@@ -68,7 +68,7 @@ TOOLCHAINS = [
     ToolchainConfig(
         name="toolchains_llvm",
         source="https://github.com/bazel-contrib/toolchains_llvm",
-        bazel_versions=[BazelVersion("7.x"), BazelVersion("8.x"), BazelVersion("rolling")],
+        bazel_versions=[BazelVersion("7.x"), BazelVersion("8.x")],
         platforms=["Linux", "Darwin"],
         extra_args=["--config=no_default_toolchain"],
         module_snippet="""
@@ -113,7 +113,7 @@ register_toolchains("@zig_sdk//...")
     ToolchainConfig(
         name="toolchains_musl",
         source="https://github.com/bazel-contrib/musl-toolchain",
-        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.x"), BazelVersion("rolling")],
+        bazel_versions=[BazelVersion("6.4.0"), BazelVersion("7.x"), BazelVersion("8.x")],
         # Cannot compile from Darwin to Darwin, just cross compile from Darwin to Linux. Cross compilation is not yet supported/tested though.
         platforms=["Linux"],
         extra_args=["--config=no_default_toolchain"],
