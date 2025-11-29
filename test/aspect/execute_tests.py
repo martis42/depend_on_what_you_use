@@ -20,13 +20,13 @@ log = logging.getLogger()
 # Test matrix. We don't combine each Bazel version with each Python version as there is no significant benefit. We
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
 # For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
+# Keep this in sync with: test/workspace_integration/test.py, test/cc_toolchains/upstream/test.py, .bcr/presubmit.yml
 TESTED_VERSIONS = [
     TestedVersions(bazel="6.4.0", python="3.8"),
     TestedVersions(bazel="7.0.0", python="3.9"),
     TestedVersions(bazel="7.x", python="3.10"),
     TestedVersions(bazel="8.0.0", python="3.11"),
     TestedVersions(bazel="8.x", python="3.12", is_default=True),
-    TestedVersions(bazel="rolling", python="3.13"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
