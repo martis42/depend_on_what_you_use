@@ -144,6 +144,7 @@ def dwyu_aspect_factory(
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
     target_processor = Label("//dwyu/aspect/private/process_target:main_cc") if use_cpp_implementation else Label("//dwyu/aspect/private/process_target:main_py")
+    tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main") if use_cpp_implementation else Label("//dwyu/aspect/private/preprocessing:stub")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -200,7 +201,7 @@ def dwyu_aspect_factory(
                 doc = "Alternative for '_dwyu_binary' for comparing include statements to dependencies when using the C++ implementation with a dedicated preprocessing per source file under inspection.",
             ),
             "_tool_preprocessing": attr.label(
-                default = Label("//dwyu/aspect/private/preprocessing:main"),
+                default = tool_preprocessing,
                 executable = True,
                 cfg = "exec",
                 doc = "Preprocess the source code under inspection to resolve conditional preprocessor statements and discover include statements.",
