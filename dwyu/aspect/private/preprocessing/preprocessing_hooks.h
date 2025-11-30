@@ -5,6 +5,7 @@
 
 #include <set>
 #include <string>
+#include <tuple>
 
 namespace dwyu {
 
@@ -26,6 +27,9 @@ std::string includeWithoutQuotes(const std::string& include_statement) {
 struct PreprocessingHooksBase : public boost::wave::context_policies::default_preprocessing_hooks {
     template <typename ContextT, typename ContainerT>
     bool found_warning_directive(ContextT const& ctx, ContainerT const& message) {
+        std::ignore = ctx;
+        std::ignore = message;
+
         // We don't care about warning directives, aka '#warning "Some msg"'
         return true;
     }
@@ -52,6 +56,8 @@ struct GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
     //      then using it in the 'find_include_file()' callback.
     template <typename ContextT>
     bool found_include_directive(const ContextT& ctx, const std::string& filename, bool include_next) {
+        std::ignore = include_next;
+
         const bool is_system = isSystemInclude(filename);
         std::string file_path = includeWithoutQuotes(filename);
 
@@ -77,11 +83,18 @@ struct GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
                              std::string const& relname,
                              std::string const& filename,
                              bool is_system_include) {
+        std::ignore = ctx;
+        std::ignore = relname;
+        std::ignore = filename;
+        std::ignore = is_system_include;
+
         ++include_depth;
     }
 
     template <typename ContextT>
     void returning_from_include_file(ContextT const& ctx) {
+        std::ignore = ctx;
+
         --include_depth;
     }
 
