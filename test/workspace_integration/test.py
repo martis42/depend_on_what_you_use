@@ -25,6 +25,7 @@ BAZEL_VERSIONS_UNDER_TEST = [
     "7.x",
     "8.0.0",
     "8.x",
+    "9.*",
 ]
 
 

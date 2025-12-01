@@ -60,7 +60,7 @@ TOOLCHAINS = [
     ToolchainConfig(
         name="host_toolchain",
         source="https://github.com/bazelbuild/rules_cc",
-        bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x")],
+        bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x"), BazelVersion("9.*")],
         platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="",
@@ -68,6 +68,7 @@ TOOLCHAINS = [
     ToolchainConfig(
         name="toolchains_llvm",
         source="https://github.com/bazel-contrib/toolchains_llvm",
+        # There is not yet a version supporting Bazel 9
         bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x")],
         platforms=["Linux", "Darwin"],
         extra_args=["--config=no_default_toolchain"],
@@ -97,7 +98,7 @@ register_toolchains("@toolchains_llvm_bootstrapped//toolchain:all")
     ToolchainConfig(
         name="hermetic_cc_toolchain",
         source="https://github.com/uber/hermetic_cc_toolchain",
-        # On GitHub worker das not work with Bazel >= 9.0.0 or 7.0.0 for an unknown reason. Compiler is executable but does provide empty output when called.
+        # There is not yet a version supporting Bazel 9
         bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x")],
         platforms=["Linux", "Darwin"],
         extra_args=["--config=no_default_toolchain"],
@@ -113,6 +114,7 @@ register_toolchains("@zig_sdk//...")
     ToolchainConfig(
         name="toolchains_musl",
         source="https://github.com/bazel-contrib/musl-toolchain",
+        # There is not yet a version supporting Bazel 9
         bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x")],
         # Cannot compile from Darwin to Darwin, just cross compile from Darwin to Linux. Cross compilation is not yet supported/tested though.
         platforms=["Linux"],
