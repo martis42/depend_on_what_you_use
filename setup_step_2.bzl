@@ -10,7 +10,7 @@ def setup_step_2():
     # Fail early for incompatible Bazel versions instead of printing obscure errors from within our implementation
     versions.check(
         # Keep in sync with MODULE.bazel, .bcr/presubmit.yml and the README.md
-        minimum_bazel_version = "6.4.0",
+        minimum_bazel_version = "7.2.1",
     )
 
     py_repositories()
