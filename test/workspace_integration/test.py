@@ -21,8 +21,7 @@ log = logging.getLogger()
 
 # Kep in sync with: test/aspect/execute_tests.py, test/cc_toolchains/upstream/test.py, .bcr/presubmit.yml
 BAZEL_VERSIONS_UNDER_TEST = [
-    "6.4.0",
-    "7.0.0",
+    "7.2.1",
     "7.x",
     "8.0.0",
     "8.x",

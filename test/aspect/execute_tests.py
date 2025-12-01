@@ -22,8 +22,7 @@ log = logging.getLogger()
 # For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
 # Keep this in sync with: test/workspace_integration/test.py, test/cc_toolchains/upstream/test.py, .bcr/presubmit.yml
 TESTED_VERSIONS = [
-    TestedVersions(bazel="6.4.0", python="3.8"),
-    TestedVersions(bazel="7.0.0", python="3.9"),
+    TestedVersions(bazel="7.2.1", python="3.8"),
     TestedVersions(bazel="7.x", python="3.10"),
     TestedVersions(bazel="8.0.0", python="3.11"),
     TestedVersions(bazel="8.x", python="3.12", is_default=True),
@@ -55,7 +54,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
     "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
-    "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.2.0"),
+    "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.3.0"),
     "--incompatible_disable_native_repo_rules": CompatibleVersions(minimum="7.2.0"),
     # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
