@@ -157,8 +157,6 @@ def dwyu_aspect_factory(
         required_providers = [CcInfo],
         toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
-            # Remove after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
-            "_cc_toolchain": attr.label(default = Label("@rules_cc//cc:current_cc_toolchain")),
             "_cc_toolchain_headers": attr.label(
                 default = cc_toolchain_headers,
                 providers = [DwyuCcToolchainHeadersInfo],
