@@ -60,7 +60,7 @@ TOOLCHAINS = [
     ToolchainConfig(
         name="host_toolchain",
         source="https://github.com/bazelbuild/rules_cc",
-        bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x"), BazelVersion("9.*")],
+        bazel_versions=[BazelVersion("7.2.1"), BazelVersion("8.x"), BazelVersion("9.*"), BazelVersion("rolling")],
         platforms=["Linux", "Darwin", "Windows"],
         extra_args=[],
         module_snippet="",

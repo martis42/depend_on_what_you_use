@@ -3,7 +3,7 @@ bcr_test_module:
   matrix:
     platform: [ "macos", "ubuntu2204", "windows" ]
     # Keep in syn with: test/aspect/execute_tests.py, test/workspace_integration/test.py, test/cc_toolchains/upstream/test.py
-    bazel: [ "7.2.1", "8.x", "9.*" ]
+    bazel: [ "7.2.1", "8.x", "9.*", "rolling" ]
   tasks:
     verify_examples:
       name: "Verify examples"
