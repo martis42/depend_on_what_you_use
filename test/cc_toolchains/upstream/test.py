@@ -169,7 +169,6 @@ def run_tests(workspace: Path, bazel_bin: Path, toolchain: ToolchainConfig, ci_m
             *output_base_arg,
             "--max_idle_secs=10",
             "build",
-            "--enable_bzlmod=true",
             "--config=dwyu",
             *toolchain.extra_args,
             "//:use_toolchain_headers",
