@@ -359,11 +359,6 @@ def dwyu_aspect_impl(target, ctx):
         OutputGroup containing the generated report file
     """
 
-    # Remove when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
-    # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
-    if not CcInfo in target:
-        return []
-
     # While we limit ourselves right now in the early project phase, we aim at supporting all cc_ like rules accepting
     # 'hdrs' and 'srcs' attributes and providing CcInfo
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
