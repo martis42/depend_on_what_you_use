@@ -30,7 +30,7 @@ BAZEL_VERSIONS_UNDER_TEST = [
 
 
 def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
-    bzlmod_arg = ["--enable_bzlmod=true"] if is_bzlmod else ["--enable_bzlmod=false"]
+    bzlmod_arg = [] if is_bzlmod else ["--enable_bzlmod=false"]
     workspace_arg = [] if is_bzlmod else ["--enable_workspace=true"]
     mode = "bzlmod" if is_bzlmod else "WORKSPACE"
     failures = []
