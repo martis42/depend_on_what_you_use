@@ -1,4 +1,5 @@
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
@@ -153,9 +154,7 @@ def dwyu_aspect_factory(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
         fragments = ["cpp"],
-        # Uncomment when minimum Bazel version is 7.0.0, see https://github.com/bazelbuild/bazel/issues/19609
-        # DWYU is only able to work on targets providing CcInfo. Other targets shall be skipped.
-        # required_providers = [CcInfo],
+        required_providers = [CcInfo],
         toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
             # Remove after minimum Bazel version is 7, see https://docs.google.com/document/d/14vxMd3rTpzAwUI9ng1km1mp-7MrVeyGFnNbXKF_XhAM/edit?tab=t.0
