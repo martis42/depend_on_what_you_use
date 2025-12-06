@@ -63,7 +63,7 @@ repos:
     hooks:
       - id: ty
         name: ty
-        entry: uvx --python=3.12 ty==0.0.1-alpha.29 check
+        entry: uvx --python=3.12 ty==0.0.1-alpha.32 check
         types: [python]
         language: system
         # To prevent API changes in one file breaking type annotations in another we run on the full repository
