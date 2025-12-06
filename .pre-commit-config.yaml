@@ -50,14 +50,6 @@ repos:
       - id: ruff-check
         args: [--fix]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
-      - id: mypy
-        name: mypy
-        # We overwrite the args as we configure mypy via our mypy.ini
-        args: []
-
   # https://github.com/astral-sh/ty
   - repo: local
     hooks:
