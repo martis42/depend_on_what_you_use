@@ -6,7 +6,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install uv
         uses: astral-sh/setup-uv@v6
       - uses: actions/setup-python@v5
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [ pre-commit ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: DWYU Unit tests
         run: bazel test //...
       - name: Ensure DWYU C++ code is compliant to the desired C++ versions range and without warnings
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [ fast-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Integration tests - Workspace integration
         run: python test/workspace_integration/test.py
 
@@ -46,7 +46,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Integration tests - Examples
         run: python examples/test.py
       - name: Integration tests - Examples with legacy WORKSPACE setup
@@ -60,7 +60,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -75,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -90,7 +90,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests, integration-tests-examples ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Integration tests - Aspect
         if: runner.os != 'Windows'
         run: python test/aspect/execute_tests.py --no_output_base
@@ -106,7 +106,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests, integration-tests-examples ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Integration tests - Aspect with C++ implementation
         run: python test/aspect/execute_tests.py --no_output_base --only-default-version --cpp_impl_based
 
@@ -118,7 +118,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [ fast-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/prepare_buildozer
         with:
           version: '7.3.1'
