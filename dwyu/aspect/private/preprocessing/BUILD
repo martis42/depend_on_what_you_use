@@ -32,7 +32,7 @@ cc_binary(
         "//dwyu/private:program_options",
         "//dwyu/private:utils",
         "@boost.wave//:wave",
-        "@nlohmann_json//:json",
+        "@nlohmann_json//:singleheader-json",
     ],
 )
 
@@ -44,6 +44,6 @@ cc_binary(
         ":extract_includes",
         "//dwyu/private:program_options",
         "//dwyu/private:utils",
-        "@nlohmann_json//:json",
+        "@nlohmann_json//:singleheader-json",
     ],
 )

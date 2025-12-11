@@ -4,15 +4,24 @@
 
 #include <boost/wave/cpp_context.hpp>
 #include <boost/wave/cpp_exceptions.hpp>
+#include <boost/wave/cpp_iteration_context.hpp>
 #include <boost/wave/cpplexer/cpp_lex_iterator.hpp>
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>
+#include <boost/wave/language_support.hpp>
+#include <boost/wave/util/file_position.hpp>
 #include <nlohmann/json.hpp>
 
+#include <exception>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace dwyu {
+namespace {
 
 struct ProgramOptions {
     std::vector<std::string> files{};
@@ -23,7 +32,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, char* argv[]) {
+ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
     ProgramOptionsParser parser{};
 
@@ -57,7 +66,7 @@ std::string makeContextInput(const std::string& file) {
 
 template <typename ContextT>
 void resetMacro(ContextT& ctx, const std::string& macro) {
-    const auto position_equal_sign = macro.find("=");
+    const auto position_equal_sign = macro.find('=');
     if (position_equal_sign == std::string::npos) {
         // Basic define without value
         ctx.remove_macro_definition(macro, true, true);
@@ -106,10 +115,10 @@ bool preprocessFile(ContextT& ctx) {
             // std::cout << (*first).get_value();
         }
         return true;
-    } catch (boost::wave::cpp_exception const& ex) {
+    } catch (const boost::wave::cpp_exception& ex) {
         std::cerr << "ERROR: Caught 'boost::wave::cpp_exception':\n";
         std::cerr << ex.file_name() << ":" << ex.line_no() << " - " << ex.description() << "\n";
-    } catch (std::exception const& ex) {
+    } catch (const std::exception& ex) {
         std::cerr << "ERROR: Caught 'std::exception':\n";
         std::cerr << current_position.get_file() << ":" << current_position.get_line() << " - " << ex.what() << "\n";
     } catch (...) {
@@ -119,6 +128,7 @@ bool preprocessFile(ContextT& ctx) {
     return false;
 }
 
+} // namespace
 } // namespace dwyu
 
 int main(int argc, char* argv[]) {
@@ -147,7 +157,7 @@ int main(int argc, char* argv[]) {
 
         dwyu::configureContext(options, ctx);
 
-        if (dwyu::preprocessFile(ctx) == false) {
+        if (!dwyu::preprocessFile(ctx)) {
             dwyu::abortWithError("Preprocessing failed for file '", file, "'");
         }
 

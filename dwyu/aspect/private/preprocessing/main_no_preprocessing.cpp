@@ -7,9 +7,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace dwyu {
+namespace {
 
 struct ProgramOptions {
     std::vector<std::string> files{};
@@ -17,7 +19,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, char* argv[]) {
+ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
     ProgramOptionsParser parser{};
 
@@ -33,6 +35,7 @@ ProgramOptions parseProgramOptions(int argc, char* argv[]) {
     return options;
 }
 
+} // namespace
 } // namespace dwyu
 
 int main(int argc, char* argv[]) {
@@ -48,7 +51,7 @@ int main(int argc, char* argv[]) {
             dwyu::abortWithError("Could not open input file '", file, "'");
         }
 
-        const auto included_files = dwyu::extractIncludes(input);
+        auto included_files = dwyu::extractIncludes(input);
 
         nlohmann::json entry{};
         entry["file"] = file;

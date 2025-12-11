@@ -1,5 +1,8 @@
 #include "dwyu/private/utils.h"
 
+#include <string>
+#include <vector>
+
 namespace dwyu {
 
 std::string listToStr(const std::vector<std::string>& list) {

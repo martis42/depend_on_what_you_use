@@ -2,6 +2,11 @@
 #include "dwyu/private/utils.h"
 
 #include <fstream>
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace dwyu {
 namespace detail {
@@ -20,6 +25,7 @@ class FlagOption : public ProgramOption {
     }
 
   private:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
     bool& target_;
 };
 
@@ -31,6 +37,7 @@ struct ValueOption : public ProgramOption {
     void setValue(std::string arg) override { target_ = std::move(arg); }
 
   private:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
     std::string& target_;
 };
 
@@ -42,6 +49,7 @@ struct ListOption : public ProgramOption {
     void setValue(std::string arg) override { target_.push_back(std::move(arg)); }
 
   private:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
     std::vector<std::string>& target_;
 };
 
@@ -77,30 +85,24 @@ void ProgramOptionsParser::parseOptions(int argc, ConstCharArray argv) {
         abortWithError("Expecting at least 2 argv elements");
     }
 
+    const std::string param_file_arg{"--param_file="};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) Is safe due to upfront range checking
     const std::string second_arg{argv[1]};
-    if (second_arg.compare(0, 13, "--param_file=") == 0) {
-        parseOptionsfromParamFile(second_arg.substr(13));
+    if (second_arg.compare(0, param_file_arg.size(), param_file_arg) == 0) {
+        parseOptionsfromParamFile(second_arg.substr(param_file_arg.size()));
     }
     else {
         parseOptionsfromCommandLine(argc, argv);
     }
 }
 
-void ProgramOptionsParser::parseOptionsfromParamFile(const std::string param_file_path) {
-    std::ifstream param_file{param_file_path};
-    if (param_file) {
-        parseOptionsImpl([&param_file](std::string& arg) -> bool {
-            if (std::getline(param_file, arg)) {
-                return true;
-            }
-            else {
-                return false;
-            };
-        });
-        param_file.close();
+void ProgramOptionsParser::parseOptionsfromParamFile(const std::string& param_file) {
+    std::ifstream parameters{param_file};
+    if (parameters) {
+        parseOptionsImpl([&parameters](std::string& arg) -> bool { return !std::getline(parameters, arg).fail(); });
     }
     else {
-        abortWithError("Could not open param_file '", param_file_path, "'");
+        abortWithError("Could not open param_file '", param_file, "'");
     }
 }
 
@@ -110,15 +112,14 @@ void ProgramOptionsParser::parseOptionsfromCommandLine(int argc, ConstCharArray 
         if (idx >= argc) {
             return false;
         }
-        else {
-            arg = argv[idx];
-            ++idx;
-            return true;
-        }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) Is safe due to upfront range checking
+        arg = argv[idx];
+        ++idx;
+        return true;
     });
 }
 
-void ProgramOptionsParser::parseOptionsImpl(std::function<bool(std::string&)> get_arg) {
+void ProgramOptionsParser::parseOptionsImpl(const std::function<bool(std::string&)>& get_arg) {
     detail::ProgramOption* active_option{nullptr};
     std::string arg{};
     while (get_arg(arg)) {

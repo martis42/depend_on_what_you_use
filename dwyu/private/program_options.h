@@ -38,8 +38,8 @@ class ProgramOptionsParser {
 
   private:
     void parseOptionsfromCommandLine(int argc, ConstCharArray argv);
-    void parseOptionsfromParamFile(const std::string pram_file);
-    void parseOptionsImpl(std::function<bool(std::string&)> get_arg);
+    void parseOptionsfromParamFile(const std::string& param_file);
+    void parseOptionsImpl(const std::function<bool(std::string&)>& get_arg);
 
     std::map<std::string, std::unique_ptr<detail::ProgramOption>> options_;
 };

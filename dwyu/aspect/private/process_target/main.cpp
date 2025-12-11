@@ -6,9 +6,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace dwyu {
+namespace {
 
 struct ProgramOptions {
     std::string target{};
@@ -22,7 +24,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, char* argv[]) {
+ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
 
     ProgramOptionsParser parser{};
@@ -60,6 +62,7 @@ void printOptions(const ProgramOptions& options) {
     std::cout << "Defines              " << listToStr(options.defines) << "\n";
 }
 
+} // namespace
 } // namespace dwyu
 
 int main(int argc, char* argv[]) {

@@ -6,7 +6,10 @@
 
 namespace dwyu {
 
-TEST(ProgramOptionsParser, ParseFlag_ExistingFlagYieldsTrue) {
+// Most efficient way to write the tests is by using C arrays to mimic the main() parameters
+// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+
+TEST(ParsingSomeFlag, AnExistingFlagYieldsTrue) {
     bool flag{false};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
@@ -18,7 +21,7 @@ TEST(ProgramOptionsParser, ParseFlag_ExistingFlagYieldsTrue) {
     EXPECT_TRUE(flag);
 }
 
-TEST(ProgramOptionsParser, ParseFlag_MissingFlagYieldsFalse) {
+TEST(ParsingSomeFlag, AMissingFlagYieldsFalse) {
     bool flag{true};
     std::vector<std::string> list{};
     ProgramOptionsParser unit{};
@@ -32,7 +35,7 @@ TEST(ProgramOptionsParser, ParseFlag_MissingFlagYieldsFalse) {
     EXPECT_FALSE(flag);
 }
 
-TEST(ProgramOptionsParser, ParseValue_ReadValue) {
+TEST(ParsingSomeValue, ReadAGivenValue) {
     std::string value{};
     ProgramOptionsParser unit{};
     unit.addOptionValue("--value", value);
@@ -44,7 +47,7 @@ TEST(ProgramOptionsParser, ParseValue_ReadValue) {
     EXPECT_EQ(value, "foo");
 }
 
-TEST(ProgramOptionsParser, ParseValue_FailOnNoValue) {
+TEST(ParsingSomeValue, FailOnNoValue) {
     bool flag{false};
     std::string value{"default"};
     ProgramOptionsParser unit{};
@@ -68,7 +71,7 @@ TEST(ProgramOptionsParser, ParseValue_FailOnNoValue) {
     }
 }
 
-TEST(ProgramOptionsParser, ParseList_ReadValue) {
+TEST(ParsingSomeList, ReadGivenValues) {
     std::vector<std::string> list{};
     ProgramOptionsParser unit{};
     unit.addOptionList("--list", list);
@@ -94,7 +97,7 @@ TEST(ProgramOptionsParser, ParseList_ReadValue) {
     }
 }
 
-TEST(ProgramOptionsParser, Parsing_MultipleOptions) {
+TEST(ParseMultipleOptions, ReadDifferentValues) {
     std::vector<std::string> list{};
     std::string value{};
     bool flag{false};
@@ -115,7 +118,7 @@ TEST(ProgramOptionsParser, Parsing_MultipleOptions) {
     EXPECT_TRUE(flag);
 }
 
-TEST(ProgramOptionsParser, Parsing_ExpectAtLeastOneOption) {
+TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
     ProgramOptionsParser unit{};
 
     const int argc = 0;
@@ -125,7 +128,7 @@ TEST(ProgramOptionsParser, Parsing_ExpectAtLeastOneOption) {
                 "At least a single option is expected to be present");
 }
 
-TEST(ProgramOptionsParser, Parsing_ExpectAtLeastTwoCliArguments) {
+TEST(ProgramOptionsParser, ExpectAtLeastTwoCliArguments) {
     bool flag{false};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
@@ -136,7 +139,7 @@ TEST(ProgramOptionsParser, Parsing_ExpectAtLeastTwoCliArguments) {
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Expecting at least 2 argv elements");
 }
 
-TEST(ProgramOptionsParser, Parse_FailOnUnexpectedOption) {
+TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
     std::string value{};
     ProgramOptionsParser unit{};
     unit.addOptionValue("--value", value);
@@ -147,7 +150,7 @@ TEST(ProgramOptionsParser, Parse_FailOnUnexpectedOption) {
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Received invalid option: '--other_value'");
 }
 
-TEST(ProgramOptionsParser, Parsing_FailOnUnexpectedExtraContent) {
+TEST(ProgramOptionsParser, FailOnUnexpectedExtraContent) {
     bool flag{false};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
@@ -159,7 +162,7 @@ TEST(ProgramOptionsParser, Parsing_FailOnUnexpectedExtraContent) {
                 "Got a value without it being associated to an option: 'extra_input'");
 }
 
-TEST(ProgramOptionsParser, ParamFile_ReadOptionsFromFile) {
+TEST(ProgramOptionsParser, ReadOptionsFromParamFile) {
     std::vector<std::string> list{};
     std::string value{};
     bool flag{false};
@@ -180,7 +183,7 @@ TEST(ProgramOptionsParser, ParamFile_ReadOptionsFromFile) {
     EXPECT_TRUE(flag);
 }
 
-TEST(ProgramOptionsParser, ParamFile_FailOnMissingParamFile) {
+TEST(ProgramOptionsParser, FailOnNotExistingParamFile) {
     bool flag{false};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
@@ -191,5 +194,7 @@ TEST(ProgramOptionsParser, ParamFile_FailOnMissingParamFile) {
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
                 "Could not open param_file 'not/existing/path'");
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-c-arrays, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 
 } // namespace dwyu
