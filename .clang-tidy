@@ -1,5 +1,36 @@
 ---
 # https://clang.llvm.org/extra/clang-tidy/
 # https://clang.llvm.org/extra/clang-tidy/checks/list.html
-Checks: "*"
+#
+# We disabled alias rules if they make nolinting findings a pain
+#
+# Disabled checks:
+# altera-* : Performance oriented checks which are too low level for our scope
+# llvm* : LLVM project specific checks and best practices not relevant for us
+# clang-analyzer-cplusplus.NewDeleteLeaks : Too many false positives for using std::unique_ptr with C++11
+# fuchsia-default-arguments-calls : Default arguments are often parts of established APIs, the check is too opinionated
+# hicpp-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
+# hicpp-member-init : Alias to cppcoreguidelines-pro-type-member-init
+# hicpp-no-array-decay : Alias to cppcoreguidelines-pro-bounds-array-to-pointer-decay
+# modernize-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
+# modernize-make-unique : Not compatible to C++11
+# modernize-use-nodiscard : Not compatible to C++11
+# modernize-use-trailing-return-type : We prefer the classic style
+# readability-magic-numbers : Alias to cppcoreguidelines-avoid-magic-numbers
+# readability-redundant-member-init : We prefer a consistent initializer style, even if some of them are redundant
+Checks: >
+        *,
+        -altera-*,
+        -llvm*,
+        -clang-analyzer-cplusplus.NewDeleteLeaks,
+        -fuchsia-default-arguments-calls,
+        -hicpp-avoid-c-arrays,
+        -hicpp-member-init,
+        -hicpp-no-array-decay,
+        -modernize-avoid-c-arrays,
+        -modernize-make-unique,
+        -modernize-use-nodiscard,
+        -modernize-use-trailing-return-type,
+        -readability-magic-numbers,
+        -readability-redundant-member-init
 WarningsAsErrors: "*"

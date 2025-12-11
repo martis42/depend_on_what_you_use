@@ -1,8 +1,6 @@
 #include "dwyu/aspect/private/preprocessing/preprocessing_hooks.h"
 
 #include <gtest/gtest.h>
-#include <string>
-#include <vector>
 
 namespace dwyu {
 
