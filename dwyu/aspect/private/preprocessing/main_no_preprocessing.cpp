@@ -4,6 +4,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -35,11 +36,7 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     return options;
 }
 
-} // namespace
-} // namespace dwyu
-
-int main(int argc, char* argv[]) {
-    const auto options = dwyu::parseProgramOptions(argc, argv);
+int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
         std::cout << "Preprocessing : " << dwyu::listToStr(options.files) << "\n";
     }
@@ -69,4 +66,18 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
+}
+
+} // namespace
+} // namespace dwyu
+
+int main(int argc, char* argv[]) {
+    try {
+        return main_impl(dwyu::parseProgramOptions(argc, argv));
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("Aborting due to exception: ", exception.what());
+    } catch (...) {
+        dwyu::abortWithError("Aborting due to an unknown exception");
+    }
+    return 1;
 }

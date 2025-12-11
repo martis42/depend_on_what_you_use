@@ -3,6 +3,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -62,12 +63,7 @@ void printOptions(const ProgramOptions& options) {
     std::cout << "Defines              " << listToStr(options.defines) << "\n";
 }
 
-} // namespace
-} // namespace dwyu
-
-int main(int argc, char* argv[]) {
-    auto options = dwyu::parseProgramOptions(argc, argv);
-
+int main_impl(ProgramOptions options) {
     if (options.verbose) {
         dwyu::printOptions(options);
     }
@@ -91,4 +87,18 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
+}
+
+} // namespace
+} // namespace dwyu
+
+int main(int argc, char* argv[]) {
+    try {
+        return main_impl(dwyu::parseProgramOptions(argc, argv));
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("Aborting due to exception: ", exception.what());
+    } catch (...) {
+        dwyu::abortWithError("Aborting due to an unknown exception");
+    }
+    return 1;
 }
