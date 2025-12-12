@@ -14,11 +14,6 @@ echo ""
 bazel test //...
 
 echo ""
-echo "Ensure our C++ code is compliant to the desired C++ versions range and has no warnings"
-echo ""
-./scripts/test_cpp_version_compliance_and_warnings.sh
-
-echo ""
 echo "Aspect integration tests scripts unit tests"
 echo ""
 ./scripts/test_aspect_tests_scripts.sh

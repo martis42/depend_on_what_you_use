@@ -82,9 +82,10 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
 /// Extract all include statements for resolvable includes. If a include statement cannot be resolved (aka we cannot
 /// find a file it belongs to) we assume this include statement is not relevant for our analysis (e.g. a CC toolchain
 /// header).
-struct GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
+class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
+  public:
     GatherDirectIncludesIgnoringMissingOnes(std::set<std::string>& included_files)
-        : include_depth{0}, included_files{included_files} {}
+        : include_depth_{0}, included_files_{included_files} {}
 
     // TODO Optimize this by preventing all valid files being located twice by storing the localization result and
     //      then using it in the 'find_include_file()' callback.
@@ -104,8 +105,8 @@ struct GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
 
         // If we are in the root file (aka file under inspection) and this is is a relevant include (aka discoverable),
         // then add it to the list of relevant includes.
-        if (include_depth == 0) {
-            included_files.insert(filename);
+        if (include_depth_ == 0) {
+            included_files_.insert(filename);
         }
 
         // By default include all fils, except some condition above rejected a file
@@ -122,18 +123,19 @@ struct GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
         std::ignore = filename;
         std::ignore = is_system_include;
 
-        ++include_depth;
+        ++include_depth_;
     }
 
     template <typename ContextT>
     void returning_from_include_file(ContextT const& ctx) {
         std::ignore = ctx;
 
-        --include_depth;
+        --include_depth_;
     }
 
-    std::int32_t include_depth;
-    std::set<std::string>& included_files;
+  private:
+    std::int32_t include_depth_;
+    std::set<std::string>& included_files_;
 };
 
 } // namespace dwyu

@@ -5,6 +5,31 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # Always tell why tests fail
 test --test_output=errors
 
+# https://clang.llvm.org/docs/DiagnosticsReference.html
+# Most common warnings
+build --cxxopt=-Wall
+build --cxxopt=-Wextra
+# Further warnings for modern style and preventing bugs
+build --cxxopt=-Wcast-qual
+build --cxxopt=-Wconversion
+build --cxxopt=-Wgnu-zero-variadic-macro-arguments
+build --cxxopt=-Wimplicit-fallthrough
+build --cxxopt=-Wnon-virtual-dtor
+build --cxxopt=-Wnull-dereference
+build --cxxopt=-Wold-style-cast
+build --cxxopt=-Wpedantic
+build --cxxopt=-Wshadow-all
+build --cxxopt=-Wsign-conversion
+build --cxxopt=-Wvla
+# Ensure our Code is C++11 compatible
+build --cxxopt=-Wc++11-compat
+build --cxxopt=-Wc++11-compat-pedantic
+# Ensure we do not miss a warning by accident
+build --cxxopt=-Werror
+# Ignore compiler warnings in external code outside our control
+build --per_file_copt=boost.wave/src/.*@-w
+build --per_file_copt=googletest/src/.*@-w
+
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
 build:clang_tidy --output_groups=clang_tidy
 
