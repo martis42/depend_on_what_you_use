@@ -121,8 +121,8 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
 TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
     ProgramOptionsParser unit{};
 
-    const int argc = 0;
-    const char* argv[] = {};
+    const int argc = 1;
+    const char* argv[] = {"unrelated"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
                 "At least a single option is expected to be present");
