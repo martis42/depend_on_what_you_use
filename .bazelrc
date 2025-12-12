@@ -2,11 +2,36 @@
 build --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
+# Always tell why tests fail
+test --test_output=errors
+
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
 build:clang_tidy --output_groups=clang_tidy
 
-# Always tell why tests fail
-test --test_output=errors
+# https://clang.llvm.org/docs/AddressSanitizer.html
+# https://clang.llvm.org/docs/LeakSanitizer.html
+# https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+#
+# We are not using the memory sanitizer as it fails in gtest itself
+# We are not sing the thread sanitizer, as we are not using multi threading
+test:sanitize --compilation_mode=dbg
+test:sanitize --cxxopt=-fsanitize=address
+test:sanitize --cxxopt=-fsanitize=leak
+test:sanitize --cxxopt=-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,implicit-conversion,local-bounds,vptr,nullability
+test:sanitize --cxxopt=-fno-sanitize-recover=all
+test:sanitize --cxxopt=-O0
+test:sanitize --cxxopt=-g
+test:sanitize --cxxopt=-fno-omit-frame-pointer
+test:sanitize --cxxopt=-fno-sanitize-merge
+test:sanitize --linkopt=-fsanitize=address,leak,undefined
+test:sanitize --linkopt=-fsanitize-link-c++-runtime
+test:sanitize --action_env="print_stacktrace=1"
+# Also use the debug mode offered by the C++ standard lib itself
+# https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_macros.html
+# https://releases.llvm.org/14.0.0/projects/libcxx/docs/DesignDocs/DebugMode.html
+test:sanitize --cxxopt=-D_GLIBCXX_DEBUG=1
+test:sanitize --cxxopt=-D_GLIBCXX_DEBU_PEDANTIC=1
+test:sanitize --cxxopt=-D_LIBCPP_DEBUG=1
 
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc
