@@ -64,3 +64,12 @@ cc_binary(
         "//preprocessing/support:lib_c",
     ],
 )
+
+cc_binary(
+    name = "use_complex_libraries",
+    srcs = ["use_complex_libraries.cpp"],
+    deps = [
+        "@boost.chrono",
+        "@googletest//:gtest",
+    ],
+)

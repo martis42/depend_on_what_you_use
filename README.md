@@ -174,24 +174,27 @@ Even if analyzing the code works initially, it might break at any time if the or
 
 # Known limitations
 
-## Preprocessor statements
+## Some cases of conditional include statements
 
-DWYU does not compile the code, but parses it as text and searches for include statements.
-If preprocessor statements control how the code should be interpreted, this is a flawed approach (e.g. include different headers based on the platform).
-To work around this DWYU uses [`pcpp`](https://github.com/ned14/pcpp) to preprocess files before searching for include statements.
+DWYU does not compile the code.
+It uses a preprocessor library to parse it and extract the relevant include statements.
 
-In most cases this approach works as desired.
-There are however some edge cases to be aware of:
+This approach is flawed, as this DWYU preprocessing step is not doing the exact same thing as your Bazel CC toolchain preprocessor due to being a different program.
+On top, the DWYU preprocessing step is missing information.
+There are a lot of macros defining the platform behavior and system library capabilities, which are not passed on the command line to the compiler but set internally by the compiler.
+DWYU does not have access to those values.
+For this reason, DWYU skips the Bazel CC toolchain standard library and system headers during reprocessing, as we do not have the information to preprocess them properly.
 
-1)<br>
-`pcpp` is not the preprocessor used by your C++ toolchain.
-There is no guarantee that it behaves exactly the same.
+Consequently, if a project uses conditional include statements based on macros not visible to Bazel, DWYU cannot properly process them.
+We consider this however a rare edge case.
+Most projects use conditional include statements based on macros set by Bazel to accommodate for variation points in the build process, which DWYU can process just fine.
 
-2)<br>
-DWYU can only forward defined values to `pcpp` which are part of the compiler command build by Bazel.
-Some values are however set internally by the compiler while processing files and are unknown to DWYU.<br>
-Common cases for such macros can be seen at [cppreference.com](https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros).
-While DWYU cannot generally know the values of all those compiler defined macros, we offer a feature to set `__cplusplus` based on a heuristic.
+If your project is impacted by this edge case, you can try some mitigation strategies:
+
+- You can use the `experimental_no_preprocessor` DWYU aspect option to disable preprocessing.
+  As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
+- You can use `--cxxopt=-DSomeMacro=42` to manually set the missing macro via Bazel to make it known to Bazel.
+  This works best if you define a Bazel config for execution the DWYU aspect and make the cxxopt part of the config.
 
 ## Specifying include paths via `copts` and similar
 
