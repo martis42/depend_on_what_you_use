@@ -170,7 +170,7 @@ For example, including header files which do not exist at the expected path.
 ##### Include paths have to be unambiguous
 
 There shall not be multiple header files in the dependency tree of a target matching an include statement.
-Even if analysing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
+Even if analyzing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
 
 # Known limitations
 
