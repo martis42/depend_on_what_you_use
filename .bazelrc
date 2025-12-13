@@ -33,6 +33,9 @@ build --per_file_copt=googletest/src/.*@-w
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
 build:clang_tidy --output_groups=clang_tidy
 
+build:dwyu --aspects=//tools/dwyu:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
+
 # https://clang.llvm.org/docs/AddressSanitizer.html
 # https://clang.llvm.org/docs/LeakSanitizer.html
 # https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
