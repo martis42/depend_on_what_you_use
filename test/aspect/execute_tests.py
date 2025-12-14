@@ -39,7 +39,6 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_struct_has_no_methods": CompatibleVersions(minimum="5.0.0", before="8.0.0"),
-    "--incompatible_use_platforms_repo_for_constraints": CompatibleVersions(minimum="5.0.0", before="7.0.0"),
     "--incompatible_disallow_empty_glob": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_no_implicit_file_export": CompatibleVersions(minimum="5.0.0"),
     "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(minimum="5.0.0"),
