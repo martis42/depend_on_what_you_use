@@ -3,7 +3,6 @@
 #include "some/sub/dir/foo.h"
 #include "system_include.h"
 // include from virtually prefixed path
-#include <../some/sub/dir/bar.h>
 #include <sub/../sub/dir/bar.h>
 
 int main() {
