@@ -209,11 +209,11 @@ DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/Compi
 
 ### Aspect
 
-| Platform         | Constraints                                                                    |
-| ---------------- | ------------------------------------------------------------------------------ |
-| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022].                |
-| Python           | Minimum version is 3.8. Integration tests check [3.8, 3.10, 3.11, 3.12, 3.13]. |
-| Bazel            | Minimum version is 7.2.1. Integration tests check [7.x, 8.x, 9.x].             |
+| Platform         | Constraints                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022]. |
+| Python           | Minimum tested version is 3.8. Maximum tested version is 3.13.  |
+| Bazel            | Minimum tested version is 7.2.1. Maximum tested version is 9.x. |
 
 ### Applying fixes
 
