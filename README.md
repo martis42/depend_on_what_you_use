@@ -222,7 +222,7 @@ DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/Compi
 | Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022].                                            |
 | Python           | Integration tests check 3.8.                                                                               |
 | Bazel            | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
-| Buildozer        | No known constraint. Integration tests check 7.3.1.                                                        |
+| Buildozer        | No known constraint. Integration tests check 8.2.1.                                                        |
 
 # Alternatives to DWYU
 
