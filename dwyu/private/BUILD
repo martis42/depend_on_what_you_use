@@ -13,8 +13,8 @@ cc_library(
     name = "program_options",
     srcs = ["program_options.cpp"],
     hdrs = ["program_options.h"],
+    implementation_deps = [":utils"],
     visibility = ["//dwyu:__subpackages__"],
-    deps = [":utils"],
 )
 
 cc_library(

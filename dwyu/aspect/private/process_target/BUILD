@@ -7,6 +7,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//dwyu/private:program_options",
+        "//dwyu/private:utils",
         "@nlohmann_json//:singleheader-json",
     ],
 )
