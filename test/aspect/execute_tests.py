@@ -30,31 +30,31 @@ TESTED_VERSIONS = [
 
 VERSION_SPECIFIC_ARGS = {
     # Reduce noise in test logs
-    "--check_direct_dependencies=off": CompatibleVersions(minimum="6.0.0"),
+    "--check_direct_dependencies=off": CompatibleVersions(),
     # Experimental changes we want to be compatible for
-    "--experimental_python_import_all_repositories=false": CompatibleVersions(minimum="1.0.0"),
+    "--experimental_python_import_all_repositories=false": CompatibleVersions(),
     # Preparation for incompatible changes
-    "--incompatible_legacy_local_fallback=false": CompatibleVersions(minimum="5.0.0"),  # false is the forward path
-    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_config_setting_private_default_visibility": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_disable_target_provider_fields": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_disallow_empty_glob": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_no_implicit_file_export": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_default_to_explicit_init_py": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_strict_action_env": CompatibleVersions(minimum="5.0.0"),
-    "--incompatible_disable_starlark_host_transitions": CompatibleVersions(minimum="6.0.0"),
-    "--incompatible_check_testonly_for_output_files": CompatibleVersions(minimum="6.0.0"),
-    "--incompatible_auto_exec_groups": CompatibleVersions(minimum="7.0.0"),
-    "--incompatible_disable_non_executable_java_binary": CompatibleVersions(minimum="7.0.0"),
-    "--incompatible_python_disallow_native_rules": CompatibleVersions(minimum="7.0.0"),
-    "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(minimum="7.0.0"),
+    "--incompatible_legacy_local_fallback=false": CompatibleVersions(),  # false is the forward path
+    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(),
+    "--incompatible_config_setting_private_default_visibility": CompatibleVersions(),
+    "--incompatible_disable_target_provider_fields": CompatibleVersions(),
+    "--incompatible_disallow_empty_glob": CompatibleVersions(),
+    "--incompatible_no_implicit_file_export": CompatibleVersions(),
+    "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(),
+    "--incompatible_default_to_explicit_init_py": CompatibleVersions(),
+    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(),
+    "--incompatible_strict_action_env": CompatibleVersions(),
+    "--incompatible_disable_starlark_host_transitions": CompatibleVersions(),
+    "--incompatible_check_testonly_for_output_files": CompatibleVersions(),
+    "--incompatible_auto_exec_groups": CompatibleVersions(),
+    "--incompatible_disable_non_executable_java_binary": CompatibleVersions(),
+    "--incompatible_python_disallow_native_rules": CompatibleVersions(),
+    "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(),
     "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.3.0"),
-    "--incompatible_disable_native_repo_rules": CompatibleVersions(minimum="7.2.0"),
+    "--incompatible_disable_native_repo_rules": CompatibleVersions(),
     # Theoretically of interest for us, but rules_python does not comply to this.
-    # "--incompatible_stop_exporting_language_modules": CompatibleVersions(minimum="6.0.0"),
-    # "--incompatible_enable_deprecated_label_apis=false": CompatibleVersions(minimum="7.0.0"),  # false is the forward path
+    # "--incompatible_stop_exporting_language_modules": CompatibleVersions(),
+    # "--incompatible_enable_deprecated_label_apis=false": CompatibleVersions(),  # false is the forward path
 }
 
 
