@@ -5,6 +5,7 @@ load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("//dwyu/private:utils.bzl", "make_param_file_args")
+load("//dwyu/private:debug.bzl", "print_compilation_context")
 
 # Based on those references:
 # https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
@@ -331,8 +332,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
             args.add_all("--system_include_paths", system_include_paths)
             args.add_all("--defines", defines)
         args.add("--output", pp_output)
-        if ctx.attr._verbose:
-            args.add("--verbose")
+        args.add("--verbose")
 
         inputs = depset(direct = files, transitive = [target[CcInfo].compilation_context.headers, impl_deps_hdrs, cc_toolchain.all_files])
         ctx.actions.run(
@@ -378,6 +378,10 @@ def dwyu_aspect_impl(target, ctx):
     # attribute without own sources. But those targets are not of interest for DWYU.
     if not public_files and not private_files:
         return []
+
+    print_compilation_context(target[CcInfo], "\nCcInfo - Target '{}'".format(target))
+    for dep in ctx.rule.attr.deps:
+        print_compilation_context(target[CcInfo], "\nCCInfo - Dep '{}'".format(dep))
 
     defines = _gather_defines(
         ctx,

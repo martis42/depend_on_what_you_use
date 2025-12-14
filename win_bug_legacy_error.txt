@@ -1,0 +1,158 @@
+>>> Test 'relative_includes/relative_includes' with Bazel 8.4.2 and Python 3.12
+Executing: 'C:\npm\prefix\bazelisk.CMD' --ignore_all_rc_files --max_idle_secs=10 build --experimental_convenience_symlinks=ignore --noshow_progress --check_direct_dependencies=off --experimental_python_import_all_repositories=false --incompatible_config_setting_private_default_visibility --incompatible_disable_target_provider_fields --incompatible_no_implicit_file_export --incompatible_use_cc_configure_from_rules_cc --incompatible_default_to_explicit_init_py --incompatible_strict_action_env --incompatible_disable_starlark_host_transitions --incompatible_check_testonly_for_output_files --incompatible_auto_exec_groups --incompatible_disable_non_executable_java_binary --incompatible_python_disallow_native_rules --incompatible_use_plus_in_repo_names --incompatible_disable_native_repo_rules --@rules_python//python/config_settings:python_version=3.12 --aspects=//:aspect.bzl%dwyu --output_groups=dwyu -- //relative_includes:use_virtual_prefix
+
+----- DWYU stdout -----
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\some\sub\dir\bar.h
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\external\rules_cc+\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\install\df1e8724e64eb8d90c9b2cd66e1f2404\embedded_tools\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\rules_cc+\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\bazel_tools\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\_virtual_includes\20592b97\relative_includes\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\virtual_prefix.h
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\some\sub\dir\bar.h
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  D:\a\depend_on_what_you_use\depend_on_what_you_use\test\aspect\relative_includes\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\external\rules_cc+\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\install\df1e8724e64eb8d90c9b2cd66e1f2404\embedded_tools\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\rules_cc+\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\bazel_tools\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\_virtual_includes\20592b97\custom\prefix\some\sub\dir\foo.h
+===============
+frozenset({'', 'external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97'})
+---
+[WindowsPath('relative_includes'), WindowsPath('.'), WindowsPath('external/rules_cc+'), WindowsPath('external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/rules_cc+'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/external/bazel_tools'), WindowsPath('bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97')]
+===============
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\external\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\external\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\external\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+  C:\Users\runneradmin\_bazel_runneradmin\436aymgr\execroot\_main\bazel-out\x64_windows-fastbuild\bin\_virtual_includes\virtual_prefix\custom\prefix\some\sub\dir\foo.h
+================================================================================
+DWYU analyzing: '@@//relative_includes:use_virtual_prefix'
+
+Result: FAILURE
+
+Includes which are not available from the direct dependencies:
+  File='relative_includes\use_virtual_prefix.cpp', include='relative_includes/_virtual_includes/virtual_prefix/custom/prefix/some/sub/dir/foo.h'
+  File='relative_includes\use_virtual_prefix.cpp', include='../virtual_prefix/custom/prefix/some/sub/dir/foo.h'
+
+DWYU Report: bazel-out\x64_windows-fastbuild\bin\relative_includes\use_virtual_prefix_dwyu_report.json
+================================================================================
+----- DWYU stderr -----
+DEBUG: C:/users/runneradmin/_bazel_runneradmin/436aymgr/external/depend_on_what_you_use+/dwyu/private/debug.bzl:23:10: 
+
+CcInfo - Target '<target //relative_includes:use_virtual_prefix>'
+  defines                : depset([])
+  local_defines          : depset([])
+  headers                : depset([<generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/bar.h>, <source file relative_includes/some/sub/dir/bar.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/foo.h>, <source file relative_includes/some/sub/dir/foo.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir2/baz.h>, <source file relative_includes/some/sub/dir2/baz.h>, <generated file _virtual_includes/20592b97/custom/prefix/virtual_prefix.h>, <source file relative_includes/virtual_prefix.h>, <source file relative_includes/other/other.h>])
+  direct_headers         : []
+  direct_private_headers : []
+  direct_public_headers  : []
+  direct_textual_headers : []
+  includes               : depset(["bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97"])
+  framework_includes     : depset([])
+  quote_includes         : depset([".", "bazel-out/x64_windows-fastbuild/bin", "external/rules_cc+", "bazel-out/x64_windows-fastbuild/bin/external/rules_cc+", "external/bazel_tools", "bazel-out/x64_windows-fastbuild/bin/external/bazel_tools"])
+  external_includes      : depset([])
+  system_includes        : depset([])
+DEBUG: C:/users/runneradmin/_bazel_runneradmin/436aymgr/external/depend_on_what_you_use+/dwyu/private/debug.bzl:23:10: 
+
+CCInfo - Dep '<target //relative_includes:virtual_prefix>'
+  defines                : depset([])
+  local_defines          : depset([])
+  headers                : depset([<generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/bar.h>, <source file relative_includes/some/sub/dir/bar.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/foo.h>, <source file relative_includes/some/sub/dir/foo.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir2/baz.h>, <source file relative_includes/some/sub/dir2/baz.h>, <generated file _virtual_includes/20592b97/custom/prefix/virtual_prefix.h>, <source file relative_includes/virtual_prefix.h>, <source file relative_includes/other/other.h>])
+  direct_headers         : []
+  direct_private_headers : []
+  direct_public_headers  : []
+  direct_textual_headers : []
+  includes               : depset(["bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97"])
+  framework_includes     : depset([])
+  quote_includes         : depset([".", "bazel-out/x64_windows-fastbuild/bin", "external/rules_cc+", "bazel-out/x64_windows-fastbuild/bin/external/rules_cc+", "external/bazel_tools", "bazel-out/x64_windows-fastbuild/bin/external/bazel_tools"])
+  external_includes      : depset([])
+  system_includes        : depset([])
+DEBUG: C:/users/runneradmin/_bazel_runneradmin/436aymgr/external/depend_on_what_you_use+/dwyu/private/debug.bzl:23:10: 
+
+CCInfo - Dep '<target @@rules_cc+//:link_extra_lib>'
+  defines                : depset([])
+  local_defines          : depset([])
+  headers                : depset([<generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/bar.h>, <source file relative_includes/some/sub/dir/bar.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir/foo.h>, <source file relative_includes/some/sub/dir/foo.h>, <generated file _virtual_includes/20592b97/custom/prefix/some/sub/dir2/baz.h>, <source file relative_includes/some/sub/dir2/baz.h>, <generated file _virtual_includes/20592b97/custom/prefix/virtual_prefix.h>, <source file relative_includes/virtual_prefix.h>, <source file relative_includes/other/other.h>])
+  direct_headers         : []
+  direct_private_headers : []
+  direct_public_headers  : []
+  direct_textual_headers : []
+  includes               : depset(["bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97"])
+  framework_includes     : depset([])
+  quote_includes         : depset([".", "bazel-out/x64_windows-fastbuild/bin", "external/rules_cc+", "bazel-out/x64_windows-fastbuild/bin/external/rules_cc+", "external/bazel_tools", "bazel-out/x64_windows-fastbuild/bin/external/bazel_tools"])
+  external_includes      : depset([])
+  system_includes        : depset([])
+INFO: Analyzed target //relative_includes:use_virtual_prefix (81 packages loaded, 3951 targets configured).
+INFO: From DwyuProcessTargetInfo relative_includes/use_virtual_prefix_processed_target_under_inspection.json:
+
+Analyzing dependency '@@//relative_includes:use_virtual_prefix'
+Output               'bazel-out\x64_windows-fastbuild\bin\relative_includes\use_virtual_prefix_processed_target_under_inspection.json'
+Header files         '[]'
+Includes             '['bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97']'
+Quote includes       '['.', 'bazel-out/x64_windows-fastbuild/bin', 'external/rules_cc+', 'bazel-out/x64_windows-fastbuild/bin/external/rules_cc+', 'external/bazel_tools', 'bazel-out/x64_windows-fastbuild/bin/external/bazel_tools']'
+External includes    '[]'
+System includes      '[]'
+Defines              '['NOMINMAX', '_WIN32_WINNT=0x0601', '_CRT_SECURE_NO_DEPRECATE', '_CRT_SECURE_NO_WARNINGS', '__DATE__="redacted"', '__TIMESTAMP__="redacted"', '__TIME__="redacted"']'
+INFO: From DwyuProcessTargetInfo relative_includes/use_virtual_prefix_processed_dep_372591170.json:
+
+Analyzing dependency '@@//relative_includes:virtual_prefix'
+Output               'bazel-out\x64_windows-fastbuild\bin\relative_includes\use_virtual_prefix_processed_dep_372591170.json'
+Header files         '['bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97/custom/prefix/some/sub/dir/foo.h', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97/custom/prefix/some/sub/dir2/baz.h', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97/custom/prefix/some/sub/dir/bar.h', 'relative_includes/some/sub/dir/foo.h', 'relative_includes/some/sub/dir2/baz.h', 'relative_includes/some/sub/dir/bar.h', 'bazel-out/x64_windows-fastbuild/bin/_virtual_includes/20592b97/custom/prefix/virtual_prefix.h', 'relative_includes/virtual_prefix.h']'
+Includes             'None'
+Quote includes       'None'
+External includes    'None'
+System includes      'None'
+Defines              'None'
+INFO: From DwyuProcessTargetInfo relative_includes/use_virtual_prefix_processed_dep_1803518600.json:
+
+Analyzing dependency '@@rules_cc+//:link_extra_lib'
+Output               'bazel-out\x64_windows-fastbuild\bin\relative_includes\use_virtual_prefix_processed_dep_1803518600.json'
+Header files         '[]'
+Includes             'None'
+Quote includes       'None'
+External includes    'None'
+System includes      'None'
+Defines              'None'
+ERROR: D:/a/depend_on_what_you_use/depend_on_what_you_use/test/aspect/relative_includes/BUILD:73:10: Analyze dependencies of @@//relative_includes:use_virtual_prefix failed: (Exit 1): analyze_includes.exe failed: error executing DwyuAnalyzeIncludes command (from target //relative_includes:use_virtual_prefix) bazel-out\x64_windows-opt-exec-ST-d57f47055a04\bin\external\depend_on_what_you_use+\dwyu\aspect\private\analyze_includes\analyze_includes.exe --report ... (remaining 10 arguments skipped)
+Aspect //:aspect.bzl%dwyu of //relative_includes:use_virtual_prefix failed to build
+Use --verbose_failures to see the command lines of failed build steps.
+INFO: Elapsed time: 57.674s, Critical Path: 17.87s
+INFO: 24 processes: 17 internal, 7 local.
+ERROR: Build did NOT complete successfully
+-----------------------
+DWYU did not behave as expected
+<<< FAILURE

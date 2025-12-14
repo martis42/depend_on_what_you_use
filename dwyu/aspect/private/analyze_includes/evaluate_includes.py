@@ -39,8 +39,16 @@ def _is_relative_include(
     usage: UsageStatus,
 ) -> bool:
     roots_for_relative_includes = [Path(root) for root in [str(include.file.parent), *include_paths]]
+
+    print("===============")
+    print(include_paths)
+    print("---")
+    print(roots_for_relative_includes)
+    print("===============")
+
     for root in roots_for_relative_includes:
         path_matching_include_statement = (root / include.include).resolve()
+        print(f"  {path_matching_include_statement}")
 
         # Relative include to target under inspection
         if _include_resolves_to_any_file(
