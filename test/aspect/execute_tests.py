@@ -34,22 +34,17 @@ VERSION_SPECIFIC_ARGS = {
     # Experimental changes we want to be compatible for
     "--experimental_python_import_all_repositories=false": CompatibleVersions(),
     # Preparation for incompatible changes
-    "--incompatible_legacy_local_fallback=false": CompatibleVersions(),  # false is the forward path
-    "--incompatible_enforce_config_setting_visibility": CompatibleVersions(),
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(),
-    "--incompatible_disallow_empty_glob": CompatibleVersions(),
     "--incompatible_no_implicit_file_export": CompatibleVersions(),
     "--incompatible_use_cc_configure_from_rules_cc": CompatibleVersions(),
     "--incompatible_default_to_explicit_init_py": CompatibleVersions(),
-    "--incompatible_exclusive_test_sandboxed": CompatibleVersions(),
     "--incompatible_strict_action_env": CompatibleVersions(),
     "--incompatible_disable_starlark_host_transitions": CompatibleVersions(),
     "--incompatible_check_testonly_for_output_files": CompatibleVersions(),
     "--incompatible_auto_exec_groups": CompatibleVersions(),
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(),
     "--incompatible_python_disallow_native_rules": CompatibleVersions(),
-    "--incompatible_disallow_struct_provider_syntax": CompatibleVersions(),
     "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.3.0"),
     "--incompatible_disable_native_repo_rules": CompatibleVersions(),
     # Theoretically of interest for us, but rules_python does not comply to this.
