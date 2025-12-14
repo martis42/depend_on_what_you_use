@@ -56,7 +56,7 @@ def _get_relevant_header(target_context, is_target_under_inspection):
 def _get_includes(ctx, target_cc):
     includes = [target_cc.includes]
     quote_includes = [target_cc.quote_includes]
-    external_includes = [target_cc.external_includes] if hasattr(target_cc, "external_includes") else []
+    external_includes = [target_cc.external_includes]
     system_includes = [target_cc.system_includes]
     if hasattr(ctx.rule.attr, "implementation_deps"):
         # Because of bug https://github.com/bazelbuild/bazel/issues/19663 the compilation context is not actually
@@ -68,7 +68,7 @@ def _get_includes(ctx, target_cc):
                 includes.append(impl_dep_cc.includes)
             if impl_dep_cc.quote_includes:
                 quote_includes.append(impl_dep_cc.quote_includes)
-            if hasattr(impl_dep_cc, "external_includes") and impl_dep_cc.external_includes:
+            if impl_dep_cc.external_includes:
                 external_includes.append(impl_dep_cc.external_includes)
             if impl_dep_cc.system_includes:
                 system_includes.append(impl_dep_cc.system_includes)
