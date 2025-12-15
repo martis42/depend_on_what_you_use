@@ -21,7 +21,25 @@ jobs:
       - uses: actions/checkout@v6
       - name: DWYU Unit tests
         run: bazel test //...
-      - name: Aspect integration tests scripts unittests
+      - name: Execute sanitizers
+        run: bazel test --config=sanitize //...
+      - name: Execute DWYU
+        run: bazel build --config=dwyu //...
+      - name: Execute clang-tidy
+        run: bazel build --config=clang_tidy //...
+      - name: Aspect integration tests scripts unit tests
+        run: ./scripts/test_aspect_tests_scripts.sh
+      - name: Build examples
+        run: ./scripts/build_examples.sh
+      - name: Execute mocked CC toolchain tests
+        run: ./scripts/test_mocked_cc_toolchains.sh
+
+  fast-sub-workspaces-tests:
+    runs-on: ubuntu-24.04
+    needs: [ pre-commit ]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Aspect integration tests scripts unit tests
         run: ./scripts/test_aspect_tests_scripts.sh
       - name: Build examples
         run: ./scripts/build_examples.sh
