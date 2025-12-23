@@ -7,7 +7,10 @@
 # Disabled checks:
 # altera-* : Performance oriented checks which are too low level for our scope
 # llvm* : LLVM project specific checks and best practices not relevant for us
+# boost-use-ranges : We prefer using the standard library whenever feasible
+# bugprone-easily-swappable-parameters : Not helpful as we are not creating a library which users could misuse by accident
 # clang-analyzer-cplusplus.NewDeleteLeaks : Too many false positives for using std::unique_ptr with C++11
+# clang-analyzer-optin.core.EnumCastOutOfRange : We would like to use this, but this is incompatible to boost::regex and ExcludeHeaderFilterRegex is not working for clang-analyzer-*
 # fuchsia-default-arguments-calls : Default arguments are often parts of established APIs, the check is too opinionated
 # hicpp-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
 # hicpp-member-init : Alias to cppcoreguidelines-pro-type-member-init
@@ -16,13 +19,17 @@
 # modernize-make-unique : Not compatible to C++11
 # modernize-use-nodiscard : Not compatible to C++11
 # modernize-use-trailing-return-type : We prefer the classic style
+# readability-function-cognitive-complexity : Too opinionated, we split up functions based on our own experience
 # readability-magic-numbers : Alias to cppcoreguidelines-avoid-magic-numbers
 # readability-redundant-member-init : We prefer a consistent initializer style, even if some of them are redundant
 Checks: >
         *,
         -altera-*,
         -llvm*,
+        -boost-use-ranges,
+        -bugprone-easily-swappable-parameters,
         -clang-analyzer-cplusplus.NewDeleteLeaks,
+        -clang-analyzer-optin.core.EnumCastOutOfRange,
         -fuchsia-default-arguments-calls,
         -hicpp-avoid-c-arrays,
         -hicpp-member-init,
@@ -31,6 +38,10 @@ Checks: >
         -modernize-make-unique,
         -modernize-use-nodiscard,
         -modernize-use-trailing-return-type,
+        -readability-function-cognitive-complexity,
         -readability-magic-numbers,
         -readability-redundant-member-init
 WarningsAsErrors: "*"
+CheckOptions:
+  - key:    misc-include-cleaner.IgnoreHeaders
+    value:  'boost/regex.*'

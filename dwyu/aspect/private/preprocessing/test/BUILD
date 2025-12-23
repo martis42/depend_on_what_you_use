@@ -12,10 +12,11 @@ cc_test(
 )
 
 cc_test(
-    name = "preprocessing_hooks_test",
-    srcs = ["preprocessing_hooks_test.cpp"],
+    name = "included_file_test",
+    srcs = ["included_file_test.cpp"],
     deps = [
-        "//dwyu/aspect/private/preprocessing:preprocessing_hooks",
+        "//dwyu/aspect/private/preprocessing:included_file",
+        "@boost//:filesystem",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],

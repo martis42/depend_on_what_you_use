@@ -8,9 +8,10 @@ ERRORS_PREFIX = " " * 2
 # DWYU terminal output key fragments
 DWYU_FAILURE = "Result: FAILURE"
 CATEGORY_INVALID_INCLUDES = "Includes which are not available from the direct dependencies"
-CATEGORY_NON_PRIVATE_DEPS = "Public dependencies which are used only in private code"
-CATEGORY_UNUSED_PUBLIC_DEPS = "Unused dependencies in 'deps' (none of their headers are referenced)"
-CATEGORY_UNUSED_PRIVATE_DEPS = "Unused dependencies in 'implementation_deps' (none of their headers are referenced)"
+CATEGORY_NON_PRIVATE_DEPS = "deps' which should be moved to 'implementation_deps'"
+CATEGORY_NON_PRIVATE_DEPS_LEGACY = "Public dependencies which are used only in private code"
+CATEGORY_UNUSED_PUBLIC_DEPS = "Unused dependencies in 'deps'"
+CATEGORY_UNUSED_PRIVATE_DEPS = "Unused dependencies in 'implementation_deps'"
 
 
 @dataclass
@@ -26,7 +27,7 @@ class ExpectedResult:
     unused_private_deps: list[str] = field(default_factory=list)
     deps_which_should_be_private: list[str] = field(default_factory=list)
 
-    def matches_expectation(self, return_code: int, dwyu_output: str) -> bool:
+    def matches_expectation(self, return_code: int, dwyu_output: str, is_cpp_impl: bool) -> bool:
         if not self._has_correct_status(return_code=return_code, output=dwyu_output):
             return False
 
@@ -51,7 +52,7 @@ class ExpectedResult:
             return False
         if not ExpectedResult._has_expected_errors(  # noqa: SIM103
             expected_errors=self.deps_which_should_be_private,
-            error_category=CATEGORY_NON_PRIVATE_DEPS,
+            error_category=CATEGORY_NON_PRIVATE_DEPS if is_cpp_impl else CATEGORY_NON_PRIVATE_DEPS_LEGACY,
             output=output_lines,
         ):
             return False

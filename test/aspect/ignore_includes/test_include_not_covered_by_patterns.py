@@ -8,11 +8,14 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
+        expected_invalid_includes = [
+            f"In file '{Path('ignore_includes/use_not_ignored_header.h')}' include: \"support/a_substring_match_does_not_work_here.h\""
+            if self._cpp_impl_based
+            else f"File='{Path('ignore_includes/use_not_ignored_header.h')}', include='support/a_substring_match_does_not_work_here.h'"
+        ]
         expected = ExpectedResult(
             success=False,
-            invalid_includes=[
-                f"File='{Path('ignore_includes/use_not_ignored_header.h')}', include='support/a_substring_match_does_not_work_here.h'"
-            ],
+            invalid_includes=expected_invalid_includes,
         )
         actual = self._run_dwyu(
             target="//ignore_includes:use_not_ignored_header",
