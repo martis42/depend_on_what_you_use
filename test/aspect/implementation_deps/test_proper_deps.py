@@ -17,7 +17,6 @@ class TestCase(TestCaseBase):
                 "//implementation_deps:use_external",
             ],
             aspect=self.default_aspect_impl_deps,
-            extra_args=["--experimental_cc_implementation_deps"],
         )
 
         return self._check_result(actual=actual, expected=expected)
