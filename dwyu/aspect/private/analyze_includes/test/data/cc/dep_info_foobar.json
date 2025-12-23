@@ -1,0 +1,7 @@
+{
+  "header_files": [
+    "foobar/hdr_1.h",
+    "foobar/hdr_2.h"
+  ],
+  "target": "//public:foobar"
+}

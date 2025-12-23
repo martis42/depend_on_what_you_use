@@ -7,6 +7,7 @@
 #include <string>
 
 namespace dwyu {
+namespace {
 
 TEST(extractIncludes, EmptyResultForEmptyInput) {
     std::istringstream test_input{std::string{""}};
@@ -123,4 +124,5 @@ TEST(extractIncludes, FileWithComplexCases) {
     EXPECT_EQ(result, expected);
 }
 
+} // namespace
 } // namespace dwyu

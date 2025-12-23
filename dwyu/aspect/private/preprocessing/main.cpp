@@ -1,3 +1,4 @@
+#include "dwyu/aspect/private/preprocessing/included_file.h"
 #include "dwyu/aspect/private/preprocessing/preprocessing_hooks.h"
 #include "dwyu/private/program_options.h"
 #include "dwyu/private/utils.h"
@@ -15,12 +16,17 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace dwyu {
+
+// NOLINTNEXTLINE(misc-use-anonymous-namespace) Has to be in the namespace of the type
+static void to_json(nlohmann::json& data, const IncludedFile& included_file) {
+    data = nlohmann::json{{"include", included_file.include_statement}, {"file", included_file.resolved_path}};
+}
+
 namespace {
 
 struct ProgramOptions {
@@ -102,7 +108,7 @@ void configureContext(const ProgramOptions& options, ContextT& ctx) {
     }
 }
 
-/// Execute an already configured boost::wave::context to preprocess a file
+// Execute an already configured boost::wave::context to preprocess a file
 template <typename ContextT>
 bool preprocessFile(ContextT& ctx) {
     boost::wave::util::file_position_type current_position{};
@@ -147,7 +153,7 @@ int main_impl(const ProgramOptions& options) {
                                                   boost::wave::iteration_context_policies::load_file_to_string,
                                                   dwyu::GatherDirectIncludesIgnoringMissingOnes>;
 
-        std::set<std::string> included_files{};
+        std::vector<IncludedFile> included_files{};
         context_type ctx{file_content.begin(), file_content.end(), file.c_str(),
                          dwyu::GatherDirectIncludesIgnoringMissingOnes{included_files}};
 
@@ -160,14 +166,14 @@ int main_impl(const ProgramOptions& options) {
         if (options.verbose) {
             std::cout << "\nDiscovered includes:" << "\n";
             for (const auto& inc : included_files) {
-                std::cout << "  " << inc << "\n";
+                std::cout << "  " << inc.include_statement << " - " << inc.resolved_path << "\n";
             }
             std::cout << "\n";
         }
 
         nlohmann::json entry{};
         entry["file"] = file;
-        entry["includes"] = std::move(included_files);
+        entry["resolved_includes"] = included_files;
         output_json.push_back(std::move(entry));
     }
 

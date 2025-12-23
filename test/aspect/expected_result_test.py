@@ -5,6 +5,7 @@ import unittest
 from expected_result import (
     CATEGORY_INVALID_INCLUDES,
     CATEGORY_NON_PRIVATE_DEPS,
+    CATEGORY_NON_PRIVATE_DEPS_LEGACY,
     CATEGORY_UNUSED_PRIVATE_DEPS,
     CATEGORY_UNUSED_PUBLIC_DEPS,
     DWYU_FAILURE,
@@ -25,23 +26,23 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_expected_success_ok(self) -> None:
         unit = ExpectedResult(success=True)
-        self.assertTrue(unit.matches_expectation(return_code=0, dwyu_output=""))
+        self.assertTrue(unit.matches_expectation(return_code=0, dwyu_output="", is_cpp_impl=False))
 
     def test_expected_success_error(self) -> None:
         unit = ExpectedResult(success=True)
-        self.assertFalse(unit.matches_expectation(return_code=1, dwyu_output=""))
+        self.assertFalse(unit.matches_expectation(return_code=1, dwyu_output="", is_cpp_impl=False))
 
     def test_expected_failure_ok(self) -> None:
         unit = ExpectedResult(success=False)
-        self.assertTrue(unit.matches_expectation(return_code=1, dwyu_output=DWYU_FAILURE))
+        self.assertTrue(unit.matches_expectation(return_code=1, dwyu_output=DWYU_FAILURE, is_cpp_impl=False))
 
     def test_expected_failure_error(self) -> None:
         unit = ExpectedResult(success=False)
-        self.assertFalse(unit.matches_expectation(return_code=0, dwyu_output=""))
+        self.assertFalse(unit.matches_expectation(return_code=0, dwyu_output="", is_cpp_impl=False))
 
     def test_expected_failure_error_due_to_missing_output(self) -> None:
         unit = ExpectedResult(success=False)
-        self.assertFalse(unit.matches_expectation(return_code=1, dwyu_output=""))
+        self.assertFalse(unit.matches_expectation(return_code=1, dwyu_output="", is_cpp_impl=False))
 
     def test_expected_fail_due_to_invalid_includes(self) -> None:
         unit = ExpectedResult(success=False, invalid_includes=["foo/bar.cpp", "bar/foo.h"])
@@ -51,6 +52,7 @@ class TestExpectedResult(unittest.TestCase):
                 dwyu_output=self._make_error_output(
                     category=CATEGORY_INVALID_INCLUDES, errors=["foo/bar.cpp", "bar/foo.h"]
                 ),
+                is_cpp_impl=False,
             )
         )
 
@@ -60,6 +62,7 @@ class TestExpectedResult(unittest.TestCase):
             unit.matches_expectation(
                 return_code=1,
                 dwyu_output=self._make_error_output(category=CATEGORY_INVALID_INCLUDES, errors=["foo/bar.cpp"]),
+                is_cpp_impl=False,
             )
         )
 
@@ -70,6 +73,7 @@ class TestExpectedResult(unittest.TestCase):
                 unit.matches_expectation(
                     return_code=1,
                     dwyu_output=self._make_error_output(category=cat, errors=["foo/bar.cpp", "bar/foo.h"]),
+                    is_cpp_impl=False,
                 )
             )
 
@@ -81,6 +85,7 @@ class TestExpectedResult(unittest.TestCase):
                 dwyu_output=self._make_error_output(
                     category=CATEGORY_UNUSED_PUBLIC_DEPS, errors=["//foo:bar", "//bar:foo"]
                 ),
+                is_cpp_impl=False,
             )
         )
 
@@ -90,6 +95,7 @@ class TestExpectedResult(unittest.TestCase):
             unit.matches_expectation(
                 return_code=1,
                 dwyu_output=self._make_error_output(category=CATEGORY_UNUSED_PUBLIC_DEPS, errors=["//foo:bar"]),
+                is_cpp_impl=False,
             )
         )
 
@@ -100,6 +106,7 @@ class TestExpectedResult(unittest.TestCase):
                 unit.matches_expectation(
                     return_code=1,
                     dwyu_output=self._make_error_output(category=cat, errors=["//foo:bar", "//bar:foo"]),
+                    is_cpp_impl=False,
                 )
             )
 
@@ -111,6 +118,7 @@ class TestExpectedResult(unittest.TestCase):
                 dwyu_output=self._make_error_output(
                     category=CATEGORY_UNUSED_PRIVATE_DEPS, errors=["//foo:bar", "//bar:foo"]
                 ),
+                is_cpp_impl=False,
             )
         )
 
@@ -120,6 +128,7 @@ class TestExpectedResult(unittest.TestCase):
             unit.matches_expectation(
                 return_code=1,
                 dwyu_output=self._make_error_output(category=CATEGORY_UNUSED_PRIVATE_DEPS, errors=["//foo:bar"]),
+                is_cpp_impl=False,
             )
         )
 
@@ -130,6 +139,7 @@ class TestExpectedResult(unittest.TestCase):
                 unit.matches_expectation(
                     return_code=1,
                     dwyu_output=self._make_error_output(category=cat, errors=["//foo:bar", "//bar:foo"]),
+                    is_cpp_impl=False,
                 )
             )
 
@@ -141,6 +151,19 @@ class TestExpectedResult(unittest.TestCase):
                 dwyu_output=self._make_error_output(
                     category=CATEGORY_NON_PRIVATE_DEPS, errors=["//foo:bar", "//bar:foo"]
                 ),
+                is_cpp_impl=True,
+            )
+        )
+
+    def test_expected_fail_due_to_non_private_deps_legacy(self) -> None:
+        unit = ExpectedResult(success=False, deps_which_should_be_private=["//foo:bar", "//bar:foo"])
+        self.assertTrue(
+            unit.matches_expectation(
+                return_code=1,
+                dwyu_output=self._make_error_output(
+                    category=CATEGORY_NON_PRIVATE_DEPS_LEGACY, errors=["//foo:bar", "//bar:foo"]
+                ),
+                is_cpp_impl=False,
             )
         )
 
@@ -150,6 +173,7 @@ class TestExpectedResult(unittest.TestCase):
             unit.matches_expectation(
                 return_code=1,
                 dwyu_output=self._make_error_output(category=CATEGORY_NON_PRIVATE_DEPS, errors=["//foo:bar"]),
+                is_cpp_impl=True,
             )
         )
 
@@ -160,6 +184,7 @@ class TestExpectedResult(unittest.TestCase):
                 unit.matches_expectation(
                     return_code=1,
                     dwyu_output=self._make_error_output(category=cat, errors=["//foo:bar", "//bar:foo"]),
+                    is_cpp_impl=False,
                 )
             )
 

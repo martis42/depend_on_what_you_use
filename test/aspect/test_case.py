@@ -86,9 +86,10 @@ class TestCaseBase(ABC):
         self._extra_args = extra_args
         return self.execute_test_logic()
 
-    @staticmethod
-    def _check_result(actual: subprocess.CompletedProcess, expected: ExpectedResult) -> Result:
-        as_expected = expected.matches_expectation(return_code=actual.returncode, dwyu_output=actual.stdout)
+    def _check_result(self, actual: subprocess.CompletedProcess, expected: ExpectedResult) -> Result:
+        as_expected = expected.matches_expectation(
+            return_code=actual.returncode, dwyu_output=actual.stdout, is_cpp_impl=self._cpp_impl_based
+        )
 
         log_level = logging.DEBUG if as_expected else logging.INFO
         log.log(log_level, "----- DWYU stdout -----")
