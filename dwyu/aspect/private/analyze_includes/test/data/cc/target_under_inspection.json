@@ -1,0 +1,7 @@
+{
+  "header_files": [
+    "some/hdr_1.h",
+    "some/hdr_2.h"
+  ],
+  "target": "//:bar"
+}
