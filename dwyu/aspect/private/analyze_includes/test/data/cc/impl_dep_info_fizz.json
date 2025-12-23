@@ -1,0 +1,7 @@
+{
+  "header_files": [
+    "fizz/hdr_1.h",
+    "fizz/hdr_2.h"
+  ],
+  "target": "//private:fizz"
+}

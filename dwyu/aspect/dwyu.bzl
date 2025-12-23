@@ -326,9 +326,9 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
         args.add_all("--files", [file])
+        args.add_all("--include_paths", include_paths)
+        args.add_all("--system_include_paths", system_include_paths)
         if not ctx.attr._no_preprocessor:
-            args.add_all("--include_paths", include_paths)
-            args.add_all("--system_include_paths", system_include_paths)
             args.add_all("--defines", defines)
         args.add("--output", pp_output)
         if ctx.attr._verbose:
@@ -409,7 +409,7 @@ def dwyu_aspect_impl(target, ctx):
         preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain)
 
         args = make_param_file_args(ctx)
-        args.add("--report", report_file)
+        args.add("--output", report_file)
         args.add_all("--preprocessed_public_files", preprocessed_public_files, omit_if_empty = False)
         args.add_all("--preprocessed_private_files", preprocessed_private_files, omit_if_empty = False)
         args.add("--target_under_inspection", processed_target)
@@ -418,16 +418,14 @@ def dwyu_aspect_impl(target, ctx):
         if ctx.attr._ignored_includes:
             args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
         if _do_ensure_private_deps(ctx):
-            args.add("--implementation_deps_available")
-        if ctx.attr._ignore_cc_toolchain_headers:
-            args.add("--toolchain_headers_info", ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
+            args.add("--optimize_implementation_deps")
 
         analysis_inputs = depset(
-            direct = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
+            direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
             transitive = [target[CcInfo].compilation_context.headers],
         )
         ctx.actions.run(
-            executable = ctx.executable._tool_analyze_preprocessing_results,
+            executable = ctx.executable._tool_analyze_includes,
             inputs = analysis_inputs,
             outputs = [report_file],
             mnemonic = "DwyuAnalyzeTarget",

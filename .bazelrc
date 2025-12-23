@@ -54,7 +54,8 @@ build:dwyu --output_groups=dwyu
 test:sanitize --compilation_mode=dbg
 test:sanitize --cxxopt=-fsanitize=address
 test:sanitize --cxxopt=-fsanitize=leak
-test:sanitize --cxxopt=-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,implicit-conversion,local-bounds,vptr,nullability
+# We want to use 'implicit-conversion', but can't due to boost::regex failing this.
+test:sanitize --cxxopt=-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,local-bounds,vptr,nullability
 test:sanitize --cxxopt=-fno-sanitize-recover=all
 test:sanitize --cxxopt=-O0
 test:sanitize --cxxopt=-g

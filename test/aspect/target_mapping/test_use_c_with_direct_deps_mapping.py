@@ -8,9 +8,14 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
+        expected_invalid_includes = [
+            "In file 'target_mapping/use_lib_c.cpp' include: \"target_mapping/libs/c.h\""
+            if self._cpp_impl_based
+            else f"File='{Path('target_mapping/use_lib_c.cpp')}', include='target_mapping/libs/c.h'"
+        ]
         expected = ExpectedResult(
             success=False,
-            invalid_includes=[f"File='{Path('target_mapping/use_lib_c.cpp')}', include='target_mapping/libs/c.h'"],
+            invalid_includes=expected_invalid_includes,
             unused_public_deps=["//target_mapping/libs:a"],
         )
         actual = self._run_dwyu(

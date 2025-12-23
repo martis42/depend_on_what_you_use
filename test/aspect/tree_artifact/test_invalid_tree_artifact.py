@@ -8,12 +8,16 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
+        # We omit "In file '..." to allow testing in various environments, since this is generated code in the
+        #  bazel-out/.../bin/ dir, whose exact path is platform dependent
+        expected_invalid_includes = [
+            'tree_artifact/sources.cc/tree_lib.cc\' include: "tree_artifact/some_lib.h"'
+            if self._cpp_impl_based
+            else f"{Path('tree_artifact/sources.cc/tree_lib.cc')}', include='tree_artifact/some_lib.h'"
+        ]
         expected = ExpectedResult(
             success=False,
-            # We omit "File='bazel-out/<compilation_mode_and_platform> to allow testing in various environments
-            invalid_includes=[
-                f"{Path('/bin/tree_artifact/sources.cc/tree_lib.cc')}', include='tree_artifact/some_lib.h'"
-            ],
+            invalid_includes=expected_invalid_includes,
         )
         actual = self._run_dwyu(
             target="//tree_artifact:tree_artifact_library",
