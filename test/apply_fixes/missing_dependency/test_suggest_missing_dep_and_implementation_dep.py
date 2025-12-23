@@ -8,9 +8,7 @@ class TestCase(TestCaseBase):
         return "//:mixed_libs_usage"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports(
-            aspect="use_implementation_deps_aspect", extra_args=["--experimental_cc_implementation_deps"]
-        )
+        self._create_reports(aspect="use_implementation_deps_aspect")
         self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         target_deps = self._get_target_deps(self.test_target)
