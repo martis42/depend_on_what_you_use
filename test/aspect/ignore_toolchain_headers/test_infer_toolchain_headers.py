@@ -1,5 +1,5 @@
 from expected_result import ExpectedResult
-from test_case import TestCaseBase
+from test_case import DwyuImplCompatibility, TestCaseBase
 
 from test.support.result import Result
 
@@ -10,6 +10,12 @@ class TestCase(TestCaseBase):
     triggered by the aspect integration tests. More detailed tests for discovering and ignoring toolchain headers are
     done in the integration tests specific to this feature.
     """
+
+    @property
+    def dwyu_impl_compatibility(self) -> DwyuImplCompatibility:
+        # Toolchain headers are no longer relevant with the C++ based implementation due to being ignored while
+        #  preprocessing the code
+        return DwyuImplCompatibility.LEGACY_ONLY
 
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)

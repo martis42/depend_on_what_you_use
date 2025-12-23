@@ -4,6 +4,7 @@
 #include <istream>
 #include <set>
 #include <string>
+#include <tuple>
 
 namespace dwyu {
 namespace {
@@ -108,6 +109,7 @@ class IncludeStatementExtractor {
 
 std::set<std::string> extractIncludes(std::istream& stream) {
     std::set<std::string> includes{};
+
     IncludeStatementExtractor include_extractor{};
     bool in_commented_line = false;
     bool in_c_comment_block = false;
@@ -146,7 +148,7 @@ std::set<std::string> extractIncludes(std::istream& stream) {
         }
 
         if (include_extractor.hasValidIncludeStatement()) {
-            includes.insert(include_extractor.getIncludeStatement());
+            std::ignore = includes.insert(include_extractor.getIncludeStatement());
         }
     }
 

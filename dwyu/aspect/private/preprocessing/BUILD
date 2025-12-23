@@ -10,10 +10,22 @@ cc_library(
 )
 
 cc_library(
+    name = "included_file",
+    srcs = ["included_file.cpp"],
+    hdrs = ["included_file.h"],
+    visibility = ["//dwyu/aspect/private:__subpackages__"],
+    deps = ["@boost//:filesystem"],
+)
+
+cc_library(
     name = "preprocessing_hooks",
     hdrs = ["preprocessing_hooks.h"],
     visibility = [":__subpackages__"],
-    deps = ["@boost.wave//:wave"],
+    deps = [
+        ":included_file",
+        "@boost.wave//:wave",
+        "@boost//:filesystem",
+    ],
 )
 
 # This target exists so the legacy Python implementation can be used without a user having to depend on boost,
@@ -28,6 +40,7 @@ cc_binary(
     srcs = ["main.cpp"],
     visibility = ["//visibility:public"],
     deps = [
+        ":included_file",
         ":preprocessing_hooks",
         "//dwyu/private:program_options",
         "//dwyu/private:utils",
@@ -42,8 +55,11 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":extract_includes",
+        ":included_file",
         "//dwyu/private:program_options",
         "//dwyu/private:utils",
+        "@boost.wave//:wave",
+        "@boost//:filesystem",
         "@nlohmann_json//:singleheader-json",
     ],
 )
