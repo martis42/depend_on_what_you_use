@@ -21,5 +21,5 @@ cc_binary(
 cc_library(
     name = "transitive_usage_through_impl_deps",
     srcs = ["transitive_usage_through_impl_deps.h"],
-    deps = [":bar"],
+    implementation_deps = [":bar"],
 )
