@@ -195,11 +195,11 @@ def dwyu_aspect_factory(
                 providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
             ),
-            "_tool_analyze_preprocessing_results": attr.label(
-                default = Label("//dwyu/aspect/private/analyze_preprocessor_results:main"),
+            "_tool_analyze_includes": attr.label(
+                default = Label("//dwyu/aspect/private/analyze_includes:main"),
                 executable = True,
                 cfg = "exec",
-                doc = "Alternative for '_dwyu_binary' for comparing include statements to dependencies when using the C++ implementation with a dedicated preprocessing per source file under inspection.",
+                doc = "Main logic for the analysis done by this aspect. This compares the include statements in the code and compares them to the available dependencies.",
             ),
             "_tool_preprocessing": attr.label(
                 default = tool_preprocessing,

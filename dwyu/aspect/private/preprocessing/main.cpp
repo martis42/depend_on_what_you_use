@@ -21,6 +21,11 @@
 #include <vector>
 
 namespace dwyu {
+
+void to_json(nlohmann::json& j, const IncludedFile& included_file) {
+    j = nlohmann::json{{"include", included_file.include_statement}, {"file", included_file.resolved_path}};
+}
+
 namespace {
 
 struct ProgramOptions {
@@ -147,7 +152,7 @@ int main_impl(const ProgramOptions& options) {
                                                   boost::wave::iteration_context_policies::load_file_to_string,
                                                   dwyu::GatherDirectIncludesIgnoringMissingOnes>;
 
-        std::set<std::string> included_files{};
+        std::vector<IncludedFile> included_files{};
         context_type ctx{file_content.begin(), file_content.end(), file.c_str(),
                          dwyu::GatherDirectIncludesIgnoringMissingOnes{included_files}};
 
@@ -160,14 +165,14 @@ int main_impl(const ProgramOptions& options) {
         if (options.verbose) {
             std::cout << "\nDiscovered includes:" << "\n";
             for (const auto& inc : included_files) {
-                std::cout << "  " << inc << "\n";
+                std::cout << "  " << inc.include_statement << " - " << inc.resolved_path << "\n";
             }
             std::cout << "\n";
         }
 
         nlohmann::json entry{};
         entry["file"] = file;
-        entry["includes"] = std::move(included_files);
+        entry["resolved_includes"] = included_files;
         output_json.push_back(std::move(entry));
     }
 

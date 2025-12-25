@@ -1,0 +1,6 @@
+[
+    {
+        "file": "some/file/without/detected/includes.h",
+        "resolved_includes": []
+    }
+]

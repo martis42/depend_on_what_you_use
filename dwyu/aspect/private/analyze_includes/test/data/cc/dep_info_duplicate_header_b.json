@@ -1,0 +1,7 @@
+{
+  "header_files": [
+    "unique_b.h",
+    "duplicated.h"
+  ],
+  "target": "//:duplicate_header_b"
+}

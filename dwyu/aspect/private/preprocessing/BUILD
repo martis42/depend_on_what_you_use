@@ -13,7 +13,10 @@ cc_library(
     name = "preprocessing_hooks",
     hdrs = ["preprocessing_hooks.h"],
     visibility = [":__subpackages__"],
-    deps = ["@boost.wave//:wave"],
+    deps = [
+        "@boost.wave//:wave",
+        "@boost//:filesystem",
+    ],
 )
 
 # This target exists so the legacy Python implementation can be used without a user having to depend on boost,

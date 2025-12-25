@@ -6,6 +6,7 @@
 #
 # Disabled checks:
 # altera-* : Performance oriented checks which are too low level for our scope
+# boost-* : TBD
 # llvm* : LLVM project specific checks and best practices not relevant for us
 # clang-analyzer-cplusplus.NewDeleteLeaks : Too many false positives for using std::unique_ptr with C++11
 # fuchsia-default-arguments-calls : Default arguments are often parts of established APIs, the check is too opinionated
@@ -21,6 +22,7 @@
 Checks: >
         *,
         -altera-*,
+        -boost-*,
         -llvm*,
         -clang-analyzer-cplusplus.NewDeleteLeaks,
         -fuchsia-default-arguments-calls,

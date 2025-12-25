@@ -1,13 +1,21 @@
 #ifndef DWYU_ASPECT_PRIVATE_PREPROCESSING_PREPROCESSING_HOOKS_H
 #define DWYU_ASPECT_PRIVATE_PREPROCESSING_PREPROCESSING_HOOKS_H
 
+#include <boost/filesystem.hpp>
 #include <boost/wave/preprocessing_hooks.hpp>
 
 #include <set>
 #include <string>
 #include <tuple>
 
+namespace bfs = boost::filesystem;
+
 namespace dwyu {
+
+struct IncludedFile {
+    std::string include_statement;
+    std::string resolved_path;
+};
 
 bool isSystemInclude(const std::string& include_statement) {
     return !include_statement.empty() && (*include_statement.begin() == '<') && (*include_statement.rbegin() == '>');
@@ -84,8 +92,10 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
 /// header).
 class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
   public:
-    GatherDirectIncludesIgnoringMissingOnes(std::set<std::string>& included_files)
-        : include_depth_{0}, included_files_{included_files} {}
+    GatherDirectIncludesIgnoringMissingOnes(std::vector<IncludedFile>& included_files)
+        : include_depth_{0}, included_files_{included_files} {
+        working_dir_ = bfs::current_path();
+    }
 
     // TODO Optimize this by preventing all valid files being located twice by storing the localization result and
     //      then using it in the 'find_include_file()' callback.
@@ -97,8 +107,8 @@ class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
         std::string file_path = includeWithoutQuotes(filename);
 
         const char* current_file{nullptr}; // only relevant for supporting 'include_next'
-        std::string unused_dir_path{};
-        if (!ctx.find_include_file(file_path, unused_dir_path, is_system, current_file)) {
+        std::string dir_path{};
+        if (!ctx.find_include_file(file_path, dir_path, is_system, current_file)) {
             // Do not try to include files we cannot locate
             return true;
         }
@@ -106,7 +116,13 @@ class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
         // If we are in the root file (aka file under inspection) and this is is a relevant include (aka discoverable),
         // then add it to the list of relevant includes.
         if (include_depth_ == 0) {
-            included_files_.insert(filename);
+            const auto native_path = boost::wave::util::create_path(file_path);
+            // TODO check for existence
+            // TODO can we do this in less operations?
+            std::string native_name = boost::wave::util::native_file_string(native_path);
+
+            auto relevant_path = bfs::path{native_name}.lexically_relative(working_dir_).string();
+            included_files_.push_back(IncludedFile{filename, std::move(relevant_path)});
         }
 
         // By default include all fils, except some condition above rejected a file
@@ -135,7 +151,8 @@ class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
 
   private:
     std::int32_t include_depth_;
-    std::set<std::string>& included_files_;
+    std::vector<IncludedFile>& included_files_;
+    bfs::path working_dir_;
 };
 
 } // namespace dwyu

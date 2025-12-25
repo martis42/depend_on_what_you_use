@@ -1,0 +1,24 @@
+[
+    {
+        "file": "some/file/foo.h",
+        "resolved_includes": [
+            {
+                "file": "some/path/some_include.h",
+                "include": "\"some_include.h\""
+            },
+            {
+                "file": "some/path/another/include.h",
+                "include": "<another/include.h>"
+            }
+        ]
+    },
+    {
+        "file": "bar.cpp",
+        "resolved_includes": [
+            {
+                "file": "other/path/other_include.h",
+                "include": "\"other_include.h\""
+            }
+        ]
+    }
+]
