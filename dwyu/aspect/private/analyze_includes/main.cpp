@@ -1,18 +1,16 @@
+#include "dwyu/aspect/private/analyze_includes/evaluate_includes.h"
 #include "dwyu/aspect/private/analyze_includes/include_statement.h"
 #include "dwyu/aspect/private/analyze_includes/result.h"
 #include "dwyu/aspect/private/analyze_includes/system_under_inspection.h"
 #include "dwyu/private/program_options.h"
 #include "dwyu/private/utils.h"
 
-#include <nlohmann/json.hpp>
-
 #include <algorithm>
 #include <exception>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-
-using json = nlohmann::json;
 
 namespace dwyu {
 
@@ -24,7 +22,6 @@ struct ProgramOptions {
     std::vector<std::string> deps{};
     std::vector<std::string> implementation_deps{};
     std::string ignored_includes_config{};
-    std::string toolchain_headers_info{};
     bool optimize_implementation_deps{};
     bool verbose{false};
 };
@@ -55,83 +52,55 @@ ProgramOptions parseProgramOptions(int argc, char* argv[]) {
     return options;
 }
 
-std::vector<IncludeStatement>
-findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& includes,
-                                    const TargetUsage::Status usage,
-                                    const std::unordered_set<std::string>& own_header_files,
-                                    SystemUnderInspection::HeadersToDepsMap& direct_deps) {
-    std::vector<IncludeStatement> invalid_includes{};
-
-    for (const auto& include : includes) {
-        auto dep_hdr_match = direct_deps.find(include.included_file);
-        if (dep_hdr_match != direct_deps.end()) {
-            for (auto& dep : dep_hdr_match->second) {
-                dep->usage.update(usage);
-            }
-            continue;
-        }
-
-        auto self_hdr_match = own_header_files.find(include.included_file);
-        if (self_hdr_match != own_header_files.end()) {
-            continue;
-        }
-
-        invalid_includes.push_back(include);
-    }
-
-    return invalid_includes;
-}
-
-Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
-                        const std::vector<IncludeStatement>& private_includes,
-                        SystemUnderInspection& system_under_inspection,
-                        const bool optimize_impl_deps) {
-    Result result{system_under_inspection.target_under_inspection.name, optimize_impl_deps};
-
-    result.setPublicIncludesWithoutDirectDep(findIncludesWithoutDirectDependency(
-        public_includes, TargetUsage::Status::Public, system_under_inspection.target_under_inspection.header_files,
-        system_under_inspection.headers_to_public_deps_map));
-    result.setPrivateIncludesWithoutDirectDep(findIncludesWithoutDirectDependency(
-        private_includes, TargetUsage::Status::Private, system_under_inspection.target_under_inspection.header_files,
-        system_under_inspection.headers_to_all_deps_map));
-
-    std::vector<std::string> unused_deps{};
-    for (const auto& dep_pair : system_under_inspection.headers_to_public_deps_map) {
-        for (const auto& dep : dep_pair.second) {
-            if (dep->usage.is_used() == false) {
-                unused_deps.push_back(dep->name);
-            }
-        }
-    }
-    result.setUnusedDeps(std::move(unused_deps));
-
-    // TODO find unused impl deps
-
-    if (optimize_impl_deps) {
-        // TODO find wrong usage
-    }
-
-    return result;
-}
-
 int main_impl(const ProgramOptions& options) {
     std::ignore = options;
+
+    try {
+        std::ignore =
+            getSystemUnderInspection(options.target_under_inspection, options.deps, options.implementation_deps);
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("SystemUnderInspection: ", exception.what());
+    }
+    try {
+        std::ignore = getIncludeStatements(options.preprocessed_public_files);
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("Pub includes: ", exception.what());
+    }
+    try {
+        std::ignore = getIncludeStatements(options.preprocessed_private_files);
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("Priv includes: ", exception.what());
+    }
 
     auto system_under_inspection =
         getSystemUnderInspection(options.target_under_inspection, options.deps, options.implementation_deps);
     auto public_includes = getIncludeStatements(options.preprocessed_public_files);
     auto private_includes = getIncludeStatements(options.preprocessed_private_files);
 
+    try {
+        std::ignore = evaluateIncludes(public_includes, private_includes, system_under_inspection,
+                                       options.optimize_implementation_deps);
+    } catch (const std::exception& exception) {
+        dwyu::abortWithError("Eval: ", exception.what());
+    }
+
     const auto result = evaluateIncludes(public_includes, private_includes, system_under_inspection,
                                          options.optimize_implementation_deps);
 
     // TODO impl and execute _filter_empty_dependencies
-    // TODO call evaluateIncludes
-    // TODO report result
 
-    std::ignore = result;
+    std::cout << result.toString(options.output) << "\n";
 
-    return 0;
+    std::ofstream output{options.output};
+    if (output.is_open()) {
+        output << result.toJson();
+        output.close();
+    }
+    else {
+        dwyu::abortWithError("Unable to open output file '", options.output, "'");
+    }
+
+    return result.isOk() ? 0 : 1;
 }
 
 } // namespace dwyu

@@ -36,6 +36,15 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     return options;
 }
 
+struct IncludedFile {
+    std::string include_statement;
+    std::string resolved_path;
+};
+
+void to_json(nlohmann::json& j, const IncludedFile& included_file) {
+    j = nlohmann::json{{"include", included_file.include_statement}, {"file", included_file.resolved_path}};
+}
+
 int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
         std::cout << "Preprocessing : " << dwyu::listToStr(options.files) << "\n";
@@ -50,9 +59,14 @@ int main_impl(const ProgramOptions& options) {
 
         auto included_files = dwyu::extractIncludes(input);
 
+        std::vector<IncludedFile> resolved_includes{};
+        for (auto& inc : included_files) {
+            resolved_includes.push_back(IncludedFile{std::move(inc), "not/available"});
+        }
+
         nlohmann::json entry{};
         entry["file"] = file;
-        entry["includes"] = std::move(included_files);
+        entry["resolved_includes"] = resolved_includes;
         output_json.push_back(std::move(entry));
     }
 

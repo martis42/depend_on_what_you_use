@@ -16,7 +16,7 @@ class Result {
 
     bool isOk() const;
 
-    std::string toString() const;
+    std::string toString(const std::string& report_path) const;
     nlohmann::json toJson() const;
 
     void setPublicIncludesWithoutDirectDep(std::vector<IncludeStatement> includes);
