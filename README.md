@@ -174,6 +174,13 @@ Even if analyzing the code works initially, it might break at any time if the or
 
 # Known limitations
 
+## C++ modules
+
+C++ code using [C++ modules](https://en.cppreference.com/w/cpp/language/modules.html) is not supported by DWYU.
+
+Although, `rules_cc` supports C++ modules by now, this is at the time of writing this a new feature for Bazel C++ projects and not yet widely used.
+Also, the preprocessing library [boost wave](https://github.com/boostorg/wave) we depend on is not supporting C++ modules.
+
 ## Some cases of conditional include statements
 
 DWYU does not compile the code.
