@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit
+set -o nounset
 
 # Due to using warning '-Wc++11-compat' we are confident our own code has C++11 compatibility.
 # However, since we ignore warnings from third_party code, we need to make sure that the third_party code is also C++11 compatible.

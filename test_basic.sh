@@ -3,44 +3,31 @@
 set -o errexit
 set -o nounset
 
-echo ""
-echo "Pre-commit checks"
-echo ""
+source ./scripts/print_msg.sh
+
+print_msg "Pre-commit checks"
 pre-commit run --all-files
 
-echo ""
-echo "Execute unit tests and ensure docs are up to date"
-echo ""
+print_msg "Execute unit tests and ensure docs are up to date"
 bazel test //...
 
-echo ""
-echo "Execute sanitizers"
-echo ""
+print_msg "Execute sanitizers"
 bazel test --config=sanitize //dwyu/...
 
-echo ""
-echo "Execute DWYU"
-echo ""
+print_msg "Execute DWYU"
 bazel build --config=dwyu //dwyu/...
 
-echo ""
-echo "Execute clang-tidy"
-echo ""
+print_msg "Execute clang-tidy"
 bazel build --config=clang_tidy //dwyu/...
 
 ./scripts/ensure_cpp11_compatibility.sh
 
-echo ""
-echo "Aspect integration tests scripts unit tests"
-echo ""
+
+print_msg "Aspect integration tests scripts unit tests"
 ./scripts/test_aspect_tests_scripts.sh
 
-echo ""
-echo "Build examples"
-echo ""
+print_msg "Build examples"
 ./scripts/build_examples.sh
 
-echo ""
 echo "Execute mocked CC toolchain tests"
-echo ""
 ./scripts/test_mocked_cc_toolchains.sh
