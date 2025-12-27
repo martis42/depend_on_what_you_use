@@ -27,6 +27,8 @@ jobs:
         run: bazel build --config=dwyu //...
       - name: Execute clang-tidy
         run: bazel build --config=clang_tidy //...
+      - name: Ensure C++11 compatibility
+        run: ./scripts/ensure_cpp11_compatibility.sh
 
   fast-sub-workspaces-tests:
     runs-on: ubuntu-24.04

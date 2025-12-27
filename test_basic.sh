@@ -28,6 +28,8 @@ echo "Execute clang-tidy"
 echo ""
 bazel build --config=clang_tidy //...
 
+./scripts/ensure_cpp11_compatibility.sh
+
 echo ""
 echo "Aspect integration tests scripts unit tests"
 echo ""
