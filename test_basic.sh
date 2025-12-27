@@ -9,24 +9,24 @@ echo ""
 pre-commit run --all-files
 
 echo ""
-echo "Execute unit tests"
+echo "Execute unit tests and ensure docs are up to date"
 echo ""
 bazel test //...
 
 echo ""
 echo "Execute sanitizers"
 echo ""
-bazel test --config=sanitize //...
+bazel test --config=sanitize //dwyu/...
 
 echo ""
 echo "Execute DWYU"
 echo ""
-bazel build --config=dwyu //...
+bazel build --config=dwyu //dwyu/...
 
 echo ""
 echo "Execute clang-tidy"
 echo ""
-bazel build --config=clang_tidy //...
+bazel build --config=clang_tidy //dwyu/...
 
 ./scripts/ensure_cpp11_compatibility.sh
 

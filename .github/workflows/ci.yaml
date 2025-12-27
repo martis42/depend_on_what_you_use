@@ -20,17 +20,25 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: DWYU Unit tests
-        run: bazel test //...
+        run: bazel test -- //... -//docs/...
       - name: Execute sanitizers
-        run: bazel test --config=sanitize //...
+        run: bazel test --config=sanitize //dwyu/...
       - name: Execute DWYU
-        run: bazel build --config=dwyu //...
+        run: bazel build --config=dwyu //dwyu/...
       - name: Execute clang-tidy
-        run: bazel build --config=clang_tidy //...
+        run: bazel build --config=clang_tidy //dwyu/...
       - name: Ensure C++11 compatibility
         run: ./scripts/ensure_cpp11_compatibility.sh
 
-  fast-sub-workspaces-tests:
+  check-documentation:
+    runs-on: ubuntu-24.04
+    needs: [ pre-commit ]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check documentation consistency
+        run: bazel test //docs/...
+
+  sub-workspaces-tests:
     runs-on: ubuntu-24.04
     needs: [ pre-commit ]
     steps:
