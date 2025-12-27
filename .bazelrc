@@ -5,6 +5,11 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # Always tell why tests fail
 test --test_output=errors
 
+# We are not interested in warnings from external headers outside our own control
+# Thus, we want them included via 'isystem'
+build --features=external_include_paths
+build --host_features=external_include_paths
+
 # https://clang.llvm.org/docs/DiagnosticsReference.html
 # Most common warnings
 build --cxxopt=-Wall
@@ -29,6 +34,10 @@ build --cxxopt=-Werror
 # Ignore compiler warnings in external code outside our control
 build --per_file_copt=boost.wave/src/.*@-w
 build --per_file_copt=googletest/src/.*@-w
+build --per_file_copt=src/google/protobuf/.*@-w
+build --host_per_file_copt=boost.wave/src/.*@-w
+build --host_per_file_copt=googletest/src/.*@-w
+build --host_per_file_copt=src/google/protobuf/.*@-w
 
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
 build:clang_tidy --output_groups=clang_tidy
