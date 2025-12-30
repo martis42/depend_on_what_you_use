@@ -9,7 +9,7 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         expected_invalid_includes = [
-            f"In file '{Path('using_transitive_dep/main.cpp')}' include: \"using_transitive_dep/foo.h\""
+            "In file 'using_transitive_dep/main.cpp' include: \"using_transitive_dep/foo.h\""
             if self._cpp_impl_based
             else f"File='{Path('using_transitive_dep/main.cpp')}', include='using_transitive_dep/foo.h'"
         ]

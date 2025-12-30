@@ -11,7 +11,7 @@ class TestCase(TestCaseBase):
         # We omit "In file '..." to allow testing in various environments, since this is generated code in the
         #  bazel-out/.../bin/ dir, whose exact path is platform dependent
         expected_invalid_includes = [
-            f'{Path("tree_artifact/sources.cc/tree_lib.cc")}\' include: "tree_artifact/some_lib.h"'
+            'tree_artifact/sources.cc/tree_lib.cc\' include: "tree_artifact/some_lib.h"'
             if self._cpp_impl_based
             else f"{Path('tree_artifact/sources.cc/tree_lib.cc')}', include='tree_artifact/some_lib.h'"
         ]

@@ -9,7 +9,7 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         expected_invalid_includes = [
-            f"In file '{Path('target_mapping/use_lib_c.cpp')}' include: \"target_mapping/libs/c.h\""
+            "In file 'target_mapping/use_lib_c.cpp' include: \"target_mapping/libs/c.h\""
             if self._cpp_impl_based
             else f"File='{Path('target_mapping/use_lib_c.cpp')}', include='target_mapping/libs/c.h'"
         ]

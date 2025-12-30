@@ -71,7 +71,7 @@ bw::util::include_paths makeIncludePaths(const ProgramOptions& options) {
 void updateIncludePathsForRelativeIncludes(const std::string& file, bw::util::include_paths& include_paths) {
     // 'set_current_directory(..)' Expects the absolute path to the file under inspection as input.
     const auto abs_path = bfs::absolute(bfs::path{file});
-    include_paths.set_current_directory(abs_path.c_str());
+    include_paths.set_current_directory(abs_path.string().c_str());
 }
 
 std::vector<IncludedFile> makeResolvedIncludes(const std::set<std::string>& includes,
