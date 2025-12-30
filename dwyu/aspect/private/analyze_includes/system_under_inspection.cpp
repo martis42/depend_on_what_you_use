@@ -10,6 +10,9 @@
 #include <utility>
 #include <vector>
 
+//
+#include <iostream>
+
 namespace dwyu {
 namespace {
 
@@ -65,6 +68,9 @@ SystemUnderInspection getSystemUnderInspection(const std::string& target_under_i
 
     for (const auto& file_path : deps) {
         const auto data = readJsonFromFile(file_path);
+        std::cout << "+++++++  " << file_path << "  +++++" << "\n";
+        std::cout << data << "\n";
+        std::cout << "+++++++++++++++++++++++++" << "\n";
         auto cc_dep = std::make_shared<CcDependency>(CcDependency{data["target"].get<std::string>(), TargetUsage{}});
         for (const auto& header_file : data["header_files"].get<std::vector<std::string>>()) {
             updateHeadersToDepsMap(header_file, cc_dep, system.headers_to_public_deps_map);

@@ -18,7 +18,7 @@ def dwyu_aspect_factory(
         cc_toolchain_headers_info = None,
         use_cpp_implementation = False,
         use_implementation_deps = False,
-        verbose = False):
+        verbose = True):
     """
     Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
 

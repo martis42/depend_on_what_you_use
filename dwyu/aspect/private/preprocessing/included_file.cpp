@@ -21,7 +21,7 @@ std::string includeWithoutQuotes(const std::string& include_statement) {
 }
 
 std::string makeRelativePath(const std::string& file, const bfs::path& parent) {
-    return bfs::path{file}.lexically_relative(parent).string();
+    return bfs::path{file}.lexically_relative(parent).generic_string();
 }
 
 } // namespace dwyu
