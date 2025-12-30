@@ -20,7 +20,8 @@ def common_main() -> None:
 
 
 def run_benchmark(aspect: str, primer: str, bench_target: str, description: str, iterations: int, jobs: int) -> None:
-    capture_output = not log.isEnabledFor(logging.DEBUG)
+    #capture_output = not log.isEnabledFor(logging.DEBUG)
+    capture_output = False
     option_jobs = [f"--jobs={jobs}"] if jobs > 0 else []
     cmd_base = [
         "bazel",

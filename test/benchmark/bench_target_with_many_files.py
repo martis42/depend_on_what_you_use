@@ -21,10 +21,10 @@ from test.benchmark.lib import common_main, run_benchmark  # noqa: E402
 # Test Parameters
 #
 
-LIB_FILES = 250
-CLASSES_PER_FILE = 75
+LIB_FILES = 50
+CLASSES_PER_FILE = 25
 
-ITERATIONS = 3
+ITERATIONS = 1
 JOBS = 1
 
 #

@@ -22,10 +22,10 @@ from test.benchmark.lib import common_main, run_benchmark  # noqa: E402
 #
 
 LIBS = 10
-LIB_USAGE_PER_DIR = 50
-DIRS_REPEATING_THE_PATTERN = 10
+LIB_USAGE_PER_DIR = 5
+DIRS_REPEATING_THE_PATTERN = 1
 
-ITERATIONS = 3
+ITERATIONS = 1
 # No need to restrict jobs in a test for parallel work on a whole workspace
 JOBS = -1
 
@@ -103,7 +103,7 @@ def create_test_setup() -> None:
 
         lib_declarations = "\n".join(LIB_BUILD_LIB_DECLARATION_BLOCK.format(N=n) for n in range(LIBS))
         lib_usage_deps = ", ".join(f'":lib_{n}"' for n in range(LIBS))
-        lib_usages = "\n".join(LIB_BUILD_LIB_USAGE_BLOCK.format(N=n, DEPS=lib_usage_deps) for n in range(LIBS))
+        lib_usages = "\n".join(LIB_BUILD_LIB_USAGE_BLOCK.format(N=n, DEPS=lib_usage_deps) for n in range(LIB_USAGE_PER_DIR))
         (lib_dir / "BUILD").write_text(LIB_BUILD.format(LIBS_DECLARATIONS=lib_declarations, LIB_USAGES=lib_usages))
 
     (OUTPUT_DIR / "primer.cpp").write_text("void doSth() {}")
