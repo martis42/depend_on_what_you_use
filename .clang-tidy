@@ -12,11 +12,14 @@
 # clang-analyzer-cplusplus.NewDeleteLeaks : Too many false positives for using std::unique_ptr with C++11
 # clang-analyzer-optin.core.EnumCastOutOfRange : We would like to use this, but this is incompatible to boost::regex and ExcludeHeaderFilterRegex is not working for clang-analyzer-*
 # fuchsia-default-arguments-calls : Default arguments are often parts of established APIs, the check is too opinionated
+# fuchsia-default-arguments-declarations : We prefer the lean usage offered by default values.
 # hicpp-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
 # hicpp-member-init : Alias to cppcoreguidelines-pro-type-member-init
 # hicpp-no-array-decay : Alias to cppcoreguidelines-pro-bounds-array-to-pointer-decay
+# misc-non-private-member-variables-in-classes : Alias to cppcoreguidelines-non-private-member-variables-in-classes
 # modernize-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
 # modernize-make-unique : Not compatible to C++11
+# modernize-use-default-member-init : Alias to cppcoreguidelines-use-default-member-init
 # modernize-use-nodiscard : Not compatible to C++11
 # modernize-use-trailing-return-type : We prefer the classic style
 # readability-function-cognitive-complexity : Too opinionated, we split up functions based on our own experience
@@ -31,17 +34,23 @@ Checks: >
         -clang-analyzer-cplusplus.NewDeleteLeaks,
         -clang-analyzer-optin.core.EnumCastOutOfRange,
         -fuchsia-default-arguments-calls,
+        -fuchsia-default-arguments-declarations,
         -hicpp-avoid-c-arrays,
         -hicpp-member-init,
         -hicpp-no-array-decay,
+        -misc-non-private-member-variables-in-classes,
         -modernize-avoid-c-arrays,
         -modernize-make-unique,
+        -modernize-use-default-member-init,
         -modernize-use-nodiscard,
         -modernize-use-trailing-return-type,
         -readability-function-cognitive-complexity,
         -readability-magic-numbers,
         -readability-redundant-member-init
+# Abort on findings to ensure we don't overlook new findings by accident
 WarningsAsErrors: "*"
+# Without this findings in header files are ignored. LLVM 22.0 will make showing findings from non system headers the default.
+HeaderFilterRegex: ".*"
 CheckOptions:
   - key:    misc-include-cleaner.IgnoreHeaders
     value:  'boost/regex.*'

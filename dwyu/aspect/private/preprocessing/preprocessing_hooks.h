@@ -56,17 +56,17 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
     }
 
     template <typename ContextT, typename ExceptionT>
-    void throw_exception(const ContextT& ctx, const ExceptionT& ex) {
+    void throw_exception(const ContextT& ctx, const ExceptionT& exception) {
         // We ignore most exceptions.
         // Remarks and warnings are either way not relevant for us
         // Even errors have to be ignored because they can easily appear due to parsing code with a wrong
         // configuration. For a detailed explanation see the comment in the 'found_error_directive' callback.
-        if (ex.get_severity() == boost::wave::util::severity::severity_remark ||
-            ex.get_severity() == boost::wave::util::severity::severity_warning ||
-            ex.get_severity() == boost::wave::util::severity::severity_error) {
+        if (exception.get_severity() == boost::wave::util::severity::severity_remark ||
+            exception.get_severity() == boost::wave::util::severity::severity_warning ||
+            exception.get_severity() == boost::wave::util::severity::severity_error) {
             return;
         }
-        boost::wave::context_policies::default_preprocessing_hooks::throw_exception(ctx, ex);
+        boost::wave::context_policies::default_preprocessing_hooks::throw_exception(ctx, exception);
     }
 };
 
@@ -75,10 +75,8 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
 // header).
 class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
   public:
-    GatherDirectIncludesIgnoringMissingOnes(std::vector<IncludedFile>& included_files)
-        : include_depth_{0}, included_files_{included_files} {
-        working_dir_ = boost::filesystem::current_path();
-    }
+    explicit GatherDirectIncludesIgnoringMissingOnes(std::vector<IncludedFile>& included_files)
+        : include_depth_{0}, included_files_{included_files}, working_dir_{boost::filesystem::current_path()} {}
 
     template <typename ContextT>
     bool locate_include_file(ContextT& ctx,
@@ -123,7 +121,9 @@ class GatherDirectIncludesIgnoringMissingOnes : public PreprocessingHooksBase {
     }
 
   private:
+    // NOLINTNEXTLINE(cppcoreguidelines-use-default-member-init) We prefer initializing all values in one place
     std::int32_t include_depth_;
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
     std::vector<IncludedFile>& included_files_;
     boost::filesystem::path working_dir_;
 };

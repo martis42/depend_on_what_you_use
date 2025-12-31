@@ -12,7 +12,7 @@ namespace bfs = boost::filesystem;
 
 namespace dwyu {
 
-nlohmann::json readJsonFromFile(const std::string& path, bool no_error_on_missing_file) {
+nlohmann::json readJsonFromFile(const std::string& path, const bool no_error_on_missing_file) {
     const auto file_path = bfs::path{path};
     if (!bfs::exists(file_path)) {
         if (no_error_on_missing_file) {

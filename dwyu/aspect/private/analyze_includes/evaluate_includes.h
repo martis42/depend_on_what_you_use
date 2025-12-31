@@ -16,7 +16,7 @@ namespace dwyu {
 Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const std::vector<IncludeStatement>& private_includes,
                         SystemUnderInspection& system_under_inspection,
-                        const bool optimize_impl_deps);
+                        bool optimize_impl_deps);
 
 } // namespace dwyu
 

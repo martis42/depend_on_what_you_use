@@ -1,6 +1,7 @@
 #ifndef DWYU_PRIVATE_PROGRAM_OPTIONS_H
 #define DWYU_PRIVATE_PROGRAM_OPTIONS_H
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
@@ -27,6 +28,7 @@ struct ProgramOption;
 // Since, we require only basic parsing logic, we implement our own parser tailored to our exact needs.
 class ProgramOptionsParser {
   public:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays) Needed to interact with argv of main(...)
     using ConstCharArray = const char* const[];
 
     void addOptionFlag(std::string option, bool& target);
@@ -47,13 +49,19 @@ class ProgramOptionsParser {
 namespace detail {
 
 struct ProgramOption {
-    enum class Type {
+    enum class Type : std::uint_fast8_t {
         Flag,
         Value,
         List,
     };
 
-    explicit ProgramOption(std::string name, Type type) : name_{std::move(name)}, type_{type} {}
+    ProgramOption(std::string name, Type type) : name_{std::move(name)}, type_{type} {}
+
+    ProgramOption(const ProgramOption&) = default;
+    ProgramOption(ProgramOption&&) = default;
+    ProgramOption& operator=(const ProgramOption&) = default;
+    ProgramOption& operator=(ProgramOption&&) = default;
+
     virtual ~ProgramOption() = default;
 
     virtual void setValue(std::string arg) = 0;
@@ -62,7 +70,9 @@ struct ProgramOption {
     Type getType() const { return type_; }
 
   protected:
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) Derived classes need access
     std::string name_;
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) Derived classes need access
     Type type_;
 };
 
