@@ -15,7 +15,7 @@ TEST(ParsingSomeFlag, AnExistingFlagYieldsTrue) {
     unit.addOptionFlag("--flag", flag);
 
     const int argc{2};
-    const char* argv[] = {"unrelated", "--flag"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--flag"};
     unit.parseOptions(argc, argv);
 
     EXPECT_TRUE(flag);
@@ -29,7 +29,7 @@ TEST(ParsingSomeFlag, AMissingFlagYieldsFalse) {
     unit.addOptionList("--list", list);
 
     const int argc{2};
-    const char* argv[] = {"unrelated", "--list"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list"};
     unit.parseOptions(argc, argv);
 
     EXPECT_FALSE(flag);
@@ -41,7 +41,7 @@ TEST(ParsingSomeValue, ReadAGivenValue) {
     unit.addOptionValue("--value", value);
 
     const int argc{3};
-    const char* argv[] = {"unrelated", "--value", "foo"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "foo"};
     unit.parseOptions(argc, argv);
 
     EXPECT_EQ(value, "foo");
@@ -57,7 +57,7 @@ TEST(ParsingSomeValue, FailOnNoValue) {
     // No value at all
     {
         const int argc{2};
-        const char* argv[] = {"unrelated", "--value"};
+        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value"};
         unit.parseOptions(argc, argv);
         EXPECT_EQ(value, "default");
     }
@@ -65,7 +65,7 @@ TEST(ParsingSomeValue, FailOnNoValue) {
     // Followed by other option
     {
         const int argc{3};
-        const char* argv[] = {"unrelated", "--value", "--flag"};
+        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "--flag"};
         unit.parseOptions(argc, argv);
         EXPECT_EQ(value, "default");
     }
@@ -79,7 +79,7 @@ TEST(ParsingSomeList, ReadGivenValues) {
     // Empty input
     {
         const int argc{2};
-        const char* argv[] = {"unrelated", "--list"};
+        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list"};
         unit.parseOptions(argc, argv);
 
         EXPECT_TRUE(list.empty());
@@ -88,7 +88,7 @@ TEST(ParsingSomeList, ReadGivenValues) {
     // Multiple values
     {
         const int argc{4};
-        const char* argv[] = {"unrelated", "--list", "foo", "bar"};
+        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "foo", "bar"};
         unit.parseOptions(argc, argv);
 
         ASSERT_EQ(list.size(), 2);
@@ -108,7 +108,7 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
     unit.addOptionList("--list", list);
 
     const int argc{7};
-    const char* argv[] = {"unrelated", "--list", "tik", "tok", "--value", "foo", "--flag"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "tik", "tok", "--value", "foo", "--flag"};
     unit.parseOptions(argc, argv);
 
     ASSERT_EQ(list.size(), 2);
@@ -122,7 +122,7 @@ TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
     ProgramOptionsParser unit{};
 
     const int argc = 1;
-    const char* argv[] = {"unrelated"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
                 "At least a single option is expected to be present");
@@ -134,7 +134,7 @@ TEST(ProgramOptionsParser, ExpectAtLeastTwoCliArguments) {
     unit.addOptionFlag("--flag", flag);
 
     const int argc = 1;
-    const char* argv[] = {"unrelated"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Expecting at least 2 argv elements");
 }
@@ -145,7 +145,7 @@ TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
     unit.addOptionValue("--value", value);
 
     const int argc{2};
-    const char* argv[] = {"unrelated", "--other_value"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--other_value"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Received invalid option: '--other_value'");
 }
@@ -156,7 +156,7 @@ TEST(ProgramOptionsParser, FailOnUnexpectedExtraContent) {
     unit.addOptionFlag("--flag", flag);
 
     const int argc = 3;
-    const char* argv[] = {"unrelated", "--flag", "extra_input"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--flag", "extra_input"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
                 "Got a value without it being associated to an option: 'extra_input'");
@@ -173,7 +173,8 @@ TEST(ProgramOptionsParser, ReadOptionsFromParamFile) {
     unit.addOptionFlag("--flag", flag);
 
     const int argc{2};
-    const char* argv[] = {"unrelated", "--param_file=dwyu/private/test/data/multiple_options.txt"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated",
+                                                 "--param_file=dwyu/private/test/data/multiple_options.txt"};
     unit.parseOptions(argc, argv);
 
     ASSERT_EQ(list.size(), 2);
@@ -189,7 +190,7 @@ TEST(ProgramOptionsParser, FailOnNotExistingParamFile) {
     unit.addOptionFlag("--flag", flag);
 
     const int argc{2};
-    const char* argv[] = {"unrelated", "--param_file=not/existing/path"};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--param_file=not/existing/path"};
 
     EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
                 "Could not open param_file 'not/existing/path'");

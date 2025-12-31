@@ -62,6 +62,7 @@ test:sanitize --cxxopt=-g
 test:sanitize --cxxopt=-fno-omit-frame-pointer
 test:sanitize --cxxopt=-fno-sanitize-merge
 test:sanitize --linkopt=-fsanitize=address,leak,undefined
+test:sanitize --linkopt=-lubsan
 test:sanitize --linkopt=-fsanitize-link-c++-runtime
 test:sanitize --action_env="print_stacktrace=1"
 # Also use the debug mode offered by the C++ standard lib itself
