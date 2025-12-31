@@ -11,7 +11,8 @@ namespace dwyu {
 
 template <typename T>
 void printToError(T&& arg) {
-    std::cerr << arg;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+    std::cerr << std::forward<T>(arg);
 }
 
 template <typename T, typename... Args>
@@ -25,6 +26,7 @@ void abortWithError(Args&&... args) {
     std::cerr << "ERROR: ";
     printToError(std::forward<Args>(args)...);
     std::cerr << "\n";
+    // NOLINTNEXTLINE(concurrency-mt-unsafe) We are not running multi threaded
     std::exit(1);
 }
 

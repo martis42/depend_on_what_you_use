@@ -34,7 +34,7 @@ std::map<std::string, std::vector<std::string>> makeMissingIncludesMap(const std
 
 } // namespace
 
-Result::Result(std::string target, bool optimize_impl_deps)
+Result::Result(std::string target, const bool optimize_impl_deps)
     : target_{std::move(target)}, optimize_impl_deps_{optimize_impl_deps} {}
 
 bool Result::isOk() const {

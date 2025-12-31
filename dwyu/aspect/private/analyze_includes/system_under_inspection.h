@@ -1,6 +1,7 @@
 #ifndef DWYU_ASPECT_PRIVATE_ANALYZE_INCLUDES_SYSTEM_UNDER_INSPECTION_H
 #define DWYU_ASPECT_PRIVATE_ANALYZE_INCLUDES_SYSTEM_UNDER_INSPECTION_H
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -11,7 +12,7 @@ namespace dwyu {
 
 class TargetUsage {
   public:
-    enum class Status {
+    enum class Status : std::uint_fast8_t {
         None,
         Public,
         Private,
