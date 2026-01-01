@@ -14,9 +14,8 @@ class TargetUsage {
   public:
     enum class Status : std::uint_fast8_t {
         None,
-        Public,
         Private,
-        PublicAndPrivate,
+        Public,
     };
 
     void update(Status usage_update);

@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <memory>
 #include <ostream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -18,14 +17,11 @@ static void PrintTo(const dwyu::TargetUsage::Status& status, std::ostream* strea
     case dwyu::TargetUsage::Status::None:
         *stream << "None";
         break;
-    case dwyu::TargetUsage::Status::Public:
-        *stream << "Public";
-        break;
     case dwyu::TargetUsage::Status::Private:
         *stream << "Private";
         break;
-    case dwyu::TargetUsage::Status::PublicAndPrivate:
-        *stream << "PublicAndPrivate";
+    case dwyu::TargetUsage::Status::Public:
+        *stream << "Public";
         break;
     default:
         *stream << "UNKNOWN_STATUS";
@@ -81,41 +77,17 @@ INSTANTIATE_TEST_SUITE_P(
         // Single updates
         TargetUsageSpec{{TargetUsage::Status::Public}, TargetUsage::Status::Public},
         TargetUsageSpec{{TargetUsage::Status::Private}, TargetUsage::Status::Private},
-        TargetUsageSpec{{TargetUsage::Status::PublicAndPrivate}, TargetUsage::Status::PublicAndPrivate},
         // Multiple updates
-        TargetUsageSpec{{TargetUsage::Status::Public, TargetUsage::Status::Private},
-                        TargetUsage::Status::PublicAndPrivate},
         TargetUsageSpec{{TargetUsage::Status::Public, TargetUsage::Status::Public}, TargetUsage::Status::Public},
-        TargetUsageSpec{{TargetUsage::Status::Private, TargetUsage::Status::Public},
-                        TargetUsage::Status::PublicAndPrivate},
         TargetUsageSpec{{TargetUsage::Status::Private, TargetUsage::Status::Private}, TargetUsage::Status::Private},
-        // PublicAndPrivate always wins
-        TargetUsageSpec{{TargetUsage::Status::Public, TargetUsage::Status::PublicAndPrivate},
-                        TargetUsage::Status::PublicAndPrivate},
-        TargetUsageSpec{{TargetUsage::Status::Private, TargetUsage::Status::PublicAndPrivate},
-                        TargetUsage::Status::PublicAndPrivate},
-        TargetUsageSpec{{TargetUsage::Status::PublicAndPrivate, TargetUsage::Status::PublicAndPrivate},
-                        TargetUsage::Status::PublicAndPrivate},
-        TargetUsageSpec{{TargetUsage::Status::PublicAndPrivate, TargetUsage::Status::Public},
-                        TargetUsage::Status::PublicAndPrivate},
-        TargetUsageSpec{{TargetUsage::Status::PublicAndPrivate, TargetUsage::Status::Private},
-                        TargetUsage::Status::PublicAndPrivate}));
+        TargetUsageSpec{{TargetUsage::Status::Public, TargetUsage::Status::Private}, TargetUsage::Status::Public},
+        TargetUsageSpec{{TargetUsage::Status::Private, TargetUsage::Status::Public}, TargetUsage::Status::Public}));
 
 TEST(TargetUsage, ByDefaultIsNotUsed) {
     const TargetUsage unit{};
 
     EXPECT_FALSE(unit.is_used());
     EXPECT_EQ(unit.usage(), TargetUsage::Status::None);
-}
-
-TEST(TargetUsage, ResettingToUnusedIsNotAllowed) {
-    TargetUsage unit{};
-
-    EXPECT_THROW(unit.update(TargetUsage::Status::None), std::invalid_argument);
-    unit.update(TargetUsage::Status::Public);
-    EXPECT_THROW(unit.update(TargetUsage::Status::None), std::invalid_argument);
-    unit.update(TargetUsage::Status::Private);
-    EXPECT_THROW(unit.update(TargetUsage::Status::None), std::invalid_argument);
 }
 
 TEST(GetSystemUnderInspection, GivenTargetUnderInspectionReadAllDataCorrectly) {

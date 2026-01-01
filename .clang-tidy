@@ -19,6 +19,7 @@
 # misc-non-private-member-variables-in-classes : Alias to cppcoreguidelines-non-private-member-variables-in-classes
 # modernize-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
 # modernize-make-unique : Not compatible to C++11
+# modernize-type-traits : Not compatible to C++11
 # modernize-use-default-member-init : Alias to cppcoreguidelines-use-default-member-init
 # modernize-use-nodiscard : Not compatible to C++11
 # modernize-use-trailing-return-type : We prefer the classic style
@@ -41,6 +42,7 @@ Checks: >
         -misc-non-private-member-variables-in-classes,
         -modernize-avoid-c-arrays,
         -modernize-make-unique,
+        -modernize-type-traits,
         -modernize-use-default-member-init,
         -modernize-use-nodiscard,
         -modernize-use-trailing-return-type,

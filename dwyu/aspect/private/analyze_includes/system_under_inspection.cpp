@@ -2,10 +2,11 @@
 
 #include "dwyu/aspect/private/analyze_includes/utility.h"
 
+#include <algorithm>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -35,25 +36,16 @@ CcTargetUnderInspection getTargetUnderInspectionFromFile(const std::string& file
     return target;
 }
 
+template <class T>
+T maxEnum(const T lhs, const T rhs) {
+    using UnderlyingType = typename std::underlying_type<T>::type;
+    return static_cast<T>(std::max(static_cast<UnderlyingType>(lhs), static_cast<UnderlyingType>(rhs)));
+}
+
 } // namespace
 
-void TargetUsage::update(Status usage_update) {
-    if (usage_update == Status::None) {
-        throw std::invalid_argument{"Resetting the usage to 'None' is not supported"};
-    }
-
-    if (usage_ == Status::PublicAndPrivate) {
-        // The input cannot change anything
-        return;
-    }
-
-    if (!is_used() || usage_update == Status::PublicAndPrivate) {
-        usage_ = usage_update;
-    }
-    else if ((usage_ == Status::Private && usage_update == Status::Public) ||
-             (usage_ == Status::Public && usage_update == Status::Private)) {
-        usage_ = Status::PublicAndPrivate;
-    }
+void TargetUsage::update(const Status usage_update) {
+    usage_ = maxEnum(usage_, usage_update);
 }
 
 SystemUnderInspection getSystemUnderInspection(const std::string& target_under_inspection,
