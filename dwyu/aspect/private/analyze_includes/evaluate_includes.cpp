@@ -30,7 +30,7 @@ findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& include
             continue;
         }
 
-        auto self_hdr_match = own_header_files.find(include.resolved_include);
+        const auto self_hdr_match = own_header_files.find(include.resolved_include);
         if (self_hdr_match != own_header_files.end()) {
             continue;
         }
