@@ -55,7 +55,9 @@ def dwyu_aspect_factory(
                                     </li></ul>
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
 
-        ignore_cc_toolchain_headers: Infer automatically which header files can be reached through the active CC toolchain without the target under inspection having to declare any explicit dependency.
+        ignore_cc_toolchain_headers: **DEPRECATED**: The new C++ based implementation no longer needs to know the exact toolchain headers.
+                                     Thus, this feature will be removed when the Python implementation is being removed.<br><br>
+                                     Infer automatically which header files can be reached through the active CC toolchain without the target under inspection having to declare any explicit dependency.
                                      Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
                                      Automatically inferring the toolchain headers will become the default behavior in a future release.<br>
                                      If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
@@ -108,7 +110,8 @@ def dwyu_aspect_factory(
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).
 
-        cc_toolchain_headers_info: Requires setting [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers) to True.
+        cc_toolchain_headers_info: **DEPRECATED**: See [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers).<br><br>
+                                   Requires setting [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers) to True.
                                    Use this option to inject your own analysis of the CC toolchain.
                                    Provide the label to a target offering the provider [DwyuCcToolchainHeadersInfo](/dwyu/cc_toolchain_headers/providers.bzl).
                                    It is your choice if you simply use a hard coded list or implement a logic looking up the information dynamically.
