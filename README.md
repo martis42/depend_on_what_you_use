@@ -162,10 +162,8 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
 
 ##### The code has to be compilable
 
-DWYU is not performing a compilation.
-It works by statically analyzing the source code and build tree.
-However, non compiling code can contain errors infringing the assumptions DWYU is based on.
-For example, including header files which do not exist at the expected path.
+DWYU assumes the code under inspection compiles with the Bazel configuration used to execute DWYU (e.g. setting `--config=foo`).
+There is no guarantee DWYU will do something meaningful for non compilable code.
 
 ##### Include paths have to be unambiguous
 
@@ -214,6 +212,7 @@ Include paths specified by those attributes are respected by DWYU.
 ## Framework includes
 
 DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/CompilationContext.html#framework_includes) like system headers or CC toolchain headers and thus does not process them.
+Meaning, DWYU assumes those are globally available without the need for explicit dependencies.
 
 # Supported Platforms
 
