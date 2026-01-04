@@ -53,7 +53,8 @@ ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCh
 }
 
 void printOptions(const ProgramOptions& options) {
-    std::cout << "\nAnalyzing dependency " << options.target << "\n";
+    std::cout << "\n";
+    std::cout << "Analyzing dependency " << options.target << "\n";
     std::cout << "Output               " << options.output << "\n";
     std::cout << "Header files         " << listToStr(options.header_files) << "\n";
     std::cout << "Includes             " << listToStr(options.includes) << "\n";
