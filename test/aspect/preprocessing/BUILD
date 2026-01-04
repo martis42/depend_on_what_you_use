@@ -73,3 +73,17 @@ cc_binary(
         "@googletest//:gtest",
     ],
 )
+
+cc_binary(
+    name = "custom_cplusplus",
+    srcs = ["custom_cplusplus.cpp"],
+    copts = [
+        "-std=c++17",
+        # Manually set '__cplusplus' to C++11 inconsistent to C++17 defined via '-std=c++17'
+        # This shows our own heuristic to set '__cplusplus' is skipped when discovering a user provided value.
+        "-D__cplusplus=201103",
+    ],
+    deps = [
+        "//preprocessing/support:lib_a",
+    ],
+)

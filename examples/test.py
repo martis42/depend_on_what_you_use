@@ -66,10 +66,6 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
-        build_cmd="--config=dwyu_set_cplusplus //set_cpp_standard:cpp_lib",
-        expected_success=True,
-    ),
-    Example(
         build_cmd="--config=dwyu_set_cplusplus //set_cpp_standard:use_specific_cpp_standard",
         expected_success=True,
     ),
