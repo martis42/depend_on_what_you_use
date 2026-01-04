@@ -12,6 +12,7 @@
 #include <iostream>
 #include <set>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -59,10 +60,12 @@ bw::util::include_paths makeIncludePaths(const ProgramOptions& options) {
     bw::util::include_paths include_paths{};
 
     for (const auto& path : options.include_paths) {
-        include_paths.add_include_path(path.c_str(), false);
+        constexpr bool is_no_system_include{false};
+        std::ignore = include_paths.add_include_path(path.c_str(), is_no_system_include);
     }
     for (const auto& path : options.system_include_paths) {
-        include_paths.add_include_path(path.c_str(), true);
+        constexpr bool is_system_include{true};
+        std::ignore = include_paths.add_include_path(path.c_str(), is_system_include);
     }
 
     return include_paths;
