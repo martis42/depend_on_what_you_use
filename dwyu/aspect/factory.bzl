@@ -40,19 +40,16 @@ def dwyu_aspect_factory(
                                       This preprocessor is however slow, when analyzing complex files.
                                       Using this option can speed up the DWYU analysis significantly.
 
-        experimental_set_cplusplus: **DEPRECATED**: This feature will be removed in the next release.
-                                    See the [define_macros](/examples/define_macros/) example for the forward path solution.<br><br>
+        experimental_set_cplusplus: **DEPRECATED**: This flag will be removed together with the Python implementation.
+                                    The new C++ based implementation will always try to set a proper `__cplusplus`.<br><br>
                                     `__cplusplus` is a macro defined by the compiler specifying if C++ is used to compile the file and which C++ standard is used.<br>
                                     DWYU cannot treat this like other preprocessor defines, as this is often not coming from the command line or the Bazel C++ toolchain.
                                     The compiler itself defines the value for `__cplusplus` and sets it internally during preprocessing.<br>
-                                    This option enables a heuristic to set `__cplusplus` for the preprocessor used internally by DWYU:
-                                    <ul><li>
-                                      If at least one source file is not using file extension [`.c`, `.h`], set `__cplusplus` to 1.
-                                    </li><li>
-                                      If a common compiler option is used to set the C++ standard with an unknown value, set `__cplusplus` to 1.
-                                    </li><li>
-                                      If a common compiler option is used to set the C++ standard with an known value, set `__cplusplus` according to [this map](https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros).
-                                    </li></ul>
+                                    This option enables a heuristic to set `__cplusplus` for the preprocessor used internally by DWYU.
+                                    We look at the compilation command one would use to compile the code and look for `-std=..`.
+                                    If it is is present and has a legal value, we deduce `__cplusplus` and set it for the preprocessing.
+                                    If this logic fails, `__cplusplus` is not set.
+                                    Users can provide their own value by setting `__cplusplus` via Bazel (e.g. via `--cxxopt=-D__cplusplus=42`) which will take precedence over the heuristic used by DWYU.
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
 
         ignore_cc_toolchain_headers: **DEPRECATED**: The new C++ based implementation no longer needs to know the exact toolchain headers.

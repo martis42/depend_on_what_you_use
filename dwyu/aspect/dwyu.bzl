@@ -6,29 +6,27 @@ load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("//dwyu/private:utils.bzl", "make_param_file_args")
 
-# Based on those references:
-# https://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
-# https://clang.llvm.org/cxx_status.html
-# https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
-# https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170
-#
-# We ignore the fuzzy variants (e.g. 'c++1X' or 'c++2X') as their values seem to be not constant but depend on the
-# compiler version.
-_STD_FLAG_TO_STANDARD = {
-    "c++03": 199711,
-    "c++11": 201103,
-    "c++14": 201402,
-    "c++17": 201703,
-    "c++20": 202002,
-    "c++23": 202302,
-    "c++98": 199711,
-    "gnu++03": 199711,
-    "gnu++11": 201103,
-    "gnu++14": 201402,
-    "gnu++17": 201703,
-    "gnu++20": 202002,
-    "gnu++23": 202302,
-    "gnu++98": 199711,
+# Map of '-std=c++XX' to the corresponding standard version
+# Source for this mapping: https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
+_CPP_AMENDMENTS_VERSIONS_MAP = {
+    "0x": "11",
+    "1y": "14",
+    "1z": "17",
+    "2a": "20",
+    "2b": "23",
+    "2c": "26",
+}
+
+# Map of the C++ standard versions to the the corresponding '__cplusplus' value
+# Source for the mappinh: https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros
+_CPLUSPLUS_VERSIONS_MAP = {
+    "11": "201103",
+    "14": "201402",
+    "17": "201703",
+    "20": "202002",
+    "23": "202302",
+    "26": "202400",  # TODO Update when C++26 is properly released in 2026
+    "98": "199711",
 }
 
 def _is_external(ctx):
@@ -140,42 +138,49 @@ def extract_defines_from_compiler_flags(compiler_flags):
     return defines.values()
 
 def extract_cpp_standard_from_compiler_flags(compiler_flags):
+    # Concrete examples for possible values:
+    # - https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
+    # - https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170
     cpp_standard = None
 
+    expect_value = False
     for cflag in compiler_flags:
-        standard_value = None
+        if expect_value:
+            cpp_standard = cflag
+            expect_value = False
+            continue
 
-        # gcc/clang
-        if cflag.startswith("-std="):
-            standard_value = cflag.split("=", 1)[1]
+        if cflag.startswith(("-std=", "--std=")):
+            cpp_standard = cflag.split("=", 1)[1]
+        elif cflag == "--std":
+            expect_value = True
+        elif cflag.startswith("/std:"):
+            cpp_standard = cflag.split(":", 1)[1]
 
-        # MSVC
-        if cflag.startswith("/std:"):
-            standard_value = cflag.split(":", 1)[1]
+    if cpp_standard != None:
+        if "++" in cpp_standard:
+            cpp_standard = cpp_standard.split("++", 1)[1]
+        if "preview" in cpp_standard:
+            cpp_standard = cpp_standard.replace("preview", "")
 
-        if standard_value:
-            standard = _STD_FLAG_TO_STANDARD.get(standard_value, None)
-            if standard:
-                cpp_standard = standard
-            elif not cpp_standard:
-                # We see a standard flag, but don't understands its value. We ensure the C++ standard macro is defined,
-                # even if we can't define its exact value.
-                cpp_standard = 1
+        if cpp_standard.isdigit() or cpp_standard == "latest":
+            return cpp_standard
 
-    return cpp_standard
+        return _CPP_AMENDMENTS_VERSIONS_MAP.get(cpp_standard, "unknown")
 
-def _is_c_file(file):
-    """
-    Heuristic for finding C files by looking for the established file extensions.
-    """
-    return file.extension in ["h", "c"]
+    return "unknown"
 
-def _gather_defines(ctx, target_compilation_context, target_files):
+def _parse_compiler_command(ctx, target_compilation_context):
     """
     We extract the relevant defines from the compiler command line flags. We utilize the compiler flags since the
     toolchain can set defines which are not available through CcInfo or the cpp fragments. Furthermore, defines
     potentially overwrite or deactivate each other depending on the order in which they appear in the compiler
     command. Thus, this is the only way to make sure DWYU analyzes what would actually happen during compilation.
+
+    References for the compiler command line flags:
+    - https://clang.llvm.org/docs/ClangCommandLineReference.html
+    - https://gcc.gnu.org/onlinedocs/gcc/Option-Index.html#Option-Index
+    - https://learn.microsoft.com/en-us/cpp/build/reference/compiler-options?view=msvc-170
     """
 
     cc_toolchain = find_cc_toolchain(ctx)
@@ -216,26 +221,15 @@ def _gather_defines(ctx, target_compilation_context, target_files):
 
     defines = extract_defines_from_compiler_flags(compiler_command_line_flags)
 
-    if ctx.attr._set_cplusplus:
-        cpp_standard = None
-        compiler_cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+    if ctx.attr._use_cpp_implementation or ctx.attr._set_cplusplus:
+        # If somebody did set the C++ version explicitly, we are not going to overwrite it
+        if any(["__cplusplus" in m for m in defines]):
+            return defines
 
-        # If we can extract a c++ standard from the compiler invocation, we use it as we consider this our most reliable
-        # source of information
-        if compiler_cpp_standard:
-            cpp_standard = compiler_cpp_standard
-
-        # If we could not determine the C++ standard based on the compiler arguments, we use a heuristic based on the
-        # file types. If any file extension other than ['.h', '.c'] is used, we assume C++.
-        if not cpp_standard:
-            # We don't know the exact C++ standard, but at least we can enable preprocessor control statements caring
-            # only about '__cplusplus' being defined at all or not.
-            if not all([_is_c_file(file) for file in target_files]):
-                cpp_standard = 1
-
-        # If we assume this is a C++ compilation, add the corresponding constant to the defines list
-        if cpp_standard:
-            defines.append("__cplusplus={}".format(cpp_standard))
+        cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+        cplusplus_value = _CPLUSPLUS_VERSIONS_MAP.get(cpp_standard, None)
+        if cplusplus_value:
+            defines.append("__cplusplus={}".format(cplusplus_value))
 
     return defines
 
@@ -379,13 +373,7 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = []
-    if not ctx.attr._no_preprocessor:
-        defines = _gather_defines(
-            ctx,
-            target_compilation_context = target[CcInfo].compilation_context,
-            target_files = public_files + private_files,
-        )
+    defines = [] if ctx.attr._no_preprocessor else _parse_compiler_command(ctx, target[CcInfo].compilation_context)
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
