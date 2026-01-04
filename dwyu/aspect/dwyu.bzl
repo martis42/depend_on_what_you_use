@@ -379,11 +379,13 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = _gather_defines(
-        ctx,
-        target_compilation_context = target[CcInfo].compilation_context,
-        target_files = public_files + private_files,
-    )
+    defines = []
+    if not ctx.attr._no_preprocessor:
+        defines = _gather_defines(
+            ctx,
+            target_compilation_context = target[CcInfo].compilation_context,
+            target_files = public_files + private_files,
+        )
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
