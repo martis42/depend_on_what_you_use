@@ -17,6 +17,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -72,39 +73,45 @@ std::string makeContextInput(const std::string& file) {
 
 template <typename ContextT>
 void resetMacro(ContextT& ctx, const std::string& macro) {
+    constexpr bool even_predefined{true};
+    constexpr bool even_special{true};
+
     const auto position_equal_sign = macro.find('=');
     if (position_equal_sign == std::string::npos) {
         // Basic define without value
-        ctx.remove_macro_definition(macro, true, true);
+        std::ignore = ctx.remove_macro_definition(macro, even_predefined, even_special);
     }
     else {
         // Define with value, e.g. 'FOO=42'
-        ctx.remove_macro_definition(macro.substr(0, position_equal_sign), true, true);
+        std::ignore = ctx.remove_macro_definition(macro.substr(0, position_equal_sign), even_predefined, even_special);
     }
 }
 
 template <typename ContextT>
 void configureContext(const ProgramOptions& options, ContextT& ctx) {
+    constexpr bool reset_macros{true};
+
     // A lot of code exists which has no newline at the end and all established compilers are able to handle this
-    ctx.set_language(boost::wave::language_support::support_option_no_newline_at_end_of_file, true);
+    ctx.set_language(boost::wave::language_support::support_option_no_newline_at_end_of_file, reset_macros);
 
     // Since we require C++11 as minimum to compile our own tool and C++11 is mostly the established minimum standard
     // nowadays, setting C++11 as language seems like a sane default.
     // If a projects wants to user newer C++ versions and they are relevant for preprocessing, they can set
     // '__cplusplus' to communicate this to the preprocessor.
-    ctx.set_language(boost::wave::language_support::support_cpp11, true);
+    ctx.set_language(boost::wave::language_support::support_cpp11, reset_macros);
 
     for (const auto& path : options.include_paths) {
-        ctx.add_include_path(path.c_str());
+        std::ignore = ctx.add_include_path(path.c_str());
     }
     for (const auto& path : options.system_include_paths) {
-        ctx.add_sysinclude_path(path.c_str());
+        std::ignore = ctx.add_sysinclude_path(path.c_str());
     }
     for (const auto& macro : options.defines) {
         // Some macros are set by boost::wave internally. Whenever we receive a macro defined on Bazel level, we
         // want to use this value and not the boost::wave default/heuristic.
         resetMacro(ctx, macro);
-        ctx.add_macro_definition(macro, true);
+        constexpr bool is_predefined{true};
+        std::ignore = ctx.add_macro_definition(macro, is_predefined);
     }
 }
 
