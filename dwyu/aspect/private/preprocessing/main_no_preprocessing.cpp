@@ -99,9 +99,9 @@ std::vector<IncludedFile> makeResolvedIncludes(const std::set<std::string>& incl
 
 int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
-        std::cout << "Preprocessing        : " << dwyu::listToStr(options.files) << "\n";
-        std::cout << "Include paths        : " << dwyu::listToStr(options.include_paths) << "\n";
-        std::cout << "System include paths : " << dwyu::listToStr(options.system_include_paths) << "\n";
+        std::cout << "Preprocessing        : " << listToStr(options.files) << "\n";
+        std::cout << "Include paths        : " << listToStr(options.include_paths) << "\n";
+        std::cout << "System include paths : " << listToStr(options.system_include_paths) << "\n";
     }
 
     const auto working_dir = bfs::current_path();
@@ -111,10 +111,10 @@ int main_impl(const ProgramOptions& options) {
     for (const auto& file : options.files) {
         std::ifstream input{file};
         if (!input.is_open()) {
-            dwyu::abortWithError("Could not open input file '", file, "'");
+            abortWithError("Could not open input file '", file, "'");
         }
 
-        const auto includes = dwyu::extractIncludes(input);
+        const auto includes = extractIncludes(input);
         updateIncludePathsForRelativeIncludes(file, include_paths);
 
         nlohmann::json entry{};
@@ -129,7 +129,7 @@ int main_impl(const ProgramOptions& options) {
         output.close();
     }
     else {
-        dwyu::abortWithError("Unable to open output file '", options.output, "'");
+        abortWithError("Unable to open output file '", options.output, "'");
     }
 
     return 0;

@@ -136,31 +136,31 @@ bool preprocessFile(ContextT& ctx) {
 
 int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
-        std::cout << "Preprocessing        : " << dwyu::listToStr(options.files) << "\n";
-        std::cout << "Include paths        : " << dwyu::listToStr(options.include_paths) << "\n";
-        std::cout << "System include paths : " << dwyu::listToStr(options.system_include_paths) << "\n";
-        std::cout << "Defines              : " << dwyu::listToStr(options.defines) << "\n";
+        std::cout << "Preprocessing        : " << listToStr(options.files) << "\n";
+        std::cout << "Include paths        : " << listToStr(options.include_paths) << "\n";
+        std::cout << "System include paths : " << listToStr(options.system_include_paths) << "\n";
+        std::cout << "Defines              : " << listToStr(options.defines) << "\n";
     }
 
     auto output_json = nlohmann::json::array();
     for (const auto& file : options.files) {
-        auto file_content = dwyu::makeContextInput(file);
+        auto file_content = makeContextInput(file);
 
         // Define the boost::wave::context class with its default behavior besides using our custom preprocessing hooks
         using token_type = boost::wave::cpplexer::lex_token<>;
         using lex_iterator_type = boost::wave::cpplexer::lex_iterator<token_type>;
         using context_type = boost::wave::context<std::string::iterator, lex_iterator_type,
                                                   boost::wave::iteration_context_policies::load_file_to_string,
-                                                  dwyu::GatherDirectIncludesIgnoringMissingOnes>;
+                                                  GatherDirectIncludesIgnoringMissingOnes>;
 
         std::vector<IncludedFile> included_files{};
         context_type ctx{file_content.begin(), file_content.end(), file.c_str(),
-                         dwyu::GatherDirectIncludesIgnoringMissingOnes{included_files}};
+                         GatherDirectIncludesIgnoringMissingOnes{included_files}};
 
-        dwyu::configureContext(options, ctx);
+        configureContext(options, ctx);
 
-        if (!dwyu::preprocessFile(ctx)) {
-            dwyu::abortWithError("Preprocessing failed for file '", file, "'");
+        if (!preprocessFile(ctx)) {
+            abortWithError("Preprocessing failed for file '", file, "'");
         }
 
         if (options.verbose) {
@@ -183,7 +183,7 @@ int main_impl(const ProgramOptions& options) {
         output.close();
     }
     else {
-        dwyu::abortWithError("Unable to open output file '", options.output, "'");
+        abortWithError("Unable to open output file '", options.output, "'");
     }
 
     return 0;

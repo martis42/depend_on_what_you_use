@@ -65,7 +65,7 @@ void printOptions(const ProgramOptions& options) {
 
 int main_impl(ProgramOptions options) {
     if (options.verbose) {
-        dwyu::printOptions(options);
+        printOptions(options);
     }
 
     nlohmann::json json{};
@@ -83,7 +83,7 @@ int main_impl(ProgramOptions options) {
         output.close();
     }
     else {
-        dwyu::abortWithError("Unable to open output file '", options.output, "'");
+        abortWithError("Unable to open output file '", options.output, "'");
     }
 
     return 0;
