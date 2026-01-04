@@ -76,7 +76,7 @@ void ProgramOptionsParser::addOptionList(std::string option, std::vector<std::st
     options_.emplace(std::move(option), std::unique_ptr<detail::ListOption>(new detail::ListOption{option, target}));
 }
 
-void ProgramOptionsParser::parseOptions(int argc, ConstCharArray argv) {
+void ProgramOptionsParser::parseOptions(const int argc, ConstCharArray argv) {
     if (options_.empty()) {
         abortWithError("At least a single option is expected to be present");
     }
@@ -106,7 +106,7 @@ void ProgramOptionsParser::parseOptionsfromParamFile(const std::string& param_fi
     }
 }
 
-void ProgramOptionsParser::parseOptionsfromCommandLine(int argc, ConstCharArray argv) {
+void ProgramOptionsParser::parseOptionsfromCommandLine(const int argc, ConstCharArray argv) {
     int idx{1};
     parseOptionsImpl([&idx, argc, &argv](std::string& arg) -> bool {
         if (idx >= argc) {

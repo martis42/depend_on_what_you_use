@@ -35,7 +35,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
+ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
     ProgramOptionsParser parser{};
 
@@ -114,7 +114,7 @@ int main_impl(const ProgramOptions& options) {
             dwyu::abortWithError("Could not open input file '", file, "'");
         }
 
-        auto includes = dwyu::extractIncludes(input);
+        const auto includes = dwyu::extractIncludes(input);
         updateIncludePathsForRelativeIncludes(file, include_paths);
 
         nlohmann::json entry{};
