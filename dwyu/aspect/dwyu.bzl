@@ -115,25 +115,47 @@ def _process_dependencies(ctx, target, deps, verbose):
         verbose = verbose,
     ) for dep in deps]
 
+def _define_macro(defines, define):
+    define_name = define.split("=", 1)[0]
+
+    # For the cc_* rules copts attribute users have to double escape the quote character to define macros pointing to strings.
+    # Our own processing however cannot handle double escaped characters and needs single escaping.
+    defines[define_name] = define.replace('\\"', '\"')
+
 def extract_defines_from_compiler_flags(compiler_flags):
     defines = {}
 
+    expect_undefine_macro = False
+    expect_define_macro = False
     for cflag in compiler_flags:
-        # gcc/clang use '-U'. MSVC uses '/U'.
-        if cflag.startswith(("-U", "/U")):
-            undefine = cflag[2:]
-            undefine_name = undefine.split("=", 1)[0]
-            if undefine_name in defines.keys():
-                defines.pop(undefine_name)
+        if expect_undefine_macro:
+            defines.pop(cflag, None)
+            expect_undefine_macro = False
+            continue
+        if expect_define_macro:
+            _define_macro(defines, cflag)
+            expect_define_macro = False
+            continue
 
-        # gcc/clang use '-D'. MSVC uses '/D'.
+        # Undefine macros with gcc/clang or MSVC syntax
+        if cflag.startswith(("-U", "/U", "/u")):
+            undefine = cflag[2:]
+            defines.pop(undefine, None)
+        elif cflag.startswith("--undefine-macro="):
+            undefine = cflag[len("--undefine-macro="):]
+            defines.pop(undefine, None)
+        elif cflag == "--undefine-macro":
+            expect_undefine_macro = True
+
+        # Define macros with gcc/clang or MSVC syntax
         if cflag.startswith(("-D", "/D")):
             define = cflag[2:]
-            define_name = define.split("=", 1)[0]
-
-            # For the cc_* rules copts attribute users have to double escape the quote character to define macros pointing to strings.
-            # Our own processing however cannot handle double escaped characters and needs single escaping.
-            defines[define_name] = define.replace('\\"', '\"')
+            _define_macro(defines, define)
+        elif cflag.startswith("--define-macro="):
+            define = cflag[len("--define-macro="):]
+            _define_macro(defines, define)
+        elif cflag == "--define-macro":
+            expect_define_macro = True
 
     return defines.values()
 
