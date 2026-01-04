@@ -124,7 +124,9 @@ def _get_defines(target_info: dict[str, list[str]]) -> list[str]:
     Defines with values in BUILD files or the compiler CLI can be specified via '<DEFINE_TOKEN>=<VALUE>'. However, this
     syntax is not valid for the preprocessor, which expects '<DEFINE_TOKEN> <VALUE>'.
     """
-    return [define.replace("=", " ") for define in target_info["defines"]]
+    if "defines" in target_info:
+        return [define.replace("=", " ") for define in target_info["defines"]]
+    return []
 
 
 def get_system_under_inspection(
