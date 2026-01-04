@@ -38,7 +38,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
+ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
     ProgramOptionsParser parser{};
 
@@ -114,7 +114,7 @@ bool preprocessFile(ContextT& ctx) {
     boost::wave::util::file_position_type current_position{};
     try {
         auto first = ctx.begin();
-        auto last = ctx.end();
+        const auto last = ctx.end();
         for (; first != last; ++first) {
             current_position = (*first).get_position();
             // Uncomment for detailed debugging of what happens during preprocessing

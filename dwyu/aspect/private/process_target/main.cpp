@@ -25,7 +25,7 @@ struct ProgramOptions {
     bool verbose{false};
 };
 
-ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArray argv) {
+ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCharArray argv) {
     ProgramOptions options{};
 
     ProgramOptionsParser parser{};
