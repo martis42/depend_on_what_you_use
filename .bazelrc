@@ -72,5 +72,11 @@ test:sanitize --cxxopt=-D_GLIBCXX_DEBUG=1
 test:sanitize --cxxopt=-D_GLIBCXX_DEBU_PEDANTIC=1
 test:sanitize --cxxopt=-D_LIBCPP_DEBUG=1
 
+# Use 'instrument_test_targets' to see the executed tests in the coverage data
+coverage --combined_report=lcov
+coverage --instrumentation_filter="^//dwyu/"
+coverage --experimental_generate_llvm_lcov
+coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
+
 # Allow users to provide their own workspace settings
 try-import %workspace%/user.bazelrc
