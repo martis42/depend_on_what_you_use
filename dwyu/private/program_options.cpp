@@ -14,10 +14,7 @@ namespace {
 
 class FlagOption : public ProgramOption {
   public:
-    FlagOption(std::string name, bool& target)
-        : ProgramOption{std::move(name), ProgramOption::Type::Flag}, target_{target} {
-        target_ = false;
-    }
+    explicit FlagOption(bool& target) : ProgramOption{ProgramOption::Type::Flag}, target_{target} { target_ = false; }
 
     void setValue(std::string arg) override {
         (void)arg;
@@ -31,8 +28,7 @@ class FlagOption : public ProgramOption {
 
 struct ValueOption : public ProgramOption {
   public:
-    ValueOption(std::string name, std::string& target)
-        : ProgramOption{std::move(name), ProgramOption::Type::Value}, target_{target} {}
+    explicit ValueOption(std::string& target) : ProgramOption{ProgramOption::Type::Value}, target_{target} {}
 
     void setValue(std::string arg) override { target_ = std::move(arg); }
 
@@ -43,8 +39,7 @@ struct ValueOption : public ProgramOption {
 
 struct ListOption : public ProgramOption {
   public:
-    ListOption(std::string name, std::vector<std::string>& target)
-        : ProgramOption{std::move(name), ProgramOption::Type::List}, target_{target} {}
+    explicit ListOption(std::vector<std::string>& target) : ProgramOption{ProgramOption::Type::List}, target_{target} {}
 
     void setValue(std::string arg) override { target_.push_back(std::move(arg)); }
 
@@ -65,15 +60,15 @@ bool isOption(const std::string& arg) {
 } // namespace
 
 void ProgramOptionsParser::addOptionFlag(std::string option, bool& target) {
-    options_.emplace(std::move(option), std::unique_ptr<detail::FlagOption>(new detail::FlagOption{option, target}));
+    options_.emplace(std::move(option), std::unique_ptr<detail::FlagOption>(new detail::FlagOption{target}));
 }
 
 void ProgramOptionsParser::addOptionValue(std::string option, std::string& target) {
-    options_.emplace(std::move(option), std::unique_ptr<detail::ValueOption>(new detail::ValueOption{option, target}));
+    options_.emplace(std::move(option), std::unique_ptr<detail::ValueOption>(new detail::ValueOption{target}));
 }
 
 void ProgramOptionsParser::addOptionList(std::string option, std::vector<std::string>& target) {
-    options_.emplace(std::move(option), std::unique_ptr<detail::ListOption>(new detail::ListOption{option, target}));
+    options_.emplace(std::move(option), std::unique_ptr<detail::ListOption>(new detail::ListOption{target}));
 }
 
 void ProgramOptionsParser::parseOptions(const int argc, ConstCharArray argv) {
