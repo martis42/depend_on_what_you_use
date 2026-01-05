@@ -19,12 +19,13 @@ from test.support.bazel import get_bazel_binary, get_explicit_bazel_version, mak
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 log = logging.getLogger()
 
-# Kep in sync with: test/aspect/execute_tests.py, test/cc_toolchains/upstream/test.py, .bcr/presubmit.yml
+# Kep in sync with: .bcr/presubmit.yml, test/aspect/execute_tests.py, test/cc_toolchains/upstream/test.py
 BAZEL_VERSIONS_UNDER_TEST = [
     "7.2.1",
     "7.x",
     "8.x",
     "9.*",
+    "rolling",
 ]
 
 
