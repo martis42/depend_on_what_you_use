@@ -16,10 +16,7 @@ class FlagOption : public ProgramOption {
   public:
     explicit FlagOption(bool& target) : ProgramOption{ProgramOption::Type::Flag}, target_{target} { target_ = false; }
 
-    void setValue(std::string arg) override {
-        (void)arg;
-        target_ = true;
-    }
+    void setValue(std::string /* unused */) override { target_ = true; }
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
