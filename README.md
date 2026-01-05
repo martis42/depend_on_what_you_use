@@ -196,7 +196,7 @@ Most projects use conditional include statements based on macros set by Bazel to
 
 If your project is impacted by this edge case, you can try some mitigation strategies:
 
-- You can use the `experimental_no_preprocessor` DWYU aspect option to disable preprocessing.
+- You can use the `no_preprocessor` DWYU aspect option to disable preprocessing.
   As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
 - You can use `--cxxopt=-DSomeMacro=42` to manually set the missing macro via Bazel to make it known to Bazel.
   This works best if you define a Bazel config for execution the DWYU aspect and make the cxxopt part of the config.

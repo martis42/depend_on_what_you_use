@@ -11,6 +11,7 @@ def dwyu_aspect_factory(
         experimental_set_cplusplus = False,
         ignore_cc_toolchain_headers = False,
         ignored_includes = None,
+        no_preprocessor = False,
         recursive = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
@@ -30,15 +31,9 @@ def dwyu_aspect_factory(
     ```
 
     Args:
-        experimental_no_preprocessor: **Experimental** feature whose behavior is not yet stable and might change at any time.<br>
-                                      This option disables the preprocessing before discovering the include statements in the files under inspection.
-                                      Do not use this option, unless you are sure you really need this performance boost and the downsides are not relevant to your project.
-                                      When the preprocessing is disabled, DWYU still ignores commented include statements.<br>
-                                      When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
-                                      A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.<br>
-                                      By default, DWYU uses a preprocessor to resolve such cases.
-                                      This preprocessor is however slow, when analyzing complex files.
-                                      Using this option can speed up the DWYU analysis significantly.
+        experimental_no_preprocessor: Deprecated flag.
+                                      This feature is now stable.
+                                      See [no_preprocessor](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-no_preprocessor)
 
         experimental_set_cplusplus: **DEPRECATED**: This flag will be removed together with the Python implementation.
                                     The new C++ based implementation will always try to set a proper `__cplusplus`.<br><br>
@@ -88,6 +83,12 @@ def dwyu_aspect_factory(
                             The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
+
+        no_preprocessor: This option disables the preprocessing step before discovering the include statements in the files under inspection.
+                         When the preprocessing is disabled, DWYU still ignores commented include statements.
+                         Using this option can speed up the DWYU analysis.<br>
+                         When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
+                         A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
                    You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
@@ -140,13 +141,17 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
+    if experimental_no_preprocessor:
+        # buildifier: disable=print
+        print("WARNING: 'experimental_no_preprocessor' is a deprecated flag due to the feature now being stable. Use 'no_preprocessor' instead.")
+        no_preprocessor = True
     if ignore_cc_toolchain_headers:
         cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
     if use_cpp_implementation:
         target_processor = Label("//dwyu/aspect/private/process_target:main_cc")
-        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if experimental_no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
+        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
         tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:main")
 
         # The C++ based implementation no longer needs the information about the toolchain headers
@@ -182,7 +187,7 @@ def dwyu_aspect_factory(
                 allow_files = [".json"],
             ),
             "_no_preprocessor": attr.bool(
-                default = experimental_no_preprocessor,
+                default = no_preprocessor,
             ),
             "_recursive": attr.bool(
                 default = recursive,
