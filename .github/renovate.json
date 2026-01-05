@@ -25,5 +25,7 @@
     "xz",
     "zlib",
     "zstd"
-  ]
+  ],
+  "minimumReleaseAge": "14 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional"
 }
