@@ -29,7 +29,7 @@ bazel_dep(name = "zstd", version = "1.5.5.bcr.1")
 ### Development Dependencies
 ###
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.21.2", dev_dependency = True)
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.2", dev_dependency = True)
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
 python.toolchain(python_version = "3.8")
