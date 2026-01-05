@@ -55,7 +55,7 @@ struct ProgramOption {
         List,
     };
 
-    ProgramOption(std::string name, Type type) : name_{std::move(name)}, type_{type} {}
+    explicit ProgramOption(Type type) : type_{type} {}
 
     ProgramOption(const ProgramOption&) = default;
     ProgramOption(ProgramOption&&) = default;
@@ -66,12 +66,9 @@ struct ProgramOption {
 
     virtual void setValue(std::string arg) = 0;
 
-    const std::string& getName() const { return name_; }
     Type getType() const { return type_; }
 
   protected:
-    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) Derived classes need access
-    std::string name_;
     // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) Derived classes need access
     Type type_;
 };
