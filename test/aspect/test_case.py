@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import subprocess
 from abc import ABC, abstractmethod
-from enum import Enum, auto
+from dataclasses import dataclass
 from pathlib import Path
 from shlex import join as shlex_join
 
@@ -16,18 +16,27 @@ from test.support.result import Error, Result, Success
 log = logging.getLogger()
 
 
-class DwyuImplCompatibility(Enum):
-    NONE = auto()
-    ALL = auto()
-    CPP_ONLY = auto()
-    LEGACY_ONLY = auto()
+@dataclass
+class Compatibility:
+    is_compatible: bool
+    reason: str = ""
+
+
+class Compatible(Compatibility):
+    def __init__(self) -> None:
+        super().__init__(is_compatible=True)
+
+
+class Incompatible(Compatibility):
+    def __init__(self, reason: str) -> None:
+        super().__init__(is_compatible=False, reason=reason)
 
 
 class TestCaseBase(ABC):
     def __init__(self, name: str, cpp_impl_based: bool) -> None:
         self._name = name
         self._cpp_impl_based = cpp_impl_based
-        self._tested_versions = TestedVersions(bazel="", python="")
+        self._tested_version = TestedVersions(bazel="", python="")
         self._output_base: Path | None = None
         self._extra_args: list[str] = []
 
@@ -49,11 +58,11 @@ class TestCaseBase(ABC):
         return CompatibleVersions()
 
     @property
-    def dwyu_impl_compatibility(self) -> DwyuImplCompatibility:
+    def compatibility(self) -> Compatibility:
         """
-        Overwrite this if the test case works only with the legacy Python based implementation and not the new C++ one
+        Overwrite this if the test case is known to be incompatible with the active DWYU configuration
         """
-        return DwyuImplCompatibility.ALL
+        return Compatible()
 
     #
     # Base Implementation
@@ -80,7 +89,7 @@ class TestCaseBase(ABC):
     def execute_test(
         self, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
     ) -> Result:
-        self._tested_versions = version
+        self._tested_version = version
         self._bazel_bin = bazel_bin
         self._output_base = output_base
         self._extra_args = extra_args
@@ -107,7 +116,7 @@ class TestCaseBase(ABC):
         return self._run_bazel_build(
             target=target,
             extra_args=[
-                f"--@rules_python//python/config_settings:python_version={self._tested_versions.python}",
+                f"--@rules_python//python/config_settings:python_version={self._tested_version.python}",
                 f"--aspects={aspect}",
                 "--output_groups=dwyu",
                 *extra_args,
@@ -121,7 +130,7 @@ class TestCaseBase(ABC):
         extra_args = extra_args if extra_args else []
         targets = target if isinstance(target, list) else [target]
 
-        test_env = make_bazel_version_env(self._tested_versions.bazel)
+        test_env = make_bazel_version_env(self._tested_version.bazel)
         cmd = [
             str(self._bazel_bin),
             *output_base_arg,

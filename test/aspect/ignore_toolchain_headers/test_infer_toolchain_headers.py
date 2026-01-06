@@ -1,5 +1,5 @@
 from expected_result import ExpectedResult
-from test_case import DwyuImplCompatibility, TestCaseBase
+from test_case import Compatibility, Compatible, Incompatible, TestCaseBase
 
 from test.support.result import Result
 
@@ -12,10 +12,12 @@ class TestCase(TestCaseBase):
     """
 
     @property
-    def dwyu_impl_compatibility(self) -> DwyuImplCompatibility:
+    def compatibility(self) -> Compatibility:
         # Toolchain headers are no longer relevant with the C++ based implementation due to being ignored while
         #  preprocessing the code
-        return DwyuImplCompatibility.LEGACY_ONLY
+        if not self._cpp_impl_based:
+            return Compatible()
+        return Incompatible("Not compatible with the C++ based implementation")
 
     def execute_test_logic(self) -> Result:
         expected = ExpectedResult(success=True)
