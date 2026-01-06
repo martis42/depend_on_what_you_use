@@ -49,14 +49,26 @@ TEST(extractIncludes, IgnoreUnrelatedPreprocessorStatements) {
     EXPECT_TRUE(result.empty());
 }
 
-TEST(extractIncludes, IgnoreCommentedLines) {
+TEST(extractIncludes, IgnoreIllFormedIncludeStatement) {
     std::stringstream text{};
-    text << "// #include <foo.h>" << "\n";
-    text << "//#include \"bar.h\"" << "\n";
+    text << "#includeInvalid" << "\n";
 
     const auto result = extractIncludes(text);
 
     EXPECT_TRUE(result.empty());
+}
+
+TEST(extractIncludes, IgnoreCommentedLines) {
+    std::stringstream text{};
+    text << "// #include <foo.h>" << "\n";
+    text << "#include <riff.h>" << "\n";
+    text << "//#include \"bar.h\"" << "\r";
+    text << "#include <raff.h>" << "\n";
+
+    const auto result = extractIncludes(text);
+
+    const std::set<std::string> expected{"raff.h", "riff.h"};
+    EXPECT_EQ(result, expected);
 }
 
 TEST(extractIncludes, IgnoreCStyleComments) {

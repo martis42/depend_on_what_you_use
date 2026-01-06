@@ -88,7 +88,7 @@ class IncludeStatementExtractor {
             return;
         }
 
-        // Reaching here means it is not an include statement
+        // Reaching here means there is unexpected content after '#include', aka no whitespace or quoting
         ongoing_extraction_ = false;
     }
 

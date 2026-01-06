@@ -12,6 +12,8 @@ TEST(IsSystemInclude, VariousCases) {
     EXPECT_FALSE(isSystemInclude(""));
     EXPECT_FALSE(isSystemInclude("foo"));
     EXPECT_FALSE(isSystemInclude("\"foo\""));
+    EXPECT_FALSE(isSystemInclude("<foo\""));
+    EXPECT_FALSE(isSystemInclude("\"foo>"));
 
     EXPECT_TRUE(isSystemInclude("<foo>"));
 }
@@ -21,6 +23,10 @@ TEST(IncludeWithoutQuotes, VariousCases) {
     EXPECT_EQ(includeWithoutQuotes("foo"), "foo");
     EXPECT_EQ(includeWithoutQuotes("\"foo\""), "foo");
     EXPECT_EQ(includeWithoutQuotes("<foo>"), "foo");
+
+    // For invalid cases we simply return in a "shit in shit out" fashion
+    EXPECT_EQ(includeWithoutQuotes("\"foo>"), "\"foo>");
+    EXPECT_EQ(includeWithoutQuotes("<foo\""), "<foo\"");
 }
 
 TEST(MakeRelativePath, VariousCases) {
