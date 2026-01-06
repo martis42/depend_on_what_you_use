@@ -250,7 +250,7 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
     EXPECT_TRUE(json_result["use_implementation_deps"].get<bool>());
 }
 
-TEST(EvaluateIncludes, ReportUniqueResultsForDepsWhichShouldBePrivate) {
+TEST(EvaluateIncludes, ReportUniqueResultsForUnusedDeps) {
     const std::vector<IncludeStatement> pub_includes{};
     const std::vector<IncludeStatement> priv_includes{
         IncludeStatement{"priv_file_using_a.cpp", "<hdr_a_1.h>", "path/hdr_a_1.h"},
@@ -281,8 +281,8 @@ TEST(EvaluateIncludes, ReportUniqueResultsForAllUnusedDepsErrors) {
     const std::vector<IncludeStatement> priv_includes{};
     const auto pub_a = std::make_shared<CcDependency>(CcDependency{"//pub/dep:a", {}});
     const auto priv_b = std::make_shared<CcDependency>(CcDependency{"//priv/dep:b", {}});
-    const SystemUnderInspection::HeadersToDepsMap pub_deps{{"path/hdr_a_1.h", {pub_a}}, {"path/hdr_a_2.h", {pub_a}}};
-    const SystemUnderInspection::HeadersToDepsMap all_deps{{"path/hdr_b_1.h", {priv_b}}, {"path/hdr_b_2.h", {priv_b}}};
+    const SystemUnderInspection::HeadersToDepsMap pub_deps{{"path/hdr_a.h", {pub_a}}};
+    const SystemUnderInspection::HeadersToDepsMap all_deps{{"path/hdr_a.h", {pub_a}}, {"path/hdr_b.h", {priv_b}}};
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
     const bool optimize_impl_deps = true;
 

@@ -1,5 +1,6 @@
 #include "dwyu/private/program_options.h"
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
@@ -87,13 +88,11 @@ TEST(ParsingSomeList, ReadGivenValues) {
 
     // Multiple values
     {
-        const int argc{4};
-        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "foo", "bar"};
+        const int argc{5};
+        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "x", "foo", "-bar"};
         unit.parseOptions(argc, argv);
 
-        ASSERT_EQ(list.size(), 2);
-        EXPECT_EQ(list[0], "foo");
-        EXPECT_EQ(list[1], "bar");
+        EXPECT_THAT(list, testing::ElementsAre("x", "foo", "-bar"));
     }
 }
 
@@ -111,9 +110,7 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
     ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "tik", "tok", "--value", "foo", "--flag"};
     unit.parseOptions(argc, argv);
 
-    ASSERT_EQ(list.size(), 2);
-    EXPECT_EQ(list[0], "tik");
-    EXPECT_EQ(list[1], "tok");
+    EXPECT_THAT(list, testing::ElementsAre("tik", "tok"));
     EXPECT_EQ(value, "foo");
     EXPECT_TRUE(flag);
 }
