@@ -35,9 +35,13 @@ build --cxxopt=-Werror
 build --per_file_copt=boost.wave/src/.*@-w
 build --per_file_copt=googletest/src/.*@-w
 build --per_file_copt=src/google/protobuf/.*@-w
+build --per_file_copt=llvm/.*@-w
+build --per_file_copt=clang/.*@-w
 build --host_per_file_copt=boost.wave/src/.*@-w
 build --host_per_file_copt=googletest/src/.*@-w
 build --host_per_file_copt=src/google/protobuf/.*@-w
+build --host_per_file_copt=llvm/.*@-w
+build --host_per_file_copt=clang/.*@-w
 
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
 build:clang_tidy --output_groups=clang_tidy

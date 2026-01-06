@@ -50,3 +50,6 @@ register_toolchains(
     "@llvm_toolchain//:all",
     dev_dependency = True,
 )
+
+# Instead we could try getting it via a extension to get a recent release instead of old 17.x
+bazel_dep(name = "llvm-project", version = "17.0.3.bcr.4")
