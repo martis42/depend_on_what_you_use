@@ -1,6 +1,5 @@
 #include "dwyu/aspect/private/preprocessing/extract_includes.h"
 
-#include <climits>
 #include <istream>
 #include <set>
 #include <string>
@@ -62,8 +61,9 @@ class IncludeStatementExtractor {
                 expect_quoting_or_white_space_ = true;
                 return;
             default:
-                // We can never reach here
-                expect_next_ = CHAR_MAX;
+                // Defensive Programming, we cannot reach this point
+                ongoing_extraction_ = false;
+                return;
             }
         }
 
