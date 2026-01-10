@@ -288,7 +288,7 @@ def _do_ensure_private_deps(ctx):
     The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
     and cc_test a separation between public and private files exists.
     """
-    return ctx.rule.kind == "cc_library" and ctx.attr._use_implementation_deps
+    return ctx.rule.kind == "cc_library" and ctx.attr._analysis_optimizes_impl_deps
 
 def _dywu_results_from_deps(deps):
     """

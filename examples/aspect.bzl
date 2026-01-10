@@ -1,6 +1,6 @@
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
-dwyu = dwyu_aspect_factory(use_implementation_deps = True)
+dwyu = dwyu_aspect_factory(analysis_optimizes_impl_deps = True)
 
 dwyu_recursive = dwyu_aspect_factory(recursive = True)
 dwyu_recursive_skip_external = dwyu_aspect_factory(recursive = True, skip_external_targets = True)
