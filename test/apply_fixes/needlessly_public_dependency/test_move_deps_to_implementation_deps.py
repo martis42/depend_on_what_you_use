@@ -8,7 +8,7 @@ class TestCase(TestCaseBase):
         return "//:public_dependency_with_private_use"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports(aspect="use_implementation_deps_aspect")
+        self._create_reports(aspect="optimizes_impl_deps_aspect")
         self._run_automatic_fix(extra_args=["--fix-deps-which-should-be-private"])
 
         target_deps = self._get_target_deps(self.test_target)

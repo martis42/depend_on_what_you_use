@@ -7,6 +7,7 @@ load(":dwyu.bzl", "dwyu_aspect_impl")
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 
 def dwyu_aspect_factory(
+        analysis_optimizes_impl_deps = False,
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
         ignore_cc_toolchain_headers = False,
@@ -31,6 +32,10 @@ def dwyu_aspect_factory(
     ```
 
     Args:
+        analysis_optimizes_impl_deps: Setting this to True will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.
+                                      Such dependencies should be moved from `deps` to [implementation_deps](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to optimize the dependency graph of the project.<br>
+                                      This feature is demonstrated in the [basic_usage example](/examples/basic_usage).
+
         experimental_no_preprocessor: Deprecated flag.
                                       This feature is now stable.
                                       See [no_preprocessor](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-no_preprocessor)
@@ -124,11 +129,8 @@ def dwyu_aspect_factory(
                                 Since, the C++ based implementation is new, this is for now an opt-in.
                                 However, this will become the default eventually.
 
-        use_implementation_deps: `cc_library` offers the attribute [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to distinguish between public (aka interface) and private (aka implementation) dependencies.
-                                 Headers from the private dependencies are not made available to users of the library.<br>
-                                 Setting this to True allows DWYU to raise an error if headers from a `deps` dependency are used only in private files.
-                                 In such a cease the dependency should be moved from `deps` to `implementation_deps`.<br>
-                                 This feature is demonstrated in the [basic_usage example](/examples/basic_usage).
+        use_implementation_deps: Deprecated flag, which will be removed in a future release.
+                                 See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.
 
         verbose: If True, print debugging information about what DWYU does.
 
@@ -136,8 +138,12 @@ def dwyu_aspect_factory(
         Configured DWYU aspect
     """
     attr_aspects = []
+    if use_implementation_deps:
+        # buildifier: disable=print
+        print("WARNING: 'use_implementation_deps' is a deprecated flag. Use 'analysis_optimizes_impl_deps' instead.")
+        analysis_optimizes_impl_deps = True
     if recursive:
-        attr_aspects = ["implementation_deps", "deps"] if use_implementation_deps else ["deps"]
+        attr_aspects = ["implementation_deps", "deps"] if analysis_optimizes_impl_deps else ["deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
@@ -167,6 +173,9 @@ def dwyu_aspect_factory(
         required_providers = [CcInfo],
         toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
+            "_analysis_optimizes_impl_deps": attr.bool(
+                default = analysis_optimizes_impl_deps,
+            ),
             "_cc_toolchain_headers": attr.label(
                 default = cc_toolchain_headers,
                 providers = [DwyuCcToolchainHeadersInfo],
@@ -226,9 +235,6 @@ def dwyu_aspect_factory(
             ),
             "_use_cpp_implementation": attr.bool(
                 default = use_cpp_implementation,
-            ),
-            "_use_implementation_deps": attr.bool(
-                default = use_implementation_deps,
             ),
             "_verbose": attr.bool(
                 default = verbose,
