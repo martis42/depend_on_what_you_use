@@ -143,7 +143,7 @@ def dwyu_aspect_factory(
         print("WARNING: 'use_implementation_deps' is a deprecated flag. Use 'analysis_optimizes_impl_deps' instead.")
         analysis_optimizes_impl_deps = True
     if recursive:
-        attr_aspects = ["implementation_deps", "deps"] if analysis_optimizes_impl_deps else ["deps"]
+        attr_aspects = ["implementation_deps", "deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []

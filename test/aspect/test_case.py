@@ -76,10 +76,6 @@ class TestCaseBase(ABC):
     def default_aspect(self) -> str:
         return self.choose_aspect("//:aspect.bzl%dwyu")
 
-    @property
-    def default_aspect_impl_deps(self) -> str:
-        return self.choose_aspect("//:aspect.bzl%dwyu_impl_deps")
-
     def choose_aspect(self, aspect: str) -> str:
         return aspect + "_cpp" if self._cpp_impl_based else aspect
 

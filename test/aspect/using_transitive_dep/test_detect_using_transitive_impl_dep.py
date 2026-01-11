@@ -24,7 +24,7 @@ class TestCase(TestCaseBase):
             invalid_includes=expected_invalid_includes,
         )
         actual = self._run_dwyu(
-            target="//using_transitive_dep:transitive_usage_through_impl_deps", aspect=self.default_aspect_impl_deps
+            target="//using_transitive_dep:transitive_usage_through_impl_deps", aspect=self.default_aspect
         )
 
         return self._check_result(actual=actual, expected=expected)
