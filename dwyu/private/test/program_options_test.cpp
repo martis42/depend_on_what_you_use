@@ -6,18 +6,19 @@
 #include <vector>
 
 namespace dwyu {
+namespace {
 
-// Most efficient way to write the tests is by using C arrays to mimic the main() parameters
-// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+void parseOptions(std::vector<const char*> args, ProgramOptionsParser& parser) {
+    args.insert(args.begin(), "program_name");
+    parser.parseOptions(static_cast<int>(args.size()), args.data());
+}
 
 TEST(ParsingSomeFlag, AnExistingFlagYieldsTrue) {
     bool flag{false};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
 
-    const int argc{2};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--flag"};
-    unit.parseOptions(argc, argv);
+    parseOptions({"--flag"}, unit);
 
     EXPECT_TRUE(flag);
 }
@@ -29,9 +30,7 @@ TEST(ParsingSomeFlag, AMissingFlagYieldsFalse) {
     unit.addOptionFlag("--flag", flag);
     unit.addOptionList("--list", list);
 
-    const int argc{2};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list"};
-    unit.parseOptions(argc, argv);
+    parseOptions({"--list"}, unit);
 
     EXPECT_FALSE(flag);
 }
@@ -41,9 +40,7 @@ TEST(ParsingSomeValue, ReadAGivenValue) {
     ProgramOptionsParser unit{};
     unit.addOptionValue("--value", value);
 
-    const int argc{3};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "foo"};
-    unit.parseOptions(argc, argv);
+    parseOptions({"--value", "foo"}, unit);
 
     EXPECT_EQ(value, "foo");
 }
@@ -57,17 +54,13 @@ TEST(ParsingSomeValue, FailOnNoValue) {
 
     // No value at all
     {
-        const int argc{2};
-        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value"};
-        EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+        EXPECT_EXIT(parseOptions({"--value"}, unit), testing::ExitedWithCode(1),
                     "Expected a value for the last option, but none was provided");
     }
 
     // Followed by other option
     {
-        const int argc{3};
-        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "--flag"};
-        EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+        EXPECT_EXIT(parseOptions({"--value", "--flag"}, unit), testing::ExitedWithCode(1),
                     "Expected a value, but received another option: '--flag'");
     }
 }
@@ -77,9 +70,7 @@ TEST(ParsingSomeValue, FailOnMultipleValues) {
     ProgramOptionsParser unit{};
     unit.addOptionValue("--value", value);
 
-    const int argc{4};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "foo", "bar"};
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+    EXPECT_EXIT(parseOptions({"--value", "foo", "bar"}, unit), testing::ExitedWithCode(1),
                 "Got second value 'bar' for single value option '--value'");
 }
 
@@ -90,18 +81,14 @@ TEST(ParsingSomeList, ReadGivenValues) {
 
     // Empty input
     {
-        const int argc{2};
-        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list"};
-        unit.parseOptions(argc, argv);
+        parseOptions({"--list"}, unit);
 
         EXPECT_TRUE(list.empty());
     }
 
     // Multiple values
     {
-        const int argc{5};
-        ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "x", "foo", "-bar"};
-        unit.parseOptions(argc, argv);
+        parseOptions({"--list", "x", "foo", "-bar"}, unit);
 
         EXPECT_THAT(list, testing::ElementsAre("x", "foo", "-bar"));
     }
@@ -117,9 +104,7 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
     unit.addOptionValue("--value", value);
     unit.addOptionList("--list", list);
 
-    const int argc{7};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--list", "tik", "tok", "--value", "foo", "--flag"};
-    unit.parseOptions(argc, argv);
+    parseOptions({"--list", "tik", "tok", "--value", "foo", "--flag"}, unit);
 
     EXPECT_THAT(list, testing::ElementsAre("tik", "tok"));
     EXPECT_EQ(value, "foo");
@@ -129,10 +114,7 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
 TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
     ProgramOptionsParser unit{};
 
-    const int argc = 1;
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated"};
-
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+    EXPECT_EXIT(parseOptions({}, unit), testing::ExitedWithCode(1),
                 "At least a single option is expected to be present");
 }
 
@@ -141,10 +123,7 @@ TEST(ProgramOptionsParser, ExpectAtLeastTwoCliArguments) {
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
 
-    const int argc = 1;
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated"};
-
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Expecting at least 2 argv elements");
+    EXPECT_EXIT(parseOptions({}, unit), testing::ExitedWithCode(1), "Expecting at least 2 argv elements");
 }
 
 TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
@@ -152,10 +131,8 @@ TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
     ProgramOptionsParser unit{};
     unit.addOptionValue("--value", value);
 
-    const int argc{2};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--other_value"};
-
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1), "Received invalid option: '--other_value'");
+    EXPECT_EXIT(parseOptions({"--other_value"}, unit), testing::ExitedWithCode(1),
+                "Received invalid option: '--other_value'");
 }
 
 TEST(ProgramOptionsParser, FailOnUnexpectedExtraContent) {
@@ -163,10 +140,7 @@ TEST(ProgramOptionsParser, FailOnUnexpectedExtraContent) {
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
 
-    const int argc = 3;
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--flag", "extra_input"};
-
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+    EXPECT_EXIT(parseOptions({"--flag", "extra_input"}, unit), testing::ExitedWithCode(1),
                 "Got a value without it being associated to an option: 'extra_input'");
 }
 
@@ -180,10 +154,7 @@ TEST(ProgramOptionsParser, ReadOptionsFromParamFile) {
     unit.addOptionValue("--value", value);
     unit.addOptionFlag("--flag", flag);
 
-    const int argc{2};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated",
-                                                 "--param_file=dwyu/private/test/data/multiple_options.txt"};
-    unit.parseOptions(argc, argv);
+    parseOptions({"--param_file=dwyu/private/test/data/multiple_options.txt"}, unit);
 
     ASSERT_EQ(list.size(), 2);
     EXPECT_EQ(list[0], "tik");
@@ -197,13 +168,9 @@ TEST(ProgramOptionsParser, FailOnNotExistingParamFile) {
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
 
-    const int argc{2};
-    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--param_file=not/existing/path"};
-
-    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+    EXPECT_EXIT(parseOptions({"--param_file=not/existing/path"}, unit), testing::ExitedWithCode(1),
                 "Could not open param_file 'not/existing/path'");
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-c-arrays, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-
+} // namespace
 } // namespace dwyu
