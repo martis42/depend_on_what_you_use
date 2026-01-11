@@ -113,16 +113,24 @@ void ProgramOptionsParser::parseOptionsfromCommandLine(const int argc, ConstChar
 
 void ProgramOptionsParser::parseOptionsImpl(const std::function<bool(std::string&)>& get_arg) {
     detail::ProgramOption* active_option{nullptr};
+    std::string active_option_name{};
     std::string arg{};
+    bool expect_value = false;
     while (get_arg(arg)) {
         if (isOption(arg)) {
             auto option = options_.find(arg);
             if (option != options_.end()) {
+                if (expect_value) {
+                    abortWithError("Expected a value, but received another option: '", arg, "'");
+                }
+
                 if (option->second->getType() == detail::ProgramOption::Type::Flag) {
                     option->second->setValue("");
                 }
                 else {
                     active_option = option->second.get();
+                    active_option_name = arg;
+                    expect_value = option->second->getType() == detail::ProgramOption::Type::Value;
                 }
             }
             else {
@@ -131,12 +139,21 @@ void ProgramOptionsParser::parseOptionsImpl(const std::function<bool(std::string
         }
         else {
             if (active_option != nullptr) {
+                if (active_option->getType() == detail::ProgramOption::Type::Value && !expect_value) {
+                    abortWithError("Got second value '", arg, "' for single value option '", active_option_name, "'");
+                }
+
                 active_option->setValue(std::move(arg));
+                expect_value = false;
             }
             else {
                 abortWithError("Got a value without it being associated to an option: '", arg, "'");
             }
         }
+    }
+
+    if (expect_value) {
+        abortWithError("Expected a value for the last option, but none was provided");
     }
 }
 
