@@ -33,6 +33,15 @@ TEST(ParsingSomeFlag, AMissingFlagYieldsFalse) {
     EXPECT_FALSE(flag);
 }
 
+TEST(ParsingSomeFlag, FailforValueAfterFlag) {
+    bool flag{false};
+    ProgramOptionsParser unit{};
+    unit.addOptionFlag("--flag", flag);
+
+    EXPECT_EXIT(parseOptions({"--flag", "extra_input"}, unit), testing::ExitedWithCode(1),
+                "Got a value without it being associated to an option: 'extra_input'");
+}
+
 TEST(ParsingSomeValue, ReadAGivenValue) {
     std::string value{};
     ProgramOptionsParser unit{};
@@ -112,13 +121,6 @@ TEST(ParseMultipleOptions, ReadDifferentValues) {
     EXPECT_TRUE(flag);
 }
 
-TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
-    ProgramOptionsParser unit{};
-
-    EXPECT_EXIT(parseOptions({}, unit), testing::ExitedWithCode(1),
-                "At least a single option is expected to be present");
-}
-
 TEST(ProgramOptionsParser, FailOnNoArgumentsForValueOption) {
     std::string value{};
     ProgramOptionsParser unit{};
@@ -129,21 +131,30 @@ TEST(ProgramOptionsParser, FailOnNoArgumentsForValueOption) {
 }
 
 TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
-    std::string value{};
-    ProgramOptionsParser unit{};
-    unit.addOptionValue("--value", value);
+    // Expected no option at all
+    {
+        ProgramOptionsParser unit{};
 
-    EXPECT_EXIT(parseOptions({"--other_value"}, unit), testing::ExitedWithCode(1),
-                "Received invalid option: '--other_value'");
+        EXPECT_EXIT(parseOptions({"--some_option"}, unit), testing::ExitedWithCode(1),
+                    "Received invalid option: '--some_option'");
+    }
+
+    // Expected other option
+    {
+        std::string value{};
+        ProgramOptionsParser unit{};
+        unit.addOptionValue("--value", value);
+
+        EXPECT_EXIT(parseOptions({"--other_value"}, unit), testing::ExitedWithCode(1),
+                    "Received invalid option: '--other_value'");
+    }
 }
 
 TEST(ProgramOptionsParser, FailOnUnexpectedExtraContent) {
-    bool flag{false};
     ProgramOptionsParser unit{};
-    unit.addOptionFlag("--flag", flag);
 
-    EXPECT_EXIT(parseOptions({"--flag", "extra_input"}, unit), testing::ExitedWithCode(1),
-                "Got a value without it being associated to an option: 'extra_input'");
+    EXPECT_EXIT(parseOptions({"random_input"}, unit), testing::ExitedWithCode(1),
+                "Got a value without it being associated to an option: 'random_input'");
 }
 
 TEST(ProgramOptionsParser, ReadOptionsFromParamFile) {
