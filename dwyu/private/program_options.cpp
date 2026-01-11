@@ -70,10 +70,6 @@ void ProgramOptionsParser::addOptionList(std::string option, std::vector<std::st
 }
 
 void ProgramOptionsParser::parseOptions(const int argc, ConstCharArray argv) {
-    if (options_.empty()) {
-        abortWithError("At least a single option is expected to be present");
-    }
-
     if (argc == 1 && has_value_option_) {
         abortWithError("No arguments provided and at least one value option is requested");
     }
