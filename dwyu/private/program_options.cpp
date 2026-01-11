@@ -62,6 +62,7 @@ void ProgramOptionsParser::addOptionFlag(std::string option, bool& target) {
 
 void ProgramOptionsParser::addOptionValue(std::string option, std::string& target) {
     options_.emplace(std::move(option), std::unique_ptr<detail::ValueOption>(new detail::ValueOption{target}));
+    has_value_option_ = true;
 }
 
 void ProgramOptionsParser::addOptionList(std::string option, std::vector<std::string>& target) {
@@ -73,13 +74,13 @@ void ProgramOptionsParser::parseOptions(const int argc, ConstCharArray argv) {
         abortWithError("At least a single option is expected to be present");
     }
 
-    if (argc < 2) {
-        abortWithError("Expecting at least 2 argv elements");
+    if (argc == 1 && has_value_option_) {
+        abortWithError("No arguments provided and at least one value option is requested");
     }
 
     const std::string param_file_arg{"--param_file="};
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) Is safe due to upfront range checking
-    const std::string second_arg{argv[1]};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) Is safe due to range checking
+    const std::string second_arg = argc > 1 ? argv[1] : "";
     if (second_arg.compare(0, param_file_arg.size(), param_file_arg) == 0) {
         parseOptionsfromParamFile(second_arg.substr(param_file_arg.size()));
     }
