@@ -16,7 +16,7 @@ class TestCase(TestCaseBase):
                 "//implementation_deps:use_defines",
                 "//implementation_deps:use_external",
             ],
-            aspect=self.default_aspect_impl_deps,
+            aspect=self.choose_aspect("//implementation_deps:aspect.bzl%optimize_impl_deps"),
         )
 
         return self._check_result(actual=actual, expected=expected)

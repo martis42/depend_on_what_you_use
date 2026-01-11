@@ -6,8 +6,6 @@ load(
     "dwyu_rule_direct_cpp",
     "dwyu_rule_recursive",
     "dwyu_rule_recursive_cpp",
-    "dwyu_rule_recursive_with_impl_deps",
-    "dwyu_rule_recursive_with_impl_deps_cpp",
 )
 
 dwyu_rule_direct(
@@ -23,14 +21,6 @@ dwyu_rule_recursive(
     deps = [":main"],
 )
 
-dwyu_rule_recursive_with_impl_deps(
-    name = "dwyu_recursive_with_impl_deps",
-    tags = [
-        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
-    ],
-    deps = [":use_impl_deps"],
-)
-
 dwyu_rule_direct_cpp(
     name = "dwyu_direct_main_cpp",
     deps = [":main"],
@@ -42,14 +32,6 @@ dwyu_rule_recursive_cpp(
         "manual",  # This target is supposed to fail, thus only build it if explicitly requested
     ],
     deps = [":main"],
-)
-
-dwyu_rule_recursive_with_impl_deps_cpp(
-    name = "dwyu_recursive_with_impl_deps_cpp",
-    tags = [
-        "manual",  # This target is supposed to fail, thus only build it if explicitly requested
-    ],
-    deps = [":use_impl_deps"],
 )
 
 ##
@@ -79,10 +61,4 @@ cc_library(
 cc_library(
     name = "c",
     hdrs = ["c.h"],
-)
-
-cc_library(
-    name = "use_impl_deps",
-    srcs = ["use_impl_deps.cpp"],
-    implementation_deps = [":a"],
 )
