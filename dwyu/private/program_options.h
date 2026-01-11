@@ -48,7 +48,8 @@ class ProgramOptionsParser {
     void parseOptionsfromParamFile(const std::string& param_file);
     void parseOptionsImpl(const std::function<bool(std::string&)>& get_arg);
 
-    std::map<std::string, std::unique_ptr<detail::ProgramOption>> options_;
+    std::map<std::string, std::unique_ptr<detail::ProgramOption>> options_{};
+    bool has_value_option_{false};
 };
 
 namespace detail {

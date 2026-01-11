@@ -25,12 +25,10 @@ TEST(ParsingSomeFlag, AnExistingFlagYieldsTrue) {
 
 TEST(ParsingSomeFlag, AMissingFlagYieldsFalse) {
     bool flag{true};
-    std::vector<std::string> list{};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
-    unit.addOptionList("--list", list);
 
-    parseOptions({"--list"}, unit);
+    parseOptions({}, unit);
 
     EXPECT_FALSE(flag);
 }
@@ -79,6 +77,9 @@ TEST(ParsingSomeList, ReadGivenValues) {
     ProgramOptionsParser unit{};
     unit.addOptionList("--list", list);
 
+    // No input
+    { EXPECT_TRUE(list.empty()); }
+
     // Empty input
     {
         parseOptions({"--list"}, unit);
@@ -118,12 +119,13 @@ TEST(ProgramOptionsParser, ExpectAtLeastOneOption) {
                 "At least a single option is expected to be present");
 }
 
-TEST(ProgramOptionsParser, ExpectAtLeastTwoCliArguments) {
-    bool flag{false};
+TEST(ProgramOptionsParser, FailOnNoArgumentsForValueOption) {
+    std::string value{};
     ProgramOptionsParser unit{};
-    unit.addOptionFlag("--flag", flag);
+    unit.addOptionValue("--value", value);
 
-    EXPECT_EXIT(parseOptions({}, unit), testing::ExitedWithCode(1), "Expecting at least 2 argv elements");
+    EXPECT_EXIT(parseOptions({}, unit), testing::ExitedWithCode(1),
+                "No arguments provided and at least one value option is requested");
 }
 
 TEST(ProgramOptionsParser, FailOnUnexpectedOption) {
