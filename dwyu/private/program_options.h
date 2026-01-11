@@ -21,18 +21,23 @@ struct ProgramOption;
 // - C++11 still supported
 // - Modern C++ API
 // - Efficiency, as one of our tools simply transform CLI input to files (e.g. no copying of data just for convenience)
-// - No for elaborate features as our tools are implementation details. Thus, no need for help text, default values,
-// mandatory values, ...
+// - No requirements for elaborate features as our tools are implementation details.
 //
 // None of the program option libraries we looked at fulfilled all requirements.
 // Since, we require only basic parsing logic, we implement our own parser tailored to our exact needs.
+// While, we reinvent the wheel with this, we gain not being dependent on an external library for this trivial thing.
 class ProgramOptionsParser {
   public:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays) Needed to interact with argv of main(...)
     using ConstCharArray = const char* const[];
 
+    // Add feature flag. Providing the flag yields 'true', omitting it yields 'false'.
     void addOptionFlag(std::string option, bool& target);
+
+    // Add option with single value. Providing a value is mandatory.
     void addOptionValue(std::string option, std::string& target);
+
+    // Add option with multiple values. Providing no value is valid and yields an empty list.
     void addOptionList(std::string option, std::vector<std::string>& target);
 
     // Given the CLI input, extract the options specified through calling the 'add..' functions.

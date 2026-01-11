@@ -50,7 +50,7 @@ TEST(ParsingSomeValue, ReadAGivenValue) {
 
 TEST(ParsingSomeValue, FailOnNoValue) {
     bool flag{false};
-    std::string value{"default"};
+    std::string value{};
     ProgramOptionsParser unit{};
     unit.addOptionFlag("--flag", flag);
     unit.addOptionValue("--value", value);
@@ -59,17 +59,28 @@ TEST(ParsingSomeValue, FailOnNoValue) {
     {
         const int argc{2};
         ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value"};
-        unit.parseOptions(argc, argv);
-        EXPECT_EQ(value, "default");
+        EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+                    "Expected a value for the last option, but none was provided");
     }
 
     // Followed by other option
     {
         const int argc{3};
         ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "--flag"};
-        unit.parseOptions(argc, argv);
-        EXPECT_EQ(value, "default");
+        EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+                    "Expected a value, but received another option: '--flag'");
     }
+}
+
+TEST(ParsingSomeValue, FailOnMultipleValues) {
+    std::string value{};
+    ProgramOptionsParser unit{};
+    unit.addOptionValue("--value", value);
+
+    const int argc{4};
+    ProgramOptionsParser::ConstCharArray argv = {"unrelated", "--value", "foo", "bar"};
+    EXPECT_EXIT(unit.parseOptions(argc, argv), testing::ExitedWithCode(1),
+                "Got second value 'bar' for single value option '--value'");
 }
 
 TEST(ParsingSomeList, ReadGivenValues) {
