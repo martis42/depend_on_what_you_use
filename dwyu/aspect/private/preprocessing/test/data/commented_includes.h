@@ -12,9 +12,9 @@ void Foo(); // #include "commented.h"
 */
 #include "include_c.h"
 
-/* #include "commented.h" */ /**/ /**/ #include "include_d.h"
+/* #include "commented.h" */ /**/ /**/ #include<include_d.h>
 
-/*/* #include "commented.h" */ #include "include_e.h" /* #include "commented.h" */
+/*/* #include "commented.h" */ #include<include_e.h> /* #include "commented.h" */
 
 /*
 /*
