@@ -1,24 +1,11 @@
-# Documentation of noteworthy project design decisions <!-- omit in toc -->
-
-- [General](#general)
-  - [Why use Python](#why-use-python)
-  - [Why use a multi step automatic fixes workflow](#why-use-a-multi-step-automatic-fixes-workflow)
-- [Rejected Concepts](#rejected-concepts)
-  - [Includes parsing via .d files](#includes-parsing-via-d-files)
-
-# General
-
-## Why use Python
-
-The project started with Python as it eased coming up with the first prototype.
-Also, C++ has a quite limited standard library compared to Python and in the past not many Bazel ready c++ libraries were available.
-
-Given, bzlmod made it far easier to depend on many established C++ dependencies and in general more things support Bazel nowadays, we plan to switch to a C++ implementation.
+# Noteworthy project design decisions
 
 ## Why use Boost Wave instead of preprocessor X
 
-The decision was mostly based on Boost Wave being easy to integrate with Bazel and working for all our test cases.
-We do not intend to revisit this decision unless it turns out Boost Waver is unable to process standard conformant code.
+The decision was mostly based on [Boost Wave](https://github.com/boostorg/wave) being easy to integrate with Bazel and working for all our test cases.
+
+We also looked into using the LLVM preprocessor.
+Although a [LLVM Bazel setup](https://github.com/llvm/llvm-project/tree/main/utils/bazel) exists, it is experimental and lacking support at the time of writing this.
 
 ## Why use a multi step automatic fixes workflow
 
