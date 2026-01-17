@@ -35,7 +35,7 @@ TEST(extractIncludes, ExtractIncludes) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected = {"foo.h", "some/path.h", "no_extension"};
+    const std::set<std::string> expected = {"\"foo.h\"", "<some/path.h>", "<no_extension>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -67,7 +67,7 @@ TEST(extractIncludes, IgnoreCommentedLines) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected{"raff.h", "riff.h"};
+    const std::set<std::string> expected{"<raff.h>", "<riff.h>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -89,7 +89,7 @@ TEST(extractIncludes, IgnoreCommentAfterRealInclude) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected = {"foo.h"};
+    const std::set<std::string> expected = {"<foo.h>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -99,7 +99,7 @@ TEST(extractIncludes, IgnoreCStyleCommentsInLineWithRealInclude) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected = {"bar.h"};
+    const std::set<std::string> expected = {"<bar.h>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -109,7 +109,7 @@ TEST(extractIncludes, CloseCStyleCommentNoMatterHowOftenOpened) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected = {"bar.h"};
+    const std::set<std::string> expected = {"<bar.h>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -120,7 +120,7 @@ TEST(extractIncludes, IgnoreCStyleCommentOpenendInCommentedLine) {
 
     const auto result = extractIncludes(text);
 
-    const std::set<std::string> expected = {"foo.h"};
+    const std::set<std::string> expected = {"<foo.h>"};
     EXPECT_EQ(result, expected);
 }
 
@@ -131,7 +131,8 @@ TEST(extractIncludes, FileWithComplexCases) {
     const auto result = extractIncludes(instream);
 
     const std::set<std::string> expected = {
-        "include_a.h", "include_b.h", "include_c.h", "include_d.h", "include_e.h", "include_f.h", "include_g.h",
+        "\"include_a.h\"", "\"include_b.h\"", "\"include_c.h\"", "<include_d.h>",
+        "<include_e.h>",   "\"include_f.h\"", "\"include_g.h\"",
     };
     EXPECT_EQ(result, expected);
 }

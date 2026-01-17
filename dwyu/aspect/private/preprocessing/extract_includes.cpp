@@ -72,12 +72,14 @@ class IncludeStatementExtractor {
         }
 
         if (expect_quoting_or_white_space_ && (character == '"' || character == '<')) {
+            parsed_include_ += character;
             expect_quoting_or_white_space_ = false;
             expect_path_ = true;
             return;
         }
 
         if (expect_path_ && (character == '"' || character == '>')) {
+            parsed_include_ += character;
             ongoing_extraction_ = false;
             finished_extraction_ = true;
             return;
