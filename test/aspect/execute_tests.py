@@ -61,7 +61,7 @@ def cli() -> Namespace:
         "--verbose",
         "-v",
         action="store_true",
-        help="Show output of test runs.",
+        help="Show output of test runs and DWYU debugging information.",
     )
     parser.add_argument(
         "--bazel",
@@ -142,5 +142,6 @@ if __name__ == "__main__":
             cpp_impl_based=args.cpp_impl_based,
             only_default_version=args.only_default_version,
             no_output_base=args.no_output_base,
+            verbose=args.verbose,
         )
     )

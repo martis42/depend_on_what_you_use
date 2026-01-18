@@ -80,6 +80,7 @@ def main(
     cpp_impl_based: bool = False,
     only_default_version: bool = False,
     no_output_base: bool = False,
+    verbose: bool = False,
 ) -> int:
     bazel_binary = get_bazel_binary()
     workspace_path = get_current_workspace(bazel_binary)
@@ -96,7 +97,7 @@ def main(
         name = file_to_test_name(test)
         if (requested_tests and any(requested in name for requested in requested_tests)) or (not requested_tests):
             module = SourceFileLoader("", str(test.resolve())).load_module()
-            tests.append(module.TestCase(name=name, cpp_impl_based=cpp_impl_based))
+            tests.append(module.TestCase(name=name, cpp_impl_based=cpp_impl_based, verbose=verbose))
 
     if bazel and python:
         versions = [TestedVersions(bazel=bazel, python=python)]

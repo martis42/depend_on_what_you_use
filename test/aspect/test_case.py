@@ -33,9 +33,10 @@ class Incompatible(Compatibility):
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str, cpp_impl_based: bool) -> None:
+    def __init__(self, name: str, cpp_impl_based: bool, verbose: bool) -> None:
         self._name = name
         self._cpp_impl_based = cpp_impl_based
+        self._verbose = verbose
         self._tested_version = TestedVersions(bazel="", python="")
         self._output_base: Path | None = None
         self._extra_args: list[str] = []
@@ -109,12 +110,14 @@ class TestCaseBase(ABC):
         self, target: str | list[str], aspect: str, extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
         extra_args = extra_args if extra_args else []
+        verbosity = ["--aspects_parameters=dwyu_verbose=True"] if self._verbose else []
         return self._run_bazel_build(
             target=target,
             extra_args=[
                 f"--@rules_python//python/config_settings:python_version={self._tested_version.python}",
                 f"--aspects={aspect}",
                 "--output_groups=dwyu",
+                *verbosity,
                 *extra_args,
             ],
         )
