@@ -95,6 +95,8 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         args.add_all("--external_includes", depset(transitive = external_includes), omit_if_empty = False)
         args.add_all("--system_includes", depset(transitive = system_includes), omit_if_empty = False)
         args.add_all("--defines", defines)
+    if ctx.attr._use_cpp_implementation and is_target_under_inspection:
+        args.add("--is_target_under_inspection")
     if _is_verbose(ctx):
         args.add("--verbose")
 
@@ -423,15 +425,18 @@ def dwyu_aspect_impl(target, ctx):
 
         args = make_param_file_args(ctx)
         args.add("--output", report_file)
+        args.add("--target_under_inspection", str(target.label))
         args.add_all("--preprocessed_public_files", preprocessed_public_files, omit_if_empty = False)
         args.add_all("--preprocessed_private_files", preprocessed_private_files, omit_if_empty = False)
-        args.add("--target_under_inspection", processed_target)
+        args.add("--target_under_inspection_info", processed_target)
         args.add_all("--deps", processed_deps, omit_if_empty = False)
         args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
         if ctx.attr._ignored_includes:
             args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
         if _do_ensure_private_deps(ctx):
             args.add("--optimize_implementation_deps")
+        if _is_verbose(ctx):
+            args.add("--verbose")
 
         analysis_inputs = depset(
             direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
