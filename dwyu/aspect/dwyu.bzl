@@ -29,6 +29,9 @@ _CPLUSPLUS_VERSIONS_MAP = {
     "98": "199711",
 }
 
+def _is_verbose(ctx):
+    return ctx.attr.dwyu_verbose
+
 def _is_external(ctx):
     return ctx.label.workspace_root.startswith("external")
 
@@ -73,7 +76,7 @@ def _get_includes(ctx, target_cc):
 
     return includes, quote_includes, external_includes, system_includes
 
-def _process_target(ctx, target, defines, output_path, is_target_under_inspection, verbose):
+def _process_target(ctx, target, defines, output_path, is_target_under_inspection):
     processing_output = ctx.actions.declare_file(output_path)
     cc_context = target.cc_info.compilation_context
     header_files = _get_relevant_header(
@@ -92,7 +95,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         args.add_all("--external_includes", depset(transitive = external_includes), omit_if_empty = False)
         args.add_all("--system_includes", depset(transitive = system_includes), omit_if_empty = False)
         args.add_all("--defines", defines)
-    if verbose:
+    if _is_verbose(ctx):
         args.add("--verbose")
 
     ctx.actions.run(
@@ -105,14 +108,13 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
 
     return processing_output
 
-def _process_dependencies(ctx, target, deps, verbose):
+def _process_dependencies(ctx, target, deps):
     return [_process_target(
         ctx,
         target = dep,
         defines = [],
         output_path = "{}_processed_dep_{}.json".format(target.label.name, hash(str(dep.label))),
         is_target_under_inspection = False,
-        verbose = verbose,
     ) for dep in deps]
 
 def _define_macro(defines, define):
@@ -288,7 +290,7 @@ def _do_ensure_private_deps(ctx):
     The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
     and cc_test a separation between public and private files exists.
     """
-    return ctx.rule.kind == "cc_library" and ctx.attr._analysis_optimizes_impl_deps
+    return ctx.rule.kind == "cc_library" and ctx.attr.dwyu_analysis_optimizes_impl_deps
 
 def _dywu_results_from_deps(deps):
     """
@@ -347,7 +349,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
         if not ctx.attr._no_preprocessor:
             args.add_all("--defines", defines)
         args.add("--output", pp_output)
-        if ctx.attr._verbose:
+        if _is_verbose(ctx):
             args.add("--verbose")
 
         inputs = depset(direct = files, transitive = [target[CcInfo].compilation_context.headers, impl_deps_hdrs, cc_toolchain.all_files])
@@ -402,15 +404,14 @@ def dwyu_aspect_impl(target, ctx):
         defines = defines,
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
-        verbose = ctx.attr._verbose,
     )
 
     target_deps, target_impl_deps = _preprocess_deps(ctx)
 
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
     #      target_under_inspection have the same dependency
-    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps, verbose = ctx.attr._verbose)
-    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps, verbose = ctx.attr._verbose)
+    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps)
+    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps)
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
 

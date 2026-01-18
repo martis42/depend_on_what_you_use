@@ -11,5 +11,8 @@ dwyu_rule = rule(
         # You can control what this rule does (e.g. recursive vs. non recursive analysis) by specifying a DWYU aspect
         # which is configured in the desired way here.
         "deps": attr.label_list(aspects = [dwyu]),
+        # Some DWYU flags can be controlled via '--aspects_parameters'. Those have to be set explicitly. Either here in
+        # the attrs or in the factory creating the aspect used by this rule.
+        "dwyu_verbose": attr.bool(default = False),
     },
 )
