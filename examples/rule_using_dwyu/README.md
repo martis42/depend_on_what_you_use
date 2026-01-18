@@ -18,7 +18,10 @@ Executing the following fails due to DWYU automatically being executed and analy
 bazel build //rule_using_dwyu:dwyu
 ```
 
-You need to be careful when using multiple DWYU based rules in parallel with various different aspects implementing them.
+One thing to look out for when creating a Bazel rule executing the DWYU aspect is that all aspect options which can be controlled via `--aspects_parameters` have to be set explicitly.
+Either, by adding them to the `attrs` of the rule executing DWYU, or by making them explicit in the factory creating the DWYU aspect used by your rule.
+
+Also, you need to be careful when using multiple DWYU based rules in parallel with various different aspects implementing them.
 DWYU creates a report file for each target it analyzes.
 If multiple rules invoke DWYU recursively based on different aspects, and they share common dependencies, there will be conflicts due to multiple actions creating the same file. <br>
 This is not a problem if you have a single rule using one specific recursive DWYU aspect.

@@ -34,6 +34,7 @@ def dwyu_aspect_factory(
     Args:
         analysis_optimizes_impl_deps: Setting this to True will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.
                                       Such dependencies should be moved from `deps` to [implementation_deps](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to optimize the dependency graph of the project.<br>
+                                      This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_optimizes_impl_deps=[True|False]`.<br>
                                       This feature is demonstrated in the [basic_usage example](/examples/basic_usage).
 
         experimental_no_preprocessor: Deprecated flag.
@@ -132,7 +133,8 @@ def dwyu_aspect_factory(
         use_implementation_deps: Deprecated flag, which will be removed in a future release.
                                  See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.
 
-        verbose: If True, print debugging information about what DWYU does.
+        verbose: If True, print debugging information about the individual DWYU actions.<br>
+                 This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True|False]`.
 
     Returns:
         Configured DWYU aspect
@@ -173,8 +175,11 @@ def dwyu_aspect_factory(
         required_providers = [CcInfo],
         toolchains = use_cc_toolchain(mandatory = True),
         attrs = {
-            "_analysis_optimizes_impl_deps": attr.bool(
+            "dwyu_analysis_optimizes_impl_deps": attr.bool(
                 default = analysis_optimizes_impl_deps,
+            ),
+            "dwyu_verbose": attr.bool(
+                default = verbose,
             ),
             "_cc_toolchain_headers": attr.label(
                 default = cc_toolchain_headers,
@@ -235,9 +240,6 @@ def dwyu_aspect_factory(
             ),
             "_use_cpp_implementation": attr.bool(
                 default = use_cpp_implementation,
-            ),
-            "_verbose": attr.bool(
-                default = verbose,
             ),
         },
     )
