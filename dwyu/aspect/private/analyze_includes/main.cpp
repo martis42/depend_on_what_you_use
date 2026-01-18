@@ -18,6 +18,7 @@ namespace {
 struct ProgramOptions {
     std::string output{};
     std::string target_under_inspection{};
+    std::string target_under_inspection_info{};
     std::vector<std::string> preprocessed_public_files{};
     std::vector<std::string> preprocessed_private_files{};
     std::vector<std::string> deps{};
@@ -33,8 +34,10 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
 
     // Stores the analysis result in this file
     parser.addOptionValue("--output", options.output);
-    // Information about target under inspection
+    // Name of the target under inspection
     parser.addOptionValue("--target_under_inspection", options.target_under_inspection);
+    // Information about target under inspection
+    parser.addOptionValue("--target_under_inspection_info", options.target_under_inspection_info);
     // Preprocessor results for all public source files of the target under inspection
     parser.addOptionList("--preprocessed_public_files", options.preprocessed_public_files);
     // Preprocessor results for all private source files of the target under inspection
@@ -47,6 +50,8 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     parser.addOptionValue("--ignored_includes_config", options.ignored_includes_config);
     // If this is checked, ensure all 'deps' are indeed used in at least one public file
     parser.addOptionFlag("--optimize_implementation_deps", options.optimize_implementation_deps);
+    // Print debugging information
+    parser.addOptionFlag("--verbose", options.verbose);
 
     parser.parseOptions(argc, argv);
 
@@ -54,16 +59,30 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
 }
 
 int main_impl(const ProgramOptions& options) {
+    if (options.verbose) {
+        std::cout << "\n";
+        std::cout << ">> Analyzing " << options.target_under_inspection << "\n";
+        std::cout << "\n";
+        std::cout << "Preprocessed public files        : " << listToStr(options.preprocessed_public_files) << "\n";
+        std::cout << "Preprocessed private files       : " << listToStr(options.preprocessed_private_files) << "\n";
+        std::cout << "Dependencies                     : " << listToStr(options.deps) << "\n";
+        std::cout << "Implementation dependencies      : " << listToStr(options.implementation_deps) << "\n";
+        std::cout << "Ignored includes config          : " << options.ignored_includes_config << "\n";
+        std::cout << "Optimize implementation deps     : " << (options.optimize_implementation_deps ? "true" : "false")
+                  << "\n";
+        std::cout << "\n";
+    }
+
     const auto ignored_includes = getIgnoredIncludes(options.ignored_includes_config);
     auto system_under_inspection =
-        getSystemUnderInspection(options.target_under_inspection, options.deps, options.implementation_deps);
+        getSystemUnderInspection(options.target_under_inspection_info, options.deps, options.implementation_deps);
     auto public_includes = getIncludeStatements(options.preprocessed_public_files, ignored_includes);
     auto private_includes = getIncludeStatements(options.preprocessed_private_files, ignored_includes);
 
     const auto result = evaluateIncludes(public_includes, private_includes, system_under_inspection,
                                          options.optimize_implementation_deps);
 
-    if (!result.isOk()) {
+    if (!result.isOk() || options.verbose) {
         std::cout << result.toString(options.output) << "\n";
     }
 

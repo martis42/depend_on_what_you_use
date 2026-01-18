@@ -103,7 +103,8 @@ std::vector<IncludedFile> makeResolvedIncludes(const std::set<std::string>& incl
 int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
         std::cout << "\n";
-        std::cout << "Preprocessing        : " << listToStr(options.files) << "\n";
+        std::cout << ">> Preprocessing " << listToStr(options.files) << "\n";
+        std::cout << "\n";
         std::cout << "Include paths        : " << listToStr(options.include_paths) << "\n";
         std::cout << "System include paths : " << listToStr(options.system_include_paths) << "\n";
     }
