@@ -12,7 +12,7 @@ from test.support.result import Error, Result, Success
 
 class TestCaseMock(TestCaseBase):
     def __init__(self, name: str) -> None:
-        super().__init__(name, False)
+        super().__init__(name, cpp_impl_based=False, verbose=False)
         self.result: Result = Success()
         self.dwyu_extra_args: list[str] = []
         self.target: list[str] | str = "//foo:bar"
