@@ -167,7 +167,7 @@ def dwyu_aspect_factory(
     else:
         target_processor = Label("//dwyu/aspect/private/process_target:main_py")
         tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:stub")
-        tool_analyze_includes = Label("//dwyu/aspect/private/preprocessing:stub")
+        tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:analyze_includes")
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -184,14 +184,6 @@ def dwyu_aspect_factory(
             "_cc_toolchain_headers": attr.label(
                 default = cc_toolchain_headers,
                 providers = [DwyuCcToolchainHeadersInfo],
-            ),
-            "_dwyu_binary": attr.label(
-                default = Label("//dwyu/aspect/private/analyze_includes:analyze_includes"),
-                allow_files = True,
-                executable = True,
-                cfg = "exec",
-                doc = "Tool Analyzing the include statement in the source code under inspection" +
-                      " and comparing them to the available dependencies.",
             ),
             "_ignore_cc_toolchain_headers": attr.bool(
                 default = ignore_cc_toolchain_headers,

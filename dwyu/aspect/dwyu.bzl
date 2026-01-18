@@ -469,7 +469,7 @@ def dwyu_aspect_impl(target, ctx):
             transitive = [target[CcInfo].compilation_context.headers],
         )
         ctx.actions.run(
-            executable = ctx.executable._dwyu_binary,
+            executable = ctx.executable._tool_analyze_includes,
             inputs = analysis_inputs,
             outputs = [report_file],
             mnemonic = "DwyuAnalyzeIncludes",
