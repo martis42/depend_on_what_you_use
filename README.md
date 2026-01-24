@@ -1,4 +1,3 @@
-![CI](https://github.com/martis42/depend_on_what_you_use/actions/workflows/ci.yaml/badge.svg)
 [![GitHub release](https://img.shields.io/github/v/release/martis42/depend_on_what_you_use)](https://github.com/martis42/depend_on_what_you_use/releases)
 [![BCR](https://img.shields.io/badge/BCR-available-green)](https://registry.bazel.build/modules/depend_on_what_you_use)
 [![Bazel](https://img.shields.io/badge/Bazel-7.2.1+-green)](https://bazel.build/)
