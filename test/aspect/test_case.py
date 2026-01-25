@@ -84,27 +84,33 @@ class TestCaseBase(ABC):
         return target + "_cpp" if self._cpp_impl_based else target
 
     def execute_test(
-        self, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
+        self,
+        version: TestedVersions,
+        bazel_bin: Path,
+        output_base: Path | None,
+        extra_args: list[str],
+        reports_root: Path,
     ) -> Result:
         self._tested_version = version
         self._bazel_bin = bazel_bin
         self._output_base = output_base
         self._extra_args = extra_args
+        self._reports_root = reports_root
         return self.execute_test_logic()
 
     def _check_result(self, actual: subprocess.CompletedProcess, expected: ExpectedResult) -> Result:
-        as_expected = expected.matches_expectation(
-            return_code=actual.returncode, dwyu_output=actual.stdout, is_cpp_impl=self._cpp_impl_based
+        matching = expected.matches_expectation(
+            return_code=actual.returncode, dwyu_output=actual.stdout, reports_root=self._reports_root
         )
 
-        log_level = logging.DEBUG if as_expected else logging.INFO
+        log_level = logging.DEBUG if matching.is_success() else logging.INFO
         log.log(log_level, "----- DWYU stdout -----")
         log.log(log_level, actual.stdout.strip())
         log.log(log_level, "----- DWYU stderr -----")
         log.log(log_level, actual.stderr.strip())
         log.log(log_level, "-----------------------")
 
-        return Success() if as_expected else Error("DWYU did not behave as expected")
+        return Success() if matching.is_success() else Error(f"DWYU did not behave as expected: {matching.error}")
 
     def _run_dwyu(
         self, target: str | list[str], aspect: str, extra_args: list[str] | None = None
@@ -125,12 +131,21 @@ class TestCaseBase(ABC):
     def _run_bazel_build(
         self, target: str | list[str], extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
-        output_base_arg = [f"--output_base={self._output_base}"] if self._output_base else []
-        extra_args = extra_args if extra_args else []
-        targets = target if isinstance(target, list) else [target]
+        custom_extra_args = extra_args if extra_args else []
+        all_extra_args = ["--noshow_progress", *self._extra_args, *custom_extra_args]
 
+        custom_targets = [target] if isinstance(target, str) else target
+        targets = ["--", *custom_targets]
+
+        return self._run_bazel_cmd(cmd="build", targets=targets, extra_args=all_extra_args)
+
+    def _run_bazel_info(self, desired_info: str | None = None) -> subprocess.CompletedProcess:
+        return self._run_bazel_cmd(cmd="info", targets=[desired_info] if desired_info else [], extra_args=[])
+
+    def _run_bazel_cmd(self, cmd: str, targets: list[str], extra_args: list[str]) -> subprocess.CompletedProcess:
+        output_base_arg = [f"--output_base={self._output_base}"] if self._output_base else []
         test_env = make_bazel_version_env(self._tested_version.bazel)
-        cmd = [
+        full_cmd = [
             str(self._bazel_bin),
             *output_base_arg,
             # Testing over many Bazel versions does work well with a static bazelrc file including flags which might not
@@ -138,14 +153,11 @@ class TestCaseBase(ABC):
             "--ignore_all_rc_files",
             # Do not waste memory by keeping idle Bazel servers around
             "--max_idle_secs=10",
-            "build",
+            cmd,
             "--experimental_convenience_symlinks=ignore",
-            "--noshow_progress",
-            *self._extra_args,
             *extra_args,
-            "--",
             *targets,
         ]
-        log.debug(f"Executing: {shlex_join(cmd)}\n")
 
-        return subprocess.run(cmd, env=test_env, capture_output=True, text=True, check=False)
+        log.debug(f"Executing: {shlex_join(full_cmd)}\n")
+        return subprocess.run(full_cmd, env=test_env, capture_output=True, text=True, check=False)

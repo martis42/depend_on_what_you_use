@@ -1,4 +1,4 @@
-from expected_result import ExpectedResult
+from expected_result import ExpectedSuccess
 from test_case import Compatibility, Compatible, Incompatible, TestCaseBase
 
 from test.support.result import Result
@@ -12,7 +12,6 @@ class TestCase(TestCaseBase):
         return Incompatible("Not compatible with the Python based implementation")
 
     def execute_test_logic(self) -> Result:
-        expected = ExpectedResult(success=True)
         actual = self._run_dwyu(target="//preprocessing:all", aspect=self.default_aspect)
 
-        return self._check_result(actual=actual, expected=expected)
+        return self._check_result(actual=actual, expected=ExpectedSuccess())

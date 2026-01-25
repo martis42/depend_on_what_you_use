@@ -1,6 +1,6 @@
 from platform import system
 
-from expected_result import ExpectedResult
+from expected_result import ExpectedSuccess
 from test_case import TestCaseBase
 
 from test.support.result import Result
@@ -16,11 +16,10 @@ def make_define(flag: str) -> str:
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
-        expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target="//defines:use_command_line_defines",
             aspect=self.default_aspect,
             extra_args=[f"--cxxopt={make_define('SOME_FLAG')}", f"--cxxopt={make_define('SOME_VALUE=42')}"],
         )
 
-        return self._check_result(actual=actual, expected=expected)
+        return self._check_result(actual=actual, expected=ExpectedSuccess())
