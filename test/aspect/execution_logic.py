@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import subprocess
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from re import fullmatch
@@ -8,14 +9,42 @@ from re import fullmatch
 from test_case import TestCaseBase
 from version import CompatibleVersions, TestedVersions
 
-from test.support.bazel import get_bazel_binary, get_current_workspace, get_explicit_bazel_version
+from test.support.bazel import (
+    get_bazel_binary,
+    get_current_workspace,
+    get_explicit_bazel_version,
+    make_bazel_version_env,
+)
 from test.support.result import Error
 
 log = logging.getLogger()
 
 
+def get_reports_root(bazel_bin: Path, version: str, output_base: Path | None) -> Path:
+    out_base = [f"--output_base={output_base}"] if output_base else []
+    cmd = [
+        str(bazel_bin),
+        *out_base,
+        "--ignore_all_rc_files",
+        # Make sure no idle server lives forever wasting RAM
+        "--max_idle_secs=10",
+        "info",
+        "--experimental_convenience_symlinks=ignore",
+        "execution_root",
+    ]
+    test_env = make_bazel_version_env(version)
+    process = subprocess.run(cmd, env=test_env, shell=False, check=True, capture_output=True, text=True)
+
+    return Path(process.stdout.strip())
+
+
 def execute_test(
-    test: TestCaseBase, version: TestedVersions, bazel_bin: Path, output_base: Path | None, extra_args: list[str]
+    test: TestCaseBase,
+    version: TestedVersions,
+    bazel_bin: Path,
+    output_base: Path | None,
+    extra_args: list[str],
+    reports_root: Path,
 ) -> bool:
     if not test.compatibility.is_compatible:
         log.info(f"--- Skip '{test.name}' due to: {test.compatibility.reason}\n")
@@ -26,7 +55,13 @@ def execute_test(
     succeeded = False
     result = None
     try:
-        result = test.execute_test(version=version, bazel_bin=bazel_bin, output_base=output_base, extra_args=extra_args)
+        result = test.execute_test(
+            version=version,
+            bazel_bin=bazel_bin,
+            output_base=output_base,
+            extra_args=extra_args,
+            reports_root=reports_root,
+        )
     except Exception:
         log.exception("Test failed due to exception:")
 
@@ -117,6 +152,7 @@ def main(
 """)
 
         output_base = prepare_output_base(version) if not no_output_base else None
+        reports_root = get_reports_root(bazel_bin=bazel_binary, version=version.bazel, output_base=output_base)
         extra_args = [
             arg
             for arg, valid_versions in version_specific_args.items()
@@ -127,7 +163,12 @@ def main(
                 f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
                 for test in tests
                 if not execute_test(
-                    test=test, version=version, bazel_bin=bazel_binary, output_base=output_base, extra_args=extra_args
+                    test=test,
+                    version=version,
+                    bazel_bin=bazel_binary,
+                    output_base=output_base,
+                    extra_args=extra_args,
+                    reports_root=reports_root,
                 )
             ]
         )

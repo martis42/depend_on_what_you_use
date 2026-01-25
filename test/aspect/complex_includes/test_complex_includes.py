@@ -1,4 +1,4 @@
-from expected_result import ExpectedResult
+from expected_result import ExpectedSuccess
 from test_case import TestCaseBase
 
 from test.support.result import Result
@@ -11,10 +11,9 @@ class TestCase(TestCaseBase):
         working inside the own workspace. Thus, we explicitly test working in an external workspace on top of normal
         targets from within the main workspace.
         """
-        expected = ExpectedResult(success=True)
         actual = self._run_dwyu(
             target=["//complex_includes:all", "@complex_includes_test_repo//..."],
             aspect=self.default_aspect,
         )
 
-        return self._check_result(actual=actual, expected=expected)
+        return self._check_result(actual=actual, expected=ExpectedSuccess())

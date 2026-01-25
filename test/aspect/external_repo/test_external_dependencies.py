@@ -1,4 +1,4 @@
-from expected_result import ExpectedResult
+from expected_result import ExpectedSuccess
 from test_case import TestCaseBase
 
 from test.support.result import Result
@@ -11,7 +11,6 @@ class TestCase(TestCaseBase):
         working inside the own workspace. This test shows DWYU can be invoked on targets using libraries from external
         workspaces without failing unexpectedly.
         """
-        expected = ExpectedResult(success=True)
         actual = self._run_dwyu(target="//external_repo:use_external_libs", aspect=self.default_aspect)
 
-        return self._check_result(actual=actual, expected=expected)
+        return self._check_result(actual=actual, expected=ExpectedSuccess())
