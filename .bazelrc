@@ -11,7 +11,6 @@ build --features=external_include_paths
 build --host_features=external_include_paths
 
 # protoc is a dependency of the docs generation. We use the precompiled version to save build time
-common --incompatible_enable_proto_toolchain_resolution
 common --@protobuf//bazel/toolchains:prefer_prebuilt_protoc
 
 # https://clang.llvm.org/docs/DiagnosticsReference.html

@@ -29,5 +29,5 @@ print_msg "Aspect integration tests scripts unit tests"
 print_msg "Build examples"
 ./scripts/build_examples.sh
 
-echo "Execute mocked CC toolchain tests"
+print_msg "Execute mocked CC toolchain tests"
 ./scripts/test_mocked_cc_toolchains.sh

@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
+load("@rules_python//python:py_runtime_info.bzl", "PyRuntimeInfo")
 
 def _toolchain_headers_info_test_impl(ctx):
     # Distinguish between hermetic toolchain and system toolchain
