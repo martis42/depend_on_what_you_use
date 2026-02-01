@@ -29,9 +29,10 @@ bazel_dep(name = "zstd", version = "1.5.5.bcr.1")
 ### Development Dependencies
 ###
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.22.2", dev_dependency = True)
+bazel_dep(name = "bazel_lib", version = "3.1.1", dev_dependency = True)
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True)
 bazel_dep(name = "protobuf", version = "33.4", dev_dependency = True)
+bazel_dep(name = "stardoc", version = "0.8.1", dev_dependency = True)
 bazel_dep(name = "toolchains_llvm", version = "1.6.0", dev_dependency = True)
 
 ###
