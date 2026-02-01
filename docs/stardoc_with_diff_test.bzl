@@ -13,23 +13,27 @@ load("@stardoc//stardoc:stardoc.bzl", _stardoc = "stardoc")
 
 visibility("private")
 
-def stardoc(name, bzl_library_target, out_file, **kwargs):
+def stardoc(name, bzl_target, out_file, **kwargs):
     """
     Convenience wrapper around _stardoc() for generating stardoc targets in a way the update_and_test_docs() rule can
     automatically pick up the stardoc() targets.
 
     Args:
         name: Unique name for the stardoc target
-        bzl_library_target: The `bzl_library` target to generate documentation for
+        bzl_target: The `bzl_library` target to generate documentation for. We expect the target name ending with
+                    '_bzl' and the target containing a source file named accordingly.
         out_file: The MD file which shall be generated for 'bzl_library_target'
         **kwargs: Additional attributes passed to the _stardoc() rule
     """
 
+    if not bzl_target.endswith("_bzl"):
+        fail("bzl_target '{}' does not follow the expected naming scheme".format(bzl_target))
+
     _stardoc(
         name = name + ".stardoc",
         out = out_file.replace(".md", ".docgen.md"),
-        input = bzl_library_target + ".bzl",
-        deps = [bzl_library_target],
+        input = bzl_target.replace("_bzl", ".bzl"),
+        deps = [bzl_target],
         **kwargs
     )
 
