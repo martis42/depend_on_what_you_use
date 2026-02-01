@@ -20,6 +20,7 @@
     "bzip2",
     "nlohmann_json",
     "platforms",
+    "protobuf",
     "rules_python",
     "rules_cc",
     "xz",
