@@ -43,9 +43,7 @@ python = use_extension("@rules_python//python/extensions:python.bzl", "python", 
 python.toolchain(python_version = "3.8")
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
-llvm.toolchain(
-    llvm_version = "21.1.6",
-)
+llvm.toolchain(llvm_version = "21.1.6")
 use_repo(llvm, "llvm_toolchain")
 
 register_toolchains(
