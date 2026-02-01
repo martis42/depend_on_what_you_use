@@ -313,6 +313,17 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
+def _get_pkg_relative_file_path(file):
+    """
+    Return the path of a file relative to the package using it
+    """
+
+    file_label = str(file.owner)
+    pkg_relative_path = file_label.split(":", 1)[1]
+    normalized_path = pkg_relative_path.replace("/", "_").replace(".", "_")
+
+    return normalized_path
+
 def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
     """
     For each given file perform a preprocessing step to find all relevant include statements
@@ -341,7 +352,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
 
     preprocessor_results = []
     for file in files:
-        pp_output = ctx.actions.declare_file("{}_{}.dwyu_ppr.json".format(target.label.name, file.basename))
+        pp_output = ctx.actions.declare_file("{}.dwyu_psf_{}.json".format(target.label.name, _get_pkg_relative_file_path(file)))
 
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
