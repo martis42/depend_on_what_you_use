@@ -51,6 +51,12 @@ local_path_override(
     path = "external_repo/repo",
 )
 
+bazel_dep(name = "files_with_same_name_test_repo")
+local_path_override(
+    module_name = "files_with_same_name_test_repo",
+    path = "files_with_same_name/ext_repo",
+)
+
 bazel_dep(name = "complex_includes_test_repo")
 local_path_override(
     module_name = "complex_includes_test_repo",
