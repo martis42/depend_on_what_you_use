@@ -20,7 +20,7 @@ cc_test(
 ```
 This can be considered superfluous noise without a significant benefit.
 The mapping feature described here allows defining that `@com_google_googletest//:gtest_main` offers the header files from `@com_google_googletest//:gtest`.
-Then a test can specify only the dependency to `@com_google_googletest//:gtest_main` without DWYU raising an error while analysing the test.
+Then a test can specify only the dependency to `@com_google_googletest//:gtest_main` without DWYU raising an error while analyzing the test.
 """
 
 load("//dwyu/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
