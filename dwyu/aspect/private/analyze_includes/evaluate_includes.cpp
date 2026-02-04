@@ -46,6 +46,7 @@ findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& include
 Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const std::vector<IncludeStatement>& private_includes,
                         SystemUnderInspection& system_under_inspection,
+                        const bool report_unused_deps,
                         const bool optimize_impl_deps) {
     Result result{system_under_inspection.target_under_inspection.name, optimize_impl_deps};
 
@@ -59,31 +60,33 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
         system_under_inspection.headers_to_all_deps_map);
     result.setPrivateIncludesWithoutDirectDep(std::move(private_includes_without_direct_dep));
 
-    std::set<std::string> unused_deps{};
-    for (const auto& dep_pair : system_under_inspection.headers_to_public_deps_map) {
-        for (const auto& dep : dep_pair.second) {
-            if (!dep->usage.is_used()) {
-                std::ignore = unused_deps.insert(dep->name);
-            }
-        }
-    }
-    std::set<std::string> unused_impl_deps{};
-    for (const auto& dep_pair : system_under_inspection.headers_to_all_deps_map) {
-        for (const auto& dep : dep_pair.second) {
-            if (!dep->usage.is_used()) {
-                // Only add deps which are not yet reported as unused public deps
-                if (unused_deps.find(dep->name) == unused_deps.end()) {
-                    std::ignore = unused_impl_deps.insert(dep->name);
+    if (report_unused_deps) {
+        std::set<std::string> unused_deps{};
+        for (const auto& dep_pair : system_under_inspection.headers_to_public_deps_map) {
+            for (const auto& dep : dep_pair.second) {
+                if (!dep->usage.is_used()) {
+                    std::ignore = unused_deps.insert(dep->name);
                 }
             }
         }
+        std::set<std::string> unused_impl_deps{};
+        for (const auto& dep_pair : system_under_inspection.headers_to_all_deps_map) {
+            for (const auto& dep : dep_pair.second) {
+                if (!dep->usage.is_used()) {
+                    // Only add deps which are not yet reported as unused public deps
+                    if (unused_deps.find(dep->name) == unused_deps.end()) {
+                        std::ignore = unused_impl_deps.insert(dep->name);
+                    }
+                }
+            }
+        }
+
+        result.setUnusedDeps(std::move(unused_deps));
+        result.setUnusedImplDeps(std::move(unused_impl_deps));
     }
 
-    result.setUnusedDeps(std::move(unused_deps));
-    result.setUnusedImplDeps(std::move(unused_impl_deps));
-
-    std::set<std::string> deps_which_should_be_private{};
     if (optimize_impl_deps) {
+        std::set<std::string> deps_which_should_be_private{};
         for (const auto& dep_pair : system_under_inspection.headers_to_public_deps_map) {
             for (const auto& dep : dep_pair.second) {
                 if (dep->usage.usage() == TargetUsage::Status::Private) {

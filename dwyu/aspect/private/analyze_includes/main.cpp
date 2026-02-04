@@ -25,6 +25,7 @@ struct ProgramOptions {
     std::vector<std::string> implementation_deps{};
     std::string ignored_includes_config{};
     bool optimize_implementation_deps{};
+    bool report_unused_deps{};
     bool verbose{false};
 };
 
@@ -50,6 +51,8 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     parser.addOptionValue("--ignored_includes_config", options.ignored_includes_config);
     // If this is checked, ensure all 'deps' are indeed used in at least one public file
     parser.addOptionFlag("--optimize_implementation_deps", options.optimize_implementation_deps);
+    // If this is checked, the analysis will report unused dependencies.
+    parser.addOptionFlag("--report_unused_deps", options.report_unused_deps);
     // Print debugging information
     parser.addOptionFlag("--verbose", options.verbose);
 
@@ -70,6 +73,7 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "Ignored includes config          : " << options.ignored_includes_config << "\n";
         std::cout << "Optimize implementation deps     : " << (options.optimize_implementation_deps ? "true" : "false")
                   << "\n";
+        std::cout << "Report unused deps               : " << (options.report_unused_deps ? "true" : "false") << "\n";
         std::cout << "\n";
     }
 
@@ -80,7 +84,7 @@ int main_impl(const ProgramOptions& options) {
     auto private_includes = getIncludeStatements(options.preprocessed_private_files, ignored_includes);
 
     const auto result = evaluateIncludes(public_includes, private_includes, system_under_inspection,
-                                         options.optimize_implementation_deps);
+                                         options.report_unused_deps, options.optimize_implementation_deps);
 
     if (!result.isOk() || options.verbose) {
         std::cout << result.toString(options.output) << "\n";
