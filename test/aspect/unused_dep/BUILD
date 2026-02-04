@@ -28,3 +28,10 @@ cc_library(
         ":foo",  # unused dependency
     ],
 )
+
+cc_library(
+    name = "unused_deps",
+    hdrs = ["unused_deps.h"],
+    implementation_deps = [":bar"],
+    deps = [":foo"],
+)
