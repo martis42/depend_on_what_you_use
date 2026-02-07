@@ -11,7 +11,7 @@ Executing the following shows the default behavior which is a success, as the ta
 bazel build --config=dwyu //recursion:use_lib
 ```
 
-Executing the following fails however as it automatically analyzes the fault dependency used by the target under inspection.
+Executing the following fails however as it automatically analyzes the faulty dependency used by the target under inspection.
 See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the config and the aspect configuration.
 
 ```shell

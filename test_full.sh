@@ -19,9 +19,9 @@ print_msg "Execute workspace integration tests"
 print_msg "Execute integration tests - Aspect"
 ./test/aspect/execute_tests.py
 
-print_msg "Execute integration tests - Aspect with C++ implementation"
+print_msg "Execute integration tests - Aspect with legacy Python implementation"
 # We only test the default versions, as the C++ implementation is supposed to be a function neutral drop in
-./test/aspect/execute_tests.py --only-default-version --cpp_impl_based
+./test/aspect/execute_tests.py --only-default-version --py_impl_based
 
 print_msg "Execute integration tests - Applying fixes"
 ./test/apply_fixes/execute_tests.py
