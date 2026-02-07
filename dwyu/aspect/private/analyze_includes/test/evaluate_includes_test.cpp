@@ -53,11 +53,12 @@ TEST(EvaluateIncludes, SuccessForNoInput) {
     const SystemUnderInspection::HeadersToDepsMap pub_deps{};
     const auto all_deps = makeAllDeps(pub_deps, {});
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
@@ -80,11 +81,12 @@ TEST(EvaluateIncludes, SuccessForAllChecks) {
     const auto all_deps = makeAllDeps(pub_deps, {{"path/hdr_b.h", {makeDep("//priv/dep:b")}}});
 
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = true;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
@@ -113,11 +115,12 @@ TEST(EvaluateIncludes, DetectIncludesWithoutMatchingDependency) {
     const auto all_deps = makeAllDeps(pub_deps, {{"path/priv_hdr_b.h", {makeDep("//priv/dep:b")}}});
 
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_FALSE(result.isOk());
 
@@ -152,11 +155,12 @@ TEST(EvaluateIncludes, DetectTheTargetUnderInspectionProvidingTheHeaders) {
     const auto all_deps = makeAllDeps(pub_deps, {});
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {"path/hdr_a.h", "path/hdr_b.h"}},
                                                   pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = true;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
@@ -187,11 +191,12 @@ TEST(EvaluateIncludes, DetectUnusedDependencies) {
                                {"path/hdr_priv_b_2.h", {priv_b}}});
 
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_FALSE(result.isOk());
 
@@ -218,11 +223,12 @@ TEST(EvaluateIncludes, UsingASingleHeaderIsSufficientToMarkADependencyAsUsed) {
     const auto all_deps = makeAllDeps(pub_deps, {{"path/hdr_b_1.h", {priv_b}}, {"path/hdr_b_2.h", {priv_b}}});
 
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
@@ -246,11 +252,12 @@ TEST(EvaluateIncludes, UsingAHeaderMarksAllAssociatedDependenciesAsUsed) {
     const auto all_deps =
         makeAllDeps(pub_deps, {{"path/hdr_b.h", {makeDep("//priv/dep:b_1"), makeDep("//priv/dep:b_2")}}});
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
@@ -278,11 +285,12 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
         {"path/hdr_b_2.h", {pub_b}}};
     const auto all_deps = makeAllDeps(pub_deps, {});
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = true;
     const bool optimize_impl_deps = true;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_FALSE(result.isOk());
 
@@ -297,6 +305,34 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
     EXPECT_TRUE(json_result["use_implementation_deps"].get<bool>());
 }
 
+TEST(EvaluateIncludes, AllowMissingDirectDependencies) {
+    const std::vector<IncludeStatement> pub_includes{
+        IncludeStatement{"pub_file_using_a.h", "<pub_hdr_a.h>", "path/pub_hdr_a.h"}};
+    const std::vector<IncludeStatement> priv_includes{
+        IncludeStatement{"priv_file_using_b.cpp", "<priv_hdr_b.h>", "path/priv_hdr_b.h"}};
+    const SystemUnderInspection::HeadersToDepsMap pub_deps{};
+    const auto all_deps = makeAllDeps(pub_deps, {});
+
+    SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = false;
+    const bool report_unused_deps = true;
+    const bool optimize_impl_deps = false;
+
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
+
+    EXPECT_TRUE(result.isOk());
+
+    const auto json_result = result.toJson();
+    EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
+    EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
+    EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
+    EXPECT_TRUE(json_result["unused_deps"].empty());
+    EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
+    EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
+    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
+}
+
 TEST(EvaluateIncludes, AllowUnusedUnusedDependencies) {
     const std::vector<IncludeStatement> pub_includes{};
     const std::vector<IncludeStatement> priv_includes{};
@@ -304,11 +340,12 @@ TEST(EvaluateIncludes, AllowUnusedUnusedDependencies) {
     const auto all_deps = makeAllDeps(pub_deps, {{"path/hdr_priv_a.h", {makeDep("//priv/dep:a")}}});
 
     SystemUnderInspection system_under_inspection{CcTargetUnderInspection{"//:foo", {}}, pub_deps, all_deps};
+    const bool report_missing_direct_deps = true;
     const bool report_unused_deps = false;
     const bool optimize_impl_deps = false;
 
-    const auto result =
-        evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_unused_deps, optimize_impl_deps);
+    const auto result = evaluateIncludes(pub_includes, priv_includes, system_under_inspection,
+                                         report_missing_direct_deps, report_unused_deps, optimize_impl_deps);
 
     EXPECT_TRUE(result.isOk());
 
