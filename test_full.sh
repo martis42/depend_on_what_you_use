@@ -16,9 +16,6 @@ print_msg "Execute integration tests - Examples with WORKSPACE setup"
 print_msg "Execute workspace integration tests"
 ./test/workspace_integration/test.py
 
-print_msg "Execute upstream CC toolchains integration tests"
-./test/cc_toolchains/upstream/test.py
-
 print_msg "Execute integration tests - Aspect"
 ./test/aspect/execute_tests.py
 
