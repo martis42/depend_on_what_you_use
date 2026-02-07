@@ -173,7 +173,7 @@ int main_impl(const ProgramOptions& options) {
         }
 
         if (options.verbose) {
-            std::cout << "\nDiscovered includes:" << "\n";
+            std::cout << "\nDiscovered includes:" << (included_files.empty() ? " None" : "") << "\n";
             for (const auto& inc : included_files) {
                 std::cout << "  " << inc.include_statement << " - " << inc.resolved_path << "\n";
             }

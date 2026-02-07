@@ -122,9 +122,18 @@ int main_impl(const ProgramOptions& options) {
         const auto includes = extractIncludes(input);
         updateIncludePathsForRelativeIncludes(file, include_paths);
 
+        const auto resolved_includes = makeResolvedIncludes(includes, include_paths, working_dir);
+        if (options.verbose) {
+            std::cout << "\nDiscovered includes:" << (resolved_includes.empty() ? " None" : "") << "\n";
+            for (const auto& inc : resolved_includes) {
+                std::cout << "  " << inc.include_statement << " - " << inc.resolved_path << "\n";
+            }
+            std::cout << "\n";
+        }
+
         nlohmann::json entry{};
         entry["file"] = file;
-        entry["resolved_includes"] = makeResolvedIncludes(includes, include_paths, working_dir);
+        entry["resolved_includes"] = resolved_includes;
         output_json.push_back(std::move(entry));
     }
 
