@@ -1,0 +1,20 @@
+--- include/boost/wave/util/cpp_include_paths.hpp
++++ include/boost/wave/util/cpp_include_paths.hpp
+@@ -328,7 +328,7 @@ bool include_paths::find_include_file (std::string &s, std::string &dir,
+             currpath /= create_path(s);      // append filename
+         }
+
+-        if (fs::exists(currpath)) {
++        if (fs::exists(currpath) && !fs::is_directory(currpath)) {
+             fs::path dirpath (create_path(s));
+             if (!dirpath.has_root_directory()) {
+                 dirpath = create_path((*it).second);
+@@ -362,7 +362,7 @@ include_paths::find_include_file (std::string &s, std::string &dir,
+                 currpath /= create_path(s);
+             }
+
+-            if (fs::exists(currpath) && 0 == current_file) {
++            if (fs::exists(currpath) && !fs::is_directory(currpath) && 0 == current_file) {
+                 // if 0 != current_path (#include_next handling) it can't be
+                 // the file in the current directory
+                 fs::path dirpath(create_path(s));
