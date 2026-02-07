@@ -20,7 +20,7 @@ def dwyu_aspect_factory(
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         cc_toolchain_headers_info = None,
-        use_cpp_implementation = False,
+        use_cpp_implementation = True,
         use_implementation_deps = False,
         verbose = False):
     """
@@ -133,13 +133,9 @@ def dwyu_aspect_factory(
                                    Please note, the required information are not the include paths where the compiler looks for toolchain headers, but all the sub paths to header files relative to those include directories.
                                    In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
 
-        use_cpp_implementation: Switch parts of the internal tools executed by DWYU to a C++ based implementation instead of Python scripting.
-                                This is mostly a performance improvement and DWYU should not behave significantly different.
-                                That much said, different behavior in certain edge cases is possible.
-                                For now only parts of the implementation are switched to C++.
-                                We will migrate more parts of the implementation step by step in future releases.
-                                Since, the C++ based implementation is new, this is for now an opt-in.
-                                However, this will become the default eventually.
+        use_cpp_implementation: Set this to `False` to use the legacy Python based implementation.
+                                If you have to use the Python implementation instead of the standard C++ based implementation, please create an issue with your problem in the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).<br>
+                                **The Python based implementation will be removed in a future release**!
 
         use_implementation_deps: Deprecated flag, which will be removed in a future release.
                                  See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.
@@ -178,6 +174,8 @@ def dwyu_aspect_factory(
         # The C++ based implementation no longer needs the information about the toolchain headers
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
     else:
+        # buildifier: disable=print
+        print("WARNING: Using the legacy Python based implementation, which will be removed in a future release. Please report an issue to DWYU if the new C++ based implementation does not work for you.")
         target_processor = Label("//dwyu/aspect/private/process_target:main_py")
         tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:stub")
         tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:analyze_includes")
