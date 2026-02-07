@@ -8,6 +8,7 @@ _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 
 def dwyu_aspect_factory(
         analysis_optimizes_impl_deps = False,
+        analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
@@ -33,12 +34,16 @@ def dwyu_aspect_factory(
     ```
 
     Args:
-        analysis_optimizes_impl_deps: Setting this to True will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.
+        analysis_optimizes_impl_deps: Setting this to `True` will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.
                                       Such dependencies should be moved from `deps` to [implementation_deps](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to optimize the dependency graph of the project.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_optimizes_impl_deps=[True|False]`.<br>
                                       This feature is demonstrated in the [basic_usage example](/examples/basic_usage).
 
-        analysis_reports_unused_deps: Setting this to True will report dependencies which are not used in any of the files of the target under inspection as unused.
+        analysis_reports_missing_direct_deps: Setting this to `True` will report include statements in the files of the target under inspection which are not covered by any of the direct dependencies of the target.
+                                              This is useful to identify missing dependencies in the dependency graph of the project.<br>
+                                              This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_missing_direct_deps=[True|False]`.
+
+        analysis_reports_unused_deps: Setting this to `True` will report dependencies which are not used in any of the files of the target under inspection as unused.
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
@@ -139,7 +144,7 @@ def dwyu_aspect_factory(
         use_implementation_deps: Deprecated flag, which will be removed in a future release.
                                  See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.
 
-        verbose: If True, print debugging information about the individual DWYU actions.<br>
+        verbose: If `True`, print debugging information about the individual DWYU actions.<br>
                  This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True|False]`.
 
     Returns:
@@ -174,6 +179,8 @@ def dwyu_aspect_factory(
         target_processor = Label("//dwyu/aspect/private/process_target:main_py")
         tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:stub")
         tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:analyze_includes")
+    if not analysis_reports_missing_direct_deps and not use_cpp_implementation:
+        fail("Disabling the reporting of missing direct dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of missing direct dependencies.")
     if not analysis_reports_unused_deps and not use_cpp_implementation:
         fail("Disabling the reporting of unused dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of unused dependencies.")
     return aspect(
@@ -185,6 +192,9 @@ def dwyu_aspect_factory(
         attrs = {
             "dwyu_analysis_optimizes_impl_deps": attr.bool(
                 default = analysis_optimizes_impl_deps,
+            ),
+            "dwyu_analysis_reports_missing_direct_deps": attr.bool(
+                default = analysis_reports_missing_direct_deps,
             ),
             "dwyu_analysis_reports_unused_deps": attr.bool(
                 default = analysis_reports_unused_deps,

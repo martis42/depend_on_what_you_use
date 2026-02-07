@@ -46,19 +46,24 @@ findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& include
 Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const std::vector<IncludeStatement>& private_includes,
                         SystemUnderInspection& system_under_inspection,
+                        const bool report_missing_direct_deps,
                         const bool report_unused_deps,
                         const bool optimize_impl_deps) {
     Result result{system_under_inspection.target_under_inspection.name, optimize_impl_deps};
 
+    // These computations always have to happen, even if 'report_missing_direct_deps' is false. They compute the
+    // information which is used by the other checks.
     auto public_includes_without_direct_dep = findIncludesWithoutDirectDependency(
         public_includes, TargetUsage::Status::Public, system_under_inspection.target_under_inspection.header_files,
         system_under_inspection.headers_to_public_deps_map);
-    result.setPublicIncludesWithoutDirectDep(std::move(public_includes_without_direct_dep));
-
     auto private_includes_without_direct_dep = findIncludesWithoutDirectDependency(
         private_includes, TargetUsage::Status::Private, system_under_inspection.target_under_inspection.header_files,
         system_under_inspection.headers_to_all_deps_map);
-    result.setPrivateIncludesWithoutDirectDep(std::move(private_includes_without_direct_dep));
+
+    if (report_missing_direct_deps) {
+        result.setPublicIncludesWithoutDirectDep(std::move(public_includes_without_direct_dep));
+        result.setPrivateIncludesWithoutDirectDep(std::move(private_includes_without_direct_dep));
+    }
 
     if (report_unused_deps) {
         std::set<std::string> unused_deps{};
