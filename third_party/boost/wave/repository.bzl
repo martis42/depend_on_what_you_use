@@ -21,5 +21,10 @@ def boost_wave():
             # (e.g. __cplusplus). However, we want full control over all macros. Thus, we introduce a flag allowing
             # us to overwrite all macros on demand.
             Label("//third_party/boost/wave:allow_overwriting_all_maros.patch"),
+            # Fix bug https://github.com/boostorg/wave/issues/243
+            # We do not use 'boost::filesystem::is_regular_file()' because Bazel makes heavy use of symlinks. Just
+            # checking if the path is a directory seems like the safer approach not creating room for new edge cases
+            # due to how the Bazel sandbox works by using symlinks a lot.
+            Label("//third_party/boost/wave:find_include_file.patch"),
         ],
     )
