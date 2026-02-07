@@ -1,8 +1,6 @@
 load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
 
-# Some DWYU flags can be controlled via '--aspects_parameters'. Those have to set explicitly. Either in the factory
-# creating the aspect used by the rule, or in the attrs of the rule using the aspect, see rule_using_dwyu/rule.bzl.
-dwyu = dwyu_aspect_factory(analysis_optimizes_impl_deps = True)
+dwyu = dwyu_aspect_factory()
 
 dwyu_recursive = dwyu_aspect_factory(recursive = True)
 dwyu_recursive_skip_external = dwyu_aspect_factory(recursive = True, skip_external_targets = True)
