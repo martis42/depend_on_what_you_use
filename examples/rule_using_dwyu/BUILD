@@ -4,6 +4,12 @@ load(":rule.bzl", "dwyu_rule")
 cc_library(
     name = "bad_target",
     hdrs = ["bad_target.h"],
+    deps = [":unused_dep"],
+)
+
+cc_library(
+    name = "unused_dep",
+    hdrs = ["unused_dep.h"],
 )
 
 dwyu_rule(
