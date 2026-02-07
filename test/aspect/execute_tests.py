@@ -95,13 +95,10 @@ def cli() -> Namespace:
         help="Run the specified test cases. Substrings will match against all test names including them.",
     )
     parser.add_argument(
-        "--cpp_impl_based",
-        "-cpp",
+        "--py_impl_based",
+        "-py",
         action="store_true",
-        help="""
-        We have a new C++ based implementation of DWYU. Since, this a change involving almost all DWYU aspects we cannot just create dedicated test cases without duplicating most things uselessly.
-        Thus, we use this central switch to either test legacy default DWYU or the new C++ based implementation on all existing test cases.
-        """,
+        help="Use the legacy python based implementation.",
     )
     parser.add_argument(
         "--no_output_base",
@@ -139,7 +136,7 @@ if __name__ == "__main__":
             python=args.python,
             requested_tests=args.test,
             list_tests=args.list,
-            cpp_impl_based=args.cpp_impl_based,
+            cpp_impl_based=bool(not args.py_impl_based),
             only_default_version=args.only_default_version,
             no_output_base=args.no_output_base,
             verbose=args.verbose,

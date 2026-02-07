@@ -9,4 +9,10 @@ cc_library(
 cc_library(
     name = "faulty_lib",
     hdrs = ["lib.h"],
+    deps = [":unused_dep"],
+)
+
+cc_library(
+    name = "unused_dep",
+    hdrs = ["unused_dep.h"],
 )

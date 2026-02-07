@@ -1,1 +1,1 @@
-#include "not/existing/header.h"
+// Do something without including the unused dependency
