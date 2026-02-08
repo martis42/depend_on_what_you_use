@@ -264,12 +264,13 @@ Still, there are reasons to consider using DWYU instead of or in addition to lay
 ## Gazelle
 
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
-`rules_cc` does not offer a standard Gazelle plugin for C/C++, like other language rules do.
-However, another party open sources [gazelle_cc](https://github.com/EngFlow/gazelle_cc) to provide Gazelle support for C/C++.
+`rules_cc` does not offer a standard Gazelle plugin for C/C++.
+However, another party open sourced [gazelle_cc](https://github.com/EngFlow/gazelle_cc) to provide Gazelle support for C/C++.
 
 Automatically generating correct BUILD files based on your source code is a more efficient approach compared to executing DWYU regularly to make sure no error was introduced.
 
-That much said, if using Gazelle is not possible for you or `gazelle_cc` is somehow not suitable for your project, using DWYU might still be a good choice for you.
+A reason for using DWYU instead of `gazelle_cc` can be if your project uses conditional include statements based on custom conditions.
+According to [their documentation](https://github.com/EngFlow/gazelle_cc#-gazellecc_platform-os-arch-constraint_label-macrovalue-), `gazelle_cc` is only supporting \<os> and \<arch> based conditional includes.
 
 # Versioning
 
