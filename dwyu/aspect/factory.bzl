@@ -165,6 +165,8 @@ def dwyu_aspect_factory(
         print("WARNING: 'experimental_no_preprocessor' is a deprecated flag due to the feature now being stable. Use 'no_preprocessor' instead.")
         no_preprocessor = True
     if ignore_cc_toolchain_headers:
+        # buildifier: disable=print
+        print("WARNING: 'ignore_cc_toolchain_headers' is a deprecated feature only working with the legacy Python implementation. It will be removed in the next release.")
         cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
     else:
         cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
