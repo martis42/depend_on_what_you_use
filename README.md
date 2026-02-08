@@ -1,16 +1,18 @@
 [![GitHub release](https://img.shields.io/github/v/release/martis42/depend_on_what_you_use)](https://github.com/martis42/depend_on_what_you_use/releases)
 [![BCR](https://img.shields.io/badge/BCR-available-green)](https://registry.bazel.build/modules/depend_on_what_you_use)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://img.shields.io/badge/docs-available-brightgreen)](https://github.com/martis42/depend_on_what_you_use/blob/main/docs)
+<br>
 [![Bazel](https://img.shields.io/badge/Bazel-7.2.1+-green)](https://bazel.build/)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](<>)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](<>)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white)](<>)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<br>
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
+[![clang-tidy](https://img.shields.io/badge/clang--tidy-used-blue)](https://clang.llvm.org/extra/clang-tidy/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![GitHub issues](https://img.shields.io/github/issues/martis42/depend_on_what_you_use)](https://github.com/martis42/depend_on_what_you_use/issues)
-[![Documentation](https://img.shields.io/badge/docs-available-brightgreen)](https://github.com/martis42/depend_on_what_you_use/blob/main/docs)
 
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
