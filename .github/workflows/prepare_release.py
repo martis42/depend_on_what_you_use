@@ -16,6 +16,14 @@ from pathlib import Path
 RELEASE_NOTES_TEMPLATE = """
 :construction: **DO NOT USE. THIS IS STILL A DRAFT** :construction:
 
+## Breaking Changes
+
+TBD
+
+## Noteworthy Changes
+
+TBD
+
 ## Using Bzlmod (Recommended)
 
 Add to your `MODULE.bazel` file:
@@ -44,14 +52,6 @@ dwyu_setup_step_1()
 load("@depend_on_what_you_use//:setup_step_2.bzl", dwyu_setup_step_2 = "setup_step_2")
 dwyu_setup_step_2()
 ```
-
-## Breaking Changes
-
-TBD
-
-## Noteworthy Changes
-
-TBD
 
 ---
 """
