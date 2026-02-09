@@ -4,6 +4,6 @@ cc_library(
     name = "foo",
     hdrs = ["foo.h"],
     deps = [
-        "//:lib",  # unused
+        "//tool_cli/workspace:lib",  # unused
     ],
 )

@@ -1,0 +1,14 @@
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=10
+
+# Always tell why tests fail
+test --test_output=errors
+
+# The integration tests don't care about higher versions than expected for our dependencies being used
+common --check_direct_dependencies=off
+
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore
+
+# Some users require this setting to mitigate issues due to a large PYTHONPATH created by rules_python
+common --experimental_python_import_all_repositories=false

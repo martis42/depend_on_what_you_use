@@ -5,7 +5,7 @@ from test.support.result import Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:use_configured_lib"
+        return "//missing_dependency/workspace:use_configured_lib"
 
     def execute_test_logic(self) -> Result:
         """
@@ -13,16 +13,21 @@ class TestCase(TestCaseBase):
         dependencies which would result in an ambiguous situation with multiple libraries providing the desired header.
         """
 
-        self._create_reports()
+        self._create_reports(aspect="//missing_dependency/workspace:aspect.bzl%default_aspect")
         self._run_automatic_fix(
             extra_args=[
                 "--fix-missing-deps",
                 "--use-cquery",
-                "--bazel-args='--//configured_lib:custom_config=true'",
+                "--bazel-args='--//missing_dependency/workspace/configured_lib:custom_config=true'",
             ]
         )
 
         target_deps = self._get_target_deps(self.test_target)
-        if (expected := {"//configured_lib:configured_deps", "//ambiguous_lib:lib_a"}) != target_deps:
+        if (
+            expected := {
+                "//missing_dependency/workspace/ambiguous_lib:lib_a",
+                "//missing_dependency/workspace/configured_lib:configured_deps",
+            }
+        ) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
         return Success()

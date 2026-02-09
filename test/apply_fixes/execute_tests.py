@@ -2,6 +2,7 @@
 import logging
 import sys
 from argparse import ArgumentParser, Namespace
+from os import chdir
 from pathlib import Path
 
 # Allow importing test support code. Relative imports do not work in our case.
@@ -32,4 +33,8 @@ if __name__ == "__main__":
     args = cli()
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    # Ensure we can invoke the script from various places
+    chdir(Path(__file__).parent)
+
     sys.exit(main(requested_tests=args.test, list_tests=args.list))

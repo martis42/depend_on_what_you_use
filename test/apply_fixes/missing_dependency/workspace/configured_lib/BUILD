@@ -16,7 +16,7 @@ cc_library(
     hdrs = ["configured_deps.h"],
     visibility = ["//visibility:public"],
     deps = select({
-        ":custom_config_active": ["//ambiguous_lib:lib_a"],
-        "//conditions:default": ["//ambiguous_lib:lib_b"],
+        ":custom_config_active": ["//missing_dependency/workspace/ambiguous_lib:lib_a"],
+        "//conditions:default": ["//missing_dependency/workspace/ambiguous_lib:lib_b"],
     }),
 )

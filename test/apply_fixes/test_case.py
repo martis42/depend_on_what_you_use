@@ -12,11 +12,10 @@ log = logging.getLogger()
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str, test_sources: Path, bazel_binary: Path) -> None:
+    def __init__(self, name: str, test_dir: Path, bazel_binary: Path) -> None:
         self._name = name
-        self._test_sources = test_sources
+        self._test_dir = test_dir
         self._bazel_bin = str(bazel_binary)
-        self._workspace = Path()
 
     #
     # Interface
@@ -36,13 +35,6 @@ class TestCaseBase(ABC):
         """
 
     @property
-    def extra_workspace_file_content(self) -> str:
-        """
-        Overwrite this to append extra content to the WORKSPACE file template
-        """
-        return ""
-
-    @property
     def windows_compatible(self) -> bool:
         """
         Some test cases are not compatible to a Windows environment
@@ -58,16 +50,16 @@ class TestCaseBase(ABC):
         return self._name
 
     @property
-    def test_sources(self) -> Path:
-        return self._test_sources
+    def test_dir(self) -> Path:
+        return self._test_dir
 
-    def execute_test(self, workspace: Path) -> Result:
-        self._workspace = workspace
+    def execute_test(self, log_file: Path) -> Result:
+        self._log_file = log_file
         return self.execute_test_logic()
 
     def _make_create_reports_cmd(
         self,
-        aspect: str = "default_aspect",
+        aspect: str,
         startup_args: list[str] | None = None,
         extra_args: list[str] | None = None,
     ) -> list[str]:
@@ -77,7 +69,7 @@ class TestCaseBase(ABC):
             self._bazel_bin,
             *cmd_startup_args,
             "build",
-            f"--aspects=//:aspect.bzl%{aspect}",
+            f"--aspects={aspect}",
             "--output_groups=dwyu",
             *cmd_extra_args,
             "--",
@@ -85,23 +77,28 @@ class TestCaseBase(ABC):
         ]
 
     def _create_reports(
-        self,
-        aspect: str = "default_aspect",
-        startup_args: list[str] | None = None,
-        extra_args: list[str] | None = None,
+        self, aspect: str, startup_args: list[str] | None = None, extra_args: list[str] | None = None
     ) -> None:
         """
-        Create report files as input for the applying fixes script
+        Create report files as input for the applying fixes script.
+        Multiple tests are reusing the same workspace. Thus, searching in bazel-out for the DWYU reports would yield
+        reports unrelated to the specific test currently running. Therefore, we capture the output of the DWYU command
+        into a log file so the applying fixes script can use it as input without being bothered by the DWYU results of
+        other tests.
         """
         cmd = self._make_create_reports_cmd(aspect=aspect, startup_args=startup_args, extra_args=extra_args)
-        self._run_cmd(cmd=cmd, check=False)
+        process = self._run_and_capture_cmd(cmd, check=False)
+        self._log_file.write_text(process.stdout)
 
-    def _run_automatic_fix(self, extra_args: list[str] | None = None) -> None:
+    def _run_automatic_fix(
+        self, extra_args: list[str] | None = None, custom_dwyu_report_discovery: bool = False
+    ) -> None:
         """
         Execute the applying fixes script for the Bazel target associated with the test case
         """
         verbosity = ["--verbose"] if log.isEnabledFor(logging.DEBUG) else []
         cmd_extra_args = extra_args if extra_args else []
+        dwyu_report = [] if custom_dwyu_report_discovery else [f"--dwyu-log-file={self._log_file}", "--use-bazel-info"]
 
         self._run_cmd(
             cmd=[
@@ -109,7 +106,7 @@ class TestCaseBase(ABC):
                 "run",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
-                f"--workspace={self._workspace}",
+                *dwyu_report,
                 *verbosity,
                 *cmd_extra_args,
             ],
@@ -118,7 +115,7 @@ class TestCaseBase(ABC):
 
     def _get_target_deps(self, target: str) -> set[str]:
         deps = self._get_target_attribute(target=target, attribute="deps")
-        # cc_binary and cc_test rules automatically depend on this, bit it is irrelevant for our analysis
+        # cc_binary and cc_test rules automatically depend on this, but it is irrelevant for our analysis
         # Since, this is added in macro scope to the deps list, query options like '--noimplicit_deps' do not work
         return deps - {"@rules_cc//:link_extra_lib"}
 
@@ -138,14 +135,14 @@ class TestCaseBase(ABC):
         log.debug(f"Executing command: {shlex.join(cmd)}")
         check = kwargs.pop("check", True)
         if log.isEnabledFor(logging.DEBUG):
-            subprocess.run(cmd, cwd=self._workspace, check=check, **kwargs)
+            subprocess.run(cmd, check=check, **kwargs)
         else:
-            subprocess.run(cmd, cwd=self._workspace, capture_output=True, check=check, **kwargs)
+            subprocess.run(cmd, capture_output=True, check=check, **kwargs)
 
     def _run_and_capture_cmd(self, cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
         log.debug(f"Executing command: {shlex.join(cmd)}")
         check = kwargs.pop("check", True)
-        process = subprocess.run(cmd, cwd=self._workspace, capture_output=True, text=True, check=check, **kwargs)
+        process = subprocess.run(cmd, capture_output=True, text=True, check=check, **kwargs)
         log.debug("===== stdout =====")
         log.debug(process.stdout)
         log.debug("----- stderr -----")
