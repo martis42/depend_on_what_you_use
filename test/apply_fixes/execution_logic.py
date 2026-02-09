@@ -59,12 +59,17 @@ class ApplyFixesIntegrationTestsExecutor:
         log.info(f">>> Test '{test.name}'")
 
         result = None
-        with NamedTemporaryFile() as log_file:
+        log_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
+        log_path = Path(log_file.name)
+        log_file.close()
+        try:
             try:
-                result = test.execute_test(Path(log_file.name))
+                result = test.execute_test(log_path)
             except Exception:
                 result = Error("Exception occurred")
                 log.exception("Test failed due to exception:")
+        finally:
+            log_path.unlink(missing_ok=True)
 
         self._cleanup(test.test_dir)
 
