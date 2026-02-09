@@ -59,12 +59,15 @@ class ApplyFixesIntegrationTestsExecutor:
         log.info(f">>> Test '{test.name}'")
 
         result = None
-        with NamedTemporaryFile() as log_file:
+        log_file = self._setup_log_file()
+        try:
             try:
-                result = test.execute_test(Path(log_file.name))
+                result = test.execute_test(log_file)
             except Exception:
                 result = Error("Exception occurred")
                 log.exception("Test failed due to exception:")
+        finally:
+            log_file.unlink(missing_ok=True)
 
         self._cleanup(test.test_dir)
 
@@ -73,6 +76,16 @@ class ApplyFixesIntegrationTestsExecutor:
         log.info(f"<<< {'OK' if result.is_success() else 'FAILURE'}\n")
 
         return result.is_success()
+
+    @staticmethod
+    def _setup_log_file() -> Path:
+        """
+        On windows we have to close the log file and manually clean it up to prevent file locking issues on GitHub Windows workers.
+        """
+        log_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
+        log_file_path = Path(log_file.name)
+        log_file.close()
+        return log_file_path
 
     def _cleanup(self, test_dir: Path) -> None:
         cmd = ["git", "checkout", "."]
