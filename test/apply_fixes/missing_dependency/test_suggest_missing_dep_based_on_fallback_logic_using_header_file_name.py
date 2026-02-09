@@ -5,13 +5,18 @@ from test.support.result import Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:use_manipulated_bar"
+        return "//missing_dependency/workspace:use_manipulated_bar"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports()
+        self._create_reports(aspect="//missing_dependency/workspace:aspect.bzl%default_aspect")
         self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         target_deps = self._get_target_deps(self.test_target)
-        if (expected := {"//:manipulated_bar_provider", "//libs:manipulated_bar"}) != target_deps:
+        if (
+            expected := {
+                "//missing_dependency/workspace/libs:manipulated_bar",
+                "//missing_dependency/workspace:manipulated_bar_provider",
+            }
+        ) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
         return Success()

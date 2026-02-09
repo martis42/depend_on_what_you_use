@@ -1,3 +1,8 @@
+#ifndef TOOL_CLI_WORKSPACE_LIB_H
+#define TOOL_CLI_WORKSPACE_LIB_H
+
 int doSomething() {
-    returen 42;
+    return 42;
 }
+
+#endif // TOOL_CLI_WORKSPACE_LIB_H

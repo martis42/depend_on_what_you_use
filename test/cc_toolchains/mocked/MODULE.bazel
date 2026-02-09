@@ -8,7 +8,7 @@ local_path_override(
 
 # We specify by design an outdated rules_python version.
 # bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
-# Specifying an ancient version here gives us in the at least end whatever rules_python version DWYU defines as dependency.
+# Specifying an ancient version here gives us in the end at least whatever rules_python version DWYU defines as dependency.
 bazel_dep(name = "rules_python", version = "0.12.0")
 bazel_dep(name = "test_toolchain_classic")
 local_path_override(

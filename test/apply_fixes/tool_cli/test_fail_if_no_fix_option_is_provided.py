@@ -5,10 +5,10 @@ from test.support.result import Error, Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:binary"
+        return "//tool_cli/workspace:binary"
 
     def execute_test_logic(self) -> Result:
-        self._create_reports()
+        self._create_reports(aspect="//tool_cli/workspace:aspect.bzl%default_aspect")
 
         process = self._run_and_capture_cmd(
             cmd=[
@@ -16,7 +16,8 @@ class TestCase(TestCaseBase):
                 "run",
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
-                f"--workspace={self._workspace}",
+                f"--dwyu-log-file={self._log_file}",
+                "--use-bazel-info",
             ],
             check=False,
         )

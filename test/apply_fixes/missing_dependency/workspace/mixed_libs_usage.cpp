@@ -1,8 +1,8 @@
-#include "mixed_libs_usage.h"
+#include "missing_dependency/workspace/mixed_libs_usage.h"
 // used publicly and privately
-#include "libs/foo.h"
+#include "missing_dependency/workspace/libs/foo.h"
 // used solely privately
-#include "libs/sub/bar.h"
+#include "missing_dependency/workspace/libs/sub/bar.h"
 
 int doMixed() {
     return doRoot() + doFoo() + doBar();

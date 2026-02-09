@@ -4,7 +4,7 @@ cc_library(
     name = "foo",
     hdrs = ["foo.h"],
     visibility = ["//visibility:public"],
-    deps = ["//other_lib"],
+    deps = ["//missing_dependency/workspace/other_lib"],
 )
 
 cc_library(
