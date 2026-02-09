@@ -6,7 +6,6 @@ import subprocess
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from platform import system
 from tempfile import NamedTemporaryFile
 
 from test.apply_fixes.test_case import TestCaseBase
@@ -54,8 +53,8 @@ class ApplyFixesIntegrationTestsExecutor:
         return [test.name for test in tests if not self._execute_test(test)]
 
     def _execute_test(self, test: TestCaseBase) -> bool:
-        if not test.windows_compatible and system() == "Windows":
-            log.info(f"--- Skipping Test due to Windows incompatibility '{test.name}'")
+        if (incompatibility := test.is_incompatible) != "":
+            log.info(f"--- Skipping '{test.name}' due to: {incompatibility}")
             return True
         log.info(f">>> Test '{test.name}'")
 
