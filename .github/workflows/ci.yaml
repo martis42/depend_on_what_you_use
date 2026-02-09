@@ -104,4 +104,4 @@ jobs:
           # Keep in sync with README.md
           version: '8.2.1'
       - name: Integration tests - Applying fixes
-        run: python test/apply_fixes/execute_tests.py
+        run: python test/apply_fixes/execute_tests.py -t needlessly_public_dependency/move_deps_to_implementation_deps -v
