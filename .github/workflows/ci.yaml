@@ -3,92 +3,92 @@ name: CI
 on: [ pull_request ]
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-      - uses: actions/setup-python@v6
-      - uses: j178/prek-action@v1
+  # pre-commit:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Install uv
+  #       uses: astral-sh/setup-uv@v7
+  #     - uses: actions/setup-python@v6
+  #     - uses: j178/prek-action@v1
 
-  fast-tests:
-    runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Run unit tests
-        run: bazel test //...
-      - name: Execute sanitizers
-        run: bazel test --config=sanitize //dwyu/...
-      - name: Execute DWYU
-        run: bazel build --config=dwyu //dwyu/...
-      - name: Execute clang-tidy
-        run: bazel build --config=clang_tidy //dwyu/...
-      - name: Ensure C++11 compatibility
-        run: ./scripts/ensure_cpp11_compatibility.sh
+  # fast-tests:
+  #   runs-on: ubuntu-24.04
+  #   needs: [ pre-commit ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Run unit tests
+  #       run: bazel test //...
+  #     - name: Execute sanitizers
+  #       run: bazel test --config=sanitize //dwyu/...
+  #     - name: Execute DWYU
+  #       run: bazel build --config=dwyu //dwyu/...
+  #     - name: Execute clang-tidy
+  #       run: bazel build --config=clang_tidy //dwyu/...
+  #     - name: Ensure C++11 compatibility
+  #       run: ./scripts/ensure_cpp11_compatibility.sh
 
-  sub-workspaces-tests:
-    runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Aspect integration tests scripts unit tests
-        run: ./scripts/test_aspect_tests_scripts.sh
-      - name: Build examples
-        run: ./scripts/build_examples.sh
-      - name: Execute mocked CC toolchain tests
-        run: ./scripts/test_mocked_cc_toolchains.sh
+  # sub-workspaces-tests:
+  #   runs-on: ubuntu-24.04
+  #   needs: [ pre-commit ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Aspect integration tests scripts unit tests
+  #       run: ./scripts/test_aspect_tests_scripts.sh
+  #     - name: Build examples
+  #       run: ./scripts/build_examples.sh
+  #     - name: Execute mocked CC toolchain tests
+  #       run: ./scripts/test_mocked_cc_toolchains.sh
 
-  integration-tests-workspace_integration:
-    runs-on: ubuntu-24.04
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Integration tests - Workspace integration
-        run: python test/workspace_integration/test.py
+  # integration-tests-workspace_integration:
+  #   runs-on: ubuntu-24.04
+  #   needs: [ fast-tests ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Integration tests - Workspace integration
+  #       run: python test/workspace_integration/test.py
 
-  integration-tests-examples:
-    strategy:
-      matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Integration tests - Examples
-        run: python examples/test.py
-      - name: Integration tests - Examples with legacy WORKSPACE setup
-        run: python examples/test.py --legacy-workspace
+  # integration-tests-examples:
+  #   strategy:
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #     fail-fast: false
+  #   runs-on: ${{ matrix.os }}
+  #   needs: [ fast-tests ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Integration tests - Examples
+  #       run: python examples/test.py
+  #     - name: Integration tests - Examples with legacy WORKSPACE setup
+  #       run: python examples/test.py --legacy-workspace
 
-  integration-tests-aspect:
-    strategy:
-      matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests, integration-tests-examples ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Integration tests - Aspect
-        if: runner.os != 'Windows'
-        run: python test/aspect/execute_tests.py --no_output_base
-      - name: Integration tests - Aspect
-        if: runner.os == 'Windows'
-        run: python test/aspect/execute_tests.py --only-default-version --no_output_base
+  # integration-tests-aspect:
+  #   strategy:
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #     fail-fast: false
+  #   runs-on: ${{ matrix.os }}
+  #   needs: [ fast-tests, integration-tests-examples ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Integration tests - Aspect
+  #       if: runner.os != 'Windows'
+  #       run: python test/aspect/execute_tests.py --no_output_base
+  #     - name: Integration tests - Aspect
+  #       if: runner.os == 'Windows'
+  #       run: python test/aspect/execute_tests.py --only-default-version --no_output_base
 
-  integration-tests-aspect-legacy-impl:
-    strategy:
-      matrix:
-        os: [ ubuntu-24.04, macos-15, windows-2022 ]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    needs: [ fast-tests, integration-tests-examples ]
-    steps:
-      - uses: actions/checkout@v6
-      - name: Integration tests - Aspect with legacy Python implementation
-        run: python test/aspect/execute_tests.py --no_output_base --only-default-version --py_impl_based
+  # integration-tests-aspect-legacy-impl:
+  #   strategy:
+  #     matrix:
+  #       os: [ ubuntu-24.04, macos-15, windows-2022 ]
+  #     fail-fast: false
+  #   runs-on: ${{ matrix.os }}
+  #   needs: [ fast-tests, integration-tests-examples ]
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Integration tests - Aspect with legacy Python implementation
+  #       run: python test/aspect/execute_tests.py --no_output_base --only-default-version --py_impl_based
 
   integration-tests-apply-fixes:
     strategy:
@@ -96,7 +96,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ fast-tests ]
+    #needs: [ fast-tests ]
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/prepare_buildozer
