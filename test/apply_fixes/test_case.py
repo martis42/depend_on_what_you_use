@@ -35,11 +35,12 @@ class TestCaseBase(ABC):
         """
 
     @property
-    def windows_compatible(self) -> bool:
+    def is_incompatible(self) -> str:
         """
-        Some test cases are not compatible to a Windows environment
+        Some tests have to be skipped under certain conditions
+        Returning a non empty string will skip the test and print the string as reason for skipping
         """
-        return True
+        return ""
 
     #
     # Base Implementation
