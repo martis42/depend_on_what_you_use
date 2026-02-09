@@ -57,7 +57,7 @@ cc_library(
 cc_library(
     name = "use_configured_lib",
     hdrs = ["use_configured_lib.h"],
-    deps = ["//configured_lib:configured_deps"],
+    deps = ["//missing_dependency/workspace/configured_lib:configured_deps"],
 )
 
 ##################
@@ -67,15 +67,15 @@ cc_library(
 cc_library(
     name = "manipulated_bar_provider",
     srcs = ["dummy.h"],
-    deps = ["//libs:manipulated_bar"],
+    deps = ["//missing_dependency/workspace/libs:manipulated_bar"],
 )
 
 cc_library(
     name = "ambiguous_lib_provider",
     srcs = ["dummy.h"],
     deps = [
-        "//ambiguous_lib:lib_a",
-        "//ambiguous_lib:lib_b",
+        "//missing_dependency/workspace/ambiguous_lib:lib_a",
+        "//missing_dependency/workspace/ambiguous_lib:lib_b",
     ],
 )
 
@@ -84,22 +84,22 @@ cc_library(
     srcs = ["dummy.h"],
     deps = [
         ":root_file_lib",
-        "//libs:bar",
-        "//libs:empty_lists",
-        "//libs:foo",
+        "//missing_dependency/workspace/libs:bar",
+        "//missing_dependency/workspace/libs:empty_lists",
+        "//missing_dependency/workspace/libs:foo",
     ],
 )
 
 cc_library(
     name = "use_private_header_provider",
     srcs = ["dummy.h"],
-    deps = ["//private_header"],
+    deps = ["//missing_dependency/workspace/private_header"],
 )
 
 cc_library(
     name = "generated_code_provider",
     srcs = ["dummy.h"],
-    deps = ["//generate_code:foo"],
+    deps = ["//missing_dependency/workspace/generate_code:foo"],
 )
 
 cc_library(

@@ -7,7 +7,7 @@ from test.support.result import Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//:binary"
+        return "//tool_cli/workspace:binary"
 
     @property
     def windows_compatible(self) -> bool:
@@ -20,10 +20,14 @@ class TestCase(TestCaseBase):
 
     def execute_test_logic(self) -> Result:
         with TemporaryDirectory() as output_base:
-            self._create_reports(startup_args=[f"--output_base={output_base}"])
-            self._run_automatic_fix(extra_args=["--fix-unused", f"--search-path={output_base}"])
+            self._create_reports(
+                aspect="//tool_cli/workspace:aspect.bzl%default_aspect", startup_args=[f"--output_base={output_base}"]
+            )
+            self._run_automatic_fix(
+                extra_args=["--fix-unused", f"--search-path={output_base}"], custom_dwyu_report_discovery=True
+            )
 
             target_deps = self._get_target_deps(self.test_target)
-            if (expected := set()) != target_deps:  # type: ignore[var-annotated]
+            if (expected := set()) != target_deps:
                 return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)
             return Success()
