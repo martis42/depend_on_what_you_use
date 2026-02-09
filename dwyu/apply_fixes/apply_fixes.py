@@ -115,6 +115,9 @@ def main(args: Namespace) -> int:
     log.debug(f"Reports search directory: '{reports_search_dir}'")
 
     reports = gather_reports(main_args=args, search_path=reports_search_dir)
+    print("YYY   FOUND REPORTS:")
+    for report in reports:
+        print("  - " + str(report))
     if not reports:
         log.fatal(
             """
