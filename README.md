@@ -227,22 +227,27 @@ Meaning, DWYU assumes those are globally available without the need for explicit
 
 # Supported Platforms
 
+**Linux** is fully supported.<br>
+All tests and quality checks run on GitHub Ubuntu 24.04 workers.
+
+**Macos** and **Windows** are supported on a best effort basis.<br>
+All our integration tests run on GitHub Macos 15 and Windows 2022 workers.
+Bugs we can reproduce via the CI workers with reasonable effort without making DWYU significantly worse on Linux will be fixed.
+
 ### Aspect
 
-| Platform         | Constraints                                                     |
-| ---------------- | --------------------------------------------------------------- |
-| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022]. |
-| Python           | Minimum tested version is 3.8. Maximum tested version is 3.13.  |
-| Bazel            | Minimum tested version is 7.2.1. Maximum tested version is 9.x. |
+| Tool   | Constraints                                                     |
+| ------ | --------------------------------------------------------------- |
+| Python | Minimum tested version is 3.8. Maximum tested version is 3.13.  |
+| Bazel  | Minimum tested version is 7.2.1. Maximum tested version is 9.x. |
 
 ### Applying fixes
 
-| Platform         | Constraints                                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Operating system | Integration tests check [Ubuntu 24.04, Macos 15, Windows 2022].                                            |
-| Python           | Integration tests check 3.8.                                                                               |
-| Bazel            | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
-| Buildozer        | No known constraint. Integration tests check 8.2.1.                                                        |
+| Tool      | Constraints                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------------- |
+| Python    | Integration tests check 3.8.                                                                               |
+| Bazel     | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
+| Buildozer | No known constraint. Integration tests check 8.2.1.                                                        |
 
 # Alternatives to DWYU
 
