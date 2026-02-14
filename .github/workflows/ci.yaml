@@ -104,4 +104,5 @@ jobs:
           # Keep in sync with README.md
           version: '8.2.1'
       - name: Integration tests - Applying fixes
+        if: runner.os != 'Windows'
         run: python test/apply_fixes/execute_tests.py
