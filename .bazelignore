@@ -35,6 +35,4 @@ test/aspect/virtual_includes
 
 test/benchmark
 
-test/cc_toolchains/mocked
-
 test/workspace_integration
