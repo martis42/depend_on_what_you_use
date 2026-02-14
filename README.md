@@ -236,10 +236,10 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 
 ### Aspect
 
-| Tool   | Constraints                                                     |
-| ------ | --------------------------------------------------------------- |
-| Python | Minimum tested version is 3.8. Maximum tested version is 3.13.  |
-| Bazel  | Minimum tested version is 7.2.1. Maximum tested version is 9.x. |
+| Tool   | Constraints                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------ |
+| Python | Minimum required version is 3.8. Maximum tested version is 3.13.                                 |
+| Bazel  | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
 
 ### Applying fixes
 
