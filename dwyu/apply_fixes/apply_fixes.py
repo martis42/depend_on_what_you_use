@@ -61,16 +61,16 @@ def perform_fixes(
 ) -> None:
     with report.open(encoding="utf-8") as report_in:
         content = json.load(report_in)
-        target = content["analyzed_target"]
+        target = str(buildozer.adapt_to_platform(content["analyzed_target"]))
 
         if requested_fixes.remove_unused_deps:
-            if unused_deps := content["unused_deps"]:
+            if unused_deps := buildozer.adapt_to_platform(content["unused_deps"]):
                 buildozer.execute(task=f"remove deps {' '.join(unused_deps)}", target=target)
-            if unused_deps := content["unused_implementation_deps"]:
-                buildozer.execute(task=f"remove implementation_deps {' '.join(unused_deps)}", target=target)
+            if unused_impl_deps := buildozer.adapt_to_platform(content["unused_implementation_deps"]):
+                buildozer.execute(task=f"remove implementation_deps {' '.join(unused_impl_deps)}", target=target)
 
         if requested_fixes.move_private_deps_to_impl_deps:
-            deps_which_should_be_private = content["deps_which_should_be_private"]
+            deps_which_should_be_private = buildozer.adapt_to_platform(content["deps_which_should_be_private"])
             if deps_which_should_be_private:
                 buildozer.execute(
                     task=f"move deps implementation_deps {' '.join(deps_which_should_be_private)}", target=target
