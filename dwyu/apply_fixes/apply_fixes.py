@@ -120,7 +120,7 @@ def main(args: Namespace) -> int:
     reports_search_dir = get_reports_search_dir(main_args=args, workspace_root=workspace)
     log.debug(f"Reports search directory: '{reports_search_dir}'")
 
-    reports = gather_reports(main_args=args, search_path=reports_search_dir)
+    reports = gather_reports(main_args=args, search_path=reports_search_dir, workspace_root=workspace)
     if not reports:
         log.fatal(
             """

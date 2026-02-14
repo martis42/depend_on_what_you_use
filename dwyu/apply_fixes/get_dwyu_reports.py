@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import platform
 import sys
 from os import walk
 from pathlib import Path
@@ -10,10 +9,29 @@ from pathlib import Path
 from dwyu.apply_fixes.utils import args_string_to_list, execute_and_capture
 
 
-def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Path]:
+def gather_reports(main_args: argparse.Namespace, search_path: Path, workspace_root: Path) -> list[Path]:
     if main_args.dwyu_log_file:
-        bin_dir = "\\bin\\" if platform.system() == "Windows" else "/bin/"
-        return [search_path / log.split(bin_dir, 1)[1] for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
+        print("XXX   IN LOG FILE MODE")
+        # bin_dir = "\\bin\\" if platform.system() == "Windows" else "/bin/"
+        # print("XXX   BIN DIR: " + bin_dir)
+        print("XXX   SEARCH PATH: " + str(search_path))
+        print("anticipated logs:")
+        for log in parse_dwyu_execution_log(main_args.dwyu_log_file):
+            print("  - " + log)
+
+        process = execute_and_capture(
+            cmd=[
+                "bazel",
+                "info",
+                "execution_root",
+            ],
+            cwd=workspace_root,
+        )
+        reports_root = Path(process.stdout.strip())
+        print("XXX   REPORTS ROOT: " + str(reports_root))
+
+        return [reports_root / log for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
+        # return [search_path / log.split(bin_dir, 1)[1] for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
 
     reports = []
     # We explicitly use os.walk() as it has better performance than Path.glob() in large and deeply nested file trees.
