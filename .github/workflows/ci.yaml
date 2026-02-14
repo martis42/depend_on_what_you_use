@@ -104,4 +104,4 @@ jobs:
           # Keep in sync with README.md
           version: '8.2.1'
       - name: Integration tests - Applying fixes
-        run: python test/apply_fixes/execute_tests.py -v -t missing_dependency/fail_on_ambiguous_dep_resolution
+        run: python test/apply_fixes/execute_tests.py
