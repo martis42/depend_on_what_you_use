@@ -37,8 +37,6 @@ jobs:
         run: ./scripts/test_aspect_tests_scripts.sh
       - name: Build examples
         run: ./scripts/build_examples.sh
-      - name: Execute mocked CC toolchain tests
-        run: ./scripts/test_mocked_cc_toolchains.sh
 
   integration-tests-workspace_integration:
     runs-on: ubuntu-24.04

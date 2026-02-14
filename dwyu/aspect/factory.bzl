@@ -1,7 +1,6 @@
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
@@ -12,14 +11,12 @@ def dwyu_aspect_factory(
         analysis_reports_unused_deps = True,
         experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
-        ignore_cc_toolchain_headers = False,
         ignored_includes = None,
         no_preprocessor = False,
         recursive = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
-        cc_toolchain_headers_info = None,
         use_cpp_implementation = True,
         use_implementation_deps = False,
         verbose = False):
@@ -64,26 +61,6 @@ def dwyu_aspect_factory(
                                     Users can provide their own value by setting `__cplusplus` via Bazel (e.g. via `--cxxopt=-D__cplusplus=42`) which will take precedence over the heuristic used by DWYU.
                                     This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
 
-        ignore_cc_toolchain_headers: **DEPRECATED**: The new C++ based implementation no longer needs to know the exact toolchain headers.
-                                     Thus, this feature will be removed when the Python implementation is being removed.<br><br>
-                                     Infer automatically which header files can be reached through the active CC toolchain without the target under inspection having to declare any explicit dependency.
-                                     Include statements to those headers are ignored when DWYU compares include statements to the dependencies of the target under inspection.
-                                     Automatically inferring the toolchain headers will become the default behavior in a future release.<br>
-                                     If this option is false, the legacy DWYU behavior is to use a manually maintained list of system headers and standard library headers.
-                                     This list of headers can be seen in [std_header.py](/dwyu/aspect/private/analyze_includes/std_header.py).<br>
-                                     There is no reliable API available in Starlark to get all include paths to CC toolchain headers, since [CcToolchainInfo.built_in_include_directories](https://bazel.build/rules/lib/providers/CcToolchainInfo#built_in_include_directories) is an optional field without sanity checking.
-                                     Thus, DWYU uses knowledge about the most common compilers and how to extract the include paths available to them.
-                                     The supported compilers are GCC, clang and MSVC.
-                                     A best effort fallback strategy exists for CC toolchain with unknown compilers specifying [CcToolchainInfo.built_in_include_directories](https://bazel.build/rules/lib/providers/CcToolchainInfo#built_in_include_directories).
-                                     Consequently, there might be CC toolchains with which this feature does not work. In such a case you have multiple options:<br>
-                                     <ul><li>
-                                       Report a bug to DWYU if you believe your CC toolchain should be supported.
-                                     </li><li>
-                                       Use the [toolchain_headers_info](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-toolchain_headers_info) option to inject your own analysis of the CC toolchain.
-                                     </li><li>
-                                       Use the legacy behavior by setting this attribute to false.
-                                     </li></ul>
-
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/dwyu/aspect/private/analyze_includes/std_header.py).<br>
                           You can extend this list of ignored headers or replace it with a custom one by providing a json file with the information to this attribute.<br>
@@ -125,14 +102,6 @@ def dwyu_aspect_factory(
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).
 
-        cc_toolchain_headers_info: **DEPRECATED**: See [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers).<br><br>
-                                   Requires setting [ignore_cc_toolchain_headers](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-ignore_cc_toolchain_headers) to True.
-                                   Use this option to inject your own analysis of the CC toolchain.
-                                   Provide the label to a target offering the provider [DwyuCcToolchainHeadersInfo](/dwyu/cc_toolchain_headers/providers.bzl).
-                                   It is your choice if you simply use a hard coded list or implement a logic looking up the information dynamically.
-                                   Please note, the required information are not the include paths where the compiler looks for toolchain headers, but all the sub paths to header files relative to those include directories.
-                                   In other words, a list of all possible include statements in your code which would point to CC toolchain headers.
-
         use_cpp_implementation: Set this to `False` to use the legacy Python based implementation.
                                 If you have to use the Python implementation instead of the standard C++ based implementation, please create an issue with your problem in the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).<br>
                                 **The Python based implementation will be removed in a future release**!
@@ -160,19 +129,10 @@ def dwyu_aspect_factory(
         # buildifier: disable=print
         print("WARNING: 'experimental_no_preprocessor' is a deprecated flag due to the feature now being stable. Use 'no_preprocessor' instead.")
         no_preprocessor = True
-    if ignore_cc_toolchain_headers:
-        # buildifier: disable=print
-        print("WARNING: 'ignore_cc_toolchain_headers' is a deprecated feature only working with the legacy Python implementation. It will be removed in the next release.")
-        cc_toolchain_headers = cc_toolchain_headers_info if cc_toolchain_headers_info else Label("//dwyu/aspect/private:cc_toolchain_headers")
-    else:
-        cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
     if use_cpp_implementation:
         target_processor = Label("//dwyu/aspect/private/process_target:main_cc")
         tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
         tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:main")
-
-        # The C++ based implementation no longer needs the information about the toolchain headers
-        cc_toolchain_headers = Label("//dwyu/aspect/private:cc_toolchain_headers_stub")
     else:
         # buildifier: disable=print
         print("WARNING: Using the legacy Python based implementation, which will be removed in a future release. Please report an issue to DWYU if the new C++ based implementation does not work for you.")
@@ -183,6 +143,7 @@ def dwyu_aspect_factory(
         fail("Disabling the reporting of missing direct dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of missing direct dependencies.")
     if not analysis_reports_unused_deps and not use_cpp_implementation:
         fail("Disabling the reporting of unused dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of unused dependencies.")
+
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -201,13 +162,6 @@ def dwyu_aspect_factory(
             ),
             "dwyu_verbose": attr.bool(
                 default = verbose,
-            ),
-            "_cc_toolchain_headers": attr.label(
-                default = cc_toolchain_headers,
-                providers = [DwyuCcToolchainHeadersInfo],
-            ),
-            "_ignore_cc_toolchain_headers": attr.bool(
-                default = ignore_cc_toolchain_headers,
             ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,

@@ -3,7 +3,6 @@ load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load("//dwyu/cc_toolchain_headers:providers.bzl", "DwyuCcToolchainHeadersInfo")
 load("//dwyu/private:utils.bzl", "make_param_file_args")
 
 # Map of '-std=c++XX' to the corresponding standard version
@@ -480,12 +479,10 @@ def dwyu_aspect_impl(target, ctx):
             args.add("--implementation_deps_available")
         if ctx.attr._no_preprocessor:
             args.add("--no_preprocessor")
-        if ctx.attr._ignore_cc_toolchain_headers:
-            args.add("--toolchain_headers_info", ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info)
 
         # Skip 'public_files' as those are included in the targets CcInfo.compilation_context.headers
         analysis_inputs = depset(
-            direct = [processed_target, ctx.attr._cc_toolchain_headers[DwyuCcToolchainHeadersInfo].headers_info] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
+            direct = [processed_target] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
             transitive = [target[CcInfo].compilation_context.headers],
         )
         ctx.actions.run(
