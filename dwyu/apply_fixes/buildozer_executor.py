@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import subprocess
 from pathlib import Path
+from platform import system
 
 from dwyu.apply_fixes.summary import Summary
 
@@ -34,6 +35,19 @@ class BuildozerExecutor:
         log.log(logging.INFO if self._dry else logging.DEBUG, f"Executing buildozer command: {command}")
         process = subprocess.run(command, cwd=self._workspace, check=False, capture_output=True)
         self._summary.add_command(cmd=command, buildozer_result=process.returncode)
+
+    def adapt_targets_to_platform(self, targets: list[str]) -> list[str]:
+        return [self.adapt_target_to_platform(t) for t in targets]
+
+    @staticmethod
+    def adapt_target_to_platform(target: str) -> str:
+        """
+        Buildozer interprets the target label after the workspace root '//' as a path. Thus, on Windows we have to use
+        backslashes instead of forward slashes.
+        """
+        if system() == "Windows":
+            return target.replace("//", "::PLACEHOLDER::").replace("/", "\\").replace("::PLACEHOLDER::", "//")
+        return target
 
     @staticmethod
     def _make_base_cmd(binary: str, dry: bool, args: list[str]) -> list[str]:
