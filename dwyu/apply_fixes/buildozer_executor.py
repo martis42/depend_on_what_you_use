@@ -40,20 +40,33 @@ class BuildozerExecutor:
         process = subprocess.run(command, cwd=self._workspace, check=False, capture_output=True)
         self._summary.add_command(cmd=command, buildozer_result=process.returncode)
 
-    def adapt_to_platform(self, targets: str | list[str]) -> str | list[str]:
+    # def adapt_to_platform(self, targets: str | list[str]) -> str | list[str]:
+    #     """
+    #     Buildozer interprets the target label after the workspace root '//' as a path. Thus, on Windows we have to use
+    #     backslashes instead of forward slashes.
+    #     """
+    #     if isinstance(targets, str):
+    #         return self._adapt_to_platform_impl(targets)
+    #     return [self._adapt_to_platform_impl(t) for t in targets]
+
+    def adapt_targets_to_platform(self, targets: list[str]) -> list[str]:
+        return [self.adapt_target_to_platform(t) for t in targets]
+
+    @staticmethod
+    def adapt_target_to_platform(target: str) -> str:
         """
         Buildozer interprets the target label after the workspace root '//' as a path. Thus, on Windows we have to use
         backslashes instead of forward slashes.
         """
-        if isinstance(targets, str):
-            return self._adapt_to_platform_impl(targets)
-        return [self._adapt_to_platform_impl(t) for t in targets]
-
-    @staticmethod
-    def _adapt_to_platform_impl(target: str) -> str:
         if system() == "Windows":
             return target.replace("//", "::PLACEHOLDER::").replace("/", "\\").replace("::PLACEHOLDER::", "//")
         return target
+
+    # @staticmethod
+    # def _adapt_to_platform_impl(target: str) -> str:
+    #     if system() == "Windows":
+    #         return target.replace("//", "::PLACEHOLDER::").replace("/", "\\").replace("::PLACEHOLDER::", "//")
+    #     return target
 
     @staticmethod
     def _make_base_cmd(binary: str, dry: bool, args: list[str]) -> list[str]:
