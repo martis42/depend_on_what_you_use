@@ -81,6 +81,8 @@ def perform_fixes(
                 )
 
         if requested_fixes.add_missing_deps:
+            # Do not adapt the added targets to the platform. In BUILD files one should universally use the UNIX style.
+            # Buildozer adds the dependencies purely via string replacement without handling them like a path.
             discovered_public_deps = search_missing_deps(
                 bazel_query=bazel_query,
                 target=target,
