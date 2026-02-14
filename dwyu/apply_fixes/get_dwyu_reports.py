@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import platform
 import sys
 from os import walk
 from pathlib import Path
@@ -11,11 +10,20 @@ from dwyu.apply_fixes.utils import args_string_to_list, execute_and_capture
 
 
 def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Path]:
-    if main_args.dwyu_log_file:
-        bin_dir = "\\bin\\" if platform.system() == "Windows" else "/bin/"
-        return [search_path / log.split(bin_dir, 1)[1] for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
-
     reports = []
+
+    if main_args.dwyu_log_file:
+        for report in parse_dwyu_execution_log(main_args.dwyu_log_file):
+            # The legacy Python DWYU impl reports the report path in Windows path style, whereas the C++ implementation
+            # reports it always in UNX style. Until we drop the legacy Python implementation we have to support both.
+            if "/bin/" in report:
+                reports.append(search_path / report.split("/bin/", 1)[1])
+            elif "\\bin\\" in report:
+                reports.append(search_path / report.split("\\bin\\", 1)[1])
+            else:
+                raise RuntimeError(f"Unexpected report path format: '{report}'")
+        return reports
+
     # We explicitly use os.walk() as it has better performance than Path.glob() in large and deeply nested file trees.
     for root, _, files in walk(search_path):
         for file in files:
