@@ -12,7 +12,10 @@ from dwyu.apply_fixes.utils import args_string_to_list, execute_and_capture
 
 def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Path]:
     if main_args.dwyu_log_file:
+        print(f"XXX IN LOG FILE MODE: '{search_path}'")
         bin_dir = "\\bin\\" if platform.system() == "Windows" else "/bin/"
+        print(f"  BIN: '{bin_dir}'")
+        print(f"  PARSED LOGS: {parse_dwyu_execution_log(main_args.dwyu_log_file)}")
         return [search_path / log.split(bin_dir, 1)[1] for log in parse_dwyu_execution_log(main_args.dwyu_log_file)]
 
     reports = []
