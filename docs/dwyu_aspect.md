@@ -13,7 +13,7 @@ dwyu_aspect_factory(<a href="#dwyu_aspect_factory-analysis_optimizes_impl_deps">
                     <a href="#dwyu_aspect_factory-analysis_reports_unused_deps">analysis_reports_unused_deps</a>, <a href="#dwyu_aspect_factory-experimental_no_preprocessor">experimental_no_preprocessor</a>,
                     <a href="#dwyu_aspect_factory-experimental_set_cplusplus">experimental_set_cplusplus</a>, <a href="#dwyu_aspect_factory-ignored_includes">ignored_includes</a>, <a href="#dwyu_aspect_factory-no_preprocessor">no_preprocessor</a>, <a href="#dwyu_aspect_factory-recursive">recursive</a>,
                     <a href="#dwyu_aspect_factory-skip_external_targets">skip_external_targets</a>, <a href="#dwyu_aspect_factory-skipped_tags">skipped_tags</a>, <a href="#dwyu_aspect_factory-target_mapping">target_mapping</a>, <a href="#dwyu_aspect_factory-use_cpp_implementation">use_cpp_implementation</a>,
-                    <a href="#dwyu_aspect_factory-use_implementation_deps">use_implementation_deps</a>, <a href="#dwyu_aspect_factory-verbose">verbose</a>)
+                    <a href="#dwyu_aspect_factory-verbose">verbose</a>)
 </pre>
 
 Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
@@ -43,7 +43,6 @@ your_dwyu_aspect = dwyu_aspect_factory(<aspect_options>)
 | <a id="dwyu_aspect_factory-skipped_tags"></a>skipped_tags |  Do not execute the DWYU analysis on targets with at least one of those tags. By default skips the analysis for targets tagged with 'no-dwyu'.<br> This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).   |  `["no-dwyu"]` |
 | <a id="dwyu_aspect_factory-target_mapping"></a>target_mapping |  Accepts a [dwyu_make_cc_info_mapping](/docs/cc_info_mapping.md) target. Allows virtually combining targets regarding which header can be provided by which dependency. For the full details see the `dwyu_make_cc_info_mapping` documentation.<br> This feature is demonstrated in the [target_mapping example](/examples/target_mapping).   |  `None` |
 | <a id="dwyu_aspect_factory-use_cpp_implementation"></a>use_cpp_implementation |  Set this to `False` to use the legacy Python based implementation. If you have to use the Python implementation instead of the standard C++ based implementation, please create an issue with your problem in the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).<br> **The Python based implementation will be removed in a future release**!   |  `True` |
-| <a id="dwyu_aspect_factory-use_implementation_deps"></a>use_implementation_deps |  Deprecated flag, which will be removed in a future release. See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.   |  `False` |
 | <a id="dwyu_aspect_factory-verbose"></a>verbose |  If `True`, print debugging information about the individual DWYU actions.<br> This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True\|False]`.   |  `False` |
 
 **RETURNS**

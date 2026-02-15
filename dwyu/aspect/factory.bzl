@@ -18,7 +18,6 @@ def dwyu_aspect_factory(
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         use_cpp_implementation = True,
-        use_implementation_deps = False,
         verbose = False):
     """
     Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
@@ -106,9 +105,6 @@ def dwyu_aspect_factory(
                                 If you have to use the Python implementation instead of the standard C++ based implementation, please create an issue with your problem in the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).<br>
                                 **The Python based implementation will be removed in a future release**!
 
-        use_implementation_deps: Deprecated flag, which will be removed in a future release.
-                                 See [analysis_optimizes_impl_deps](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-analysis_optimizes_impl_deps) for the proper flag.
-
         verbose: If `True`, print debugging information about the individual DWYU actions.<br>
                  This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True|False]`.
 
@@ -116,10 +112,6 @@ def dwyu_aspect_factory(
         Configured DWYU aspect
     """
     attr_aspects = []
-    if use_implementation_deps:
-        # buildifier: disable=print
-        print("WARNING: 'use_implementation_deps' is a deprecated flag. Use 'analysis_optimizes_impl_deps' instead.")
-        analysis_optimizes_impl_deps = True
     if recursive:
         attr_aspects = ["implementation_deps", "deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
