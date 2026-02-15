@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import unittest
 
 from scripts.extract_std_headers import extract_header

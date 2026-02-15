@@ -4,7 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-available-brightgreen)](https://github.com/martis42/depend_on_what_you_use/blob/main/docs)
 <br>
 [![Bazel](https://img.shields.io/badge/Bazel-7.2.1+-green)](https://bazel.build/)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](<>)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](<>)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white)](<>)
@@ -238,14 +238,14 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 
 | Tool   | Constraints                                                                                      |
 | ------ | ------------------------------------------------------------------------------------------------ |
-| Python | Minimum required version is 3.8. Maximum tested version is 3.13.                                 |
+| Python | Minimum required version is 3.10. Maximum tested version is 3.13.                                |
 | Bazel  | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
 
 ### Applying fixes
 
 | Tool      | Constraints                                                                                                |
 | --------- | ---------------------------------------------------------------------------------------------------------- |
-| Python    | Integration tests check 3.8.                                                                               |
+| Python    | Integration tests check 3.10.                                                                              |
 | Bazel     | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
 | Buildozer | No known constraint. Integration tests check 8.2.1.                                                        |
 

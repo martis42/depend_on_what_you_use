@@ -40,7 +40,7 @@ bazel_dep(name = "toolchains_llvm", version = "1.6.0", dev_dependency = True)
 ###
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
-python.toolchain(python_version = "3.8")
+python.toolchain(python_version = "3.10")
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm.toolchain(llvm_version = "21.1.6")
