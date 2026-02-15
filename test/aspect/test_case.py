@@ -37,7 +37,7 @@ class TestCaseBase(ABC):
         self._name = name
         self._cpp_impl_based = cpp_impl_based
         self._verbose = verbose
-        self._tested_version = TestedVersions(bazel="", python="")
+        self._tested_version = TestedVersions(bazel="")
         self._output_base: Path | None = None
         self._extra_args: list[str] = []
 
@@ -120,7 +120,6 @@ class TestCaseBase(ABC):
         return self._run_bazel_build(
             target=target,
             extra_args=[
-                f"--@rules_python//python/config_settings:python_version={self._tested_version.python}",
                 f"--aspects={aspect}",
                 "--output_groups=dwyu",
                 *verbosity,
