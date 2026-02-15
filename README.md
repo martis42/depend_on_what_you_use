@@ -238,7 +238,8 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 
 | Tool   | Constraints                                                                                      |
 | ------ | ------------------------------------------------------------------------------------------------ |
-| Python | Minimum required version is 3.10. Maximum tested version is 3.13.                                |
+| C++    | Minimum required C++ standard is C++11.                                                          |
+| Python | Minimum required version is 3.10 for the legacy implementation.                                  |
 | Bazel  | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
 
 ### Applying fixes
