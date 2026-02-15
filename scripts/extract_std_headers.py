@@ -13,8 +13,6 @@ python file containing the standard header list for DWYU to lookup.
 # No benefit for using logging here
 # ruff: noqa: T201
 
-from __future__ import annotations
-
 import re
 from pathlib import Path
 
