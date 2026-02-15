@@ -9,7 +9,6 @@ def dwyu_aspect_factory(
         analysis_optimizes_impl_deps = False,
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
-        experimental_no_preprocessor = False,
         experimental_set_cplusplus = False,
         ignored_includes = None,
         no_preprocessor = False,
@@ -43,10 +42,6 @@ def dwyu_aspect_factory(
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
-
-        experimental_no_preprocessor: Deprecated flag.
-                                      This feature is now stable.
-                                      See [no_preprocessor](https://github.com/martis42/depend_on_what_you_use/blob/main/docs/dwyu_aspect.md#dwyu_aspect_factory-no_preprocessor)
 
         experimental_set_cplusplus: **DEPRECATED**: This flag will be removed together with the Python implementation.
                                     The new C++ based implementation will always try to set a proper `__cplusplus`.<br><br>
@@ -117,10 +112,6 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
-    if experimental_no_preprocessor:
-        # buildifier: disable=print
-        print("WARNING: 'experimental_no_preprocessor' is a deprecated flag due to the feature now being stable. Use 'no_preprocessor' instead.")
-        no_preprocessor = True
     if use_cpp_implementation:
         target_processor = Label("//dwyu/aspect/private/process_target:main_cc")
         tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
