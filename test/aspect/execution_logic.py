@@ -50,7 +50,7 @@ def execute_test(
         log.info(f"--- Skip '{test.name}' due to: {test.compatibility.reason}\n")
         return True
 
-    log.info(f">>> Test '{test.name}' with Bazel {version.bazel} and Python {version.python}")
+    log.info(f">>> Test '{test.name}' with Bazel {version.bazel}")
 
     succeeded = False
     result = None
@@ -100,7 +100,7 @@ def file_to_test_name(test_file: Path) -> str:
 
 def prepare_output_base(version: TestedVersions) -> Path:
     output_root = Path.home() / ".cache" / "bazel" / "dwyu"
-    output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}_python_{version.python}"
+    output_base = output_root / f"aspect_integration_tests_bazel_{version.bazel}"
     output_base.mkdir(parents=True, exist_ok=True)
     return output_base
 
@@ -109,7 +109,6 @@ def main(
     tested_versions: list[TestedVersions],
     version_specific_args: dict[str, CompatibleVersions],
     bazel: str | None = None,
-    python: str | None = None,
     requested_tests: list[str] | None = None,
     list_tests: bool = False,
     cpp_impl_based: bool = False,
@@ -134,8 +133,8 @@ def main(
             module = SourceFileLoader("", str(test.resolve())).load_module()
             tests.append(module.TestCase(name=name, cpp_impl_based=cpp_impl_based, verbose=verbose))
 
-    if bazel and python:
-        versions = [TestedVersions(bazel=bazel, python=python)]
+    if bazel:
+        versions = [TestedVersions(bazel=bazel)]
     elif only_default_version:
         versions = [version for version in tested_versions if version.is_default]
     else:
@@ -147,7 +146,7 @@ def main(
     for version in versions:
         log.info(f"""
 ###
-### Aspect integration tests based on: Bazel '{version.bazel}' and Python '{version.python}'
+### Aspect integration tests based on Bazel '{version.bazel}'
 ###
 """)
 
@@ -160,7 +159,7 @@ def main(
         ]
         failed_tests.extend(
             [
-                f"'{test.name}' for Bazel {version.bazel} and Python {version.python}"
+                f"'{test.name}' for Bazel {version.bazel}"
                 for test in tests
                 if not execute_test(
                     test=test,

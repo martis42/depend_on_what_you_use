@@ -23,11 +23,11 @@ log = logging.getLogger()
 #
 # Keep this in sync with: .bcr/presubmit.yml and test/workspace_integration/test.py
 TESTED_VERSIONS = [
-    TestedVersions(bazel="7.2.1", python="3.8"),
-    TestedVersions(bazel="7.x", python="3.10"),
-    TestedVersions(bazel="8.x", python="3.12", is_default=True),
-    TestedVersions(bazel="9.*", python="3.13"),
-    TestedVersions(bazel="rolling", python="3.13"),
+    TestedVersions(bazel="7.2.1"),
+    TestedVersions(bazel="7.x"),
+    TestedVersions(bazel="8.x", is_default=True),
+    TestedVersions(bazel="9.*"),
+    TestedVersions(bazel="rolling"),
 ]
 
 VERSION_SPECIFIC_ARGS = {
@@ -67,20 +67,13 @@ def cli() -> Namespace:
         "--bazel",
         "-b",
         metavar="VERSION",
-        help="Run tests with the specified Bazel version. Also requires setting '--python'",
-    )
-    parser.add_argument(
-        "--python",
-        "-p",
-        metavar="VERSION",
-        help="Run tests with the specified Python version."
-        " Has to be one of the versions for which we register a hermetic toolchain. Also requires setting '--bazel'.",
+        help="Run tests with the specified Bazel version.",
     )
     parser.add_argument(
         "--only-default-version",
         "-d",
         action="store_true",
-        help="Execute tests only for the default Bazel and Python version.",
+        help="Execute tests only for the default Bazel version.",
     )
     parser.add_argument(
         "--list",
@@ -110,13 +103,7 @@ def cli() -> Namespace:
         action="store_true",
         help="Do not add the various arguments for experimental and incompatible changes.",
     )
-
-    parsed_args = parser.parse_args()
-    if (parsed_args.bazel and not parsed_args.python) or (not parsed_args.bazel and parsed_args.python):
-        log.error("ERROR: '--bazel' and '--python' have to be used together")
-        sys.exit(1)
-
-    return parsed_args
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
@@ -133,7 +120,6 @@ if __name__ == "__main__":
             tested_versions=TESTED_VERSIONS,
             version_specific_args=bazel_args,
             bazel=args.bazel,
-            python=args.python,
             requested_tests=args.test,
             list_tests=args.list,
             cpp_impl_based=bool(not args.py_impl_based),

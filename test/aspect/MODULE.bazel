@@ -16,17 +16,7 @@ local_path_override(
 bazel_dep(name = "rules_python", version = "0.12.0")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-
-# Choose different version via: --@rules_python//python/config_settings:python_version=X
-python.toolchain(
-    is_default = True,
-    python_version = "3.8",
-)
-python.toolchain(python_version = "3.9")
-python.toolchain(python_version = "3.10")
-python.toolchain(python_version = "3.11")
-python.toolchain(python_version = "3.12")
-python.toolchain(python_version = "3.13")
+python.toolchain(python_version = "3.8")
 
 ##
 ## Test Dependencies

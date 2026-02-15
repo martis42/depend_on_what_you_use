@@ -4,7 +4,6 @@ from dataclasses import dataclass
 @dataclass
 class TestedVersions:
     bazel: str
-    python: str
     is_default: bool = False
 
 
