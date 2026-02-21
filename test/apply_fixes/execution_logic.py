@@ -32,6 +32,20 @@ class ApplyFixesIntegrationTestsExecutor:
         log.info("Available test cases:")
         log.info("\n".join(f"- {t.name}" for t in self.test_definitions))
 
+    def ensure_no_local_changes(self) -> list[str]:
+        unique_test_dirs = {test.test_dir for test in self.test_definitions}
+        errors = []
+        for test_dir in unique_test_dirs:
+            cmd = ["git", "status", "--porcelain", "."]
+            log.debug(f"Checking for local changes with command: '{shlex.join(cmd)}'")
+            result = subprocess.run(cmd, cwd=test_dir, check=True, shell=False, capture_output=True, text=True)
+            if result.stdout.strip():
+                details = "\n".join(f"  {line}" for line in result.stdout.splitlines())
+                error = f"Local changes in '{test_dir}':\n{details}"
+                errors.append(error)
+
+        return errors
+
     def execute_tests(self) -> list[str]:
         """
         :return: List of failed test cases
@@ -108,6 +122,11 @@ def main(requested_tests: list[str] | None = None, list_tests: bool = False) -> 
     if list_tests:
         executor.list_tests()
         return 0
+
+    if (errors := executor.ensure_no_local_changes()) != []:
+        log.error("Commit or stash local changes them to prevent losing them.\n")
+        log.error("\n".join(errors))
+        return 1
 
     failed_tests = executor.execute_tests()
     log.info(f"Running tests {'FAILED' if failed_tests else 'SUCCEEDED'}")
