@@ -102,21 +102,44 @@ class TestSearchDeps(unittest.TestCase):
         self.assertEqual(search_missing_deps(bazel_query=MagicMock(), target="", includes_without_direct_dep={}), [])
 
     @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
-    def test_find_dependency(self, get_deps_mock: MagicMock) -> None:
+    @patch("dwyu.apply_fixes.search_missing_deps.is_visible", return_value=True)
+    def test_find_dependency(self, _: MagicMock, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
-            Dependency(target="//unrelated:lib", include_paths=["some_include.h"]),
-            Dependency(target="//expected:target", include_paths=["other/path/include_a.h", "some/path/include_b.h"]),
+            Dependency(target="//unrelated:lib", include_paths=["some_hdr.h"]),
+            Dependency(target="//expected:target", include_paths=["other/path/hdr_a.h", "some/path/hdr_b.h"]),
         ]
         deps = search_missing_deps(
             bazel_query=MagicMock(),
             target="foo",
-            includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
+            includes_without_direct_dep={"some_file.cc": ["some/path/hdr_b.h"]},
         )
 
         self.assertEqual(deps, ["//expected:target"])
 
     @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
-    def test_fail_on_ambiguous_dependency_resolution_for_full_include_path(self, get_deps_mock: MagicMock) -> None:
+    @patch("dwyu.apply_fixes.search_missing_deps.is_visible", return_value=False)
+    def test_fail_for_invisible_dependency(self, _: MagicMock, get_deps_mock: MagicMock) -> None:
+        get_deps_mock.return_value = [
+            Dependency(target="//expected:target", include_paths=["some/path/hdr.h"]),
+        ]
+        with self.assertLogs() as cm:
+            deps = search_missing_deps(
+                bazel_query=MagicMock(),
+                target="foo",
+                includes_without_direct_dep={"some_file.cc": ["some/path/hdr.h"]},
+            )
+            self.assertEqual(len(cm.output), 1)
+            self.assertTrue(
+                "Could not find a proper dependency for invalid include path 'some/path/hdr.h' of target 'foo'."
+                in cm.output[0]
+            )
+            self.assertEqual(deps, [])
+
+    @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
+    @patch("dwyu.apply_fixes.search_missing_deps.is_visible", return_value=True)
+    def test_fail_on_ambiguous_dependency_resolution_for_full_include_path(
+        self, _: MagicMock, get_deps_mock: MagicMock
+    ) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//:lib_a", include_paths=["some/path/foo.h"]),
             Dependency(target="//:lib_b", include_paths=["some/path/foo.h"]),
@@ -136,7 +159,8 @@ class TestSearchDeps(unittest.TestCase):
             self.assertEqual(deps, [])
 
     @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
-    def test_find_dependency_via_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
+    @patch("dwyu.apply_fixes.search_missing_deps.is_visible", return_value=True)
+    def test_find_dependency_via_file_name_fallback(self, _: MagicMock, get_deps_mock: MagicMock) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//some:lib_a", include_paths=["foo.h"]),
         ]
@@ -148,7 +172,10 @@ class TestSearchDeps(unittest.TestCase):
         self.assertEqual(deps, ["//some:lib_a"])
 
     @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
-    def test_fail_on_ambiguous_dependency_resolution_for_file_name_fallback(self, get_deps_mock: MagicMock) -> None:
+    @patch("dwyu.apply_fixes.search_missing_deps.is_visible", return_value=True)
+    def test_fail_on_ambiguous_dependency_resolution_for_file_name_fallback(
+        self, _: MagicMock, get_deps_mock: MagicMock
+    ) -> None:
         get_deps_mock.return_value = [
             Dependency(target="//:lib_a", include_paths=["foo.h"]),
             Dependency(target="//:lib_b", include_paths=["foo.h"]),
@@ -169,16 +196,16 @@ class TestSearchDeps(unittest.TestCase):
 
     @patch("dwyu.apply_fixes.search_missing_deps.get_dependencies")
     def test_fail_on_unresolved_dependency(self, get_deps_mock: MagicMock) -> None:
-        get_deps_mock.return_value = [Dependency(target="//unrelated:lib", include_paths=["some_include.h"])]
+        get_deps_mock.return_value = [Dependency(target="//unrelated:lib", include_paths=["some_hdr.h"])]
         with self.assertLogs() as cm:
             deps = search_missing_deps(
                 bazel_query=MagicMock(),
                 target="foo",
-                includes_without_direct_dep={"some_file.cc": ["some/path/include_b.h"]},
+                includes_without_direct_dep={"some_file.cc": ["some/path/hdr.h"]},
             )
             self.assertEqual(len(cm.output), 1)
             self.assertTrue(
-                "Could not find a proper dependency for invalid include path 'some/path/include_b.h' of target 'foo'"
+                "Could not find a proper dependency for invalid include path 'some/path/hdr.h' of target 'foo'"
                 in cm.output[0]
             )
             self.assertEqual(deps, [])
