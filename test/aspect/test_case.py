@@ -113,7 +113,7 @@ class TestCaseBase(ABC):
     def _run_dwyu(
         self, target: str | list[str], aspect: str, extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
-        extra_args = extra_args if extra_args else []
+        extra_args = extra_args or []
         verbosity = ["--aspects_parameters=dwyu_verbose=True"] if self._verbose else []
         return self._run_bazel_build(
             target=target,
@@ -128,7 +128,7 @@ class TestCaseBase(ABC):
     def _run_bazel_build(
         self, target: str | list[str], extra_args: list[str] | None = None
     ) -> subprocess.CompletedProcess:
-        custom_extra_args = extra_args if extra_args else []
+        custom_extra_args = extra_args or []
         all_extra_args = ["--noshow_progress", *self._extra_args, *custom_extra_args]
 
         custom_targets = [target] if isinstance(target, str) else target
