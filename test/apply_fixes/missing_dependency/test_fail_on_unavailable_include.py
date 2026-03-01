@@ -9,7 +9,6 @@ class TestCase(TestCaseBase):
 
     def execute_test_logic(self) -> Result:
         self._create_reports(aspect="//missing_dependency/workspace:aspect.bzl%default_aspect")
-        self._run_automatic_fix(extra_args=["--fix-missing-deps"])
 
         process = self._run_and_capture_cmd(
             cmd=[

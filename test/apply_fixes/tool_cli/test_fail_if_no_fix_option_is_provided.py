@@ -21,6 +21,7 @@ class TestCase(TestCaseBase):
             ],
             check=False,
         )
+
         if process.returncode == 0:
             return Error("Expected an exception, but none occurred")
         if (expected_error := "Please choose at least one of the 'fix-..' options") not in process.stderr:
