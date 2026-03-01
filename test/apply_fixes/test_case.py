@@ -62,8 +62,8 @@ class TestCaseBase(ABC):
         startup_args: list[str] | None = None,
         extra_args: list[str] | None = None,
     ) -> list[str]:
-        cmd_startup_args = startup_args if startup_args else []
-        cmd_extra_args = extra_args if extra_args else []
+        cmd_startup_args = startup_args or []
+        cmd_extra_args = extra_args or []
         return [
             self._bazel_bin,
             *cmd_startup_args,
@@ -96,7 +96,7 @@ class TestCaseBase(ABC):
         Execute the applying fixes script for the Bazel target associated with the test case
         """
         verbosity = ["--verbose"] if log.isEnabledFor(logging.DEBUG) else []
-        cmd_extra_args = extra_args if extra_args else []
+        cmd_extra_args = extra_args or []
         dwyu_report = [] if custom_dwyu_report_discovery else [f"--dwyu-log-file={self._log_file}", "--use-bazel-info"]
 
         self._run_cmd(
