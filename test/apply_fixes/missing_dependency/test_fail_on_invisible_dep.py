@@ -5,7 +5,7 @@ from test.support.result import Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//missing_dependency/workspace:use_private_header"
+        return "//missing_dependency/workspace:use_invisible_lib"
 
     def execute_test_logic(self) -> Result:
         self._create_reports(aspect="//missing_dependency/workspace:aspect.bzl%default_aspect")
@@ -23,7 +23,7 @@ class TestCase(TestCaseBase):
             check=True,
         )
 
-        expected_error = "Could not find a proper dependency for invalid include path 'missing_dependency/workspace/private_header/private_bar.h'"
-        if expected_error not in process.stderr:
-            return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)
-        return Success()
+        expected_error = "Could not find a proper dependency for invalid include path 'missing_dependency/workspace/libs/private.h' of target '@@//missing_dependency/workspace:use_invisible_lib'"
+        if expected_error in process.stderr:
+            return Success()
+        return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)

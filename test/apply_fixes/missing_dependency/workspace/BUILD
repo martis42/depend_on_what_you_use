@@ -60,6 +60,12 @@ cc_library(
     deps = ["//missing_dependency/workspace/configured_lib:configured_deps"],
 )
 
+cc_library(
+    name = "use_invisible_lib",
+    srcs = ["use_invisible_lib.cpp"],
+    deps = [":invisible_lib_provider"],
+)
+
 ##################
 # Helper Targets #
 ##################
@@ -114,4 +120,9 @@ cc_library(
 cc_library(
     name = "root_file_lib",
     hdrs = ["root_lib.h"],
+)
+
+cc_library(
+    name = "invisible_lib_provider",
+    deps = ["//missing_dependency/workspace/libs:indirection_to_private"],
 )
