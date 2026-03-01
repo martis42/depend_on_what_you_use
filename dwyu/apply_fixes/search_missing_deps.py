@@ -61,23 +61,42 @@ def get_dependencies(bazel_query: BazelQuery, target: str) -> list[Dependency]:
     return deps
 
 
-def match_deps_to_include(target: str, invalid_include: str, target_deps: list[Dependency]) -> str | None:
+def is_visible(bazel_query: BazelQuery, target: str, dep: str) -> bool:
+    """
+    We can find dependencies, which are actually not usable. For example, the cc_library providing the required
+    header file might be private and only some alias target pointing to it might be visible for the target
+    consuming the header file.
+    """
+    process = bazel_query.execute(
+        query=f"visible({target}, {dep})",
+        args=[],
+        only_supports_query=True,
+    )
+    return process.stdout != ""
+
+
+def match_deps_to_include(
+    bazel_query: BazelQuery, target: str, invalid_include: str, target_deps: list[Dependency]
+) -> str | None:
     """
     The possibility to manipulate include paths complicates matching potential dependencies to the invalid include
     statement. Thus, we perform this multistep heuristic.
     """
 
     deps_providing_included_path = [dep.target for dep in target_deps if invalid_include in dep.include_paths]
+    visible_deps_providing_included_path = [
+        dep for dep in deps_providing_included_path if is_visible(bazel_query=bazel_query, target=target, dep=dep)
+    ]
 
-    if len(deps_providing_included_path) == 1:
-        return deps_providing_included_path[0]
+    if len(visible_deps_providing_included_path) == 1:
+        return visible_deps_providing_included_path[0]
 
-    if len(deps_providing_included_path) > 1:
+    if len(visible_deps_providing_included_path) > 1:
         log.warning(
             f"""
 Found multiple targets providing invalid include path '{invalid_include}' of target '{target}'.
  Cannot determine correct dependency.
- Discovered potential dependencies are: {deps_providing_included_path}.
+ Discovered potential dependencies are: {visible_deps_providing_included_path}.
             """.strip()
         )
         return None
@@ -89,16 +108,19 @@ Found multiple targets providing invalid include path '{invalid_include}' of tar
     deps_providing_included_file = [
         dep.target for dep in target_deps if included_file in [get_file_name(path) for path in dep.include_paths]
     ]
+    visible_deps_providing_included_file = [
+        dep for dep in deps_providing_included_file if is_visible(bazel_query=bazel_query, target=target, dep=dep)
+    ]
 
-    if len(deps_providing_included_file) == 1:
-        return deps_providing_included_file[0]
+    if len(visible_deps_providing_included_file) == 1:
+        return visible_deps_providing_included_file[0]
 
-    if len(deps_providing_included_file) > 1:
+    if len(visible_deps_providing_included_file) > 1:
         log.warning(
             f"""
 Found multiple targets providing file '{included_file}' from invalid include '{invalid_include}' of target '{target}'.
  Matching the full include path did not work. Cannot determine correct dependency.
- Discovered potential dependencies are: {deps_providing_included_file}.
+ Discovered potential dependencies are: {visible_deps_providing_included_file}.
             """.strip()
         )
         return None
@@ -128,5 +150,10 @@ def search_missing_deps(
     return [
         dep
         for include in all_invalid_includes
-        if (dep := match_deps_to_include(target=target, invalid_include=include, target_deps=target_deps)) is not None
+        if (
+            dep := match_deps_to_include(
+                bazel_query=bazel_query, target=target, invalid_include=include, target_deps=target_deps
+            )
+        )
+        is not None
     ]

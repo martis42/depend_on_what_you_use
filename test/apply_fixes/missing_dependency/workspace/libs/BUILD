@@ -29,3 +29,14 @@ cc_library(
     hdrs = [],
     visibility = ["//visibility:public"],
 )
+
+cc_library(
+    name = "private",
+    hdrs = ["private.h"],
+)
+
+alias(
+    name = "indirection_to_private",
+    actual = ":private",
+    visibility = ["//visibility:public"],
+)
