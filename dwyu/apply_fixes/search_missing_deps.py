@@ -19,7 +19,7 @@ class Dependency:
 
 
 def get_file_name(include: str) -> str:
-    return include.split("/")[-1]
+    return include.rsplit("/", maxsplit=1)[-1]
 
 
 def target_to_path(dep: str) -> str:

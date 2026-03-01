@@ -22,7 +22,7 @@ class TestDefinition:
 
 class ApplyFixesIntegrationTestsExecutor:
     def __init__(self, requested_tests: list[str] | None) -> None:
-        self.requested_tests = requested_tests if requested_tests else []
+        self.requested_tests = requested_tests or []
 
         self.bazel_bin = get_bazel_binary()
         self.origin_workspace = get_current_workspace(self.bazel_bin)
