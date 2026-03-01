@@ -158,7 +158,7 @@ def main(args: Namespace) -> int:
     We ony look for the return code of a command. If a command fails as expected we do not analyze if it fails for the
     correct reason. These kind of detailed testing is done in the aspect integration tests.
     """
-    bazel_binary = args.bazel_bin if args.bazel_bin else str(get_bazel_binary())
+    bazel_binary = args.bazel_bin or str(get_bazel_binary())
 
     results = [
         execute_example(example=ex, bazel_bin=bazel_binary, legacy_workspace=args.legacy_workspace) for ex in EXAMPLES

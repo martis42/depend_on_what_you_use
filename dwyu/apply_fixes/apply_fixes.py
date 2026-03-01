@@ -104,7 +104,7 @@ def main(args: Namespace) -> int:
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
-    buildozer = args.buildozer if args.buildozer else "buildozer"
+    buildozer = args.buildozer or "buildozer"
 
     workspace = get_workspace(args)
     if not workspace:

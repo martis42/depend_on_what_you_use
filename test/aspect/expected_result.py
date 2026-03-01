@@ -71,7 +71,7 @@ class ExpectedResult:
     """
 
     def __init__(self, success: bool, failures: list[ExpectedDwyuFailure]) -> None:
-        self.failures = failures if failures else []
+        self.failures = failures or []
         self.success = success
 
     def matches_expectation(self, return_code: int, dwyu_output: str, reports_root: Path) -> Result:  # noqa: PLR0911
