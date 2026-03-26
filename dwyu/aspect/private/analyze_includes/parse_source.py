@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 
-from pcpp.preprocessor import Action, OutputDirective, Preprocessor  # type: ignore[import-not-found]
+from pcpp.preprocessor import Action, OutputDirective, Preprocessor  # ty: ignore[unresolved-import]
 
 
 class SimpleParsingPreprocessor(Preprocessor):
