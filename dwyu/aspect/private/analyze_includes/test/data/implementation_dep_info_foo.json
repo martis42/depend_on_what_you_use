@@ -1,7 +1,0 @@
-{
-  "header_files": [
-    "private/dep/foo_1.h",
-    "private/dep/foo_2.h"
-  ],
-  "target": "//private/dep:foo"
-}

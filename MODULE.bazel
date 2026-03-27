@@ -13,7 +13,7 @@ bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
 
 non_module_dependencies_step_1 = use_extension("//third_party:extensions_step_1.bzl", "non_module_dependencies_step_1")
-use_repo(non_module_dependencies_step_1, "boost.wave", "com_github_nelhage_rules_boost", "dwyu_pcpp")
+use_repo(non_module_dependencies_step_1, "boost.wave", "com_github_nelhage_rules_boost")
 
 non_module_dependencies_step_2 = use_extension("//third_party:extensions_step_2.bzl", "non_module_dependencies_step_2")
 use_repo(non_module_dependencies_step_2, "boost")

@@ -22,8 +22,7 @@ TEST(ReadJsonFromFile, ReturnEmptyOnMissingFileWhenIgnoringMissingFiles) {
 }
 
 TEST(ReadJsonFromFile, ReadData) {
-    const auto result =
-        readJsonFromFile("dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json");
+    const auto result = readJsonFromFile("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json");
 
     EXPECT_EQ(result.size(), 2);
     EXPECT_EQ(result["target"], "//:bar");

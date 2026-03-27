@@ -1,6 +1,0 @@
-{
-    "extra_ignore_include_paths": [
-        "foo",
-        "bar"
-    ]
-}

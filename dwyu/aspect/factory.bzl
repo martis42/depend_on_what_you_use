@@ -43,17 +43,10 @@ def dwyu_aspect_factory(
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
 
-        experimental_set_cplusplus: **DEPRECATED**: This flag will be removed together with the Python implementation.
-                                    The new C++ based implementation will always try to set a proper `__cplusplus`.<br><br>
-                                    `__cplusplus` is a macro defined by the compiler specifying if C++ is used to compile the file and which C++ standard is used.<br>
-                                    DWYU cannot treat this like other preprocessor defines, as this is often not coming from the command line or the Bazel C++ toolchain.
-                                    The compiler itself defines the value for `__cplusplus` and sets it internally during preprocessing.<br>
-                                    This option enables a heuristic to set `__cplusplus` for the preprocessor used internally by DWYU.
-                                    We look at the compilation command one would use to compile the code and look for `-std=..`.
-                                    If it is is present and has a legal value, we deduce `__cplusplus` and set it for the preprocessing.
-                                    If this logic fails, `__cplusplus` is not set.
-                                    Users can provide their own value by setting `__cplusplus` via Bazel (e.g. via `--cxxopt=-D__cplusplus=42`) which will take precedence over the heuristic used by DWYU.
-                                    This feature is demonstrated in the [set_cpp_standard example](/examples/set_cpp_standard).
+        experimental_set_cplusplus:  No longer supported.
+                                     Will be removed in the next release.
+                                     The new C++ based implementation will always try to set a proper '__cplusplus' value based on the compiler flags.
+                                     If the new C++ based implementation does not work for you, please report an issue at the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).
 
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/dwyu/aspect/private/analyze_includes/std_header.py).<br>
@@ -96,9 +89,9 @@ def dwyu_aspect_factory(
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).
 
-        use_cpp_implementation: Set this to `False` to use the legacy Python based implementation.
-                                If you have to use the Python implementation instead of the standard C++ based implementation, please create an issue with your problem in the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).<br>
-                                **The Python based implementation will be removed in a future release**!
+        use_cpp_implementation: No longer supported.
+                                Will be removed in the next release.
+                                If the new C++ based implementation does not work for you, please report an issue at the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).
 
         verbose: If `True`, print debugging information about the individual DWYU actions.<br>
                  This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True|False]`.
@@ -112,20 +105,11 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
-    if use_cpp_implementation:
-        target_processor = Label("//dwyu/aspect/private/process_target:main_cc")
-        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
-        tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:main")
-    else:
-        # buildifier: disable=print
-        print("WARNING: Using the legacy Python based implementation, which will be removed in a future release. Please report an issue to DWYU if the new C++ based implementation does not work for you.")
-        target_processor = Label("//dwyu/aspect/private/process_target:main_py")
-        tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:stub")
-        tool_analyze_includes = Label("//dwyu/aspect/private/analyze_includes:analyze_includes")
-    if not analysis_reports_missing_direct_deps and not use_cpp_implementation:
-        fail("Disabling the reporting of missing direct dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of missing direct dependencies.")
-    if not analysis_reports_unused_deps and not use_cpp_implementation:
-        fail("Disabling the reporting of unused dependencies is currently only supported in the C++ based implementation. Please set 'use_cpp_implementation' to True if you want to disable the reporting of unused dependencies.")
+    tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
+    if not use_cpp_implementation:
+        fail("Using the legacy Python based implementation is no longer possible. The the new C++ based implementation does not work for you, please report an issue at https://github.com/martis42/depend_on_what_you_use/issues")
+    if experimental_set_cplusplus:
+        fail("The 'experimental_set_cplusplus' flag is no longer having any effect. The DWYU implementation will always try to set a proper '__cplusplus' value. If this does not work for you, please report an issue at https://github.com/martis42/depend_on_what_you_use/issues")
 
     return aspect(
         implementation = dwyu_aspect_impl,
@@ -156,9 +140,6 @@ def dwyu_aspect_factory(
             "_recursive": attr.bool(
                 default = recursive,
             ),
-            "_set_cplusplus": attr.bool(
-                default = experimental_set_cplusplus,
-            ),
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
             ),
@@ -170,7 +151,7 @@ def dwyu_aspect_factory(
                 default = aspect_target_mapping,
             ),
             "_tool_analyze_includes": attr.label(
-                default = tool_analyze_includes,
+                default = Label("//dwyu/aspect/private/analyze_includes:main"),
                 executable = True,
                 cfg = "exec",
                 doc = "Main logic for the analysis done by this aspect. This compares the include statements in the code and compares them to the available dependencies.",
@@ -182,14 +163,11 @@ def dwyu_aspect_factory(
                 doc = "Preprocess the source code under inspection to resolve conditional preprocessor statements and discover include statements.",
             ),
             "_tool_process_target": attr.label(
-                default = target_processor,
+                default = Label("//dwyu/aspect/private/process_target:main_cc"),
                 executable = True,
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
                       " as separate action, since otherwise we can't look into TreeArtifact sources.",
-            ),
-            "_use_cpp_implementation": attr.bool(
-                default = use_cpp_implementation,
             ),
         },
     )

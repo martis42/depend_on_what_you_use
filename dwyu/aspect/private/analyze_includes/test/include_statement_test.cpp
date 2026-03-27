@@ -11,21 +11,21 @@ namespace {
 
 TEST(GetIncludeStatements, ReadingFileWithoutDataYieldsAnEmptyList) {
     const auto includes =
-        getIncludeStatements({"dwyu/aspect/private/analyze_includes/test/data/cc/preprocessed_file_empty.json"}, {});
+        getIncludeStatements({"dwyu/aspect/private/analyze_includes/test/data/preprocessed_file_empty.json"}, {});
 
     EXPECT_TRUE(includes.empty());
 }
 
 TEST(GetIncludeStatements, ReadingFileWithoutIncludesDataYieldsAnEmptyList) {
     const auto includes = getIncludeStatements(
-        {"dwyu/aspect/private/analyze_includes/test/data/cc/preprocessed_file_without_includes.json"}, {});
+        {"dwyu/aspect/private/analyze_includes/test/data/preprocessed_file_without_includes.json"}, {});
 
     EXPECT_TRUE(includes.empty());
 }
 
 TEST(GetIncludeStatements, ReadingMultipleFiles) {
     const auto includes = getIncludeStatements(
-        {"dwyu/aspect/private/analyze_includes/test/data/cc/preprocessed_files_with_includes.json"}, {});
+        {"dwyu/aspect/private/analyze_includes/test/data/preprocessed_files_with_includes.json"}, {});
 
     EXPECT_EQ(includes.size(), 3);
 
@@ -52,7 +52,7 @@ TEST(GetIncludeStatements, FilterOutIgnoredIncludes) {
     const IgnoredIncludes ignores{{"some_include.h"}, {boost::regex("another/.*")}};
 
     const auto includes = getIncludeStatements(
-        {"dwyu/aspect/private/analyze_includes/test/data/cc/preprocessed_files_with_includes.json"}, ignores);
+        {"dwyu/aspect/private/analyze_includes/test/data/preprocessed_files_with_includes.json"}, ignores);
 
     ASSERT_EQ(includes.size(), 1);
     EXPECT_EQ(includes[0].file, "bar.cpp");

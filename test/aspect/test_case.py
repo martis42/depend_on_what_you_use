@@ -31,9 +31,8 @@ class Incompatible(Compatibility):
 
 
 class TestCaseBase(ABC):
-    def __init__(self, name: str, cpp_impl_based: bool, verbose: bool) -> None:
+    def __init__(self, name: str, verbose: bool) -> None:
         self._name = name
-        self._cpp_impl_based = cpp_impl_based
         self._verbose = verbose
         self._tested_version = TestedVersions(bazel="")
         self._output_base: Path | None = None
@@ -76,10 +75,16 @@ class TestCaseBase(ABC):
         return self.choose_aspect("//:aspect.bzl%dwyu")
 
     def choose_aspect(self, aspect: str) -> str:
-        return aspect + "_cpp" if self._cpp_impl_based else aspect
+        """
+        Variation point if we want to perform all tests with a different feature set
+        """
+        return aspect
 
     def choose_target(self, target: str) -> str:
-        return target + "_cpp" if self._cpp_impl_based else target
+        """
+        Variation point if we want to select different tests based on a some condition controlled by the test execution script
+        """
+        return target
 
     def execute_test(
         self,

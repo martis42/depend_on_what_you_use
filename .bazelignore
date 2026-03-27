@@ -12,7 +12,6 @@ test/apply_fixes
 test/aspect
 test/aspect/alias
 test/aspect/complex_includes
-test/aspect/defines
 test/aspect/external_repo
 test/aspect/generated_code
 test/aspect/ignore_includes

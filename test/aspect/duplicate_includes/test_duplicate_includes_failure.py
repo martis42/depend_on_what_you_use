@@ -12,11 +12,9 @@ class TestCase(TestCaseBase):
         """
 
         target = "//duplicate_includes:use_foo_transitively"
-        expected_invalid_includes = (
-            {"duplicate_includes/use_foo.h": ["duplicate_includes/foo.h", "duplicate_includes/foo.h"]}
-            if self._cpp_impl_based
-            else {"duplicate_includes/use_foo.h": ["duplicate_includes/foo.h"]}
-        )
+        expected_invalid_includes = {
+            "duplicate_includes/use_foo.h": ["duplicate_includes/foo.h", "duplicate_includes/foo.h"]
+        }
         expected = ExpectedFailure(ExpectedDwyuFailure(target=target, invalid_includes=expected_invalid_includes))
         actual = self._run_dwyu(target=target, aspect=self.default_aspect)
 

@@ -1,16 +1,10 @@
 from expected_result import ExpectedSuccess
-from test_case import Compatibility, Compatible, Incompatible, TestCaseBase
+from test_case import TestCaseBase
 
 from test.support.result import Result
 
 
 class TestCase(TestCaseBase):
-    @property
-    def compatibility(self) -> Compatibility:
-        if self._cpp_impl_based:
-            return Compatible()
-        return Incompatible("Not compatible with the Python based implementation")
-
     def execute_test_logic(self) -> Result:
         target = "//using_transitive_dep:main"
         actual = self._run_dwyu(

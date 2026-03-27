@@ -1,35 +1,8 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
-load("@rules_python//python:py_binary.bzl", "py_binary")
-load("@rules_python//python:py_library.bzl", "py_library")
 
 package(
     default_visibility = [":__subpackages__"],
-)
-
-py_library(
-    name = "lib",
-    srcs = [
-        "evaluate_includes.py",
-        "parse_config.py",
-        "parse_source.py",
-        "result.py",
-        "std_header.py",
-        "system_under_inspection.py",
-    ],
-    visibility = ["//dwyu/aspect/private:__subpackages__"],
-    deps = ["@dwyu_pcpp//:pcpp"],
-)
-
-py_binary(
-    name = "analyze_includes",
-    srcs = ["main.py"],
-    # Compatibility to --noexperimental_python_import_all_repositories
-    imports = ["../../../.."],
-    legacy_create_init = False,
-    main = "main.py",
-    visibility = ["//visibility:public"],
-    deps = [":lib"],
 )
 
 cc_binary(
