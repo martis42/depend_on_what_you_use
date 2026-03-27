@@ -1,15 +1,7 @@
 {
-  "defines": [
-    "SOME_DEFINE",
-    "ANOTHER_DEFINE=42"
-  ],
-  "includes": ["."],
-  "quote_includes": ["some/dir"],
-  "external_includes": ["external/dir"],
-  "system_includes": ["another/dir"],
   "header_files": [
-    "self/header_1.h",
-    "self/header_2.h"
+    "some/hdr_1.h",
+    "some/hdr_2.h"
   ],
-  "target": "//:baz"
+  "target": "//:bar"
 }

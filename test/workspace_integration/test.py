@@ -40,7 +40,7 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
         env = make_bazel_version_env(bazel_version)
         enable_workspace = workspace_arg if bazel_version >= "8.0.0" else []
 
-        cmd_legacy = [
+        cmd_new = [
             "bazel",
             "--max_idle_secs=10",
             "build",
@@ -49,22 +49,8 @@ def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
             "--config=dwyu",
             "//:valid_target",
         ]
-        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}' for legacy DWYU")
-        log.info(f"## Executing: {shlex_join(cmd_legacy)} for legacy DWYU\n##\n")
-        if subprocess.run(cmd_legacy, check=False, env=env).returncode != 0:
-            failures.append(f"{mode}: {bazel_version} for legacy DWYU")
-
-        cmd_new = [
-            "bazel",
-            "--max_idle_secs=10",
-            "build",
-            *bzlmod_arg,
-            *enable_workspace,
-            "--config=dwyu_cpp",
-            "//:valid_target",
-        ]
-        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}' for new DWYU")
-        log.info(f"## Executing: {shlex_join(cmd_new)} for new DWYU\n##\n")
+        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}'")
+        log.info(f"## Executing: {shlex_join(cmd_new)}\n##\n")
         if subprocess.run(cmd_new, check=False, env=env).returncode != 0:
             failures.append(f"{mode}: {bazel_version} for new DWYU")
 

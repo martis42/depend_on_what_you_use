@@ -236,11 +236,10 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 
 ### Aspect
 
-| Tool   | Constraints                                                                                      |
-| ------ | ------------------------------------------------------------------------------------------------ |
-| C++    | Minimum required C++ standard is C++11.                                                          |
-| Python | Minimum required version is 3.10 for the legacy implementation.                                  |
-| Bazel  | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
+| Tool  | Constraints                                                                                      |
+| ----- | ------------------------------------------------------------------------------------------------ |
+| C++   | Minimum required C++ standard is C++11.                                                          |
+| Bazel | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
 
 ### Applying fixes
 

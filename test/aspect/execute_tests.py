@@ -88,12 +88,6 @@ def cli() -> Namespace:
         help="Run the specified test cases. Substrings will match against all test names including them.",
     )
     parser.add_argument(
-        "--py_impl_based",
-        "-py",
-        action="store_true",
-        help="Use the legacy python based implementation.",
-    )
-    parser.add_argument(
         "--no_output_base",
         action="store_true",
         help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
@@ -122,7 +116,6 @@ if __name__ == "__main__":
             bazel=args.bazel,
             requested_tests=args.test,
             list_tests=args.list,
-            cpp_impl_based=bool(not args.py_impl_based),
             only_default_version=args.only_default_version,
             no_output_base=args.no_output_base,
             verbose=args.verbose,

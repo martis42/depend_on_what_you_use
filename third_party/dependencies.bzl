@@ -2,7 +2,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 load("//third_party/boost/wave:repository.bzl", "boost_wave")
 load("//third_party/bzip2:repository.bzl", "bzip2")
-load("//third_party/pcpp:repository.bzl", "pcpp")
 load("//third_party/rules_boost:rules_boost_step_1.bzl", "rules_boost_step_1")
 load("//third_party/xz:repository.bzl", "xz")
 load("//third_party/zlib:repository.bzl", "zlib")
@@ -39,8 +38,6 @@ def dependencies():
         urls = ["https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.tar.gz"],
         strip_prefix = "json-3.12.0",
     )
-
-    pcpp()
 
     rules_boost_step_1()
 

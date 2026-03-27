@@ -91,8 +91,8 @@ TEST(TargetUsage, ByDefaultIsNotUsed) {
 }
 
 TEST(GetSystemUnderInspection, GivenTargetUnderInspectionReadAllDataCorrectly) {
-    const auto system = getSystemUnderInspection(
-        "dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json", {}, {});
+    const auto system =
+        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json", {}, {});
 
     const auto& tui = system.target_under_inspection;
     EXPECT_EQ(tui.name, "//:bar");
@@ -101,7 +101,7 @@ TEST(GetSystemUnderInspection, GivenTargetUnderInspectionReadAllDataCorrectly) {
 
 TEST(GetSystemUnderInspection, GivenTargetUnderInspectionWithoutHeadersExpectData) {
     const auto system = getSystemUnderInspection(
-        "dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection_no_headers.json", {}, {});
+        "dwyu/aspect/private/analyze_includes/test/data/target_under_inspection_no_headers.json", {}, {});
 
     const auto& tui = system.target_under_inspection;
     EXPECT_EQ(tui.name, "//:foo");
@@ -109,8 +109,8 @@ TEST(GetSystemUnderInspection, GivenTargetUnderInspectionWithoutHeadersExpectDat
 }
 
 TEST(GetSystemUnderInspection, GivenNoDepsExpectEmptyMaps) {
-    const auto system = getSystemUnderInspection(
-        "dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json", {}, {});
+    const auto system =
+        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json", {}, {});
 
     EXPECT_TRUE(system.headers_to_public_deps_map.empty());
     EXPECT_TRUE(system.headers_to_all_deps_map.empty());
@@ -118,9 +118,9 @@ TEST(GetSystemUnderInspection, GivenNoDepsExpectEmptyMaps) {
 
 TEST(GetSystemUnderInspection, GivenDepsWithoutHeadersExpectEmptyMaps) {
     const auto system =
-        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json",
-                                 {"dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_no_headers.json"},
-                                 {"dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_no_headers.json"});
+        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json",
+                                 {"dwyu/aspect/private/analyze_includes/test/data/dep_info_no_headers.json"},
+                                 {"dwyu/aspect/private/analyze_includes/test/data/dep_info_no_headers.json"});
 
     EXPECT_TRUE(system.headers_to_public_deps_map.empty());
     EXPECT_TRUE(system.headers_to_all_deps_map.empty());
@@ -128,11 +128,11 @@ TEST(GetSystemUnderInspection, GivenDepsWithoutHeadersExpectEmptyMaps) {
 
 TEST(GetSystemUnderInspection, GivenDepsWithHeadersReadAndCombineThemCorrectly) {
     const auto system =
-        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json",
-                                 {"dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_foo.json",
-                                  "dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_foobar.json"},
-                                 {"dwyu/aspect/private/analyze_includes/test/data/cc/impl_dep_info_fizz.json",
-                                  "dwyu/aspect/private/analyze_includes/test/data/cc/impl_dep_info_buzz.json"});
+        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json",
+                                 {"dwyu/aspect/private/analyze_includes/test/data/dep_info_foo.json",
+                                  "dwyu/aspect/private/analyze_includes/test/data/dep_info_foobar.json"},
+                                 {"dwyu/aspect/private/analyze_includes/test/data/impl_dep_info_fizz.json",
+                                  "dwyu/aspect/private/analyze_includes/test/data/impl_dep_info_buzz.json"});
 
     ASSERT_EQ(system.headers_to_public_deps_map.size(), 4);
     ASSERT_EQ(system.headers_to_all_deps_map.size(), 8);
@@ -154,9 +154,9 @@ TEST(GetSystemUnderInspection, GivenDepsWithHeadersReadAndCombineThemCorrectly) 
 
 TEST(GetSystemUnderInspection, GivenDuplicateHeadersFromDifferentDepsExpectMappingToCorrectDeps) {
     const auto system =
-        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/cc/target_under_inspection.json",
-                                 {"dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_duplicate_header_a.json",
-                                  "dwyu/aspect/private/analyze_includes/test/data/cc/dep_info_duplicate_header_b.json"},
+        getSystemUnderInspection("dwyu/aspect/private/analyze_includes/test/data/target_under_inspection.json",
+                                 {"dwyu/aspect/private/analyze_includes/test/data/dep_info_duplicate_header_a.json",
+                                  "dwyu/aspect/private/analyze_includes/test/data/dep_info_duplicate_header_b.json"},
                                  {});
 
     EXPECT_EQ(system.headers_to_public_deps_map.size(), 3);

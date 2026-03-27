@@ -94,7 +94,7 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
         args.add_all("--external_includes", depset(transitive = external_includes), omit_if_empty = False)
         args.add_all("--system_includes", depset(transitive = system_includes), omit_if_empty = False)
         args.add_all("--defines", defines)
-    if ctx.attr._use_cpp_implementation and is_target_under_inspection:
+    if is_target_under_inspection:
         args.add("--is_target_under_inspection")
     if _is_verbose(ctx):
         args.add("--verbose")
@@ -246,15 +246,14 @@ def _parse_compiler_command(ctx, target_compilation_context):
 
     defines = extract_defines_from_compiler_flags(compiler_command_line_flags)
 
-    if ctx.attr._use_cpp_implementation or ctx.attr._set_cplusplus:
-        # If somebody did set the C++ version explicitly, we are not going to overwrite it
-        if any(["__cplusplus" in m for m in defines]):
-            return defines
+    # If somebody did set the C++ version explicitly, we are not going to overwrite it
+    if any(["__cplusplus" in m for m in defines]):
+        return defines
 
-        cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
-        cplusplus_value = _CPLUSPLUS_VERSIONS_MAP.get(cpp_standard, None)
-        if cplusplus_value:
-            defines.append("__cplusplus={}".format(cplusplus_value))
+    cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+    cplusplus_value = _CPLUSPLUS_VERSIONS_MAP.get(cpp_standard, None)
+    if cplusplus_value:
+        defines.append("__cplusplus={}".format(cplusplus_value))
 
     return defines
 
@@ -427,72 +426,42 @@ def dwyu_aspect_impl(target, ctx):
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
 
-    if ctx.attr._use_cpp_implementation:
-        cc_toolchain = find_cc_toolchain(ctx)
+    cc_toolchain = find_cc_toolchain(ctx)
 
-        preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain)
-        preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain)
+    preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain)
+    preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain)
 
-        args = make_param_file_args(ctx)
-        args.add("--output", report_file)
-        args.add("--target_under_inspection", str(target.label))
-        args.add_all("--preprocessed_public_files", preprocessed_public_files, omit_if_empty = False)
-        args.add_all("--preprocessed_private_files", preprocessed_private_files, omit_if_empty = False)
-        args.add("--target_under_inspection_info", processed_target)
-        args.add_all("--deps", processed_deps, omit_if_empty = False)
-        args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
-        if ctx.attr._ignored_includes:
-            args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
-        if _do_ensure_private_deps(ctx):
-            args.add("--optimize_implementation_deps")
-        if ctx.attr.dwyu_analysis_reports_missing_direct_deps:
-            args.add("--report_missing_direct_deps")
-        if ctx.attr.dwyu_analysis_reports_unused_deps:
-            args.add("--report_unused_deps")
-        if _is_verbose(ctx):
-            args.add("--verbose")
+    args = make_param_file_args(ctx)
+    args.add("--output", report_file)
+    args.add("--target_under_inspection", str(target.label))
+    args.add_all("--preprocessed_public_files", preprocessed_public_files, omit_if_empty = False)
+    args.add_all("--preprocessed_private_files", preprocessed_private_files, omit_if_empty = False)
+    args.add("--target_under_inspection_info", processed_target)
+    args.add_all("--deps", processed_deps, omit_if_empty = False)
+    args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
+    if ctx.attr._ignored_includes:
+        args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
+    if _do_ensure_private_deps(ctx):
+        args.add("--optimize_implementation_deps")
+    if ctx.attr.dwyu_analysis_reports_missing_direct_deps:
+        args.add("--report_missing_direct_deps")
+    if ctx.attr.dwyu_analysis_reports_unused_deps:
+        args.add("--report_unused_deps")
+    if _is_verbose(ctx):
+        args.add("--verbose")
 
-        analysis_inputs = depset(
-            direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
-            transitive = [target[CcInfo].compilation_context.headers],
-        )
-        ctx.actions.run(
-            executable = ctx.executable._tool_analyze_includes,
-            inputs = analysis_inputs,
-            outputs = [report_file],
-            mnemonic = "DwyuAnalyzeTarget",
-            progress_message = "Analyze dependencies of {}".format(target.label),
-            arguments = [args],
-        )
-
-    else:
-        args = make_param_file_args(ctx)
-        args.add("--report", report_file)
-        args.add_all("--public_files", public_files, expand_directories = True, omit_if_empty = False)
-        args.add_all("--private_files", private_files, expand_directories = True, omit_if_empty = False)
-        args.add("--target_under_inspection", processed_target)
-        args.add_all("--deps", processed_deps, omit_if_empty = False)
-        args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
-        if ctx.attr._ignored_includes:
-            args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
-        if _do_ensure_private_deps(ctx):
-            args.add("--implementation_deps_available")
-        if ctx.attr._no_preprocessor:
-            args.add("--no_preprocessor")
-
-        # Skip 'public_files' as those are included in the targets CcInfo.compilation_context.headers
-        analysis_inputs = depset(
-            direct = [processed_target] + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes,
-            transitive = [target[CcInfo].compilation_context.headers],
-        )
-        ctx.actions.run(
-            executable = ctx.executable._tool_analyze_includes,
-            inputs = analysis_inputs,
-            outputs = [report_file],
-            mnemonic = "DwyuAnalyzeIncludes",
-            progress_message = "Analyze dependencies of {}".format(target.label),
-            arguments = [args],
-        )
+    analysis_inputs = depset(
+        direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
+        transitive = [target[CcInfo].compilation_context.headers],
+    )
+    ctx.actions.run(
+        executable = ctx.executable._tool_analyze_includes,
+        inputs = analysis_inputs,
+        outputs = [report_file],
+        mnemonic = "DwyuAnalyzeTarget",
+        progress_message = "Analyze dependencies of {}".format(target.label),
+        arguments = [args],
+    )
 
     accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
     return [OutputGroupInfo(dwyu = accumulated_reports)]

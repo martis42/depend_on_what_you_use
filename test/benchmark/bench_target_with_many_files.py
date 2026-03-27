@@ -187,18 +187,10 @@ def main() -> None:
     primer = "//generated/many_files:primer"
     target = "//generated/many_files:benchmark"
     run_benchmark(
-        aspect="dwyu_legacy_default",
+        aspect="dwyu",
         primer=primer,
         bench_target=target,
-        description="Default legacy DWYU",
-        iterations=ITERATIONS,
-        jobs=JOBS,
-    )
-    run_benchmark(
-        aspect="dwyu_cpp_impl",
-        primer=primer,
-        bench_target=target,
-        description="DWYU C++ implementation",
+        description="DWYU default aspect",
         iterations=ITERATIONS,
         jobs=JOBS,
     )
