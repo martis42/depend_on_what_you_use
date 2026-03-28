@@ -13,8 +13,7 @@ def normalize_file_path(path: str) -> str:
     """
     On Windows DWYU reports Windows file paths with backslashes, but our tests expect POSIX-style paths with forward slashes.
     """
-    # Remove the double baskslash replacing after the Python impl has been removed
-    return path.replace("\\\\", "/").replace("\\", "/")
+    return path.replace("\\", "/")
 
 
 def normalize_file_paths(paths: Iterable[str]) -> list[str]:
