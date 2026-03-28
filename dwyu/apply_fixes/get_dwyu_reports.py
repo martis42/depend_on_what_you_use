@@ -12,12 +12,8 @@ def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Pat
 
     if main_args.dwyu_log_file:
         for report in parse_dwyu_execution_log(main_args.dwyu_log_file):
-            # The legacy Python DWYU impl reports the report path in Windows path style, whereas the C++ implementation
-            # reports it always in UNX style. Until we drop the legacy Python implementation we have to support both.
             if "/bin/" in report:
                 reports.append(search_path / report.split("/bin/", 1)[1])
-            elif "\\bin\\" in report:
-                reports.append(search_path / report.split("\\bin\\", 1)[1])
             else:
                 raise RuntimeError(f"Unexpected report path format: '{report}'")
         return reports
