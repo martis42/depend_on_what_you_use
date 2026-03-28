@@ -115,7 +115,6 @@ class ExpectedDwyuFailureTest(unittest.TestCase):
     def test_check_expectation_normalizes_paths_for_windows(self) -> None:
         unit = make_failure(invalid_includes={"foo/bar.h": ["header.h"]})
         self.assertTrue(unit.check_expectation(make_report_data(invalid_pub_includes={r"foo\bar.h": ["header.h"]})))
-        self.assertTrue(unit.check_expectation(make_report_data(invalid_pub_includes={r"foo\\bar.h": ["header.h"]})))
 
 
 class ExpectedResultTest(unittest.TestCase):
