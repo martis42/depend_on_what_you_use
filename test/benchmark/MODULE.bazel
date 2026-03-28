@@ -6,7 +6,7 @@ local_path_override(
     path = "../../",
 )
 
-bazel_dep(name = "googletest", version = "1.17.0")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
 # We specify by design an outdated rules_cc version.
 # bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
