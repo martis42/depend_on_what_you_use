@@ -75,11 +75,10 @@ def _get_includes(ctx, target_cc):
 
     return includes, quote_includes, external_includes, system_includes
 
-def _process_target(ctx, target, defines, output_path, is_target_under_inspection):
+def _process_target(ctx, target, output_path, is_target_under_inspection):
     processing_output = ctx.actions.declare_file(output_path)
-    cc_context = target.cc_info.compilation_context
     header_files = _get_relevant_header(
-        target_context = cc_context,
+        target_context = target.cc_info.compilation_context,
         is_target_under_inspection = is_target_under_inspection,
     )
 
@@ -87,13 +86,6 @@ def _process_target(ctx, target, defines, output_path, is_target_under_inspectio
     args.add("--target", str(target.label))
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
-    if is_target_under_inspection:
-        includes, quote_includes, external_includes, system_includes = _get_includes(ctx, cc_context)
-        args.add_all("--includes", depset(transitive = includes), omit_if_empty = False)
-        args.add_all("--quote_includes", depset(transitive = quote_includes), omit_if_empty = False)
-        args.add_all("--external_includes", depset(transitive = external_includes), omit_if_empty = False)
-        args.add_all("--system_includes", depset(transitive = system_includes), omit_if_empty = False)
-        args.add_all("--defines", defines)
     if is_target_under_inspection:
         args.add("--is_target_under_inspection")
     if _is_verbose(ctx):
@@ -113,7 +105,6 @@ def _process_dependencies(ctx, target, deps):
     return [_process_target(
         ctx,
         target = dep,
-        defines = [],
         output_path = "{}_processed_dep_{}.json".format(target.label.name, hash(str(dep.label))),
         is_target_under_inspection = False,
     ) for dep in deps]
@@ -412,7 +403,6 @@ def dwyu_aspect_impl(target, ctx):
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
-        defines = defines,
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
     )
