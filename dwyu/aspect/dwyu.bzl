@@ -17,7 +17,7 @@ _CPP_AMENDMENTS_VERSIONS_MAP = {
 }
 
 # Map of the C++ standard versions to the the corresponding '__cplusplus' value
-# Source for the mappinh: https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros
+# Source for the mapping: https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros
 _CPLUSPLUS_VERSIONS_MAP = {
     "11": "201103",
     "14": "201402",
