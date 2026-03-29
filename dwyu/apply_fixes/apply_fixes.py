@@ -35,18 +35,18 @@ def get_workspace(main_args: Namespace) -> Path | None:
 
 
 def add_discovered_deps(
-    discovered_public_deps: list[str],
-    discovered_private_deps: list[str],
+    extra_public_deps: list[str],
+    extra_private_deps: list[str],
     target: str,
     buildozer: BuildozerExecutor,
     use_impl_deps: bool,
 ) -> None:
-    add_to_deps = discovered_public_deps
+    add_to_deps = extra_public_deps
     add_to_impl_deps = []
     if use_impl_deps:
-        add_to_impl_deps = [dep for dep in discovered_private_deps if dep not in add_to_deps]
+        add_to_impl_deps = [dep for dep in extra_private_deps if dep not in add_to_deps]
     else:
-        add_to_deps.extend(discovered_private_deps)
+        add_to_deps.extend(extra_private_deps)
 
     if add_to_deps:
         buildozer.execute(task=f"add deps {' '.join(list(set(add_to_deps)))}", target=target)
@@ -81,19 +81,19 @@ def perform_fixes(
         if requested_fixes.add_missing_deps:
             # Do not adapt the added targets to the platform. In BUILD files one should universally use the UNIX style.
             # Buildozer adds the dependencies purely via string replacement without handling them like a path.
-            discovered_public_deps = search_missing_deps(
+            discovered_missing_public_deps = search_missing_deps(
                 bazel_query=bazel_query,
                 target=target,
                 includes_without_direct_dep=content["public_includes_without_dep"],
             )
-            discovered_private_deps = search_missing_deps(
+            discovered_missing_private_deps = search_missing_deps(
                 bazel_query=bazel_query,
                 target=target,
                 includes_without_direct_dep=content["private_includes_without_dep"],
             )
             add_discovered_deps(
-                discovered_public_deps=discovered_public_deps,
-                discovered_private_deps=discovered_private_deps,
+                extra_public_deps=discovered_missing_public_deps,
+                extra_private_deps=discovered_missing_private_deps,
                 target=buildozer_target,
                 buildozer=buildozer,
                 use_impl_deps=content["use_implementation_deps"],

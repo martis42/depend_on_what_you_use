@@ -34,8 +34,7 @@ std::map<std::string, std::vector<std::string>> makeMissingIncludesMap(const std
 
 } // namespace
 
-Result::Result(std::string target, const bool optimize_impl_deps)
-    : target_{std::move(target)}, optimize_impl_deps_{optimize_impl_deps} {}
+Result::Result(std::string target) : target_{std::move(target)} {}
 
 bool Result::isOk() const {
     return public_includes_without_direct_dep_.empty() && private_includes_without_direct_dep_.empty() &&
@@ -111,7 +110,7 @@ std::string Result::toString(const std::string& report_path) const {
     return frame + content + frame;
 }
 
-nlohmann::json Result::toJson() const {
+nlohmann::json Result::toJson(const bool use_implementation_deps) const {
     json data{};
     data["analyzed_target"] = target_;
     data["public_includes_without_dep"] = makeMissingIncludesMap(public_includes_without_direct_dep_);
@@ -119,7 +118,10 @@ nlohmann::json Result::toJson() const {
     data["unused_deps"] = unused_deps_;
     data["unused_implementation_deps"] = unused_impl_deps_;
     data["deps_which_should_be_private"] = public_dep_which_should_be_private_;
-    data["use_implementation_deps"] = optimize_impl_deps_;
+    // The fixing script has to know if it should add missing private dependencies to 'deps' or 'implementation_deps'.
+    // Only cc_library targets with the 'optimize_implementation_deps' flag set to true should add missing private
+    // dependencies to 'implementation_deps'.
+    data["use_implementation_deps"] = use_implementation_deps;
     return data;
 }
 

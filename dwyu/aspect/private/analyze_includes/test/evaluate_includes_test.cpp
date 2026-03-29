@@ -62,14 +62,13 @@ TEST(EvaluateIncludes, SuccessForNoInput) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, SuccessForAllChecks) {
@@ -90,14 +89,13 @@ TEST(EvaluateIncludes, SuccessForAllChecks) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_TRUE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, DetectIncludesWithoutMatchingDependency) {
@@ -124,12 +122,11 @@ TEST(EvaluateIncludes, DetectIncludesWithoutMatchingDependency) {
 
     EXPECT_FALSE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 
     ASSERT_THAT(getMapKeys(json_result["public_includes_without_dep"]),
                 testing::UnorderedElementsAre("pub_file_using_a.h", "pub_file_using_c.h"));
@@ -164,14 +161,13 @@ TEST(EvaluateIncludes, DetectTheTargetUnderInspectionProvidingTheHeaders) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_TRUE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, DetectUnusedDependencies) {
@@ -200,7 +196,7 @@ TEST(EvaluateIncludes, DetectUnusedDependencies) {
 
     EXPECT_FALSE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
@@ -209,7 +205,6 @@ TEST(EvaluateIncludes, DetectUnusedDependencies) {
     EXPECT_THAT(json_result["unused_implementation_deps"].get<std::vector<std::string>>(),
                 testing::UnorderedElementsAre("//priv/dep:a", "//priv/dep:b"));
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, UsingASingleHeaderIsSufficientToMarkADependencyAsUsed) {
@@ -232,14 +227,13 @@ TEST(EvaluateIncludes, UsingASingleHeaderIsSufficientToMarkADependencyAsUsed) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, UsingAHeaderMarksAllAssociatedDependenciesAsUsed) {
@@ -261,14 +255,13 @@ TEST(EvaluateIncludes, UsingAHeaderMarksAllAssociatedDependenciesAsUsed) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
@@ -294,7 +287,7 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
 
     EXPECT_FALSE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
@@ -302,7 +295,6 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_THAT(json_result["deps_which_should_be_private"].get<std::vector<std::string>>(),
                 testing::UnorderedElementsAre("//pub/dep:a", "//pub/dep:b"));
-    EXPECT_TRUE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, AllowMissingDirectDependencies) {
@@ -323,14 +315,13 @@ TEST(EvaluateIncludes, AllowMissingDirectDependencies) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 TEST(EvaluateIncludes, AllowUnusedUnusedDependencies) {
@@ -349,14 +340,13 @@ TEST(EvaluateIncludes, AllowUnusedUnusedDependencies) {
 
     EXPECT_TRUE(result.isOk());
 
-    const auto json_result = result.toJson();
+    const auto json_result = result.toJson(false);
     EXPECT_EQ(json_result["analyzed_target"].get<std::string>(), "//:foo");
     EXPECT_TRUE(json_result["public_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["private_includes_without_dep"].empty());
     EXPECT_TRUE(json_result["unused_deps"].empty());
     EXPECT_TRUE(json_result["unused_implementation_deps"].empty());
     EXPECT_TRUE(json_result["deps_which_should_be_private"].empty());
-    EXPECT_FALSE(json_result["use_implementation_deps"].get<bool>());
 }
 
 } // namespace

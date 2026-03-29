@@ -49,7 +49,7 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const bool report_missing_direct_deps,
                         const bool report_unused_deps,
                         const bool optimize_impl_deps) {
-    Result result{system_under_inspection.target_under_inspection.name, optimize_impl_deps};
+    Result result{system_under_inspection.target_under_inspection.name};
 
     // These computations always have to happen, even if 'report_missing_direct_deps' is false. They compute the
     // information which is used by the other checks.

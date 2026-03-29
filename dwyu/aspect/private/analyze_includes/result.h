@@ -13,12 +13,12 @@ namespace dwyu {
 
 class Result {
   public:
-    Result(std::string target, bool optimize_impl_deps);
+    explicit Result(std::string target);
 
     bool isOk() const;
 
     std::string toString(const std::string& report_path) const;
-    nlohmann::json toJson() const;
+    nlohmann::json toJson(bool use_implementation_deps) const;
 
     void setPublicIncludesWithoutDirectDep(std::vector<IncludeStatement> includes);
     void setPrivateIncludesWithoutDirectDep(std::vector<IncludeStatement> includes);
@@ -28,7 +28,6 @@ class Result {
 
   private:
     std::string target_;
-    bool optimize_impl_deps_;
 
     std::vector<IncludeStatement> public_includes_without_direct_dep_;
     std::vector<IncludeStatement> private_includes_without_direct_dep_;
