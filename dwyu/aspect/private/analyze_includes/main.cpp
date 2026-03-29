@@ -8,6 +8,7 @@
 
 #include <exception>
 #include <fstream>
+#include <ios>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -74,11 +75,10 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "Dependencies                     : " << listToStr(options.deps) << "\n";
         std::cout << "Implementation dependencies      : " << listToStr(options.implementation_deps) << "\n";
         std::cout << "Ignored includes config          : " << options.ignored_includes_config << "\n";
-        std::cout << "Optimize implementation deps     : " << (options.optimize_implementation_deps ? "true" : "false")
-                  << "\n";
-        std::cout << "Report missing direct deps       : " << (options.report_missing_direct_deps ? "true" : "false")
-                  << "\n";
-        std::cout << "Report unused deps               : " << (options.report_unused_deps ? "true" : "false") << "\n";
+        std::cout << std::boolalpha;
+        std::cout << "Optimize implementation deps     : " << options.optimize_implementation_deps << "\n";
+        std::cout << "Report missing direct deps       : " << options.report_missing_direct_deps << "\n";
+        std::cout << "Report unused deps               : " << options.report_unused_deps << "\n";
         std::cout << "\n";
     }
 
