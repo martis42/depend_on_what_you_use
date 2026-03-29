@@ -98,7 +98,7 @@ int main_impl(const ProgramOptions& options) {
 
     std::ofstream output{options.output};
     if (output.is_open()) {
-        output << result.toJson();
+        output << result.toJson(options.optimize_implementation_deps);
         output.close();
     }
     else {

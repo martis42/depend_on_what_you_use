@@ -21,42 +21,42 @@ std::vector<std::string> getMapKeys(const nlohmann::json& map) {
 }
 
 TEST(Result, IsOkByDefault) {
-    const Result unit{"//:foo", true};
+    const Result unit{"//:foo"};
     EXPECT_TRUE(unit.isOk());
 }
 
 TEST(Result, IsNotOkGivenPublicIncludesWithoutDirectDep) {
-    Result unit{"//:foo", true};
+    Result unit{"//:foo"};
     unit.setPublicIncludesWithoutDirectDep({IncludeStatement{"some_file.cpp", "<include_without_direct_dep>", ""}});
     EXPECT_FALSE(unit.isOk());
 }
 
 TEST(Result, IsNotOkGivenPrivateIncludesWithoutDirectDep) {
-    Result unit{"//:foo", true};
+    Result unit{"//:foo"};
     unit.setPrivateIncludesWithoutDirectDep({IncludeStatement{"some_file.cpp", "<include_without_direct_dep>", ""}});
     EXPECT_FALSE(unit.isOk());
 }
 
 TEST(Result, IsNotOkGivenUnusedDeps) {
-    Result unit{"//:foo", true};
+    Result unit{"//:foo"};
     unit.setUnusedDeps({"unused_dep"});
     EXPECT_FALSE(unit.isOk());
 }
 
 TEST(Result, IsNotOkGivenUnusedImplDeps) {
-    Result unit{"//:foo", true};
+    Result unit{"//:foo"};
     unit.setUnusedImplDeps({"unused_impl_dep"});
     EXPECT_FALSE(unit.isOk());
 }
 
 TEST(Result, IsNotOkGivenPublicDepWhichShouldBePrivate) {
-    Result unit{"//:foo", true};
+    Result unit{"//:foo"};
     unit.setDepsWhichShouldBePrivate({"public_dep_which_should_be_private"});
     EXPECT_FALSE(unit.isOk());
 }
 
 TEST(Result, ToStringForSuccess) {
-    const Result unit{"//:foo", true};
+    const Result unit{"//:foo"};
     const std::string expected_output =
         "================================================================================\n"
         "DWYU analyzing: //:foo\n"
@@ -67,7 +67,7 @@ TEST(Result, ToStringForSuccess) {
 }
 
 TEST(Result, ToStringForFailure) {
-    Result unit{"//:bar", true};
+    Result unit{"//:bar"};
 
     unit.setPublicIncludesWithoutDirectDep(
         {IncludeStatement{"pub_file_a.h", "<include_foo>", ""}, IncludeStatement{"pub_file_b.h", "<include_bar>", ""}});
@@ -108,9 +108,10 @@ TEST(Result, ToStringForFailure) {
 }
 
 TEST(Result, dumpToJsonForSuccess) {
-    const Result unit{"//:foo", true};
+    const Result unit{"//:foo"};
 
-    const auto data = unit.toJson();
+    const bool use_impl_deps = true;
+    const auto data = unit.toJson(use_impl_deps);
 
     EXPECT_EQ(data["analyzed_target"], "//:foo");
     EXPECT_TRUE(data["public_includes_without_dep"].empty());
@@ -127,7 +128,7 @@ TEST(Result, dumpToJsonForFailure) {
     const std::set<std::string> public_deps_which_should_be_private{"public_dep_which_should_be_private",
                                                                     "another_public_dep_which_should_be_private"};
 
-    Result unit{"//:bar", false};
+    Result unit{"//:bar"};
     unit.setUnusedDeps(unused_deps);
     unit.setUnusedImplDeps(unused_impl_deps);
     unit.setDepsWhichShouldBePrivate(public_deps_which_should_be_private);
@@ -138,7 +139,8 @@ TEST(Result, dumpToJsonForFailure) {
                                              IncludeStatement{"priv_file_b.cpp", "\"include_buzz_1\"", ""},
                                              IncludeStatement{"priv_file_b.cpp", "\"include_buzz_2\"", ""}});
 
-    const auto data = unit.toJson();
+    const bool use_impl_deps = false;
+    const auto data = unit.toJson(use_impl_deps);
 
     EXPECT_EQ(data["analyzed_target"], "//:bar");
     EXPECT_EQ(data["unused_deps"], unused_deps);
