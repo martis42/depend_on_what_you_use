@@ -24,7 +24,7 @@ class TestCase(TestCaseBase):
         )
 
         expected_error = [
-            "Found multiple targets providing invalid include path 'missing_dependency/workspace/ambiguous_lib/lib.h'",
+            "Found multiple targets providing the header file 'missing_dependency/workspace/ambiguous_lib/lib.h' required by target '@@//missing_dependency/workspace:use_ambiguous_lib'.",
             "//missing_dependency/workspace/ambiguous_lib:lib_a",
             "//missing_dependency/workspace/ambiguous_lib:lib_b",
         ]

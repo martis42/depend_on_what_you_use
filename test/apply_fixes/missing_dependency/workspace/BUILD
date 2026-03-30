@@ -49,12 +49,6 @@ cc_library(
 )
 
 cc_library(
-    name = "use_manipulated_bar",
-    hdrs = ["use_manipulated_bar.h"],
-    deps = [":manipulated_bar_provider"],
-)
-
-cc_library(
     name = "use_configured_lib",
     hdrs = ["use_configured_lib.h"],
     deps = ["//missing_dependency/workspace/configured_lib:configured_deps"],
@@ -66,15 +60,15 @@ cc_library(
     deps = [":invisible_lib_provider"],
 )
 
+cc_binary(
+    name = "use_virtual_include_paths",
+    srcs = ["use_virtual_include_paths.cpp"],
+    deps = [":virtual_include_paths_provider"],
+)
+
 ##################
 # Helper Targets #
 ##################
-
-cc_library(
-    name = "manipulated_bar_provider",
-    srcs = ["dummy.h"],
-    deps = ["//missing_dependency/workspace/libs:manipulated_bar"],
-)
 
 cc_library(
     name = "ambiguous_lib_provider",
@@ -125,4 +119,14 @@ cc_library(
 cc_library(
     name = "invisible_lib_provider",
     deps = ["//missing_dependency/workspace/libs:indirection_to_private"],
+)
+
+cc_library(
+    name = "virtual_include_paths_provider",
+    deps = [
+        "//missing_dependency/workspace/virtual_includes:include_prefix",
+        "//missing_dependency/workspace/virtual_includes:includes",
+        "//missing_dependency/workspace/virtual_includes:prefixed_and_stripped",
+        "//missing_dependency/workspace/virtual_includes:strip_include_prefix",
+    ],
 )
