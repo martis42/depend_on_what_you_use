@@ -54,7 +54,6 @@ cc_library(
     name = "result",
     srcs = ["result.cpp"],
     hdrs = ["result.h"],
-    implementation_deps = ["//dwyu/aspect/private/preprocessing:included_file"],
     deps = [
         ":include_statement",
         "@nlohmann_json//:singleheader-json",

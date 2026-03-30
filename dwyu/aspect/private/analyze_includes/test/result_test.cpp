@@ -132,12 +132,14 @@ TEST(Result, dumpToJsonForFailure) {
     unit.setUnusedDeps(unused_deps);
     unit.setUnusedImplDeps(unused_impl_deps);
     unit.setDepsWhichShouldBePrivate(public_deps_which_should_be_private);
-    unit.setPublicIncludesWithoutDirectDep({IncludeStatement{"pub_file_a.h", "<include_foo_1>", ""},
-                                            IncludeStatement{"pub_file_a.h", "<include_foo_2>", ""},
-                                            IncludeStatement{"pub_file_b.h", "<include_bar>", ""}});
-    unit.setPrivateIncludesWithoutDirectDep({IncludeStatement{"priv_file_a.cpp", "\"include_fizz\"", ""},
-                                             IncludeStatement{"priv_file_b.cpp", "\"include_buzz_1\"", ""},
-                                             IncludeStatement{"priv_file_b.cpp", "\"include_buzz_2\"", ""}});
+    unit.setPublicIncludesWithoutDirectDep(
+        {IncludeStatement{"pub_file_a.h", "<header_foo_1>", "sandbox_path/header_foo_1"},
+         IncludeStatement{"pub_file_a.h", "<header_foo_2>", "sandbox_path/header_foo_2"},
+         IncludeStatement{"pub_file_b.h", "<header_bar>", "sandbox_path/header_bar"}});
+    unit.setPrivateIncludesWithoutDirectDep(
+        {IncludeStatement{"priv_file_a.cpp", "\"header_fizz\"", "sandbox_path/header_fizz"},
+         IncludeStatement{"priv_file_b.cpp", "\"header_buzz_1\"", "sandbox_path/header_buzz_1"},
+         IncludeStatement{"priv_file_b.cpp", "\"header_buzz_2\"", "sandbox_path/header_buzz_2"}});
 
     const bool use_impl_deps = false;
     const auto data = unit.toJson(use_impl_deps);
@@ -151,16 +153,16 @@ TEST(Result, dumpToJsonForFailure) {
     ASSERT_THAT(getMapKeys(data["public_includes_without_dep"]),
                 testing::UnorderedElementsAre("pub_file_a.h", "pub_file_b.h"));
     EXPECT_THAT(data["public_includes_without_dep"]["pub_file_a.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("include_foo_1", "include_foo_2"));
+                testing::UnorderedElementsAre("sandbox_path/header_foo_1", "sandbox_path/header_foo_2"));
     EXPECT_THAT(data["public_includes_without_dep"]["pub_file_b.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("include_bar"));
+                testing::UnorderedElementsAre("sandbox_path/header_bar"));
 
     ASSERT_THAT(getMapKeys(data["private_includes_without_dep"]),
                 testing::UnorderedElementsAre("priv_file_a.cpp", "priv_file_b.cpp"));
     EXPECT_THAT(data["private_includes_without_dep"]["priv_file_a.cpp"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("include_fizz"));
+                testing::UnorderedElementsAre("sandbox_path/header_fizz"));
     EXPECT_THAT(data["private_includes_without_dep"]["priv_file_b.cpp"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("include_buzz_1", "include_buzz_2"));
+                testing::UnorderedElementsAre("sandbox_path/header_buzz_1", "sandbox_path/header_buzz_2"));
 }
 
 } // namespace

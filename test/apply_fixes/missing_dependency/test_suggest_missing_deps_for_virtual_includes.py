@@ -5,7 +5,7 @@ from test.support.result import Result, Success
 class TestCase(TestCaseBase):
     @property
     def test_target(self) -> str:
-        return "//missing_dependency/workspace:use_manipulated_bar"
+        return "//missing_dependency/workspace:use_virtual_include_paths"
 
     def execute_test_logic(self) -> Result:
         self._create_reports(aspect="//missing_dependency/workspace:aspect.bzl%default_aspect")
@@ -14,8 +14,11 @@ class TestCase(TestCaseBase):
         target_deps = self._get_target_deps(self.test_target)
         if (
             expected := {
-                "//missing_dependency/workspace/libs:manipulated_bar",
-                "//missing_dependency/workspace:manipulated_bar_provider",
+                "//missing_dependency/workspace:virtual_include_paths_provider",
+                "//missing_dependency/workspace/virtual_includes:includes",
+                "//missing_dependency/workspace/virtual_includes:include_prefix",
+                "//missing_dependency/workspace/virtual_includes:strip_include_prefix",
+                "//missing_dependency/workspace/virtual_includes:prefixed_and_stripped",
             }
         ) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)

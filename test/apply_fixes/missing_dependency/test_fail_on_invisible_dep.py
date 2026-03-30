@@ -23,7 +23,7 @@ class TestCase(TestCaseBase):
             check=True,
         )
 
-        expected_error = "Could not find a proper dependency for invalid include path 'missing_dependency/workspace/libs/private.h' of target '@@//missing_dependency/workspace:use_invisible_lib'"
+        expected_error = "Could not find a dependency providing providing the header file 'missing_dependency/workspace/libs/private.h' for target '@@//missing_dependency/workspace:use_invisible_lib'."
         if expected_error in process.stderr:
             return Success()
         return self._make_unexpected_output_error(expected=expected_error, output=process.stderr)

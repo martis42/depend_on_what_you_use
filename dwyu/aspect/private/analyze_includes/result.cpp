@@ -1,7 +1,6 @@
 #include "dwyu/aspect/private/analyze_includes/result.h"
 
 #include "dwyu/aspect/private/analyze_includes/include_statement.h"
-#include "dwyu/aspect/private/preprocessing/included_file.h"
 
 #include <nlohmann/json.hpp>
 
@@ -17,16 +16,18 @@ using json = nlohmann::json;
 namespace dwyu {
 namespace {
 
+// Make a map where the files of the target under inspection containing an include statement missing an associated
+// direct dependency are the keys. The value is a list of all the Bazel sandbox paths of the included files missing
+// a direct dependency.
 std::map<std::string, std::vector<std::string>> makeMissingIncludesMap(const std::vector<IncludeStatement>& includes) {
     std::map<std::string, std::vector<std::string>> map{};
     for (const auto& include : includes) {
         const auto it_file = map.find(include.file);
-        auto included_file = includeWithoutQuotes(include.include);
         if (it_file == map.end()) {
-            std::ignore = map.insert({include.file, {std::move(included_file)}});
+            std::ignore = map.insert({include.file, {include.resolved_include}});
         }
         else {
-            it_file->second.push_back(std::move(included_file));
+            it_file->second.push_back(include.resolved_include);
         }
     }
     return map;

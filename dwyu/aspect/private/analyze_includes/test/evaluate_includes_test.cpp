@@ -131,16 +131,16 @@ TEST(EvaluateIncludes, DetectIncludesWithoutMatchingDependency) {
     ASSERT_THAT(getMapKeys(json_result["public_includes_without_dep"]),
                 testing::UnorderedElementsAre("pub_file_using_a.h", "pub_file_using_c.h"));
     EXPECT_THAT(json_result["public_includes_without_dep"]["pub_file_using_a.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("pub_hdr_a_1.h", "pub_hdr_a_2.h"));
+                testing::UnorderedElementsAre("path/pub_hdr_a_1.h", "path/pub_hdr_a_2.h"));
     EXPECT_THAT(json_result["public_includes_without_dep"]["pub_file_using_c.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("pub_hdr_c.h"));
+                testing::UnorderedElementsAre("path/pub_hdr_c.h"));
 
     ASSERT_THAT(getMapKeys(json_result["private_includes_without_dep"]),
                 testing::UnorderedElementsAre("priv_file_using_a.h", "priv_file_using_c.h"));
     EXPECT_THAT(json_result["private_includes_without_dep"]["priv_file_using_a.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("priv_hdr_a_1.h", "priv_hdr_a_2.h"));
+                testing::UnorderedElementsAre("path/priv_hdr_a_1.h", "path/priv_hdr_a_2.h"));
     EXPECT_THAT(json_result["private_includes_without_dep"]["priv_file_using_c.h"].get<std::vector<std::string>>(),
-                testing::UnorderedElementsAre("priv_hdr_c.h"));
+                testing::UnorderedElementsAre("path/priv_hdr_c.h"));
 }
 
 TEST(EvaluateIncludes, DetectTheTargetUnderInspectionProvidingTheHeaders) {

@@ -11,7 +11,9 @@ class TestCase(TestCaseBase):
             ExpectedDwyuFailure(
                 target=target,
                 invalid_includes={
-                    "ignore_includes/use_not_ignored_header.h": ["support/a_substring_match_does_not_work_here.h"]
+                    "ignore_includes/use_not_ignored_header.h": [
+                        "ignore_includes/support/a_substring_match_does_not_work_here.h"
+                    ]
                 },
             )
         )

@@ -84,12 +84,12 @@ def perform_fixes(
             discovered_missing_public_deps = search_missing_deps(
                 bazel_query=bazel_query,
                 target=target,
-                includes_without_direct_dep=content["public_includes_without_dep"],
+                headers_without_direct_dep=content["public_includes_without_dep"],
             )
             discovered_missing_private_deps = search_missing_deps(
                 bazel_query=bazel_query,
                 target=target,
-                includes_without_direct_dep=content["private_includes_without_dep"],
+                headers_without_direct_dep=content["private_includes_without_dep"],
             )
             add_discovered_deps(
                 extra_public_deps=discovered_missing_public_deps,
