@@ -11,8 +11,8 @@ class BazelQuery:
         self._query_args = query_args
         self._startup_args = startup_args
 
-    def execute(self, query: str, args: list[str], only_supports_query: bool = False) -> CompletedProcess:
-        query_kind = "query" if not self._use_cquery or only_supports_query else "cquery"
+    def execute(self, query: str, args: list[str], enforce_query: bool = False) -> CompletedProcess:
+        query_kind = "query" if not self._use_cquery or enforce_query else "cquery"
         cmd = [
             "bazel",
             *self._startup_args,
