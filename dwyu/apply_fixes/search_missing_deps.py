@@ -67,11 +67,7 @@ def is_visible(bazel_query: BazelQuery, target: str, dep: str) -> bool:
     header file might be private and only some alias target pointing to it might be visible for the target
     consuming the header file.
     """
-    process = bazel_query.execute(
-        query=f"visible({target}, {dep})",
-        args=[],
-        only_supports_query=True,
-    )
+    process = bazel_query.execute(query=f"visible({target}, {dep})", args=[], enforce_query=True)
     return process.stdout != ""
 
 
