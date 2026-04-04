@@ -14,7 +14,7 @@ import subprocess
 from pathlib import Path
 
 RELEASE_NOTES_TEMPLATE = """
-:construction: **DO NOT USE. THIS IS STILL A DRAFT** :construction:
+TBD summary
 
 ## Breaking Changes
 
@@ -25,6 +25,8 @@ TBD
 TBD
 
 ## Using Bzlmod (Recommended)
+
+:construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: TBD
 
 Add to your `MODULE.bazel` file:
 
