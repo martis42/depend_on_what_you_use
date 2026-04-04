@@ -23,6 +23,7 @@
 - [Assumptions of use](#assumptions-of-use)
 - [Known limitations](#known-limitations)
 - [Supported Platforms](#supported-platforms)
+- [Troubleshooting](#troubleshooting)
 - [Alternatives to DWYU](#alternatives-to-dwyu)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
@@ -248,6 +249,10 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 | Python    | Integration tests check 3.10.                                                                              |
 | Bazel     | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
 | Buildozer | No known constraint. Integration tests check 8.2.1.                                                        |
+
+# Troubleshooting
+
+When encountering problems while using DWYU, you find common problems and suggested solutions in [these docs](./docs/troubleshooting.md).
 
 # Alternatives to DWYU
 
