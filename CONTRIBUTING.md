@@ -30,8 +30,8 @@ No feature shall be changed or introduced without adapting or adding tests accor
 
 ## Code Quality
 
-The project uses several formatters and linters which are executed with [pre-commit](https://github.com/pre-commit/pre-commit).
-Given you have installed `pre-commit` locally, you can run all basic checks via `pre-commit run --all-files`.
+The project uses several formatters and linters which are executed with [prek](https://github.com/j178/prek) or [pre-commit](https://github.com/pre-commit/pre-commit).
+Given you have `prek` or `pre-commit` locally installed, you can run all basic checks via `prek run --all-files` or `pre-commit run --all-files`.
 
 There are also bash scripts for executing most steps of the CI:
 
