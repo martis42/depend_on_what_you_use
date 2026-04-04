@@ -3,7 +3,9 @@
 set -o errexit
 set -o nounset
 
-source ./scripts/print_msg.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+source "$SCRIPT_DIR"/print_msg.sh
 
 print_msg "Pre-commit checks"
 pre-commit run --all-files
@@ -20,11 +22,10 @@ bazel build --config=dwyu //dwyu/...
 print_msg "Execute clang-tidy"
 bazel build --config=clang_tidy //dwyu/...
 
-./scripts/ensure_cpp11_compatibility.sh
-
+"$SCRIPT_DIR"/ensure_cpp11_compatibility.sh
 
 print_msg "Aspect integration tests scripts unit tests"
-./scripts/test_aspect_tests_scripts.sh
+"$SCRIPT_DIR"/test_aspect_tests_scripts.sh
 
 print_msg "Build examples"
-./scripts/build_examples.sh
+"$SCRIPT_DIR"/build_examples.sh

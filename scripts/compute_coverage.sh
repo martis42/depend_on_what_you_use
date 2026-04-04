@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit
+set -o nounset
 
 # Execute instrumented code and store coverage data
 bazel coverage //dwyu/...
