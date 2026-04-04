@@ -1,6 +1,6 @@
 # Bug reports
 
-- Make sure you are aware of the [known limitations](https://github.com/martis42/depend_on_what_you_use#known-limitations).
+- Make sure you are aware of the [known limitations](docs/known_limitations.md).
 - Please provide a minimal example for reproducing the bug.
 
 # Feature changes/requests
