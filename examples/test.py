@@ -50,7 +50,7 @@ EXAMPLES = [
         expected_success=True,
     ),
     Example(
-        build_cmd="--config=dwyu_ignoring_includes //ignoring_includes:use_unavailable_headers",
+        build_cmd="--config=dwyu_ignoring_includes //ignoring_includes:use_transitive_headers",
         expected_success=True,
     ),
     Example(

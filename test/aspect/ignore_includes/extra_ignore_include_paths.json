@@ -1,5 +1,0 @@
-{
-    "extra_ignore_include_paths": [
-        "support/some_header.h"
-    ]
-}

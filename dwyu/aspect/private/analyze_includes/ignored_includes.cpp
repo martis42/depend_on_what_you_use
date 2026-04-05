@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <string>
-#include <tuple>
 #include <unordered_set>
 #include <vector>
 
@@ -20,11 +19,6 @@ IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config) {
     const auto ignores_config = readJsonFromFile(ignored_includes_config, no_error_on_missing_file);
     if (ignores_config.contains("ignore_include_paths")) {
         ignored_includes.include_paths = ignores_config["ignore_include_paths"].get<std::unordered_set<std::string>>();
-    }
-    if (ignores_config.contains("extra_ignore_include_paths")) {
-        for (const auto& ignore : ignores_config["extra_ignore_include_paths"]) {
-            std::ignore = ignored_includes.include_paths.insert(ignore.get<std::string>());
-        }
     }
     if (ignores_config.contains("ignore_include_patterns")) {
         for (const auto& pattern : ignores_config["ignore_include_patterns"].get<std::vector<std::string>>()) {

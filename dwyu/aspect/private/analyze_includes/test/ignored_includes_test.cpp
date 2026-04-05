@@ -26,8 +26,7 @@ TEST(GetIgnoredIncludes, ReadIgnoredIncludesCorrectlyFromFile) {
     const auto ignored_includes =
         getIgnoredIncludes("dwyu/aspect/private/analyze_includes/test/data/ignored_includes.json");
 
-    // Expect we combine ignore_include_paths and extra_ignore_include_paths andremove duplicates
-    EXPECT_THAT(ignored_includes.include_paths, testing::UnorderedElementsAre("foo", "bar", "foobar"));
+    EXPECT_THAT(ignored_includes.include_paths, testing::UnorderedElementsAre("foo", "bar"));
 
     EXPECT_THAT(ignored_includes.include_patterns,
                 testing::UnorderedElementsAre(boost::regex{"foo/.*"}, boost::regex{"bar/.*"}));
