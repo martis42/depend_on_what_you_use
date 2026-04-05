@@ -1,8 +1,8 @@
 {
-  "extra_ignore_include_paths": [
-    "some/header.h"
+  "ignore_include_paths": [
+    "ignoring_includes/support/some_header.h"
   ],
   "ignore_include_patterns": [
-    "some_pkg/.*"
+    "ignoring_includes/support/foo/.*"
   ]
 }

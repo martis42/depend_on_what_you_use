@@ -1,8 +1,6 @@
 {
     "ignore_include_paths": [
-        "support/some_header.h"
-    ],
-    "extra_ignore_include_paths": [
+        "support/some_header.h",
         "support/some_other_header.h"
     ]
 }

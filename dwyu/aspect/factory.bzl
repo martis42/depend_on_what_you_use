@@ -41,20 +41,16 @@ def dwyu_aspect_factory(
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
 
-        ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
-                          This list of headers can be seen in [std_header.py](/dwyu/aspect/private/analyze_includes/std_header.py).<br>
-                          You can extend this list of ignored headers or replace it with a custom one by providing a json file with the information to this attribute.<br>
-                          Specification of possible files in the json file:
+        ignored_includes: The DWYU analysis ignores all files which are provided by the Bazel CC toolchain (e.g. the standard library headers).
+                          If you want to ignore additional headers, you can provide a json file with the information to this attribute.<br>
+                          The ignore logic works on the path provided to the include statement, e.g. `#include <foo/bar.h>` will be checked against the ignore list as `foo/bar.h`.<br>
+                          Json file specification:
                           <ul><li>
                             `ignore_include_paths` : List of include paths which are ignored by the analysis.
-                            Setting this **disables ignoring the system and standard library include paths**.
                           </li><li>
-                            `extra_ignore_include_paths` : List of concrete include paths which are ignored by the analysis.
-                            Those are always ignored, no matter what other fields you provide.
-                          </li><li>
-                            `ignore_include_patterns` : List of patterns for include paths which are ignored by the analysis.
-                            Patterns have to be compatible to Python [regex syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax).
-                            The [match](https://docs.python.org/3/library/re.html#re.match) function is used to process the patterns.
+                            `ignore_include_patterns` : List of patterns which are ignored by the analysis.
+                            The [boost regex library](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/index.html) is used to parse the patterns.
+                            The [regex_search](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/boost_regex/ref/regex_search.html) function is used to compare the patterns to the include statements.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
 

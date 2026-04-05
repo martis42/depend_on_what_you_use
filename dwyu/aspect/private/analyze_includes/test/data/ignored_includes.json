@@ -3,10 +3,6 @@
         "foo",
         "bar"
     ],
-    "extra_ignore_include_paths": [
-        "foo",
-        "foobar"
-    ],
     "ignore_include_patterns": [
         "foo/.*",
         "bar/.*"
