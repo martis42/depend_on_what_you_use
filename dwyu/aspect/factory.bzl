@@ -9,7 +9,6 @@ def dwyu_aspect_factory(
         analysis_optimizes_impl_deps = False,
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
-        experimental_set_cplusplus = False,
         ignored_includes = None,
         no_preprocessor = False,
         recursive = False,
@@ -42,11 +41,6 @@ def dwyu_aspect_factory(
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
-
-        experimental_set_cplusplus:  No longer supported.
-                                     Will be removed in the next release.
-                                     The new C++ based implementation will always try to set a proper '__cplusplus' value based on the compiler flags.
-                                     If the new C++ based implementation does not work for you, please report an issue at the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).
 
         ignored_includes: By default, DWYU ignores all headers from the standard library when comparing include statements to the dependencies.
                           This list of headers can be seen in [std_header.py](/dwyu/aspect/private/analyze_includes/std_header.py).<br>
@@ -108,8 +102,6 @@ def dwyu_aspect_factory(
     tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
     if not use_cpp_implementation:
         fail("Using the legacy Python based implementation is no longer possible. The the new C++ based implementation does not work for you, please report an issue at https://github.com/martis42/depend_on_what_you_use/issues")
-    if experimental_set_cplusplus:
-        fail("The 'experimental_set_cplusplus' flag is no longer having any effect. The DWYU implementation will always try to set a proper '__cplusplus' value. If this does not work for you, please report an issue at https://github.com/martis42/depend_on_what_you_use/issues")
 
     return aspect(
         implementation = dwyu_aspect_impl,
