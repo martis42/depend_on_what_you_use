@@ -15,7 +15,6 @@ def dwyu_aspect_factory(
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
-        use_cpp_implementation = True,
         verbose = False):
     """
     Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
@@ -83,10 +82,6 @@ def dwyu_aspect_factory(
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).
 
-        use_cpp_implementation: No longer supported.
-                                Will be removed in the next release.
-                                If the new C++ based implementation does not work for you, please report an issue at the [DWYU issue tracker](https://github.com/martis42/depend_on_what_you_use/issues).
-
         verbose: If `True`, print debugging information about the individual DWYU actions.<br>
                  This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True|False]`.
 
@@ -100,8 +95,6 @@ def dwyu_aspect_factory(
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
     tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
-    if not use_cpp_implementation:
-        fail("Using the legacy Python based implementation is no longer possible. The the new C++ based implementation does not work for you, please report an issue at https://github.com/martis42/depend_on_what_you_use/issues")
 
     return aspect(
         implementation = dwyu_aspect_impl,
