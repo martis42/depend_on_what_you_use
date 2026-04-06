@@ -44,6 +44,9 @@ TEST(IsIgnoredInclude, IgnoreIncludeGivenPaths) {
     EXPECT_TRUE(isIgnoredInclude("<other/include.h>", ignores));
 
     EXPECT_FALSE(isIgnoredInclude("<not/ignored.h>", ignores));
+    // Do not match substrings
+    EXPECT_FALSE(isIgnoredInclude("<foo/some/include.h>", ignores));
+    EXPECT_FALSE(isIgnoredInclude("<some/include.h.tpl>", ignores));
 }
 
 TEST(IsIgnoredInclude, IgnoreIncludeGivenPatternForRootDirectory) {
@@ -114,17 +117,18 @@ TEST(IsIgnoredInclude, IgnoreIncludeGivenPatternForMultiplePartialMatches) {
     EXPECT_FALSE(isIgnoredInclude("<foo_bar/include.h>", ignores));
 }
 
-TEST(IsIgnoredInclude, IgnoreIncludeGivenPatternForNotMatchingASpecificRootDirectory) {
+TEST(IsIgnoredInclude, IgnoreIncludeGivenPatternForIgnoringEverythingExceptASpecificRootDirectory) {
     IgnoredIncludes ignores{};
-    ignores.include_patterns = {boost::regex("(?!foo).*")};
+    ignores.include_patterns = {boost::regex("(?!foo/).*")};
 
     EXPECT_TRUE(isIgnoredInclude("\"bar/include.h\"", ignores));
     EXPECT_TRUE(isIgnoredInclude("<include.h>", ignores));
     EXPECT_TRUE(isIgnoredInclude("<bar/foo/include.h>", ignores));
+    EXPECT_TRUE(isIgnoredInclude("<foo_bar/include.h>", ignores));
+    EXPECT_TRUE(isIgnoredInclude("<foo.h>", ignores));
 
     EXPECT_FALSE(isIgnoredInclude("\"foo/include.h\"", ignores));
-    EXPECT_FALSE(isIgnoredInclude("<foo_bar/include.h>", ignores));
-    EXPECT_FALSE(isIgnoredInclude("<foo.h>", ignores));
+    EXPECT_FALSE(isIgnoredInclude("<foo/bar/include.h>", ignores));
 }
 
 TEST(IsIgnoredInclude, IgnoreIncludeGivenMultiplePatterns) {
