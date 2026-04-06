@@ -304,12 +304,12 @@ def _gather_transitive_reports(ctx):
 
 def _get_pkg_relative_file_path(file):
     """
-    Return the path of a file relative to the package using it
+    Return a unique normalized path for a file suitable for use in output filenames.
+    We use the file's short_path instead of its owner label to ensure uniqueness when
+    multiple files share the same owner (e.g. a genrule with multiple outputs).
     """
 
-    file_label = str(file.owner)
-    pkg_relative_path = file_label.split(":", 1)[1]
-    normalized_path = pkg_relative_path.replace("/", "_").replace(".", "_")
+    normalized_path = file.short_path.replace("/", "_").replace(".", "_")
 
     return normalized_path
 
