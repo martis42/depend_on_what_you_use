@@ -1,4 +1,5 @@
 load("@rules_python//python:py_test.bzl", "py_test")
+load(":hash_test.bzl", "hash_test_suite")
 
 py_test(
     name = "bazel_query_test",
@@ -15,6 +16,15 @@ py_test(
 py_test(
     name = "get_dwyu_reports_test",
     srcs = ["get_dwyu_reports_test.py"],
+    deps = ["//dwyu/apply_fixes:lib"],
+)
+
+hash_test_suite(name = "hash_starlark_test")
+
+py_test(
+    name = "hash_python_test",
+    srcs = ["hash_test.py"],
+    main = "hash_test.py",
     deps = ["//dwyu/apply_fixes:lib"],
 )
 
