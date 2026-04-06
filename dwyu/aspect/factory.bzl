@@ -50,7 +50,7 @@ def dwyu_aspect_factory(
                           </li><li>
                             `ignore_include_patterns` : List of patterns which are ignored by the analysis.
                             The [boost regex library](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/index.html) is used to parse the patterns.
-                            The [regex_search](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/boost_regex/ref/regex_search.html) function is used to compare the patterns to the include statements.
+                            The [boost::regex_search](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/boost_regex/ref/regex_search.html) function is used to compare the patterns to the include statements.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
 
