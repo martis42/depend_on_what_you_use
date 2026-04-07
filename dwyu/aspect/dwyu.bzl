@@ -313,7 +313,7 @@ def _get_pkg_relative_file_path(file):
 
     return normalized_path
 
-def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
+def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr_prefix):
     """
     For each given file perform a preprocessing step to find all relevant include statements
     """
@@ -341,7 +341,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain):
 
     preprocessor_results = []
     for file in files:
-        pp_output = ctx.actions.declare_file("{}.dwyu_psf_{}.json".format(target.label.name, _get_pkg_relative_file_path(file)))
+        pp_output = ctx.actions.declare_file("{}.dwyu_psf_{}_{}.json".format(target.label.name, attr_prefix, _get_pkg_relative_file_path(file)))
 
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
@@ -418,8 +418,8 @@ def dwyu_aspect_impl(target, ctx):
 
     cc_toolchain = find_cc_toolchain(ctx)
 
-    preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain)
-    preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain)
+    preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "pub")
+    preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "priv")
 
     args = make_param_file_args(ctx)
     args.add("--output", report_file)
