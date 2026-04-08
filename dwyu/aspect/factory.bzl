@@ -12,6 +12,7 @@ def dwyu_aspect_factory(
         ignored_includes = None,
         no_preprocessor = False,
         recursive = False,
+        enable_with_layering_check = False,
         skip_external_targets = False,
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
@@ -69,6 +70,12 @@ def dwyu_aspect_factory(
                                This can be useful in combination with the recursive analysis mode.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
+        enable_with_layering_check: If `True`, DWYU will only analyze targets for which the `layering_check`
+                                    C++ toolchain feature is enabled (as determined by `cc_common.is_enabled`).
+                                    This allows opting individual targets or packages in or out of DWYU via the standard `features` attribute, e.g.
+                                    `features = ["layering_check"]` to opt in or `features = ["-layering_check"]` to opt out.
+                                    By default this gating is disabled and DWYU analyzes all matching targets.
+
         skipped_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
                       By default skips the analysis for targets tagged with 'no-dwyu'.<br>
                       This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
@@ -110,6 +117,9 @@ def dwyu_aspect_factory(
             ),
             "dwyu_verbose": attr.bool(
                 default = verbose,
+            ),
+            "_enable_with_layering_check": attr.bool(
+                default = enable_with_layering_check,
             ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
