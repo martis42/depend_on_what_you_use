@@ -186,7 +186,7 @@ def extract_cpp_standard_from_compiler_flags(compiler_flags):
 
     return "unknown"
 
-def _parse_compiler_command(ctx, target_compilation_context):
+def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, feature_configuration):
     """
     We extract the relevant defines from the compiler command line flags. We utilize the compiler flags since the
     toolchain can set defines which are not available through CcInfo or the cpp fragments. Furthermore, defines
@@ -198,16 +198,6 @@ def _parse_compiler_command(ctx, target_compilation_context):
     - https://gcc.gnu.org/onlinedocs/gcc/Option-Index.html#Option-Index
     - https://learn.microsoft.com/en-us/cpp/build/reference/compiler-options?view=msvc-170
     """
-
-    cc_toolchain = find_cc_toolchain(ctx)
-
-    feature_configuration = cc_common.configure_features(
-        ctx = ctx,
-        cc_toolchain = cc_toolchain,
-        requested_features = ctx.features,
-        unsupported_features = ctx.disabled_features,
-    )
-
     defines = []
     if hasattr(ctx.rule.attr, "implementation_deps"):
         # Because of bug https://github.com/bazelbuild/bazel/issues/19663 the compilation context is not actually
@@ -392,6 +382,20 @@ def dwyu_aspect_impl(target, ctx):
     if any([tag in ctx.attr._skipped_tags for tag in ctx.rule.attr.tags]):
         return []
 
+    cc_toolchain = find_cc_toolchain(ctx)
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
+
+    if ctx.attr._enable_with_layering_check and not cc_common.is_enabled(
+        feature_configuration = feature_configuration,
+        feature_name = "layering_check",
+    ):
+        return []
+
     public_files, private_files = _get_target_sources(ctx.rule)
 
     # We skip targets which have no source files. cc_* targets can also be of value if they only specify the 'deps'
@@ -399,7 +403,7 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = [] if ctx.attr._no_preprocessor else _parse_compiler_command(ctx, target[CcInfo].compilation_context)
+    defines = [] if ctx.attr._no_preprocessor else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
@@ -415,8 +419,6 @@ def dwyu_aspect_impl(target, ctx):
     processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps)
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
-
-    cc_toolchain = find_cc_toolchain(ctx)
 
     preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "pub")
     preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "priv")
