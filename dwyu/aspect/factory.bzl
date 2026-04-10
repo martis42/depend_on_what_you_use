@@ -12,8 +12,8 @@ def dwyu_aspect_factory(
         ignored_includes = None,
         no_preprocessor = False,
         recursive = False,
-        enable_with_layering_check = False,
         skip_external_targets = False,
+        skip_on_features = [],
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         verbose = False):
@@ -70,11 +70,10 @@ def dwyu_aspect_factory(
                                This can be useful in combination with the recursive analysis mode.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
-        enable_with_layering_check: If `True`, DWYU will only analyze targets for which the `layering_check`
-                                    C++ toolchain feature is enabled (as determined by `cc_common.is_enabled`).
-                                    This allows opting individual targets or packages in or out of DWYU via the standard `features` attribute, e.g.
-                                    `features = ["layering_check"]` to opt in or `features = ["-layering_check"]` to opt out.
-                                    By default this gating is disabled and DWYU analyzes all matching targets.
+        skip_on_features: A list of C++ toolchain feature strings that control when the DWYU analysis is skipped.
+                          When a feature name is prefixed with `-` (e.g. `-layering_check`), the analysis is skipped if that feature is **disabled**.
+                          When a feature name has no prefix (e.g. `some_feature`), the analysis is skipped if that feature is **enabled**.
+                          This allows gating DWYU on the state of C++ toolchain features configured via the standard `features` attribute.
 
         skipped_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
                       By default skips the analysis for targets tagged with 'no-dwyu'.<br>
@@ -118,9 +117,6 @@ def dwyu_aspect_factory(
             "dwyu_verbose": attr.bool(
                 default = verbose,
             ),
-            "_enable_with_layering_check": attr.bool(
-                default = enable_with_layering_check,
-            ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
                 allow_files = [".json"],
@@ -133,6 +129,9 @@ def dwyu_aspect_factory(
             ),
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
+            ),
+            "_skip_on_features": attr.string_list(
+                default = skip_on_features,
             ),
             "_skipped_tags": attr.string_list(
                 default = aspect_skipped_tags,
