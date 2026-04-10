@@ -390,11 +390,18 @@ def dwyu_aspect_impl(target, ctx):
         unsupported_features = ctx.disabled_features,
     )
 
-    if ctx.attr._enable_with_layering_check and not cc_common.is_enabled(
-        feature_configuration = feature_configuration,
-        feature_name = "layering_check",
-    ):
-        return []
+    for feature in ctx.attr._skip_on_features:
+        if feature.startswith("-"):
+            if not cc_common.is_enabled(
+                feature_configuration = feature_configuration,
+                feature_name = feature[1:],
+            ):
+                return []
+        elif cc_common.is_enabled(
+            feature_configuration = feature_configuration,
+            feature_name = feature,
+        ):
+            return []
 
     public_files, private_files = _get_target_sources(ctx.rule)
 
