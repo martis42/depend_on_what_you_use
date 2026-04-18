@@ -385,7 +385,7 @@ def dwyu_aspect_impl(target, ctx):
         unsupported_features = ctx.disabled_features,
     )
 
-    for feature in ctx.attr._skip_on_features:
+    for feature in ctx.attr._skip_features:
         if feature.startswith("-"):
             if not cc_common.is_enabled(
                 feature_configuration = feature_configuration,
