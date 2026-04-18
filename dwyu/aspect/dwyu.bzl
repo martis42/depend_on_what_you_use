@@ -34,6 +34,12 @@ def _is_verbose(ctx):
 def _is_external(ctx):
     return ctx.label.workspace_root.startswith("external")
 
+def _hash(value):
+    """
+    Using '%x' prevents negative numbers being returned
+    """
+    return "%x" % hash(value)
+
 def _get_target_sources(rule):
     public_files = []
     private_files = []
@@ -292,17 +298,6 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
-def _get_pkg_relative_file_path(file):
-    """
-    Return a unique normalized path for a file suitable for use in output filenames.
-    We use the file's short_path instead of its owner label to ensure uniqueness when
-    multiple files share the same owner (e.g. a genrule with multiple outputs).
-    """
-
-    normalized_path = file.short_path.replace("/", "_").replace(".", "_")
-
-    return normalized_path
-
 def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr_prefix):
     """
     For each given file perform a preprocessing step to find all relevant include statements
@@ -331,7 +326,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
 
     preprocessor_results = []
     for file in files:
-        pp_output = ctx.actions.declare_file("{}.dwyu_psf_{}_{}.json".format(target.label.name, attr_prefix, _get_pkg_relative_file_path(file)))
+        pp_output = ctx.actions.declare_file("{}.dwyu_psf_{}_{}.json".format(target.label.name, attr_prefix, _hash(file.short_path)))
 
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
