@@ -3,6 +3,7 @@ import logging
 from argparse import Namespace
 from os import environ
 from pathlib import Path
+from shutil import which
 
 from dwyu.apply_fixes.bazel_query import BazelQuery
 from dwyu.apply_fixes.buildozer_executor import BuildozerExecutor
@@ -104,6 +105,9 @@ def main(args: Namespace) -> int:
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
+    if not args.buildozer and not which("buildozer"):
+        log.fatal("ERROR: This tool requires 'buildozer' to be available on PATH or be provided via '--buildozer'.")
+        return 1
     buildozer = args.buildozer or "buildozer"
 
     workspace = get_workspace(args)
