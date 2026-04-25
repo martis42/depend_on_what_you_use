@@ -13,7 +13,7 @@ def dwyu_aspect_factory(
         no_preprocessor = False,
         recursive = False,
         skip_external_targets = False,
-        skip_features = [],
+        skip_toolchain_features = [],
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
         target_mapping = None,
         verbose = False):
@@ -70,12 +70,12 @@ def dwyu_aspect_factory(
                                This can be useful in combination with the recursive analysis mode.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
-        skip_features: A list of C++ toolchain feature strings that control when the DWYU analysis is skipped.
-                       When a feature name is prefixed with `-` (e.g. `-layering_check`), the analysis is skipped if that feature is **disabled**.
-                       When a feature name has no prefix (e.g. `some_feature`), the analysis is skipped if that feature is **enabled**.
-                       This allows gating DWYU on the state of C++ toolchain features configured via the standard `features` attribute.<br>
-                       Please note, this is based on the features the active toolchain understands and not string comparison done with the `features` attribute values.
-                       Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.
+        skip_toolchain_features: A list of C++ toolchain feature strings that control when the DWYU analysis is skipped.
+                                 When a feature name is prefixed with `-` (e.g. `-layering_check`), the analysis is skipped if that feature is **disabled**.
+                                 When a feature name has no prefix (e.g. `some_feature`), the analysis is skipped if that feature is **enabled**.
+                                 This allows gating DWYU on the state of C++ toolchain features configured via the standard `features` attribute.<br>
+                                 Please note, this is based on the features the active toolchain understands and not string comparison done with the `features` attribute values.
+                                 Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.
 
         skipped_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
                       By default skips the analysis for targets tagged with 'no-dwyu'.<br>
@@ -132,8 +132,8 @@ def dwyu_aspect_factory(
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
             ),
-            "_skip_features": attr.string_list(
-                default = skip_features,
+            "_skip_toolchain_features": attr.string_list(
+                default = skip_toolchain_features,
             ),
             "_skipped_tags": attr.string_list(
                 default = aspect_skipped_tags,
