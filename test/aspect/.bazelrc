@@ -9,3 +9,7 @@ common --check_direct_dependencies=off
 
 # The symlinks are cluttering the file tree without much value
 common --experimental_convenience_symlinks=ignore
+
+# Use the default DWYU configuration to analyze targets
+build:dwyu --aspects=//:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
