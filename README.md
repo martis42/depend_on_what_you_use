@@ -270,4 +270,4 @@ Copyright © 2022-present, [Martin Medler](https://github.com/martis42). <br>
 This project licensed under the [MIT](https://opensource.org/licenses/MIT) license.
 
 This projects references several other projects which each have individual licenses.
-See the content of [third_party](third_party) for all references to other projects.
+See the content of [third_party](third_party) and [MODULE.bazel](MODULE.bazel) for all references to other projects.
