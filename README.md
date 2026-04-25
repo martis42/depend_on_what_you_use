@@ -121,6 +121,8 @@ Unused dependencies in 'deps' (none of their headers are referenced):
 ===============================================================================
 ```
 
+**Hint**: Using `--keep_going` allows you to see all existing errors at once instead of the analysis aborting on the first detected issue.
+
 ### Create a rule invoking the aspect
 
 You can invoke the aspect from within a rule.
@@ -137,24 +139,28 @@ This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu)
 > Always make sure your project is still valid after the changes and review the performed changes.
 
 DWYU offers a tool to automatically fix some detected problems.
-The workflow is the following:
+The general workflow is the following:
 
 1. Execute DWYU on your workspace.
-   DWYU will create report files containing information about discovered problems in the Bazel output directory for each analyzed target.
+   DWYU will create report files containing information about discovered problems in the Bazel output directory.
 1. Execute `bazel run @depend_on_what_you_use//:apply_fixes -- <your_options>`.
    The tool discovers the report files generated in the previous step and gathers the problems for which a fix is available.
    Then, [buildozer](https://github.com/bazelbuild/buildtools/blob/master/buildozer/README.md) is utilized to adapt the BUILD files in your workspace.
+
+We recommend:
+
+- Execute the DWYU analysis build with `--keep_going` to generate the DWYU reports to find all issues at once.
+- Pipe the terminal output from executing DWYU into a file.
+  Then, provide this log file to `@depend_on_what_you_use//:apply_fixes` via the `--dwyu-log-file` option.
+  This is the fastest and most robust option to make the DWYU reports available to the `apply_fixes` tool.
 
 The `apply_fixes` tool requires you to explicitly choose which kind or errors you want to be fixed.
 You can see the full command line interface and more information about the script behavior and limitations by executing:<br>
 `bazel run @depend_on_what_you_use//:apply_fixes -- --help`
 
+If you are not using `--dwyu-log-file`, the `apply_fixes` tool searches by itself for the DWYU reports.
 If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the report files.
-The tool offers options to control how the output directory is discovered.
-
-Discovering the DWYU report files automatically can take a large amount of time if the `bazel-bin` directory is too large.
-In such cases you can pipe the command line output of executing the DWYU aspect into a file and forward this file to the apply_fixes script via the `--dwyu-log-file` option.
-The apply_fixes script will then deduce the DWYU report file locations without crawling though thw whole `bazel-bin` directory.
+The tool offers various options to control how the output directory is discovered, which you can discover trough its `--help` option.
 
 Unfortunately, the tool cannot promise perfect results due to various constraints:
 
