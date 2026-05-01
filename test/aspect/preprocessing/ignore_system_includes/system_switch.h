@@ -1,0 +1,1 @@
+#define SYSTEM_SWITCH 1
