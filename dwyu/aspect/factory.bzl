@@ -98,7 +98,6 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
-    tool_preprocessing = Label("//dwyu/aspect/private/preprocessing:main_no_preprocessing") if no_preprocessor else Label("//dwyu/aspect/private/preprocessing:main")
 
     return aspect(
         implementation = dwyu_aspect_impl,
@@ -149,7 +148,7 @@ def dwyu_aspect_factory(
                 doc = "Main logic for the analysis done by this aspect. This compares the include statements in the code and compares them to the available dependencies.",
             ),
             "_tool_preprocessing": attr.label(
-                default = tool_preprocessing,
+                default = Label("//dwyu/aspect/private/preprocessing:main"),
                 executable = True,
                 cfg = "exec",
                 doc = "Preprocess the source code under inspection to resolve conditional preprocessor statements and discover include statements.",
