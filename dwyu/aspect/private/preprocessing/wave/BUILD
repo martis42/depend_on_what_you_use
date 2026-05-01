@@ -13,3 +13,14 @@ cc_library(
         "@boost//:filesystem",
     ],
 )
+
+cc_library(
+    name = "process_files",
+    hdrs = ["process_files.h"],
+    visibility = ["//dwyu/aspect/private/preprocessing:__subpackages__"],
+    deps = [
+        "//dwyu/aspect/private/preprocessing/lib:included_file",
+        "@boost.wave//:wave",
+        "@nlohmann_json//:singleheader-json",
+    ],
+)
