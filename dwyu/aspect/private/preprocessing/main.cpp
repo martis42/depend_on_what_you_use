@@ -1,5 +1,5 @@
-#include "dwyu/aspect/private/preprocessing/included_file.h"
-#include "dwyu/aspect/private/preprocessing/preprocessing_hooks.h"
+#include "dwyu/aspect/private/preprocessing/lib/included_file.h"
+#include "dwyu/aspect/private/preprocessing/wave/gather_direct_includes_hook.h"
 #include "dwyu/private/program_options.h"
 #include "dwyu/private/utils.h"
 
@@ -160,11 +160,11 @@ int main_impl(const ProgramOptions& options) {
         using lex_iterator_type = boost::wave::cpplexer::lex_iterator<token_type>;
         using context_type = boost::wave::context<std::string::iterator, lex_iterator_type,
                                                   boost::wave::iteration_context_policies::load_file_to_string,
-                                                  GatherDirectIncludesIgnoringMissingOnes>;
+                                                  GatherDirectIncludesHook>;
 
         std::vector<IncludedFile> included_files{};
         context_type ctx{file_content.begin(), file_content.end(), file.c_str(),
-                         GatherDirectIncludesIgnoringMissingOnes{included_files}};
+                         GatherDirectIncludesHook{included_files}};
 
         configureContext(options, ctx);
 

@@ -1,5 +1,5 @@
-#include "dwyu/aspect/private/preprocessing/extract_includes.h"
-#include "dwyu/aspect/private/preprocessing/included_file.h"
+#include "dwyu/aspect/private/preprocessing/fast_parsing/extract_includes.h"
+#include "dwyu/aspect/private/preprocessing/lib/included_file.h"
 #include "dwyu/private/program_options.h"
 #include "dwyu/private/utils.h"
 

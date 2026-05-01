@@ -1,4 +1,4 @@
-#include "dwyu/aspect/private/preprocessing/extract_includes.h"
+#include "dwyu/aspect/private/preprocessing/fast_parsing/extract_includes.h"
 
 #include <istream>
 #include <set>

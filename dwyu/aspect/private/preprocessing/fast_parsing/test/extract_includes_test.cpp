@@ -1,4 +1,4 @@
-#include "dwyu/aspect/private/preprocessing/extract_includes.h"
+#include "dwyu/aspect/private/preprocessing/fast_parsing/extract_includes.h"
 
 #include <fstream>
 #include <gtest/gtest.h>
@@ -125,7 +125,7 @@ TEST(extractIncludes, IgnoreCStyleCommentOpenendInCommentedLine) {
 }
 
 TEST(extractIncludes, FileWithComplexCases) {
-    std::ifstream instream{"dwyu/aspect/private/preprocessing/test/data/commented_includes.h"};
+    std::ifstream instream{"dwyu/aspect/private/preprocessing/fast_parsing/test/data/commented_includes.h"};
     ASSERT_TRUE(instream.is_open());
 
     const auto result = extractIncludes(instream);

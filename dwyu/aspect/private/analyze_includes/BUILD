@@ -37,7 +37,7 @@ cc_library(
     hdrs = ["ignored_includes.h"],
     implementation_deps = [
         ":utility",
-        "//dwyu/aspect/private/preprocessing:included_file",
+        "//dwyu/aspect/private/preprocessing/lib:included_file",
     ],
     deps = ["@boost//:regex"],
 )

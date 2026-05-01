@@ -1,7 +1,7 @@
 #include "dwyu/aspect/private/analyze_includes/ignored_includes.h"
 
 #include "dwyu/aspect/private/analyze_includes/utility.h"
-#include "dwyu/aspect/private/preprocessing/included_file.h"
+#include "dwyu/aspect/private/preprocessing/lib/included_file.h"
 
 #include <boost/regex.hpp>
 

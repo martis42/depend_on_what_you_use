@@ -1,4 +1,4 @@
-#include "dwyu/aspect/private/preprocessing/included_file.h"
+#include "dwyu/aspect/private/preprocessing/lib/included_file.h"
 
 #include <boost/filesystem/path.hpp>
 #include <gtest/gtest.h>

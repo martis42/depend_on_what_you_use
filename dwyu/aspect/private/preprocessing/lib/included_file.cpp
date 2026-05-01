@@ -1,12 +1,12 @@
-#include "dwyu/aspect/private/preprocessing/included_file.h"
+#include "dwyu/aspect/private/preprocessing/lib/included_file.h"
 
 #include <boost/filesystem/path.hpp>
 
 #include <string>
 
-namespace bfs = boost::filesystem;
-
 namespace dwyu {
+
+namespace bfs = boost::filesystem;
 
 bool isSystemInclude(const std::string& include_statement) {
     return !include_statement.empty() && (*include_statement.begin() == '<') && (*include_statement.rbegin() == '>');
