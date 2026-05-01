@@ -4,6 +4,7 @@ load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
+_PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
 
 def dwyu_aspect_factory(
         analysis_optimizes_impl_deps = False,
@@ -11,6 +12,7 @@ def dwyu_aspect_factory(
         analysis_reports_unused_deps = True,
         ignored_includes = None,
         no_preprocessor = False,
+        preprocessing_mode = None,
         recursive = False,
         skip_external_targets = False,
         skip_toolchain_features = [],
@@ -55,11 +57,28 @@ def dwyu_aspect_factory(
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
 
-        no_preprocessor: This option disables the preprocessing step before discovering the include statements in the files under inspection.
-                         When the preprocessing is disabled, DWYU still ignores commented include statements.
-                         Using this option can speed up the DWYU analysis.<br>
-                         When using this option, DWYU will no longer be able to correctly resolve conditional include logic (`#ifdef` around include statements) or any other preprocessor directives and macros influencing include statements.
-                         A common example requiring preprocessing is having different include statements and Bazel target dependencies depending on whether the host is a Windows or Linux system.
+        no_preprocessor: DEPRECATED: Will be removed in a future release.<br>
+                         Use `preprocessing_mode="fast"` instead.
+
+        preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
+                            This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
+                            We perform a preprocessing to be able to ignore CC toolchain headers and resolve conditional include logic (`#ifdef` around include statements) and other preprocessor directives influencing include statements (e.g. a macro defining the to be included header path).<br>
+                            The available preprocessing modes are:
+                            <ul><li>
+                              `full`: (Default).<br>
+                              In this mode, we use the [`boost::wave`](https://github.com/boostorg/wave) library to preprocess the code.
+                              This also involves recursively preprocessing all included header files.
+                              While this mode is the slowest, it is able to handle most kinds of conditional include logic or macros influencing include statements.
+                            </li><li>
+                              `ignore_system_includes`: Works similar to `full`, but should be faster for most projects.<br>
+                              In this mode, we do not look into header files included as system includes (aka using the '<>' notation) during the preprocessing step.
+                              Often, the system includes are not relevant for the conditional include logic in the user's code.
+                              At the same time they can point to large and complex headers which take a lot of time to preprocess (e.g. <gtest/gtest.h>).
+                            </li><li>
+                              `fast`: The fastest preprocessing mode, which does however not support conditional include logic or macros influencing include statements.<br>
+                              In this mode, we do not use `boost::wave` to preprocess the code.
+                              We simply extract all existing include statements without looking into the recursively included headers.
+                            </li></ul>
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
                    You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
@@ -99,6 +118,18 @@ def dwyu_aspect_factory(
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
 
+    if preprocessing_mode and no_preprocessor:
+        fail("Do not use 'no_preprocessor' together with 'preprocessing_mode'. Use only 'preprocessing_mode=\"fast\"' to disable preprocessing with a slow preprocessor")
+    if no_preprocessor:
+        # buildifier: disable=print-stdout
+        print("WARNING: 'no_preprocessor' is deprecated and will be removed in a future release. Please use 'preprocessing_mode=\"fast\"' instead.")
+        preprocessing_mode = "fast"
+    if preprocessing_mode == None:
+        preprocessing_mode = "full"
+
+    if preprocessing_mode not in _PREPROCESSOR_MODES:
+        fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, _PREPROCESSOR_MODES))
+
     return aspect(
         implementation = dwyu_aspect_impl,
         attr_aspects = attr_aspects,
@@ -122,8 +153,8 @@ def dwyu_aspect_factory(
                 default = aspect_ignored_includes,
                 allow_files = [".json"],
             ),
-            "_no_preprocessor": attr.bool(
-                default = no_preprocessor,
+            "_preprocessing_mode": attr.string(
+                default = preprocessing_mode,
             ),
             "_recursive": attr.bool(
                 default = recursive,

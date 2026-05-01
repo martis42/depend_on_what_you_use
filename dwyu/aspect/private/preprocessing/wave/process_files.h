@@ -114,13 +114,15 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                                                const std::vector<std::string>& include_paths,
                                                const std::vector<std::string>& system_include_paths,
                                                const std::vector<std::string>& defines,
+                                               const bool ignore_system_includes,
                                                const bool verbose) {
     auto output_json = nlohmann::json::array();
     for (const auto& file : files) {
         auto file_content = detail::makeContextInput(file);
 
         std::vector<IncludedFile> included_files{};
-        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(), PreprocessingHookT{included_files}};
+        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(),
+                     PreprocessingHookT{ignore_system_includes, included_files}};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
         if (!detail::preprocessFile(ctx)) {

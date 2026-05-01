@@ -331,11 +331,10 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
         args.add_all("--files", [file])
-        args.add("--mode", "fast" if ctx.attr._no_preprocessor else "full")
+        args.add("--mode", ctx.attr._preprocessing_mode)
         args.add_all("--include_paths", include_paths)
         args.add_all("--system_include_paths", system_include_paths)
-        if not ctx.attr._no_preprocessor:
-            args.add_all("--defines", defines)
+        args.add_all("--defines", defines)
         args.add("--output", pp_output)
         if _is_verbose(ctx):
             args.add("--verbose")
@@ -406,7 +405,7 @@ def dwyu_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = [] if ctx.attr._no_preprocessor else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
+    defines = [] if ctx.attr._preprocessing_mode == "fast" else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),

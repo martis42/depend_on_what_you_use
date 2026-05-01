@@ -16,13 +16,18 @@
 
 namespace dwyu {
 
-// Extract all include statements for resolvable includes. If a include statement cannot be resolved (aka we cannot
-// find a file it belongs to) we assume this include statement is not relevant for our analysis (e.g. a CC toolchain
-// header).
+// Recursively preprocess all resolvable includes statements, aka includes for which we can locate a file. If a
+// include statement cannot be resolved, we assume this include statement is not relevant for our analysis (e.g. a
+// CC toolchain header).
+// While doing so, we remember the direct include statements of the root file (aka file under inspection) and
+// their resolved paths.
+// If 'ignore_system_includes' is true, our preprocessing does not recurse into system includes, aka
+// includes statements using the '<>' notation.
 class GatherDirectIncludesHook : public PreprocessingHooksBase {
   public:
-    explicit GatherDirectIncludesHook(std::vector<IncludedFile>& included_files)
-        : include_depth_{0}, included_files_{included_files}, working_dir_{boost::filesystem::current_path()} {}
+    explicit GatherDirectIncludesHook(const bool ignore_system_includes, std::vector<IncludedFile>& included_files)
+        : ignore_system_includes_{ignore_system_includes}, include_depth_{0}, included_files_{included_files},
+          working_dir_{boost::filesystem::current_path()} {}
 
     template <typename ContextT>
     bool locate_include_file(ContextT& ctx,
@@ -31,7 +36,8 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
                              char const* current_name,
                              std::string& dir_path,
                              std::string& native_name) {
-        std::string include_statement = is_system ? "<" + file_path + ">" : "\"" + file_path + "\"";
+        // Has to be computed early, since 'locate_include_file' changes 'file_path'
+        auto include_statement = makeIncludeStatement(file_path, is_system);
 
         const bool file_found = boost::wave::context_policies::default_preprocessing_hooks::locate_include_file(
             ctx, file_path, is_system, current_name, dir_path, native_name);
@@ -41,6 +47,11 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
         if (include_depth_ == 0 && file_found) {
             included_files_.push_back(
                 IncludedFile{std::move(include_statement), makeRelativePath(file_path, working_dir_)});
+        }
+
+        if (ignore_system_includes_ && is_system) {
+            // Do not recurse into system includes.
+            return false;
         }
 
         return file_found;
@@ -67,11 +78,17 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
     }
 
   private:
-    // NOLINTNEXTLINE(cppcoreguidelines-use-default-member-init) We prefer initializing all values in one place
+    static std::string makeIncludeStatement(const std::string& file_path, const bool is_system) {
+        return is_system ? "<" + file_path + ">" : "\"" + file_path + "\"";
+    }
+
+    // NOLINTBEGIN(cppcoreguidelines-use-default-member-init) We prefer initializing all values in one place
+    bool ignore_system_includes_;
     std::int32_t include_depth_;
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design to make values available to caller
     std::vector<IncludedFile>& included_files_;
     boost::filesystem::path working_dir_;
+    // NOLINTEND(cppcoreguidelines-use-default-member-init)
 };
 
 } // namespace dwyu

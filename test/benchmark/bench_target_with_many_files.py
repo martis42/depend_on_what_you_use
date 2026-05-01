@@ -190,7 +190,23 @@ def main() -> None:
         aspect="dwyu",
         primer=primer,
         bench_target=target,
-        description="DWYU default aspect",
+        description="DWYU - Default aspect",
+        iterations=ITERATIONS,
+        jobs=JOBS,
+    )
+    run_benchmark(
+        aspect="dwyu_pp_no_system_includes",
+        primer=primer,
+        bench_target=target,
+        description="DWYU - Preprocessing mode: ignore_system_includes",
+        iterations=ITERATIONS,
+        jobs=JOBS,
+    )
+    run_benchmark(
+        aspect="dwyu_pp_fast",
+        primer=primer,
+        bench_target=target,
+        description="DWYU - Preprocessing mode: fast",
         iterations=ITERATIONS,
         jobs=JOBS,
     )

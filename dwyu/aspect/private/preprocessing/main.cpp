@@ -35,9 +35,7 @@ ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCh
 
     // Files which we are preprocessing
     parser.addOptionList("--files", options.files);
-    // Decide which preprocessing strategy is used. Possible values are:
-    // - 'fast' : Extract all non commented include statements without considering preprocessor condtionals.
-    // - 'full' : Use boost::wave to preprocess the file and extract includes from it.
+    // Which preprocessing strategy is being used
     parser.addOptionValue("--mode", options.mode);
     // Include paths relevant for discovering included headers
     parser.addOptionList("--include_paths", options.include_paths);
@@ -55,6 +53,30 @@ ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCh
     return options;
 }
 
+nlohmann::json extractIncludesFromFiles(const ProgramOptions& options) {
+
+    if (options.mode == "full" || options.mode == "ignore_system_includes") {
+        using TokenT = boost::wave::cpplexer::lex_token<>;
+        using LexIteratorT = boost::wave::cpplexer::lex_iterator<TokenT>;
+        using ContextT = boost::wave::context<std::string::iterator, LexIteratorT,
+                                              boost::wave::iteration_context_policies::load_file_to_string,
+                                              GatherDirectIncludesHook>;
+        const bool ignore_system_includes = options.mode == "ignore_system_includes";
+        return extractIncludesWithPreprocessor<ContextT, GatherDirectIncludesHook>(
+            options.files, options.include_paths, options.system_include_paths, options.defines, ignore_system_includes,
+            options.verbose);
+    }
+    if (options.mode == "fast") {
+        return extractIncludesWithFastParsing(options.files, options.include_paths, options.system_include_paths,
+                                              options.verbose);
+    }
+
+    abortWithError("Invalid preprocessing mode '", options.mode,
+                   "'. Valid modes are 'full', 'ignore_system_includes' and 'fast'.");
+    // Cannot be reached, but required to silence compiler warnings about missing return statement
+    return {};
+}
+
 int main_impl(const ProgramOptions& options) {
     if (options.verbose) {
         std::cout << "\n";
@@ -66,23 +88,7 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "Defines              : " << listToStr(options.defines) << "\n";
     }
 
-    nlohmann::json output_json{};
-    if (options.mode == "full") {
-        using token_type = boost::wave::cpplexer::lex_token<>;
-        using lex_iterator_type = boost::wave::cpplexer::lex_iterator<token_type>;
-        using context_type = boost::wave::context<std::string::iterator, lex_iterator_type,
-                                                  boost::wave::iteration_context_policies::load_file_to_string,
-                                                  GatherDirectIncludesHook>;
-        output_json = extractIncludesWithPreprocessor<context_type, GatherDirectIncludesHook>(
-            options.files, options.include_paths, options.system_include_paths, options.defines, options.verbose);
-    }
-    else if (options.mode == "fast") {
-        output_json = extractIncludesWithFastParsing(options.files, options.include_paths, options.system_include_paths,
-                                                     options.verbose);
-    }
-    else {
-        abortWithError("Invalid mode '", options.mode, "'. Valid modes are 'fast' and 'full'.");
-    }
+    auto output_json = extractIncludesFromFiles(options);
 
     std::ofstream output{options.output};
     if (output.is_open()) {
