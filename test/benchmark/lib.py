@@ -23,8 +23,6 @@ def run_benchmark(aspect: str, primer: str, bench_target: str, description: str,
     cmd_base = [
         "bazel",
         "build",
-        # Be sure not be unfair in Python vs precompiled tools
-        "--nolegacy_external_runfiles",
         # We do not care about those warnings while benchmarking
         "--check_direct_dependencies=off",
         "--output_groups=dwyu",
