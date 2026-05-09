@@ -1,5 +1,5 @@
-#ifndef DWYU_ASPECT_PRIVATE_PREPROCESSING_WAVE_PREPROCESSING_HOOK_H
-#define DWYU_ASPECT_PRIVATE_PREPROCESSING_WAVE_PREPROCESSING_HOOK_H
+#ifndef DWYU_ASPECT_PRIVATE_PREPROCESSING_WAVE_GATHER_DIRECT_INCLUDES_HOOK_H
+#define DWYU_ASPECT_PRIVATE_PREPROCESSING_WAVE_GATHER_DIRECT_INCLUDES_HOOK_H
 
 #include "dwyu/aspect/private/preprocessing/lib/included_file.h"
 #include "dwyu/aspect/private/preprocessing/wave/preprocessing_hook_base.h"
