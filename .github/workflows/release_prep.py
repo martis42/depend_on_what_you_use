@@ -87,13 +87,13 @@ def make_archive(tag: str) -> Path:
     return archive
 
 
-def make_release_notes(archive: Path, tag: str) -> None:
+def print_release_notes(archive: Path, tag: str) -> None:
     checksum_process = subprocess.run(["sha256sum", archive], check=True, capture_output=True, text=True)
     checksum = checksum_process.stdout.split(" ", 1)[0]
-    Path("release_notes.txt").write_text(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag).strip())
+    print(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag).strip())  # noqa: T201
 
 
 if __name__ == "__main__":
     args = cli()
     release_artifact = make_archive(args.tag)
-    make_release_notes(archive=release_artifact, tag=args.tag)
+    print_release_notes(archive=release_artifact, tag=args.tag)
