@@ -12,7 +12,12 @@ permissions:
   id-token: write
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yaml
+
   release:
+    # Ensure we have a 100% green build before releasing something
+    needs: [ ci ]
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.4.0
     with:
       # We adapt the release notes before we make the release visible and start deployment to the BCR
