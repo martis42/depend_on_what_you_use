@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-available-brightgreen)](https://github.com/martis42/depend_on_what_you_use/blob/main/docs)
 <br>
-[![Bazel](https://img.shields.io/badge/Bazel-7.2.1+-green)](https://bazel.build/)
+[![Bazel](https://img.shields.io/badge/Bazel-7.6.0+-green)](https://bazel.build/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](<>)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](<>)
@@ -181,7 +181,7 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 | Tool  | Constraints                                                                                      |
 | ----- | ------------------------------------------------------------------------------------------------ |
 | C++   | Minimum required C++ standard is C++11.                                                          |
-| Bazel | Minimum required version is 7.2.1. We test all supported major versions and the rolling release. |
+| Bazel | Minimum required version is 7.6.0. We test all supported major versions and the rolling release. |
 
 ### Applying fixes
 

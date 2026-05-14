@@ -21,9 +21,9 @@ log = logging.getLogger()
 # manually define pairs which make sure each Bazel and Python version we care about is used at least once.
 # For versions using the legacy WORKSPACE setup we have to specify the patch version for Python
 #
-# Keep this in sync with: .bcr/presubmit.yml and test/workspace_integration/test.py
+# Keep this in sync with: MODULE.bazel, README.md, .bcr/presubmit.yml and test/workspace_integration/test.py
 TESTED_VERSIONS = [
-    TestedVersions(bazel="7.2.1"),
+    TestedVersions(bazel="7.6.0"),
     TestedVersions(bazel="7.x"),
     TestedVersions(bazel="8.x", is_default=True),
     TestedVersions(bazel="9.*"),
