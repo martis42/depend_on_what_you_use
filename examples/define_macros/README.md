@@ -7,7 +7,7 @@ Others might be defined in system or CC toolchain headers, which are not analyze
 
 In such cases you can either:
 
-- Deactivate preprocessing with the DWYU factory attribute `no_preprocessor`.
+- Deactivate preprocessing with the DWYU factory attribute `preprocessing_mode = "fast"`.
 - Set the macros manually so make them available to DWYU
 
 This example demonstrated the second option.
