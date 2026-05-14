@@ -18,14 +18,23 @@ jobs:
   release:
     # Ensure we have a 100% green build before releasing something
     needs: [ ci ]
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.4.0
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.5.0
     with:
       # We adapt the release notes before we make the release visible and start deployment to the BCR
       draft: true
       prerelease: true
       generate_release_notes: true
       release_files: depend_on_what_you_use-*.tar.gz
-      tag_name: ${{ inputs.tag_name }}
+      tag_name: ${{ github.ref_name }}
       # The code has already been tested before we start the release process
       bazel_test_command: "/bin/true"
       mount_bazel_caches: false
+
+  publish:
+    needs: [ release ]
+    uses: ./.github/workflows/publish.yaml
+    with:
+      tag_name: ${{ github.ref_name }}
+      release_artifacts_run_id: ${{ github.run_id }}
+    secrets:
+      BCR_PUBLISH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
