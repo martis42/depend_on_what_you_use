@@ -15,8 +15,8 @@ cc_library(
         ":extract_includes",
         "//dwyu/aspect/private/preprocessing/lib:included_file",
         "//dwyu/private:utils",
+        "@boost.filesystem",
         "@boost.wave//:wave",
-        "@boost//:filesystem",
     ],
     visibility = ["//dwyu/aspect/private/preprocessing:__subpackages__"],
     deps = [

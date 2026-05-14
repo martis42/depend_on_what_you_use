@@ -1,24 +1,11 @@
 module(name = "dwyu_workspace_integration_tests")
 
-# Choose a custom name to prove we have no hard coded dependency on 'depend_on_what_you_use' being used as name
-# Strictly speaking this is only an issue with legacy WORKSPACE mode as bzlmod does module name mapping in the
-# background either way. Still, it does not hurt making sure explicitly this works as expected.
+# Choose a custom name to prove we have no hard coded dependency on 'depend_on_what_you_use' being used as name.
 bazel_dep(name = "depend_on_what_you_use", dev_dependency = True, repo_name = "custom_dwyu")
 local_path_override(
     module_name = "depend_on_what_you_use",
     path = "../../",
 )
 
-# We specify by design an outdated rules_cc version.
-# bzlmod resolves dependencies to the maximum of all requested versions for all involved modules.
-# Specifying an ancient version here gives us in the end at least whatever rules_cc version DWYU defines as dependency.
+# Specify an old version so the DWYU dependency determines what we actually get
 bazel_dep(name = "rules_cc", version = "0.0.1")
-
-# Uncomment for testing if Bazel itself (e.g. @bazel_tools) or our transitive dependencies overwrite the versions
-# requested by DWYU. In such cases, Bazel will print a warning in the command line output.
-#bazel_dep(name = "rules_python", version = "0.37.2")
-
-# Uncomment for testing exactly the versions required by DWYU without Bazel itself (e.g. @bazel_tools) or our
-# transitive dependencies influencing version resolution.
-#single_version_override(module_name="rules_cc", version = "0.0.15")
-#single_version_override(module_name="rules_python", version = "0.37.2")

@@ -24,7 +24,7 @@ TBD
 
 TBD
 
-## Using Bzlmod (Recommended)
+## Using this release
 
 :construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: TBD
 
@@ -32,27 +32,6 @@ Add to your `MODULE.bazel` file:
 
 ```starlark
 bazel_dep(name = "depend_on_what_you_use", version = "{VERSION}")
-```
-
-## Using WORKSPACE (Legacy)
-
-Add to your `WORKSPACE` file:
-
-```starlark
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "depend_on_what_you_use",
-    sha256 = "{SHA}",
-    strip_prefix = "depend_on_what_you_use-{VERSION}",
-    url = "https://github.com/martis42/depend_on_what_you_use/releases/download/{VERSION}/depend_on_what_you_use-{VERSION}.tar.gz",
-)
-
-load("@depend_on_what_you_use//:setup_step_1.bzl", dwyu_setup_step_1 = "setup_step_1")
-dwyu_setup_step_1()
-
-load("@depend_on_what_you_use//:setup_step_2.bzl", dwyu_setup_step_2 = "setup_step_2")
-dwyu_setup_step_2()
 ```
 
 ---
