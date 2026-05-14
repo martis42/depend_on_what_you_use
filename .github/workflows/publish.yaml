@@ -1,0 +1,59 @@
+name: Publish to BCR
+
+on:
+  # For Automatically trigger during releasing
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+      templates_ref:
+        required: false
+        type: string
+      release_artifacts_run_id:
+        required: false
+        type: string
+    secrets:
+      BCR_PUBLISH_TOKEN:
+        required: true
+  # For manually triggering on the GitHub Actions page
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: git tag being released
+        required: true
+        type: string
+      templates_ref:
+        description: |
+          Git ref to read BCR templates (.bcr folder) from, instead of the tag.
+          Use this to republish a release whose templates had errors.
+        required: false
+        type: string
+      release_artifacts_run_id:
+        description: |
+          Workflow run ID that produced the release artifacts.
+          When set, artifacts are fetched locally from that run instead of
+          downloading from the release URL. Useful to re-publish a past release.
+        required: false
+        type: string
+
+jobs:
+  publish:
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.2.0
+    with:
+      tag_name: ${{ inputs.tag_name }}
+      templates_ref: ${{ inputs.templates_ref }}
+      release_artifacts_run_id: ${{ inputs.release_artifacts_run_id || github.run_id }}
+      registry_fork: martis42/bazel-central-registry-fork
+      tag_prefix: ""
+      draft: true
+      attest: true
+      open_pull_request: true
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+    secrets:
+      # Necessary to push to the BCR fork, and to open a pull request against a registry
+      # Has to be a classic PAT with 'repo' and 'workflow' permissions
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}

@@ -1,0 +1,5 @@
+{
+    "integrity": "",
+    "strip_prefix": "depend_on_what_you_use-{VERSION}",
+    "url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/depend_on_what_you_use-{TAG}.tar.gz"
+}
