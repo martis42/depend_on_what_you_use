@@ -106,16 +106,14 @@ class Result:
     success: bool
 
 
-def make_cmd(example: Example, bazel_bin: str, legacy_workspace: bool) -> list[str]:
+def make_cmd(example: Example, bazel_bin: str) -> list[str]:
     cmd = [bazel_bin, "build"]
-    if legacy_workspace:
-        cmd.extend(["--noenable_bzlmod", "--enable_workspace"])
     cmd.extend(shlex.split(example.build_cmd))
     return cmd
 
 
-def execute_example(example: Example, bazel_bin: str, legacy_workspace: bool) -> Result:
-    cmd = make_cmd(example=example, bazel_bin=bazel_bin, legacy_workspace=legacy_workspace)
+def execute_example(example: Example, bazel_bin: str) -> Result:
+    cmd = make_cmd(example=example, bazel_bin=bazel_bin)
     cmd_str = shlex.join(cmd)
     log.info(f"\n##\n## Executing: '{cmd_str}'\n##\n")
 
@@ -129,12 +127,6 @@ def execute_example(example: Example, bazel_bin: str, legacy_workspace: bool) ->
 
 def cli() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument(
-        "--legacy-workspace",
-        "-w",
-        action="store_true",
-        help="Use the WORKSPACE file based project setup instead of bzlmod.",
-    )
     parser.add_argument(
         "--bazel-bin",
         "-b",
@@ -156,9 +148,7 @@ def main(args: Namespace) -> int:
     """
     bazel_binary = args.bazel_bin or str(get_bazel_binary())
 
-    results = [
-        execute_example(example=ex, bazel_bin=bazel_binary, legacy_workspace=args.legacy_workspace) for ex in EXAMPLES
-    ]
+    results = [execute_example(example=ex, bazel_bin=bazel_binary) for ex in EXAMPLES]
     failed_examples = [res.example for res in results if not res.success]
 
     if failed_examples:

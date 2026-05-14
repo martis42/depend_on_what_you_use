@@ -5,7 +5,7 @@ cc_test(
     srcs = ["included_file_test.cpp"],
     deps = [
         "//dwyu/aspect/private/preprocessing/lib:included_file",
-        "@boost//:filesystem",
+        "@boost.filesystem",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],

@@ -29,30 +29,23 @@ BAZEL_VERSIONS_UNDER_TEST = [
 ]
 
 
-def run_tests(is_bzlmod: bool, bazel_versions: list[str]) -> list[str]:
-    bzlmod_arg = [] if is_bzlmod else ["--enable_bzlmod=false"]
-    workspace_arg = [] if is_bzlmod else ["--enable_workspace=true"]
-    mode = "bzlmod" if is_bzlmod else "WORKSPACE"
+def run_tests(bazel_versions: list[str]) -> list[str]:
     failures = []
 
-    log.info(f"\n###\n### Testing {mode} setup\n###")
     for bazel_version in bazel_versions:
         env = make_bazel_version_env(bazel_version)
-        enable_workspace = workspace_arg if bazel_version >= "8.0.0" else []
 
         cmd_new = [
             "bazel",
             "--max_idle_secs=10",
             "build",
-            *bzlmod_arg,
-            *enable_workspace,
             "--config=dwyu",
             "//:valid_target",
         ]
-        log.info(f"\n##\n## Testing {mode} with Bazel '{bazel_version}'")
+        log.info(f"\n##\n## Testing with Bazel '{bazel_version}'")
         log.info(f"## Executing: {shlex_join(cmd_new)}\n##\n")
         if subprocess.run(cmd_new, check=False, env=env).returncode != 0:
-            failures.append(f"{mode}: {bazel_version} for new DWYU")
+            failures.append(bazel_version)
 
     return failures
 
@@ -68,9 +61,7 @@ def main() -> int:
     bazel_bin = get_bazel_binary()
     bazel_versions = resolve_bazel_versions(dynamic_versions=BAZEL_VERSIONS_UNDER_TEST, bazel_bin=bazel_bin)
 
-    failures = run_tests(is_bzlmod=True, bazel_versions=bazel_versions)
-    failures.extend(run_tests(is_bzlmod=False, bazel_versions=bazel_versions))
-
+    failures = run_tests(bazel_versions=bazel_versions)
     if failures:
         log.info("\nSome workspace integration tests FAILED")
         log.info("\n".join(f"- {fail}" for fail in sorted(failures)))

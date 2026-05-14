@@ -9,8 +9,8 @@ cc_library(
     visibility = ["//dwyu/aspect/private/preprocessing:__subpackages__"],
     deps = [
         "//dwyu/aspect/private/preprocessing/lib:included_file",
+        "@boost.filesystem",
         "@boost.wave//:wave",
-        "@boost//:filesystem",
     ],
 )
 

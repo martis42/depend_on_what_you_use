@@ -54,36 +54,15 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 
 ## Get a specific commit
 
-### bzlmod (recommended)
-
 Put the following into your `MODULE.bazel` file
 
 ```starlark
-bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")
+bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")P
 git_override(
     module_name = "depend_on_what_you_use",
     commit = <commit_you_are_interested_in>,
     remote = "https://github.com/martis42/depend_on_what_you_use",
 )
-```
-
-### legacy approach
-
-Put the following into your `WORKSPACE` file to use a specific DWYU commit
-
-```starlark
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-git_repository(
-    name = "depend_on_what_you_use",
-    commit = <commit_you_are_interested_in>,
-    remote = "https://github.com/martis42/depend_on_what_you_use",
-)
-
-load("@depend_on_what_you_use//:setup_step_1.bzl", dwyu_setup_step_1 = "setup_step_1")
-dwyu_setup_step_1()
-
-load("@depend_on_what_you_use//:setup_step_2.bzl", dwyu_setup_step_2 = "setup_step_2")
-dwyu_setup_step_2()
 ```
 
 ## Use DWYU

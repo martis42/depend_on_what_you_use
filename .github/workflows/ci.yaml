@@ -64,8 +64,6 @@ jobs:
       - uses: actions/checkout@v6
       - name: Integration tests - Examples
         run: python examples/test.py
-      - name: Integration tests - Examples with legacy WORKSPACE setup
-        run: python examples/test.py --legacy-workspace
 
   integration-tests-aspect:
     strategy:

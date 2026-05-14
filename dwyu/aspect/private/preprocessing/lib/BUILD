@@ -5,5 +5,5 @@ cc_library(
     srcs = ["included_file.cpp"],
     hdrs = ["included_file.h"],
     visibility = ["//dwyu/aspect/private:__subpackages__"],
-    deps = ["@boost//:filesystem"],
+    deps = ["@boost.filesystem"],
 )

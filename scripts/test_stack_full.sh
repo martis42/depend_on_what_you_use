@@ -9,11 +9,8 @@ source "$SCRIPT_DIR"/print_msg.sh
 
 "$SCRIPT_DIR"/test_stack_core.sh
 
-print_msg "Execute integration tests - Examples with bzlmod"
+print_msg "Execute integration tests - Examples"
 "$SCRIPT_DIR"/../examples/test.py
-
-print_msg "Execute integration tests - Examples with WORKSPACE setup"
-"$SCRIPT_DIR"/../examples/test.py --legacy-workspace
 
 print_msg "Execute workspace integration tests"
 "$SCRIPT_DIR"/../test/workspace_integration/test.py

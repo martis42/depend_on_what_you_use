@@ -22,7 +22,7 @@ cc_test(
     ],
     deps = [
         "//dwyu/aspect/private/analyze_includes:ignored_includes",
-        "@boost//:regex",
+        "@boost.regex",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -39,7 +39,7 @@ cc_test(
     deps = [
         "//dwyu/aspect/private/analyze_includes:ignored_includes",
         "//dwyu/aspect/private/analyze_includes:include_statement",
-        "@boost//:regex",
+        "@boost.regex",
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],

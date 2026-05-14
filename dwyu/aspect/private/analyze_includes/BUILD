@@ -39,7 +39,7 @@ cc_library(
         ":utility",
         "//dwyu/aspect/private/preprocessing/lib:included_file",
     ],
-    deps = ["@boost//:regex"],
+    deps = ["@boost.regex"],
 )
 
 cc_library(
@@ -71,6 +71,6 @@ cc_library(
     name = "utility",
     srcs = ["utility.cpp"],
     hdrs = ["utility.h"],
-    implementation_deps = ["@boost//:filesystem"],
+    implementation_deps = ["@boost.filesystem"],
     deps = ["@nlohmann_json//:singleheader-json"],
 )
