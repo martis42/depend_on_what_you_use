@@ -11,8 +11,7 @@ def dwyu_aspect_factory(
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
         ignored_includes = None,
-        no_preprocessor = False,
-        preprocessing_mode = None,
+        preprocessing_mode = "full",
         recursive = False,
         skip_external_targets = False,
         skip_toolchain_features = [],
@@ -56,9 +55,6 @@ def dwyu_aspect_factory(
                             The [boost::regex_search](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/boost_regex/ref/regex_search.html) function is used to compare the patterns to the include statements.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
-
-        no_preprocessor: DEPRECATED: Will be removed in a future release.<br>
-                         Use `preprocessing_mode="fast"` instead.
 
         preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
                             This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
@@ -117,15 +113,6 @@ def dwyu_aspect_factory(
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
     aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
     aspect_target_mapping = [target_mapping] if target_mapping else []
-
-    if preprocessing_mode and no_preprocessor:
-        fail("Do not use 'no_preprocessor' together with 'preprocessing_mode'. Use only 'preprocessing_mode=\"fast\"' to disable preprocessing with a slow preprocessor")
-    if no_preprocessor:
-        # buildifier: disable=print-stdout
-        print("WARNING: 'no_preprocessor' is deprecated and will be removed in a future release. Please use 'preprocessing_mode=\"fast\"' instead.")
-        preprocessing_mode = "fast"
-    if preprocessing_mode == None:
-        preprocessing_mode = "full"
 
     if preprocessing_mode not in _PREPROCESSOR_MODES:
         fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, _PREPROCESSOR_MODES))
