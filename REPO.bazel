@@ -1,0 +1,9 @@
+ignore_directories(
+    [
+        "examples/*",
+        "test/apply_fixes/*",
+        "test/aspect/*",
+        "test/benchmark/*",
+        "test/workspace_integration/*",
+    ],
+)
