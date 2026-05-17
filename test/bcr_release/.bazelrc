@@ -1,0 +1,15 @@
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=10
+
+# Always tell why tests fail
+test --test_output=errors
+
+# In this test we don't care about version mismatches
+common --check_direct_dependencies=off
+
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore
+
+# Use the default DWYU configuration to analyze targets
+build:dwyu --aspects=//:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
