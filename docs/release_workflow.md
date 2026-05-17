@@ -6,7 +6,7 @@
    - Check the release notes and fill manual sections
    - Drop draft status on release and PR
 1. Wait until release is available via the BCR
-1. Make sure the release works via the [test repo](https://github.com/martis42/test_dwyu)
+1. Make sure the release works via [test_release.py](/test/bcr_release/test_release.py)
 1. Finish release notes:
    - Remove BCR warning
    - Set to latest release
