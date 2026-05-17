@@ -135,9 +135,7 @@ The script expects 'bazel' to be available on PATH.
     parser.add_argument(
         "--buildozer",
         metavar="PATH",
-        help="""
-        buildozer binary which shall be used by this script. If none is provided, it is expected to find buildozer on
-        PATH.""",
+        help="Use a custom buildozer binary instead of the bundled one. Expects an absolute path.",
     )
     parser.add_argument(
         "--buildozer-args",

@@ -185,11 +185,10 @@ Bugs we can reproduce via the CI workers with reasonable effort without making D
 
 ### Applying fixes
 
-| Tool      | Constraints                                                                                                |
-| --------- | ---------------------------------------------------------------------------------------------------------- |
-| Python    | Integration tests check 3.10.                                                                              |
-| Bazel     | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
-| Buildozer | No known constraint. Integration tests check 8.2.1.                                                        |
+| Tool   | Constraints                                                                                                |
+| ------ | ---------------------------------------------------------------------------------------------------------- |
+| Python | Integration tests check 3.10.                                                                              |
+| Bazel  | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
 
 # Known limitations
 

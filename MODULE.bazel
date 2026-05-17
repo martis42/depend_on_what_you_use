@@ -5,13 +5,11 @@ module(
     bazel_compatibility = [">=7.6.0"],
 )
 
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "buildozer", version = "8.5.1")
+bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
 bazel_dep(name = "rules_cc", version = "0.0.15")
 bazel_dep(name = "rules_python", version = "0.37.2")
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
-
-non_module_dependencies = use_extension("//third_party:non_module_dependencies.bzl", "non_module_dependencies")
-use_repo(non_module_dependencies, "boost.wave")
 
 boost_version = "1.83.0.bcr.4"
 
@@ -39,6 +37,12 @@ bazel_dep(name = "boost.static_assert", version = boost_version)
 bazel_dep(name = "boost.thread", version = boost_version)
 bazel_dep(name = "boost.throw_exception", version = boost_version)
 bazel_dep(name = "boost.type_traits", version = boost_version)
+
+non_module_dependencies = use_extension("//third_party:non_module_dependencies.bzl", "non_module_dependencies")
+use_repo(non_module_dependencies, "boost.wave")
+
+buildozer_binary = use_extension("@buildozer//:buildozer_binary.bzl", "buildozer_binary")
+use_repo(buildozer_binary, "buildozer_binary")
 
 ###
 ### Development Dependencies
