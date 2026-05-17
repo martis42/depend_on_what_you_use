@@ -36,7 +36,7 @@ Given you have `prek` or `pre-commit` locally installed, you can run all basic c
 There are also bash scripts for executing most steps of the CI:
 
 - [test_stack_core.sh](./scripts/test_stack_core.sh) - Unit tests, quality checks and making sure the examples compile
-- [test_stack_full.sh](./scripts/test_stack_full.sh) - Full test suite including the core tests and on top executing the various integration tests
+- [test_stack_integration.sh](./scripts/test_stack_integration.sh) - Test suite executing the various integration tests
 
 ## Code Style
 

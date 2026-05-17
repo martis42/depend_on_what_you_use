@@ -7,8 +7,6 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 source "$SCRIPT_DIR"/print_msg.sh
 
-"$SCRIPT_DIR"/test_stack_core.sh
-
 print_msg "Execute integration tests - Examples"
 "$SCRIPT_DIR"/../examples/test.py
 
