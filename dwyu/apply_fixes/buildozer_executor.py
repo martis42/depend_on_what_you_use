@@ -17,8 +17,8 @@ class BuildozerExecutor:
     build up a summary of all executed commands.
     """
 
-    def __init__(self, buildozer: str, buildozer_args: list[str], workspace: Path, dry: bool) -> None:
-        self._base_cmd = self._make_base_cmd(binary=buildozer, args=buildozer_args, dry=dry)
+    def __init__(self, binary: str, buildozer_args: list[str], workspace: Path, dry: bool) -> None:
+        self._base_cmd = self._make_base_cmd(binary=binary, args=buildozer_args, dry=dry)
         self._workspace = workspace
         self._dry = dry
 

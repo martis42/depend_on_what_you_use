@@ -18,8 +18,12 @@ py_library(
 py_binary(
     name = "main",
     srcs = ["main.py"],
+    data = ["@buildozer_binary//:buildozer.exe"],
     # Compatibility to --noexperimental_python_import_all_repositories
     imports = ["../.."],
     visibility = ["//:__pkg__"],
-    deps = [":lib"],
+    deps = [
+        ":lib",
+        "@rules_python//python/runfiles",
+    ],
 )

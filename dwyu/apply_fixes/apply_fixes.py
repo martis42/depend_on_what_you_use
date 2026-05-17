@@ -3,7 +3,8 @@ import logging
 from argparse import Namespace
 from os import environ
 from pathlib import Path
-from shutil import which
+
+from python.runfiles import Runfiles
 
 from dwyu.apply_fixes.bazel_query import BazelQuery
 from dwyu.apply_fixes.buildozer_executor import BuildozerExecutor
@@ -17,12 +18,30 @@ log = logging.getLogger()
 # Bazel sets this environment for 'bazel run' to document the workspace root
 WORKSPACE_ENV_VAR = "BUILD_WORKSPACE_DIRECTORY"
 
+# From https://registry.bazel.build/modules/buildozer
+BUNDLED_BUILDOZER = "buildozer_binary/buildozer.exe"
+
 
 class RequestedFixes:
     def __init__(self, main_args: Namespace) -> None:
         self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
         self.move_private_deps_to_impl_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
+
+
+def get_buildozer_binary(custom_binary: str | None) -> str | None:
+    if custom_binary:
+        if not Path(custom_binary).is_file():
+            log.fatal(f"ERROR: The provided buildozer binary '{custom_binary}' does not exist.")
+            return None
+        return custom_binary
+
+    runfiles = Runfiles.Create()
+    binary = runfiles.Rlocation(BUNDLED_BUILDOZER)
+    if not binary or not Path(binary).is_file():
+        log.fatal(f"ERROR: Failed to discover the bundled buildozer binary. '{binary}' does not exist.")
+        return None
+    return binary
 
 
 def get_workspace(main_args: Namespace) -> Path | None:
@@ -105,10 +124,9 @@ def main(args: Namespace) -> int:
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
-    if not args.buildozer and not which("buildozer"):
-        log.fatal("ERROR: This tool requires 'buildozer' to be available on PATH or be provided via '--buildozer'.")
+    buildozer_binary = get_buildozer_binary(args.buildozer)
+    if not buildozer_binary:
         return 1
-    buildozer = args.buildozer or "buildozer"
 
     workspace = get_workspace(args)
     if not workspace:
@@ -140,7 +158,7 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
         startup_args=args_string_to_list(args.bazel_startup_args),
     )
     buildozer_executor = BuildozerExecutor(
-        buildozer=buildozer,
+        binary=buildozer_binary,
         buildozer_args=args_string_to_list(args.buildozer_args),
         workspace=workspace,
         dry=args.dry_run,
