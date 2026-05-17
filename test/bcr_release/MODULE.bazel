@@ -4,4 +4,4 @@ module(name = "test_dwyu_release")
 bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")
 
 # Other deps required by the example code
-bazel_dep(name = "rules_cc", version = "0.0.15")
+bazel_dep(name = "rules_cc", version = "0.2.4")
