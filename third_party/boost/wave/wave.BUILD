@@ -24,7 +24,6 @@ cc_library(
         "@boost.smart_ptr",
         "@boost.spirit",
         "@boost.static_assert",
-        "@boost.thread",
         "@boost.throw_exception",
         "@boost.type_traits",
     ],
