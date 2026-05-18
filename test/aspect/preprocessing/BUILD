@@ -69,7 +69,6 @@ cc_binary(
     name = "use_complex_libraries",
     srcs = ["use_complex_libraries.cpp"],
     deps = [
-        "@boost.chrono",
         "@googletest//:gtest",
     ],
 )
