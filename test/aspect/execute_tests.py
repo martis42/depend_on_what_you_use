@@ -25,8 +25,8 @@ log = logging.getLogger()
 TESTED_VERSIONS = [
     TestedVersions(bazel="7.6.0"),
     TestedVersions(bazel="7.x"),
-    TestedVersions(bazel="8.x", is_default=True),
-    TestedVersions(bazel="9.*"),
+    TestedVersions(bazel="8.x"),
+    TestedVersions(bazel="9.*", is_default=True),
     TestedVersions(bazel="rolling"),
 ]
 
