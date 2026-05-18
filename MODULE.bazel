@@ -34,7 +34,6 @@ bazel_dep(name = "boost.serialization", version = boost_version)
 bazel_dep(name = "boost.smart_ptr", version = boost_version)
 bazel_dep(name = "boost.spirit", version = boost_version)
 bazel_dep(name = "boost.static_assert", version = boost_version)
-bazel_dep(name = "boost.thread", version = boost_version)
 bazel_dep(name = "boost.throw_exception", version = boost_version)
 bazel_dep(name = "boost.type_traits", version = boost_version)
 
