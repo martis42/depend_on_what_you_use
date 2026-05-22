@@ -16,9 +16,6 @@
 
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
-  - [Get a release](#get-a-release)
-  - [Get a specific commit](#get-a-specific-commit)
-  - [Use DWYU](#use-dwyu)
 - [Applying automatic fixes](#applying-automatic-fixes)
 - [Assumptions of use](#assumptions-of-use)
 - [Supported Platforms](#supported-platforms)
@@ -48,16 +45,14 @@ More information about the idea behind DWYU and the implementation of the projec
 
 # Getting started
 
-## Get a release
+## Get DWYU
 
 Choose a release from the [release page](https://github.com/martis42/depend_on_what_you_use/releases) and follow the instructions.
 
-## Get a specific commit
-
-Put the following into your `MODULE.bazel` file
+To use a specific commit, put the following into your `MODULE.bazel` file
 
 ```starlark
-bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")P
+bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")
 git_override(
     module_name = "depend_on_what_you_use",
     commit = <commit_you_are_interested_in>,
@@ -85,7 +80,7 @@ your_dwyu_aspect = dwyu_aspect_factory()
 Assuming you created the DWYU aspect in file `//:aspect.bzl`, execute it on a target pattern:<br>
 `bazel build --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=dwyu <target_pattern>`
 
-If no problem is found, the command will exit with `INFO: Build completed successfully`.<br>
+If no problem is found, the command will return successfully without further output.<br>
 If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal.
 For example:
 
@@ -105,7 +100,7 @@ Unused dependencies in 'deps' (none of their headers are referenced):
 ### Create a rule invoking the aspect
 
 You can invoke the aspect from within a rule.
-This can be useful to make the execution part of a bazel build without having to manually execute the longish aspect build command.
+This can be useful to make the execution part of a bazel build on dedicated targets without having to manually execute the longish aspect build command.
 
 The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
 
@@ -150,10 +145,6 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
   Meaning without alias resolution or macro expansion.
   Consequently, buildozer cannot work on targets which are generated inside a macro or whose name is constructed.
 - Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency.
-- If you execute DWYU only on some targets and not the complete build tree, this can break the overall build.
-  For example dependency _X_ in library _A_ is unused and would be removed.
-  But a downstream user of library _A_ might transitively depend on _X_.
-  Removing the unused dependency will break the build as the downstream dependency no longer finds dependency _X_.
 
 # Assumptions of use
 
@@ -170,11 +161,11 @@ Even if analyzing the code works initially, it might break at any time if the or
 # Supported Platforms
 
 **Linux** is fully supported.<br>
-All tests and quality checks run on GitHub Ubuntu 24.04 workers.
+All tests and quality checks run on GitHub Ubuntu workers.
 
 **Macos** and **Windows** are supported on a best effort basis.<br>
-All our integration tests run on GitHub Macos 15 and Windows 2022 workers.
-Bugs we can reproduce via the CI workers with reasonable effort without making DWYU significantly worse on Linux will be fixed.
+All our integration tests run on GitHub Macos and Windows workers.
+Bugs we can reproduce via the CI workers with reasonable effort will be fixed.
 
 ### Aspect
 
@@ -230,13 +221,9 @@ According to [their documentation](https://github.com/EngFlow/gazelle_cc#-gazell
 # Versioning
 
 This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
-Please be aware that the project is still in an early phase and until version 1.0.0 has been reached all releases can contain breaking changes.
 
-**The following things can always break** and do not promise stability with respect to the semantic versioning:
-
-- The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
-  Changing their content is not considered a breaking change.
-- How to include DWYU in your project might change at any time.
+The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
+Their content and layout can change at any time.
 
 # Contributing
 
