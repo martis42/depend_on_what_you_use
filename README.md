@@ -52,7 +52,7 @@ Choose a release from the [release page](https://github.com/martis42/depend_on_w
 To use a specific commit, put the following into your `MODULE.bazel` file
 
 ```starlark
-bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")
+bazel_dep(name = "depend_on_what_you_use")
 git_override(
     module_name = "depend_on_what_you_use",
     commit = <commit_you_are_interested_in>,

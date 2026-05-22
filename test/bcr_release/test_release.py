@@ -8,7 +8,7 @@ from pathlib import Path
 # No benefit for using logging here
 # ruff: noqa: T201
 
-MODULE_TEMPLATE_LINE = 'bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")'
+MODULE_TEMPLATE_LINE = 'bazel_dep(name = "depend_on_what_you_use")'
 
 
 def prepare_test(module: Path, version: str) -> None:

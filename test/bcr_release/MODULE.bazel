@@ -1,7 +1,7 @@
 module(name = "test_dwyu_release")
 
 # Version will be replaced during testing
-bazel_dep(name = "depend_on_what_you_use", version = "0.0.0")
+bazel_dep(name = "depend_on_what_you_use")
 
 # Other deps required by the example code
 bazel_dep(name = "rules_cc", version = "0.2.4")
