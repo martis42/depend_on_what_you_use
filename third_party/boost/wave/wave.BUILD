@@ -4,6 +4,7 @@ cc_library(
     name = "wave",
     srcs = glob(["src/**"]),
     hdrs = glob(["include/**"]),
+    features = ["system_include_paths"],
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
