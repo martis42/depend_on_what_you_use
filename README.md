@@ -39,7 +39,7 @@ The main features are:
 - Finding unused dependencies.
 - Given one uses [`implementation_deps`](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps), making sure one distinguishes properly between public and private dependencies for `cc_library` targets.
   This has to be explicitly enabled.
-  See the [aspect documentation](docs/dwyu_aspect.md) for further details.
+  See the [aspect documentation](docs/api/dwyu_aspect.md) for further details.
 
 More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs).
 
@@ -64,7 +64,7 @@ git_override(
 
 ### Configure the aspect
 
-The DWYU aspect is created in your project by a [factory function offering various options](docs/dwyu_aspect.md) to configure the aspect.
+The DWYU aspect is created in your project by a [factory function offering various options](docs/api/dwyu_aspect.md) to configure the aspect.
 Various illustrations for configuring and using the DWYU aspect can be seen in the [examples](/examples).
 
 Example `.bzl` file creating a DWYU aspect with default configuration:
@@ -184,11 +184,11 @@ Bugs we can reproduce via the CI workers with reasonable effort will be fixed.
 # Known limitations
 
 DWYU has some limitations.
-You find the details about those in [these docs](docs/known_limitations.md).
+You find the details about those in [these docs](docs/project/known_limitations.md).
 
 # Troubleshooting
 
-When encountering problems while using DWYU, you find common problems and suggested solutions in [these docs](docs/troubleshooting.md).
+When encountering problems while using DWYU, you find common problems and suggested solutions in [these docs](docs/project/troubleshooting.md).
 
 # Alternatives to DWYU
 

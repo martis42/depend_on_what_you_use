@@ -1,7 +1,5 @@
 minimum_pre_commit_version: 4.0.0
 
-define: &generated_doc_files "^docs/(cc_info_mapping|cc_toolchain_headers|dwyu_aspect).md"
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -20,14 +18,14 @@ repos:
         args: [--fix=lf]
       # Code style
       - id: end-of-file-fixer
-        exclude: *generated_doc_files
+        exclude: ^docs/api/.*.md$
       - id: trailing-whitespace
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
       - id: mdformat
-        exclude: *generated_doc_files
+        exclude: ^docs/api/.*.md$
         additional_dependencies:
           - mdformat-gfm
 

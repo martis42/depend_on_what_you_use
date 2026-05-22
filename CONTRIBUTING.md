@@ -1,13 +1,13 @@
 # Bug reports
 
-- Make sure you are aware of the [known limitations](docs/known_limitations.md).
+- Make sure you are aware of the [known limitations](docs/project/known_limitations.md).
 - Please provide a minimal example for reproducing the bug.
 
 # Feature changes/requests
 
 - Please create an [issue](https://github.com/martis42/depend_on_what_you_use/issues) before changing features or introducing new features.
   Discussing your idea first makes sure it is in the interest of the project and your work will not be in vain due to following an undesired direction.
-- Make sure you are aware of the existing [design rationales](docs/project_design_rationales.md).
+- Make sure you are aware of the existing [design rationales](docs/project/design_rationales.md).
 
 # Trivial changes
 
