@@ -96,7 +96,7 @@ def dwyu_aspect_factory(
                       By default skips the analysis for targets tagged with 'no-dwyu'.<br>
                       This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
-        target_mapping: Accepts a [dwyu_make_cc_info_mapping](/docs/cc_info_mapping.md) target.
+        target_mapping: Accepts a [dwyu_make_cc_info_mapping](/docs/api/cc_info_mapping.md) target.
                         Allows virtually combining targets regarding which header can be provided by which dependency.
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
                         This feature is demonstrated in the [target_mapping example](/examples/target_mapping).

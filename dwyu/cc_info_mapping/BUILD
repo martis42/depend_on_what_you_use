@@ -19,5 +19,5 @@ bzl_library(
 
 exports_files(
     ["cc_info_mapping.bzl"],
-    visibility = ["//docs:__pkg__"],
+    visibility = ["//docs/api:__pkg__"],
 )

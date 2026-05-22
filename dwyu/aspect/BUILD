@@ -27,5 +27,5 @@ bzl_library(
 
 exports_files(
     ["factory.bzl"],
-    visibility = ["//docs:__pkg__"],
+    visibility = ["//docs/api:__pkg__"],
 )
