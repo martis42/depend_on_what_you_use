@@ -51,6 +51,11 @@ The script expects 'bazel' to be available on PATH.
         help="Perform all available automatic fixes.",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Don't apply fixes. Report the buildozer commands and print the adapted BUILD files to stdout.",
+    )
+    parser.add_argument(
         "--workspace",
         metavar="PATH",
         help="""
@@ -131,16 +136,6 @@ The script expects 'bazel' to be available on PATH.
         """,
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Don't apply fixes. Report the buildozer commands and print the adapted BUILD files to stdout.",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Announce intermediate steps.",
-    )
-    parser.add_argument(
         "--buildozer",
         metavar="PATH",
         help="Use a custom buildozer binary instead of the bundled one. Expects an absolute path.",
@@ -153,6 +148,11 @@ The script expects 'bazel' to be available on PATH.
         Forward arguments to buildozer.
         Arguments have to be provided as continuous string, e.g.: --buildozer-args='-foo -tick=tock'.
         """,
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Announce intermediate steps.",
     )
 
     args = parser.parse_args()
