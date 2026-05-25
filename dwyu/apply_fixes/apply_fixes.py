@@ -29,12 +29,12 @@ class RequestedFixes:
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
-def get_buildozer_binary(custom_binary: str | None) -> str | None:
+def get_buildozer_binary(custom_binary: Path | None) -> str | None:
     if custom_binary:
-        if not Path(custom_binary).is_file():
+        if not custom_binary.is_file():
             log.fatal(f"ERROR: The provided buildozer binary '{custom_binary}' does not exist.")
             return None
-        return custom_binary
+        return str(custom_binary)
 
     runfiles = Runfiles.Create()
     binary = runfiles.Rlocation(BUNDLED_BUILDOZER)
@@ -46,7 +46,7 @@ def get_buildozer_binary(custom_binary: str | None) -> str | None:
 
 def get_workspace(main_args: Namespace) -> Path | None:
     if main_args.workspace:
-        return Path(main_args.workspace)
+        return main_args.workspace
 
     workspace_root = environ.get(WORKSPACE_ENV_VAR)
     if not workspace_root:

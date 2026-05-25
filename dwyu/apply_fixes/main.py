@@ -58,6 +58,7 @@ The script expects 'bazel' to be available on PATH.
     parser.add_argument(
         "--workspace",
         metavar="PATH",
+        type=Path,
         help="""
         Workspace for which DWYU reports are gathered and fixes are applied to the source code. If no dedicated
         workspace is provided, we assume we are running from within the workspace for which the DWYU reports have been
@@ -82,6 +83,7 @@ The script expects 'bazel' to be available on PATH.
     parser.add_argument(
         "--search-path",
         metavar="PATH",
+        type=Path,
         help="""
         Path to the directory below which the DWYU reports are located.
         Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
@@ -138,6 +140,7 @@ The script expects 'bazel' to be available on PATH.
     parser.add_argument(
         "--buildozer",
         metavar="PATH",
+        type=Path,
         help="Use a custom buildozer binary instead of the bundled one. Expects an absolute path.",
     )
     parser.add_argument(
