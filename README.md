@@ -222,8 +222,10 @@ According to [their documentation](https://github.com/EngFlow/gazelle_cc#-gazell
 
 This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
-Their content and layout can change at any time.
+The following things specifically are not considered breaking changes:
+
+- The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
+- Raising the minimum required version for a dependency or Bazel.
 
 # Contributing
 
