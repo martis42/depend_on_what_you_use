@@ -5,7 +5,23 @@ from unittest.mock import MagicMock, patch
 
 from python.runfiles import Runfiles
 
-from dwyu.apply_fixes.apply_fixes import get_buildozer_binary, get_workspace
+from dwyu.apply_fixes.apply_fixes import check_bazel_available, get_buildozer_binary, get_workspace
+
+
+class TestCheckBazelAvailable(unittest.TestCase):
+    @patch("dwyu.apply_fixes.apply_fixes.which", return_value="/usr/bin/bazel")
+    def test_bazel_is_available(self, _: MagicMock) -> None:
+        result = check_bazel_available()
+
+        self.assertTrue(result)
+
+    @patch("dwyu.apply_fixes.apply_fixes.which", return_value=None)
+    def test_bazel_is_not_available(self, _: MagicMock) -> None:
+        with self.assertLogs(level="FATAL") as captured_logs:
+            result = check_bazel_available()
+
+        self.assertFalse(result)
+        self.assertEqual(captured_logs.output, ["CRITICAL:root:ERROR: 'bazel' was not found on PATH."])
 
 
 class TestGetBuildozerBinary(unittest.TestCase):
