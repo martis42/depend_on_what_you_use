@@ -3,6 +3,7 @@ import logging
 from argparse import Namespace
 from os import environ
 from pathlib import Path
+from shutil import which
 
 from python.runfiles import Runfiles
 
@@ -27,6 +28,13 @@ class RequestedFixes:
         self.remove_unused_deps = main_args.fix_unused_deps or main_args.fix_all
         self.move_private_deps_to_impl_deps = main_args.fix_deps_which_should_be_private or main_args.fix_all
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
+
+
+def check_bazel_available() -> bool:
+    if not which("bazel"):
+        log.fatal("ERROR: 'bazel' was not found on PATH.")
+        return False
+    return True
 
 
 def get_buildozer_binary(custom_binary: Path | None) -> str | None:
@@ -123,6 +131,9 @@ def perform_fixes(
 def main(args: Namespace) -> int:
     if args.verbose:
         log.setLevel(logging.DEBUG)
+
+    if not check_bazel_available():
+        return 1
 
     buildozer_binary = get_buildozer_binary(args.buildozer)
     if not buildozer_binary:
