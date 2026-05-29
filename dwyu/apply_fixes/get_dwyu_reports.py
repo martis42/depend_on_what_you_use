@@ -1,6 +1,4 @@
 import argparse
-import logging
-import sys
 from os import walk
 from pathlib import Path
 
@@ -41,26 +39,21 @@ def get_reports_search_dir(main_args: argparse.Namespace, workspace_root: Path) 
     Unless an alternative method is selected, follow the convenience symlinks at the workspace root to discover the
     DWYU report files.
     """
-    if main_args.search_path:
-        if not main_args.search_path.is_dir():
-            raise FileNotFoundError(f"ERROR: The provided search path '{main_args.search_path}' does not exist.")
-        return main_args.search_path
+    if main_args.reports_search_path:
+        if not main_args.reports_search_path.is_dir():
+            raise FileNotFoundError(
+                f"ERROR: The provided search path '{main_args.reports_search_path}' does not exist."
+            )
+        return main_args.reports_search_path
 
-    if main_args.use_bazel_info:
-        process = execute_and_capture(
-            cmd=[
-                "bazel",
-                *args_string_to_list(main_args.bazel_startup_args),
-                "info",
-                *args_string_to_list(main_args.bazel_args),
-                "bazel-bin",
-            ],
-            cwd=workspace_root,
-        )
-        return Path(process.stdout.strip())
-
-    bazel_bin_link = workspace_root / "bazel-bin"
-    if not bazel_bin_link.is_dir():
-        logging.fatal(f"ERROR: convenience symlink '{bazel_bin_link}' does not exist.")
-        sys.exit(1)
-    return bazel_bin_link.resolve()
+    process = execute_and_capture(
+        cmd=[
+            "bazel",
+            *args_string_to_list(main_args.bazel_startup_args),
+            "info",
+            *args_string_to_list(main_args.bazel_args),
+            "bazel-bin",
+        ],
+        cwd=workspace_root,
+    )
+    return Path(process.stdout.strip())

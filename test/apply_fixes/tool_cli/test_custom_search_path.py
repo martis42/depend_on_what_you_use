@@ -27,7 +27,7 @@ class TestCase(TestCaseBase):
                 aspect="//tool_cli/workspace:aspect.bzl%default_aspect", startup_args=[f"--output_base={output_base}"]
             )
             self._run_automatic_fix(
-                extra_args=["--fix-unused", f"--search-path={output_base}"], custom_dwyu_report_discovery=True
+                extra_args=["--fix-unused", f"--reports-search-path={output_base}"], custom_dwyu_report_discovery=True
             )
 
             target_deps = self._get_target_deps(self.test_target)

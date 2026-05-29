@@ -17,7 +17,6 @@ class TestCase(TestCaseBase):
                 "@depend_on_what_you_use//:apply_fixes",
                 "--",
                 f"--dwyu-log-file={self._log_file}",
-                "--use-bazel-info",
                 "--fix-all",
             ],
             check=False,

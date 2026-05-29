@@ -87,14 +87,14 @@ class TestGetReportsSearchDir(unittest.TestCase):
                 "depend_on_what_you_use/dwyu/apply_fixes/test/data/gather_reports_search_path/root_target_dwyu_report.json"
             )
         ).parent
-        args = argparse.Namespace(search_path=search_path)
+        args = argparse.Namespace(reports_search_path=search_path)
 
         result = get_reports_search_dir(args, workspace_root=Path("/workspace"))
 
         self.assertEqual(result, search_path)
 
     def test_search_path_does_not_exist(self) -> None:
-        args = argparse.Namespace(search_path=Path("/no/such/directory"))
+        args = argparse.Namespace(reports_search_path=Path("/no/such/directory"))
 
         with self.assertRaisesRegex(FileNotFoundError, "/no/such/directory"):
             get_reports_search_dir(args, workspace_root=Path("/workspace"))
@@ -102,31 +102,13 @@ class TestGetReportsSearchDir(unittest.TestCase):
     @patch("dwyu.apply_fixes.get_dwyu_reports.execute_and_capture")
     def test_search_dir_via_bazel_info(self, mock_execute: MagicMock) -> None:
         mock_execute.return_value.stdout = "/bazel/output/bin\n"
-        args = argparse.Namespace(search_path=None, use_bazel_info=True, bazel_startup_args=None, bazel_args=None)
+        args = argparse.Namespace(
+            reports_search_path=None, use_bazel_info=True, bazel_startup_args=None, bazel_args=None
+        )
 
         result = get_reports_search_dir(args, workspace_root=Path("/workspace"))
 
         self.assertEqual(result, Path("/bazel/output/bin"))
-
-    @patch.object(Path, "resolve", return_value=Path("/resolved/bazel-bin"))
-    @patch.object(Path, "is_dir", return_value=True)
-    def test_search_dir_via_convenience_symlink(self, _is_dir: MagicMock, _resolve: MagicMock) -> None:
-        args = argparse.Namespace(search_path=None, use_bazel_info=False)
-
-        result = get_reports_search_dir(args, workspace_root=Path("/workspace"))
-
-        self.assertEqual(result, Path("/resolved/bazel-bin"))
-
-    @patch.object(Path, "is_dir", return_value=False)
-    def test_missing_convenience_symlink(self, _: MagicMock) -> None:
-        args = argparse.Namespace(search_path=None, use_bazel_info=False)
-
-        with self.assertLogs(level="FATAL") as captured_logs, self.assertRaises(SystemExit) as exit_ctx:
-            get_reports_search_dir(args, workspace_root=Path("/workspace"))
-
-        self.assertEqual(exit_ctx.exception.code, 1)
-        self.assertEqual(len(captured_logs.output), 1)
-        self.assertTrue(captured_logs.output[0].startswith("CRITICAL:root:ERROR: convenience symlink"))
 
 
 if __name__ == "__main__":

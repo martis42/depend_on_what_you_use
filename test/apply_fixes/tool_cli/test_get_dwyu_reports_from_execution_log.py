@@ -10,6 +10,6 @@ class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         """
         This test is a noop since the whole test setup is based on capturing and passing a log file with the DWYU output.
-        We just keep this file to document we did not forget about this prt of the CLI.
+        We just keep this file to document we did not forget about this part of the CLI.
         """
         return Success()
