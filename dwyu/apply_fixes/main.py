@@ -99,10 +99,10 @@ The script expects 'bazel' to be available on PATH.
         "--use-cquery",
         action="store_true",
         help="""
-        The apply_fixes script by default uses 'bazel query' to find missing dependencies.
+        This script uses by default 'bazel query' to find missing dependencies.
         Your project might use select statements to exchange dependencies.
         In such cases you should use 'bazel cquery' to allow this script understanding the dependency tree properly.
-        Should be used together with '--bazel-args' to provide the configuration for 'bazel cquery'.
+        To ensure the cquery command uses the same configuration as your DWYU execution, use the options '--bazel-args' and '--bazel-startup-args'.
         """,
     )
     parser.add_argument(
@@ -110,9 +110,8 @@ The script expects 'bazel' to be available on PATH.
         type=str,
         metavar="STRING",
         help="""
-        The apply_fixes script uses 'bazel (c)query' to find missing dependencies.
-        If this command requires further arguments to work properly in your workspace you can provide them here.
-        Also look into '--use-cquery' if you want to provide a build configuration.
+        This script executes bazel commands.
+        If those need to be configured to be compatible to your workspace and use the same configuration as was used to generate the DWYU reports, you can provide bazel arguments here.
         Arguments have to be provided as continuous string, e.g.: --bazel-args='--foo --tick=tock'.
         """,
     )
@@ -121,9 +120,9 @@ The script expects 'bazel' to be available on PATH.
         type=str,
         metavar="STRING",
         help="""
-        The apply_fixes script uses 'bazel (c)query' to find missing dependencies.
-        If this command requires further startup arguments (e.g. a custom output base) to work properly in your workspace you can provide them here.
-        Arguments have to be provided as continuous string, e.g.: -bazel-startup-args='--foo --tick=tock'.
+        This script executes bazel commands.
+        If those need startup arguments to be compatible to your workspace and use the same configuration as was used to generate the DWYU reports, you can provide bazel startup arguments here.
+        Arguments have to be provided as continuous string, e.g.: --bazel-startup-args='--foo --tick=tock'.
         """,
     )
     parser.add_argument(
