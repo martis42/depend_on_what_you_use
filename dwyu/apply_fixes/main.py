@@ -41,8 +41,8 @@ The script expects 'bazel' to be available on PATH.
         "--fix-missing-deps",
         action="store_true",
         help="""
-        Automatically search and add dependencies providing headers for which a direct dependency is missing. This is
-        based on a heuristic and thus is not guaranteed to work.
+        Automatically search and add dependencies providing headers for which a direct dependency is missing.
+        This is based on a heuristic and thus is not guaranteed to work.
         """,
     )
     parser.add_argument(
@@ -60,25 +60,21 @@ The script expects 'bazel' to be available on PATH.
         metavar="PATH",
         type=Path,
         help="""
-        Workspace for which DWYU reports are gathered and fixes are applied to the source code. If no dedicated
-        workspace is provided, we assume we are running from within the workspace for which the DWYU reports have been
-        generated and determine the workspace root automatically.
-        By default the Bazel output directory containing the DWYU report files is deduced by following the 'bazel-bin'
-        convenience symlink.
+        Workspace for which DWYU reports are gathered and fixes are applied to the source code.
+        If no dedicated workspace is provided, we assume we are running from within the workspace for which the DWYU reports have been generated and determine the workspace root automatically.
+        By default the Bazel output directory containing the DWYU report files is deduced by following the 'bazel-bin' convenience symlink.
         """,
     )
     parser.add_argument(
         "--use-bazel-info",
         action="store_true",
         help="""
-        Don't follow the convenience symlinks to reach the Bazel output directory containing the DWYU reports. Instead,
-        use 'bazel info' to deduce the output directory.
-        Using this option is recommended if the convenience symlinks do not exist, don't follow the default
-        naming scheme or do not point to the Bazel output directory containing the DWYU reports.
-        Please be aware that that compilation mode used to invoke 'bazel info' has to match the compilation mode used
-        to execute DWYU. To configure which arguments are passed to bazel look at options '--bazel-args' and
-         '--bazel-startup-args'.
-         """,
+        Don't follow the convenience symlinks to reach the Bazel output directory containing the DWYU reports.
+        Instead, use 'bazel info' to deduce the output directory.
+        Using this option is recommended if the convenience symlinks do not exist, don't follow the default naming scheme or do not point to the Bazel output directory containing the DWYU reports.
+        Please be aware that that compilation mode used to invoke 'bazel info' has to match the compilation mode used to execute DWYU.
+        To configure which arguments are passed to bazel look at options '--bazel-args' and '--bazel-startup-args'.
+        """,
     )
     parser.add_argument(
         "--search-path",
@@ -86,9 +82,8 @@ The script expects 'bazel' to be available on PATH.
         type=Path,
         help="""
         Path to the directory below which the DWYU reports are located.
-        Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to
-        deduce the Bazel output directory containing the DWYU report files. Or if you want to search only in a sub tree
-        of the Bazel output directories.
+        Using this option is recommended if neither the convenience symlinks nor the 'bazel info' command are suited to deduce the Bazel output directory containing the DWYU report files.
+        Or if you want to search only in a sub tree of the Bazel output directories.
         """,
     )
     parser.add_argument(
@@ -96,14 +91,10 @@ The script expects 'bazel' to be available on PATH.
         metavar="PATH",
         type=Path,
         help="""
-        If discovering the DWYU report files in the bazel-bin is not feasible, one can instead pipe the command line
-        output of executing the DWYU aspect into a log file and tell this script to extract the DWYU report paths from
-        this execution log. This can be helpful when your workspace is so large, that crawling the corresponding
-        'bazel-bin' directory is too slow for a satisfactory user experience. This script still has to be able to
-        discover the location of the 'bazel-bin' directory. Meaning, the 'bazel-bin' convenience symlink at the
-        workspace root should exists or if it is not available one of the following options should be used:
-        ['--use-bazel-info', '--search-path']. Please note when using '--search-path' you have to point exactly to the
-        'bazel-bin' directory and can't point so sub directories.
+        If discovering the DWYU report files in the bazel-bin is not feasible, one can instead pipe the command line output of executing the DWYU aspect into a log file and tell this script to extract the DWYU report paths from this execution log.
+        This can be helpful when your workspace is so large, that crawling the corresponding 'bazel-bin' directory is too slow for a satisfactory user experience.
+        This script still has to be able to discover the location of the 'bazel-bin' directory. Meaning, the 'bazel-bin' convenience symlink at the workspace root should exists or if it is not available one of the following options should be used: ['--use-bazel-info', '--search-path'].
+        Please note when using '--search-path' you have to point exactly to the 'bazel-bin' directory and can't point so sub directories.
         """,
     )
     parser.add_argument(
@@ -121,9 +112,9 @@ The script expects 'bazel' to be available on PATH.
         type=str,
         metavar="STRING",
         help="""
-        The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
-        arguments to work properly in your workspace you can provide them here. Also look into '--use-cquery' if
-        you want to provide a build configuration.
+        The apply_fixes script uses 'bazel (c)query' to find missing dependencies.
+        If this command requires further arguments to work properly in your workspace you can provide them here.
+        Also look into '--use-cquery' if you want to provide a build configuration.
         Arguments have to be provided as continuous string, e.g.: --bazel-args='--foo --tick=tock'.
         """,
     )
@@ -132,8 +123,8 @@ The script expects 'bazel' to be available on PATH.
         type=str,
         metavar="STRING",
         help="""
-        The apply_fixes script uses 'bazel (c)query' to find missing dependencies. If this command requires further
-        startup arguments (e.g. a custom output base) to work properly in your workspace you can provide them here.
+        The apply_fixes script uses 'bazel (c)query' to find missing dependencies.
+        If this command requires further startup arguments (e.g. a custom output base) to work properly in your workspace you can provide them here.
         Arguments have to be provided as continuous string, e.g.: -bazel-startup-args='--foo --tick=tock'.
         """,
     )
