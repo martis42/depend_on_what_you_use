@@ -13,7 +13,6 @@ from dwyu.apply_fixes.get_dwyu_reports import gather_reports, get_reports_search
 from dwyu.apply_fixes.search_missing_deps import search_missing_deps
 from dwyu.apply_fixes.utils import args_string_to_list
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
 log = logging.getLogger()
 
 # Bazel sets this environment for 'bazel run' to document the workspace root
