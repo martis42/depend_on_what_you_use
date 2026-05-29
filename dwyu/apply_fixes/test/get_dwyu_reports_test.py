@@ -81,11 +81,23 @@ DWYU Report: bazel-out/opt/bin/root_target_dwyu_report.json
 
 class TestGetReportsSearchDir(unittest.TestCase):
     def test_search_path_from_args(self) -> None:
-        args = argparse.Namespace(search_path=Path("/explicit/search/path"))
+        runfiles = Runfiles.Create()
+        search_path = Path(
+            runfiles.Rlocation(
+                "depend_on_what_you_use/dwyu/apply_fixes/test/data/gather_reports_search_path/root_target_dwyu_report.json"
+            )
+        ).parent
+        args = argparse.Namespace(search_path=search_path)
 
         result = get_reports_search_dir(args, workspace_root=Path("/workspace"))
 
-        self.assertEqual(result, Path("/explicit/search/path"))
+        self.assertEqual(result, search_path)
+
+    def test_search_path_does_not_exist(self) -> None:
+        args = argparse.Namespace(search_path=Path("/no/such/directory"))
+
+        with self.assertRaisesRegex(FileNotFoundError, "/no/such/directory"):
+            get_reports_search_dir(args, workspace_root=Path("/workspace"))
 
     @patch("dwyu.apply_fixes.get_dwyu_reports.execute_and_capture")
     def test_search_dir_via_bazel_info(self, mock_execute: MagicMock) -> None:
