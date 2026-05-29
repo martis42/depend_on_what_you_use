@@ -112,7 +112,7 @@ This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu)
 > Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
 > Always make sure your project is still valid after the changes and review the performed changes.
 
-> [!INFO]
+> [!NOTE]
 > This tool is executing Bazel commands.
 > If one needs to configure bazel commands with custom options in your workspace, please have a look at the `--bazel-args` and `--bazel-startup-args` options of this tool.
 
