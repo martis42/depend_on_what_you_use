@@ -27,6 +27,12 @@ py_test(
 )
 
 py_test(
+    name = "cli_test",
+    srcs = ["cli_test.py"],
+    deps = ["//dwyu/apply_fixes:lib"],
+)
+
+py_test(
     name = "get_dwyu_reports_test",
     srcs = ["get_dwyu_reports_test.py"],
     data = [

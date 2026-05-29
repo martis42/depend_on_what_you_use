@@ -7,6 +7,7 @@ py_library(
         "apply_fixes.py",
         "bazel_query.py",
         "buildozer_executor.py",
+        "cli.py",
         "get_dwyu_reports.py",
         "search_missing_deps.py",
         "summary.py",
