@@ -112,6 +112,10 @@ This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu)
 > Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
 > Always make sure your project is still valid after the changes and review the performed changes.
 
+> [!INFO]
+> This tool is executing Bazel commands.
+> If one needs to configure bazel commands with custom options in your workspace, please have a look at the `--bazel-args` and `--bazel-startup-args` options of this tool.
+
 DWYU offers a tool to automatically fix some detected problems.
 The general workflow is the following:
 
@@ -132,9 +136,7 @@ The `apply_fixes` tool requires you to explicitly choose which kind or errors yo
 You can see the full command line interface and more information about the script behavior and limitations by executing:<br>
 `bazel run @depend_on_what_you_use//:apply_fixes -- --help`
 
-If you are not using `--dwyu-log-file`, the `apply_fixes` tool searches by itself for the DWYU reports.
-If the `apply_fixes` tool is not able to discover the report files, this can be caused by the `bazel-bin` convenience symlink at the workspace root not existing or not pointing to the output directory which was used by to generate the report files.
-The tool offers various options to control how the output directory is discovered, which you can discover trough its `--help` option.
+If you are not using `--dwyu-log-file`, the `apply_fixes` tool searches by itself for the DWYU reports in the output base, which can be slow for large workspaces.
 
 Unfortunately, the tool cannot promise perfect results due to various constraints:
 

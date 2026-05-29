@@ -97,7 +97,7 @@ class TestCaseBase(ABC):
         """
         verbosity = ["--verbose"] if log.isEnabledFor(logging.DEBUG) else []
         cmd_extra_args = extra_args or []
-        dwyu_report = [] if custom_dwyu_report_discovery else [f"--dwyu-log-file={self._log_file}", "--use-bazel-info"]
+        dwyu_report = [] if custom_dwyu_report_discovery else [f"--dwyu-log-file={self._log_file}"]
 
         self._run_cmd(
             cmd=[
