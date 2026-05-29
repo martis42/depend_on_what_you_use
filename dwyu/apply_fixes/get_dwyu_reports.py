@@ -42,6 +42,8 @@ def get_reports_search_dir(main_args: argparse.Namespace, workspace_root: Path) 
     DWYU report files.
     """
     if main_args.search_path:
+        if not main_args.search_path.is_dir():
+            raise FileNotFoundError(f"ERROR: The provided search path '{main_args.search_path}' does not exist.")
         return main_args.search_path
 
     if main_args.use_bazel_info:
