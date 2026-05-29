@@ -11,6 +11,8 @@ def gather_reports(main_args: argparse.Namespace, search_path: Path) -> list[Pat
     reports = []
 
     if main_args.dwyu_log_file:
+        if not main_args.dwyu_log_file.is_file():
+            raise FileNotFoundError(f"ERROR: The provided DWYU log file '{main_args.dwyu_log_file}' does not exist.")
         for report in parse_dwyu_execution_log(main_args.dwyu_log_file):
             if "/bin/" in report:
                 reports.append(search_path / report.split("/bin/", 1)[1])

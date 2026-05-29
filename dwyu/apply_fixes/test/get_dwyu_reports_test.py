@@ -39,6 +39,12 @@ class TestGatherReports(unittest.TestCase):
 
         self.assertEqual(reports, [Path("/search/some/target_dwyu_report.json")])
 
+    def test_gather_reports_from_log_file_does_not_exist(self) -> None:
+        args = argparse.Namespace(dwyu_log_file=Path("no_such_file.txt"))
+
+        with self.assertRaisesRegex(FileNotFoundError, "no_such_file.txt"):
+            gather_reports(args, search_path=Path("/search"))
+
     def test_gather_reports_from_log_file_unexpected_format(self) -> None:
         log_file = Path("gather_reports_test_log_bad.txt")
         log_file.write_text("DWYU Report: no_bin_separator_dwyu_report.json\n")
