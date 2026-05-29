@@ -99,10 +99,10 @@ The script expects 'bazel' to be available on PATH.
         "--use-cquery",
         action="store_true",
         help="""
-        The apply_fixes script by default uses 'bazel query' to find missing dependencies. Your project might use
-        select statements to exchange dependencies. In such cases you should use 'bazel cquery' to allow this script
-        understanding the dependency tree properly. Should be used together with '--bazel-args' to provide
-        the configuration for 'bazel cquery'.
+        The apply_fixes script by default uses 'bazel query' to find missing dependencies.
+        Your project might use select statements to exchange dependencies.
+        In such cases you should use 'bazel cquery' to allow this script understanding the dependency tree properly.
+        Should be used together with '--bazel-args' to provide the configuration for 'bazel cquery'.
         """,
     )
     parser.add_argument(
