@@ -8,6 +8,6 @@ bzl_library(
         "providers.bzl",
         "transitive_deps.bzl",
     ],
-    visibility = ["//dwyu/cc_info_mapping:__pkg__"],
+    visibility = ["//dwyu/cc/cc_info_mapping:__pkg__"],
     deps = ["@rules_cc//cc/common"],
 )

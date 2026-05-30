@@ -6,7 +6,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         ":providers_bzl",
-        "//dwyu/cc_info_mapping/private:cc_info_mapping_impl_bzl",
+        "//dwyu/cc/cc_info_mapping/private:cc_info_mapping_impl_bzl",
         "//dwyu/private:utils_bzl",
     ],
 )

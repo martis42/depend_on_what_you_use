@@ -1,4 +1,4 @@
-visibility("//dwyu/cc_info_mapping/...")
+visibility("//dwyu/cc/cc_info_mapping/...")
 
 DwyuRemappedCcInfo = provider(
     "An alternative CcInfo object for a target which can be used by DWYU during the analysis",
