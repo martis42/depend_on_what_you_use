@@ -23,10 +23,10 @@ The mapping feature described here allows defining that `@com_google_googletest/
 Then a test can specify only the dependency to `@com_google_googletest//:gtest_main` without DWYU raising an error while analyzing the test.
 """
 
-load("//dwyu/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
-load("//dwyu/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
-load("//dwyu/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
-load("//dwyu/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
+load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
+load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
+load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
+load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/private:utils.bzl", "label_to_name")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 

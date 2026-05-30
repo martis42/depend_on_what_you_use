@@ -2,7 +2,7 @@ load("@rules_cc//cc:action_names.bzl", "CPP_COMPILE_ACTION_NAME")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
-load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/private:utils.bzl", "make_param_file_args")
 
 # Map of '-std=c++XX' to the corresponding standard version

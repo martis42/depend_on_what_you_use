@@ -2,7 +2,7 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load(":providers.bzl", "DwyuRemappedCcInfo")
 
-visibility("//dwyu/cc_info_mapping/...")
+visibility("//dwyu/cc/cc_info_mapping/...")
 
 def _aggregate_transitive_deps_aspect_impl(target, ctx):
     # 'cc_*' targets can depend on things like sh_library not providing CcInfo at all

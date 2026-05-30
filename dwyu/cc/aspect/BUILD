@@ -5,7 +5,7 @@ bzl_library(
     srcs = ["dwyu.bzl"],
     visibility = ["//visibility:public"],
     deps = [
-        "//dwyu/cc_info_mapping:providers_bzl",
+        "//dwyu/cc/cc_info_mapping:providers_bzl",
         "//dwyu/private:utils_bzl",
         "@rules_cc//cc:action_names_bzl",
         "@rules_cc//cc:find_cc_toolchain_bzl",
@@ -19,7 +19,7 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = [
         ":dwyu_bzl",
-        "//dwyu/cc_info_mapping:providers_bzl",
+        "//dwyu/cc/cc_info_mapping:providers_bzl",
         "@rules_cc//cc:find_cc_toolchain_bzl",
         "@rules_cc//cc/common",
     ],

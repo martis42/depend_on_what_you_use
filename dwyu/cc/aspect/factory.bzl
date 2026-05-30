@@ -1,6 +1,6 @@
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
-load("//dwyu/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load(":dwyu.bzl", "dwyu_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
