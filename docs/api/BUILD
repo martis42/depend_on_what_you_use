@@ -8,7 +8,7 @@ stardoc(
 
 stardoc(
     name = "dwyu_aspect",
-    bzl_target = "//dwyu/aspect:factory_bzl",
+    bzl_target = "//dwyu/cc/aspect:factory_bzl",
     out_file = "dwyu_aspect.md",
 )
 
