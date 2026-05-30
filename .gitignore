@@ -17,7 +17,7 @@ venv/
 .vscode
 
 # Test data
-dwyu/aspect/private/analyze_includes/test/benchmark/parsing_examples
+dwyu/cc/aspect/private/analyze_includes/test/benchmark/parsing_examples
 test/benchmark/generated
 
 # Code coverage artifacts

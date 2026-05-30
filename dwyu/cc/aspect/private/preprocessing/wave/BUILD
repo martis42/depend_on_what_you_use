@@ -1,0 +1,26 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+cc_library(
+    name = "preprocessing_hooks",
+    hdrs = [
+        "gather_direct_includes_hook.h",
+        "preprocessing_hook_base.h",
+    ],
+    visibility = ["//dwyu/cc/aspect/private/preprocessing:__subpackages__"],
+    deps = [
+        "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
+        "@boost.filesystem",
+        "@boost.wave//:wave",
+    ],
+)
+
+cc_library(
+    name = "process_files",
+    hdrs = ["process_files.h"],
+    visibility = ["//dwyu/cc/aspect/private/preprocessing:__subpackages__"],
+    deps = [
+        "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
+        "@boost.wave//:wave",
+        "@nlohmann_json//:singleheader-json",
+    ],
+)
