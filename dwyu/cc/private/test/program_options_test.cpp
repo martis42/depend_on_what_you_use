@@ -1,4 +1,4 @@
-#include "dwyu/private/program_options.h"
+#include "dwyu/cc/private/program_options.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -167,7 +167,7 @@ TEST(ProgramOptionsParser, ReadOptionsFromParamFile) {
     unit.addOptionValue("--value", value);
     unit.addOptionFlag("--flag", flag);
 
-    parseOptions({"--param_file=dwyu/private/test/data/multiple_options.txt"}, unit);
+    parseOptions({"--param_file=dwyu/cc/private/test/data/multiple_options.txt"}, unit);
 
     ASSERT_EQ(list.size(), 2);
     EXPECT_EQ(list[0], "tik");

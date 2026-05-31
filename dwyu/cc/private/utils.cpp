@@ -1,4 +1,4 @@
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <string>
 #include <vector>

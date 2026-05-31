@@ -1,5 +1,5 @@
-#ifndef DWYU_PRIVATE_PROGRAM_OPTIONS_H
-#define DWYU_PRIVATE_PROGRAM_OPTIONS_H
+#ifndef DWYU_CC_PRIVATE_PROGRAM_OPTIONS_H
+#define DWYU_CC_PRIVATE_PROGRAM_OPTIONS_H
 
 #include <cstdint>
 #include <functional>

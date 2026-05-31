@@ -1,8 +1,8 @@
 #include "dwyu/cc/aspect/private/preprocessing/fast_parsing/process_files.h"
 #include "dwyu/cc/aspect/private/preprocessing/wave/gather_direct_includes_hook.h"
 #include "dwyu/cc/aspect/private/preprocessing/wave/process_files.h"
-#include "dwyu/private/program_options.h"
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/program_options.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <boost/wave/cpp_context.hpp>
 #include <boost/wave/cpp_iteration_context.hpp>

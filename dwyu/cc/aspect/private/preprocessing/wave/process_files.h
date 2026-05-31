@@ -2,7 +2,7 @@
 #define DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PROCESS_FILES_H
 
 #include "dwyu/cc/aspect/private/preprocessing/lib/included_file.h"
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <boost/wave/cpp_exceptions.hpp>
 #include <boost/wave/language_support.hpp>
