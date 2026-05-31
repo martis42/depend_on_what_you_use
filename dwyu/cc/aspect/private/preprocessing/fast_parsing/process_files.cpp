@@ -1,7 +1,7 @@
 #include "dwyu/cc/aspect/private/preprocessing/fast_parsing/process_files.h"
 #include "dwyu/cc/aspect/private/preprocessing/fast_parsing/extract_includes.h"
 #include "dwyu/cc/aspect/private/preprocessing/lib/included_file.h"
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/wave/util/cpp_include_paths.hpp>

@@ -14,7 +14,7 @@ cc_library(
     implementation_deps = [
         ":extract_includes",
         "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
-        "//dwyu/private:utils",
+        "//dwyu/cc/private:utils",
         "@boost.filesystem",
         "@boost.wave//:wave",
     ],

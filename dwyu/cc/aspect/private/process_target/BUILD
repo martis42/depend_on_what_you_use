@@ -5,8 +5,8 @@ cc_binary(
     srcs = ["main.cpp"],
     visibility = ["//visibility:public"],
     deps = [
-        "//dwyu/private:program_options",
-        "//dwyu/private:utils",
+        "//dwyu/cc/private:program_options",
+        "//dwyu/cc/private:utils",
         "@nlohmann_json//:singleheader-json",
     ],
 )

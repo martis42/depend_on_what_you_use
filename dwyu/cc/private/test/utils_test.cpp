@@ -1,4 +1,4 @@
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <gtest/gtest.h>
 #include <vector>

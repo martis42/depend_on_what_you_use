@@ -3,8 +3,8 @@
 #include "dwyu/cc/aspect/private/analyze_includes/include_statement.h"
 #include "dwyu/cc/aspect/private/analyze_includes/result.h"
 #include "dwyu/cc/aspect/private/analyze_includes/system_under_inspection.h"
-#include "dwyu/private/program_options.h"
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/program_options.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <exception>
 #include <fstream>

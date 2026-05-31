@@ -1,5 +1,5 @@
-#include "dwyu/private/program_options.h"
-#include "dwyu/private/utils.h"
+#include "dwyu/cc/private/program_options.h"
+#include "dwyu/cc/private/utils.h"
 
 #include <nlohmann/json.hpp>
 

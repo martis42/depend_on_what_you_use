@@ -15,8 +15,8 @@ cc_binary(
         ":include_statement",
         ":result",
         ":system_under_inspection",
-        "//dwyu/private:program_options",
-        "//dwyu/private:utils",
+        "//dwyu/cc/private:program_options",
+        "//dwyu/cc/private:utils",
     ],
 )
 

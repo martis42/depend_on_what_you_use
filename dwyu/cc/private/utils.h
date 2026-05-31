@@ -1,5 +1,5 @@
-#ifndef DWYU_PRIVATE_UTILS_H
-#define DWYU_PRIVATE_UTILS_H
+#ifndef DWYU_CC_PRIVATE_UTILS_H
+#define DWYU_CC_PRIVATE_UTILS_H
 
 #include <cstdlib>
 #include <iostream>
