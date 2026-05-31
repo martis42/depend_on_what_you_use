@@ -9,7 +9,7 @@ set -o nounset
 TARGETS=(
     "//dwyu/cc/aspect/private/analyze_includes:main"
     "//dwyu/cc/aspect/private/preprocessing:main"
-    "//dwyu/cc/aspect/private/process_target:main_cc"
+    "//dwyu/cc/aspect/private/process_target:main"
 )
 
 echo ""

@@ -172,7 +172,7 @@ def dwyu_aspect_factory(
                 doc = "Preprocess the source code under inspection to resolve conditional preprocessor statements and discover include statements.",
             ),
             "_tool_process_target": attr.label(
-                default = Label("//dwyu/cc/aspect/private/process_target:main_cc"),
+                default = Label("//dwyu/cc/aspect/private/process_target:main"),
                 executable = True,
                 cfg = "exec",
                 doc = "Tool for processing the target under inspection and its dependencies. We have to perform this" +
