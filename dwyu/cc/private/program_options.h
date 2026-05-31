@@ -74,8 +74,7 @@ struct ProgramOption {
 
     Type getType() const { return type_; }
 
-  protected:
-    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) Derived classes need access
+  private:
     Type type_;
 };
 
