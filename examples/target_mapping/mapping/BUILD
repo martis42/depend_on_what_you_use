@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
 

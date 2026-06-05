@@ -23,7 +23,7 @@ def dwyu_cc_aspect_factory(
 
     Use the factory in a `.bzl` file to instantiate a DWYU aspect:
     ```starlark
-    load("@depend_on_what_you_use//:defs.bzl", "dwyu_cc_aspect_factory")
+    load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "dwyu_cc_aspect_factory")
 
     your_dwyu_aspect = dwyu_cc_aspect_factory(<aspect_options>)
     ```

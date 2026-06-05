@@ -5,7 +5,7 @@ Each `test_*.py` file represents a test case. The `execute_test.py` script is th
 The core test logic is:
 
 1. Execute DWYU to detect a problem
-1. Execute `//:apply_fixes` to fix the problem in the example `BUILD` file
+1. Execute `dwyu/apply_fixes:apply_fixes` to fix the problem in the example `BUILD` file
 1. Check if the expected fix happened
 1. Revert changes to the example `BUILD` file
 
