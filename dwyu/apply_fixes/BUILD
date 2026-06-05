@@ -17,12 +17,13 @@ py_library(
 )
 
 py_binary(
-    name = "main",
+    name = "apply_fixes",
     srcs = ["main.py"],
     data = ["@buildozer_binary//:buildozer.exe"],
     # Compatibility to --noexperimental_python_import_all_repositories
     imports = ["../.."],
-    visibility = ["//:__pkg__"],
+    main = "main.py",
+    visibility = ["//visibility:public"],
     deps = [
         ":lib",
         "@rules_python//python/runfiles",

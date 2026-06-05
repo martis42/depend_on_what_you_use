@@ -14,7 +14,7 @@ class TestCase(TestCaseBase):
             cmd=[
                 self._bazel_bin,
                 "run",
-                "@depend_on_what_you_use//:apply_fixes",
+                "@depend_on_what_you_use//dwyu/apply_fixes:apply_fixes",
                 "--",
                 f"--dwyu-log-file={self._log_file}",
                 "--fix-missing-deps",

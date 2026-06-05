@@ -103,7 +103,7 @@ class TestCaseBase(ABC):
             cmd=[
                 self._bazel_bin,
                 "run",
-                "@depend_on_what_you_use//:apply_fixes",
+                "@depend_on_what_you_use//dwyu/apply_fixes:apply_fixes",
                 "--",
                 *dwyu_report,
                 *verbosity,
