@@ -33,8 +33,6 @@ TESTED_VERSIONS = [
 VERSION_SPECIFIC_ARGS = {
     # Reduce noise in test logs
     "--check_direct_dependencies=off": CompatibleVersions(),
-    # Experimental changes we want to be compatible for
-    "--experimental_python_import_all_repositories=false": CompatibleVersions(),
     # Preparation for incompatible changes
     "--incompatible_config_setting_private_default_visibility": CompatibleVersions(),
     "--incompatible_disable_target_provider_fields": CompatibleVersions(),

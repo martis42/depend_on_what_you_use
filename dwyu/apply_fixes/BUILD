@@ -20,7 +20,7 @@ py_binary(
     name = "apply_fixes",
     srcs = ["main.py"],
     data = ["@buildozer_binary//:buildozer.exe"],
-    # Compatibility to --noexperimental_python_import_all_repositories
+    # Compatibility to --experimental_python_import_all_repositories=false
     imports = ["../.."],
     main = "main.py",
     visibility = ["//visibility:public"],
