@@ -364,8 +364,7 @@ def dwyu_aspect_impl(target, ctx):
         OutputGroup containing the generated report file
     """
 
-    # While we limit ourselves right now in the early project phase, we aim at supporting all cc_ like rules accepting
-    # 'hdrs' and 'srcs' attributes and providing CcInfo
+    # We might extend the list of supported rules eventually, but right now we only support and test the core cc_* rules.
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
 
