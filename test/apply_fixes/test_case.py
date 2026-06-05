@@ -90,12 +90,16 @@ class TestCaseBase(ABC):
         self._log_file.write_text(process.stdout)
 
     def _run_automatic_fix(
-        self, extra_args: list[str] | None = None, custom_dwyu_report_discovery: bool = False
+        self,
+        bazel_args: list[str] | None = None,
+        extra_args: list[str] | None = None,
+        custom_dwyu_report_discovery: bool = False,
     ) -> None:
         """
         Execute the applying fixes script for the Bazel target associated with the test case
         """
         verbosity = ["--verbose"] if log.isEnabledFor(logging.DEBUG) else []
+        cmd_bazel_args = bazel_args or []
         cmd_extra_args = extra_args or []
         dwyu_report = [] if custom_dwyu_report_discovery else [f"--dwyu-log-file={self._log_file}"]
 
@@ -104,6 +108,7 @@ class TestCaseBase(ABC):
                 self._bazel_bin,
                 "run",
                 "@depend_on_what_you_use//dwyu/apply_fixes:apply_fixes",
+                *cmd_bazel_args,
                 "--",
                 *dwyu_report,
                 *verbosity,
