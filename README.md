@@ -70,9 +70,9 @@ Various illustrations for configuring and using the DWYU aspect can be seen in t
 Example `.bzl` file creating a DWYU aspect with default configuration:
 
 ```starlark
-load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
+load("@depend_on_what_you_use//:defs.bzl", "dwyu_cc_aspect_factory")
 
-your_dwyu_aspect = dwyu_aspect_factory()
+your_dwyu_aspect = dwyu_cc_aspect_factory()
 ```
 
 ### Use the aspect

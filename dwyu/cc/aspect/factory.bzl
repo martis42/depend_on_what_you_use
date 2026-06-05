@@ -1,12 +1,12 @@
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load(":dwyu.bzl", "dwyu_aspect_impl")
+load(":dwyu.bzl", "dwyu_cc_aspect_impl")
 
 _DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
 _PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
 
-def dwyu_aspect_factory(
+def dwyu_cc_aspect_factory(
         analysis_optimizes_impl_deps = False,
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
@@ -23,9 +23,9 @@ def dwyu_aspect_factory(
 
     Use the factory in a `.bzl` file to instantiate a DWYU aspect:
     ```starlark
-    load("@depend_on_what_you_use//:defs.bzl", "dwyu_aspect_factory")
+    load("@depend_on_what_you_use//:defs.bzl", "dwyu_cc_aspect_factory")
 
-    your_dwyu_aspect = dwyu_aspect_factory(<aspect_options>)
+    your_dwyu_aspect = dwyu_cc_aspect_factory(<aspect_options>)
     ```
 
     Args:
@@ -118,7 +118,7 @@ def dwyu_aspect_factory(
         fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, _PREPROCESSOR_MODES))
 
     return aspect(
-        implementation = dwyu_aspect_impl,
+        implementation = dwyu_cc_aspect_impl,
         attr_aspects = attr_aspects,
         fragments = ["cpp"],
         required_providers = [CcInfo],

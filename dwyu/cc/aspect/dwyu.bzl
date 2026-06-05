@@ -352,7 +352,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
 
     return preprocessor_results
 
-def dwyu_aspect_impl(target, ctx):
+def dwyu_cc_aspect_impl(target, ctx):
     """
     Implementation for the "Depend on What You Use" (DWYU) aspect.
 
