@@ -8,7 +8,8 @@ namespace dwyu {
 std::string listToStr(const std::vector<std::string>& list) {
     std::string out{"["};
     for (const auto& element : list) {
-        out += element + ", ";
+        out += element;
+        out += ", ";
     }
     if (out.size() > 1) {
         out.pop_back();
