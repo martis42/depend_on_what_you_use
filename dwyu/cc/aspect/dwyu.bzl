@@ -111,7 +111,7 @@ def _process_dependencies(ctx, target, deps):
     return [_process_target(
         ctx,
         target = dep,
-        output_path = "{}_processed_dep_{}.json".format(target.label.name, hash(str(dep.label))),
+        output_path = "{}_processed_dep_{}.json".format(target.label.name, _hash(str(dep.label))),
         is_target_under_inspection = False,
     ) for dep in deps]
 
