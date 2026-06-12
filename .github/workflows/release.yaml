@@ -18,7 +18,7 @@ jobs:
   release:
     # Ensure we have a 100% green build before releasing something
     needs: [ ci ]
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.6.0
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.7.0
     with:
       # We adapt the release notes before we make the release visible and start deployment to the BCR
       draft: true
