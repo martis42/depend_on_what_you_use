@@ -46,7 +46,7 @@ void Result::setPublicIncludesWithoutDirectDep(std::vector<IncludeStatement> inc
     public_includes_without_direct_dep_ = std::move(includes);
 }
 
-void Result::Result::setPrivateIncludesWithoutDirectDep(std::vector<IncludeStatement> includes) {
+void Result::setPrivateIncludesWithoutDirectDep(std::vector<IncludeStatement> includes) {
     private_includes_without_direct_dep_ = std::move(includes);
 }
 
