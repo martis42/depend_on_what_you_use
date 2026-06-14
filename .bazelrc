@@ -35,11 +35,9 @@ build --cxxopt=-Wc++11-compat-pedantic
 # Ensure we do not miss a warning by accident
 build --cxxopt=-Werror
 # Ignore compiler warnings in external code outside our control
-build --per_file_copt=external/boost\.*@-w
-build --per_file_copt=boost.wave/src/.*@-w
+build --per_file_copt=boost\..*/src/.*@-w
+build --host_per_file_copt=boost\..*/src/.*@-w
 build --per_file_copt=googletest/src/.*@-w
-build --host_per_file_copt=external/boost\.*@-w
-build --host_per_file_copt=boost.wave/src/.*@-w
 build --host_per_file_copt=googletest/src/.*@-w
 
 build:clang_tidy --aspects=//tools/clang_tidy:aspect.bzl%clang_tidy
