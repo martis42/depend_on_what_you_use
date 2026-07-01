@@ -46,7 +46,7 @@ use_repo(buildozer_binary, "buildozer_binary")
 ### Development Dependencies
 ###
 
-bazel_dep(name = "bazel_lib", version = "3.3.1", dev_dependency = True)
+bazel_dep(name = "bazel_lib", version = "3.4.0", dev_dependency = True)
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True)
 bazel_dep(name = "protobuf", version = "33.4", dev_dependency = True)
 bazel_dep(name = "stardoc", version = "0.8.1", dev_dependency = True)
