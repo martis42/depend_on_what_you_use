@@ -10,7 +10,10 @@ def _aggregate_transitive_deps_aspect_impl(target, ctx):
         return DwyuRemappedCcInfo(target = target.label, cc_info = CcInfo())
 
     all_cc_info = [target[CcInfo]]
-    all_cc_info.extend([dep[DwyuRemappedCcInfo].cc_info for dep in ctx.rule.attr.deps])
+
+    # A custom rule might offer CcInfo, but not have a 'deps' attribute.
+    # We assume a custom rule using the concept of dependencies to other CcInfo provider targets would use the canonical 'deps' attribute and ignore targets without 'deps' attribute.
+    all_cc_info.extend([dep[DwyuRemappedCcInfo].cc_info for dep in getattr(ctx.rule.attr, "deps", [])])
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
         compilation_contexts = [cci.compilation_context for cci in all_cc_info],
     )
