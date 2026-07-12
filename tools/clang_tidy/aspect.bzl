@@ -81,6 +81,10 @@ def _make_quoting_compatible_to_be_run_in_shell(command):
     return mutable_cmd
 
 def _clang_tidy_impl(target, ctx):
+    # Only lint our code C++ code, not exotic targets from test cases
+    if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
+        return []
+
     all_results = []
 
     cc_toolchain = find_cc_toolchain(ctx)
@@ -129,7 +133,7 @@ def _clang_tidy_impl(target, ctx):
 #   + Original author no longer works with Bazel: https://github.com/erenon/bazel_clang_tidy/issues/35#issuecomment-1371147567
 # - https://github.com/aspect-build/rules_lint
 #   + Did not work for us advertized. Maybe this is just properly working when using the advertized aspect cli?
-#   + Quite large with many deps, although we just need a little part. For alle the other checks we prefer pre-commit.
+#   + Quite large with many deps, although we just need a little part. For all the other checks we prefer pre-commit.
 #
 # If anybody finds this code, on the search for executing clang-tidy via Bazel, please note we do not consider this a
 # good or complete implementation. This is merely something we came up with for internal usage.
