@@ -266,7 +266,7 @@ def _preprocess_deps(ctx):
         if hasattr(ctx.rule.attr, "implementation_deps"):
             target_impl_deps = _exchange_cc_info(deps = ctx.rule.attr.implementation_deps, mapping = ctx.attr._target_mapping)
     else:
-        target_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.deps]
+        target_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.deps if CcInfo in dep]
         if hasattr(ctx.rule.attr, "implementation_deps"):
             target_impl_deps = [struct(label = dep.label, cc_info = dep[CcInfo]) for dep in ctx.rule.attr.implementation_deps]
 
@@ -306,7 +306,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
     # Work around the bug described in https://github.com/bazelbuild/bazel/issues/19663
     # Implementation_deps are not added to CcInfo.compilation_context
     if hasattr(ctx.rule.attr, "implementation_deps"):
-        impl_deps_hdrs = depset(direct = [], transitive = [dep[CcInfo].compilation_context.headers for dep in ctx.rule.attr.implementation_deps])
+        impl_deps_hdrs = depset(direct = [], transitive = [impl_dep[CcInfo].compilation_context.headers for impl_dep in ctx.rule.attr.implementation_deps])
     else:
         impl_deps_hdrs = depset(direct = [], transitive = [])
 
