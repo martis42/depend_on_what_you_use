@@ -302,6 +302,8 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
     """
     For each given file perform a preprocessing step to find all relevant include statements
     """
+    if not files:
+        return []
 
     # Work around the bug described in https://github.com/bazelbuild/bazel/issues/19663
     # Implementation_deps are not added to CcInfo.compilation_context
