@@ -53,11 +53,11 @@ def _get_target_sources(rule):
 
     return public_files, private_files
 
-def _get_relevant_header(target_context, is_target_under_inspection):
-    if is_target_under_inspection:
-        return target_context.direct_public_headers + target_context.direct_private_headers + target_context.direct_textual_headers
+def _get_relevant_header(target_cc, include_private_headers):
+    if include_private_headers:
+        return target_cc.direct_public_headers + target_cc.direct_private_headers + target_cc.direct_textual_headers
     else:
-        return target_context.direct_public_headers + target_context.direct_textual_headers
+        return target_cc.direct_public_headers + target_cc.direct_textual_headers
 
 def _get_includes(ctx, target_cc):
     includes = [target_cc.includes]
@@ -84,8 +84,8 @@ def _get_includes(ctx, target_cc):
 def _process_target(ctx, target, output_path, is_target_under_inspection):
     processing_output = ctx.actions.declare_file(output_path)
     header_files = _get_relevant_header(
-        target_context = target.cc_info.compilation_context,
-        is_target_under_inspection = is_target_under_inspection,
+        target_cc = target.cc_info.compilation_context,
+        include_private_headers = is_target_under_inspection or not ctx.attr.dwyu_analysis_ignores_private_headers_from_deps,
     )
 
     args = make_param_file_args(ctx)

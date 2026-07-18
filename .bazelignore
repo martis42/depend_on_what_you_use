@@ -11,6 +11,7 @@ test/apply_fixes
 
 test/aspect
 test/aspect/alias
+test/aspect/allow_private_headers_from_deps
 test/aspect/complex_includes
 test/aspect/external_repo
 test/aspect/generated_code
