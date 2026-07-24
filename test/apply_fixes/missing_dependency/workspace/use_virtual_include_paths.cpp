@@ -6,10 +6,14 @@
 #include "foo/bar/virtual_1.h"
 #include "sub_1.h"
 
+// Paths created via an absolute (repository-relative) 'strip_include_prefix'
+#include "foo/bar/sub_5.h"
+#include "sub_4.h"
+
 // Show one can still use the workspace path for including, even if virtual includes are used by the dependency
 #include "missing_dependency/workspace/virtual_includes/sub/sub_2.h"
 #include "missing_dependency/workspace/virtual_includes/virtual_2.h"
 
 int main() {
-    return doIncludes() + doVirtual1() + doVirtual2() + doSub1() + doSub2() + doSub3();
+    return doIncludes() + doVirtual1() + doVirtual2() + doSub1() + doSub2() + doSub3() + doSub4() + doSub5();
 }

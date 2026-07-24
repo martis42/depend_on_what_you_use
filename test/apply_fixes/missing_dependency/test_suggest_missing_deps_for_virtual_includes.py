@@ -19,6 +19,8 @@ class TestCase(TestCaseBase):
                 "//missing_dependency/workspace/virtual_includes:include_prefix",
                 "//missing_dependency/workspace/virtual_includes:strip_include_prefix",
                 "//missing_dependency/workspace/virtual_includes:prefixed_and_stripped",
+                "//missing_dependency/workspace/virtual_includes:absolute_strip_include_prefix",
+                "//missing_dependency/workspace/virtual_includes:absolute_prefixed_and_stripped",
             }
         ) != target_deps:
             return self._make_unexpected_deps_error(expected_deps=expected, actual_deps=target_deps)

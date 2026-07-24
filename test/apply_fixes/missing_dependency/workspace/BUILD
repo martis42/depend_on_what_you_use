@@ -124,6 +124,8 @@ cc_library(
 cc_library(
     name = "virtual_include_paths_provider",
     deps = [
+        "//missing_dependency/workspace/virtual_includes:absolute_prefixed_and_stripped",
+        "//missing_dependency/workspace/virtual_includes:absolute_strip_include_prefix",
         "//missing_dependency/workspace/virtual_includes:include_prefix",
         "//missing_dependency/workspace/virtual_includes:includes",
         "//missing_dependency/workspace/virtual_includes:prefixed_and_stripped",
