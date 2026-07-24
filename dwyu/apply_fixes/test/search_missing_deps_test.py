@@ -7,7 +7,30 @@ from dwyu.apply_fixes.search_missing_deps import (
     get_dependencies,
     search_missing_deps,
     target_to_path,
+    virtualize_headers,
 )
+
+
+def make_virtual_headers_query_result(target: str, hdrs: str, added_prefix: str = "", stripped_prefix: str = "") -> str:
+    name = target.rsplit(":", maxsplit=1)[1]
+
+    rule_part = '{"type":"RULE","rule":{"name":"' + target + '","ruleClass":"cc_library","attribute":['
+    attr_name = '{"name":"name","type":"STRING","stringValue":"' + name + '","explicitlySpecified":true}'
+    attr_hdrs = ',{"name":"hdrs","type":"LABEL_LIST","stringListValue":' + hdrs + ',"explicitlySpecified":true}'
+    attr_add = (
+        ',{"name":"include_prefix","type":"STRING","stringValue":"' + added_prefix + '","explicitlySpecified":true}'
+        if added_prefix
+        else ""
+    )
+    attr_strip = (
+        ',{"name":"strip_include_prefix","type":"STRING","stringValue":"'
+        + stripped_prefix
+        + '","explicitlySpecified":true}'
+        if stripped_prefix
+        else ""
+    )
+
+    return rule_part + attr_name + attr_hdrs + attr_add + attr_strip + "]}}"
 
 
 class TestApplyFixesHelper(unittest.TestCase):
@@ -165,6 +188,159 @@ class TestGetDependencies(unittest.TestCase):
                 "foo/_virtual_includes/adding_and_stripping_prefix/bar/adding_and_stripping.h",
                 "_virtual_includes/c98ec564/bar/adding_and_stripping.h",
             ],
+        )
+
+    def test_parse_output_for_target_using_absolute_strip_include_prefix(self) -> None:
+        # Regression test for the protobuf 'arena' crash: an absolute (leading '/') strip_include_prefix is
+        # repository-relative and must be stripped from the repository-relative header path.
+        execute_query_mock = MagicMock()
+        arena_target = make_virtual_headers_query_result(
+            target="@protobuf//src/google/protobuf:arena",
+            hdrs='["@protobuf//src/google/protobuf:arena.h"]',
+            stripped_prefix="/src",
+        )
+        execute_query_mock.configure_mock(
+            uses_cquery=False,
+            **{
+                "execute.return_value": CompletedProcess(args=[], returncode=0, stderr="", stdout=arena_target),
+            },
+        )
+        deps = get_dependencies(bazel_query=execute_query_mock, target="")
+
+        self.assertEqual(len(deps), 1)
+        self.assertEqual(deps[0].target, "@protobuf//src/google/protobuf:arena")
+        self.assertEqual(
+            deps[0].headers,
+            [
+                "src/google/protobuf/arena.h",
+                "src/google/protobuf/_virtual_includes/arena/google/protobuf/arena.h",
+                "_virtual_includes/ae60082e/google/protobuf/arena.h",
+            ],
+        )
+
+    def test_non_matching_strip_include_prefix_keeps_raw_header(self) -> None:
+        # A prefix which does not anchor the header path must not crash the run. The raw header path is still
+        # available, only the virtual header paths are skipped.
+        execute_query_mock = MagicMock()
+        target = make_virtual_headers_query_result(
+            target="@repo//pkg:lib",
+            hdrs='["@repo//pkg:foo.h"]',
+            stripped_prefix="/does/not/match",
+        )
+        execute_query_mock.configure_mock(
+            uses_cquery=False,
+            **{
+                "execute.return_value": CompletedProcess(args=[], returncode=0, stderr="", stdout=target),
+            },
+        )
+        with self.assertLogs() as cm:
+            deps = get_dependencies(bazel_query=execute_query_mock, target="")
+
+        self.assertEqual(len(deps), 1)
+        self.assertEqual(deps[0].target, "@repo//pkg:lib")
+        self.assertEqual(deps[0].headers, ["pkg/foo.h"])
+        self.assertTrue(
+            any("Could not strip 'strip_include_prefix' value '/does/not/match'" in msg for msg in cm.output)
+        )
+
+
+class TestVirtualizeHeaders(unittest.TestCase):
+    def test_regression_absolute_strip_include_prefix(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["@protobuf//src/google/protobuf:arena.h"],
+                target_name="arena",
+                added_prefix="",
+                stripped_prefix="/src",
+            ),
+            [
+                "src/google/protobuf/_virtual_includes/arena/google/protobuf/arena.h",
+                "_virtual_includes/ae60082e/google/protobuf/arena.h",
+            ],
+        )
+
+    def test_absolute_strip_include_prefix_with_include_prefix(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["@protobuf//src/google/protobuf:arena.h"],
+                target_name="arena",
+                added_prefix="google3",
+                stripped_prefix="/src",
+            ),
+            [
+                "src/google/protobuf/_virtual_includes/arena/google3/google/protobuf/arena.h",
+                "_virtual_includes/ae60082e/google3/google/protobuf/arena.h",
+            ],
+        )
+
+    def test_absolute_strip_include_prefix_equal_to_package(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["@protobuf//src/google/protobuf:arena.h"],
+                target_name="arena",
+                added_prefix="",
+                stripped_prefix="/src/google/protobuf",
+            ),
+            [
+                "src/google/protobuf/_virtual_includes/arena/arena.h",
+                "_virtual_includes/ae60082e/arena.h",
+            ],
+        )
+
+    def test_strip_include_prefix_repository_root_strips_nothing(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["@protobuf//src/google/protobuf:arena.h"],
+                target_name="arena",
+                added_prefix="",
+                stripped_prefix="/",
+            ),
+            [
+                "src/google/protobuf/_virtual_includes/arena/src/google/protobuf/arena.h",
+                "_virtual_includes/ae60082e/src/google/protobuf/arena.h",
+            ],
+        )
+
+    def test_absolute_strip_include_prefix_tolerates_trailing_slash(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["@protobuf//src/google/protobuf:arena.h"],
+                target_name="arena",
+                added_prefix="",
+                stripped_prefix="/src/",
+            ),
+            [
+                "src/google/protobuf/_virtual_includes/arena/google/protobuf/arena.h",
+                "_virtual_includes/ae60082e/google/protobuf/arena.h",
+            ],
+        )
+
+    def test_package_relative_strip_include_prefix_tolerates_trailing_slash(self) -> None:
+        self.assertEqual(
+            virtualize_headers(
+                header_labels=["//foo:sub/thing.h"],
+                target_name="lib",
+                added_prefix="",
+                stripped_prefix="sub/",
+            ),
+            [
+                "foo/_virtual_includes/lib/thing.h",
+                "_virtual_includes/d758b9bc/thing.h",
+            ],
+        )
+
+    def test_non_matching_prefix_is_skipped_without_crash(self) -> None:
+        with self.assertLogs() as cm:
+            hdrs = virtualize_headers(
+                header_labels=["@repo//pkg:foo.h"],
+                target_name="lib",
+                added_prefix="",
+                stripped_prefix="/does/not/match",
+            )
+
+        self.assertEqual(hdrs, [])
+        self.assertTrue(
+            any("Could not strip 'strip_include_prefix' value '/does/not/match'" in msg for msg in cm.output)
         )
 
 

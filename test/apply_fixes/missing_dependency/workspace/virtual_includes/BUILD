@@ -34,3 +34,20 @@ cc_library(
     strip_include_prefix = "sub",
     visibility = ["//visibility:public"],
 )
+
+# The workspace root is 'test/apply_fixes/', thus this is the repository-relative (leading '/') spelling of the
+# package-relative 'sub' prefix used above.
+cc_library(
+    name = "absolute_strip_include_prefix",
+    hdrs = ["sub/sub_4.h"],
+    strip_include_prefix = "/missing_dependency/workspace/virtual_includes/sub",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "absolute_prefixed_and_stripped",
+    hdrs = ["sub/sub_5.h"],
+    include_prefix = "foo/bar",
+    strip_include_prefix = "/missing_dependency/workspace/virtual_includes/sub",
+    visibility = ["//visibility:public"],
+)
