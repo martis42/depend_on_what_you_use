@@ -48,6 +48,38 @@ def starlark_hash_as_hex_string(string: str) -> str:
     return f"{hash_value:x}"
 
 
+def strip_include_prefix_from_header(stripped_prefix: str, pkg: str, file: str) -> str | None:
+    """
+    Remove a 'strip_include_prefix' value from a header path and return the remaining part which is appended to the
+    virtual include path.
+
+    Per https://bazel.build/reference/be/c-cpp#cc_library.strip_include_prefix the prefix comes in two flavors:
+    - A relative path is package-relative and is stripped from the package-relative header file name.
+    - An absolute path (leading '/') is repository-relative and is stripped from the repository-relative header path.
+
+    Return None if the prefix does not anchor the header path, so the caller can skip the header gracefully instead
+    of crashing. A successfully built graph should not produce such a mismatch.
+    """
+    if not stripped_prefix:
+        return file
+
+    if stripped_prefix.startswith("/"):
+        # Repository-relative prefix stripped from the repository-relative header path
+        prefix = stripped_prefix.strip("/")
+        path = f"{pkg}/{file}" if pkg else file
+    else:
+        # Package-relative prefix stripped from the package-relative header file name
+        prefix = stripped_prefix.rstrip("/")
+        path = file
+
+    if not prefix:
+        # 'strip_include_prefix = "/"' points at the repository root and thus strips nothing
+        return path
+
+    stripped = path.removeprefix(f"{prefix}/")
+    return None if stripped == path else stripped
+
+
 def virtualize_headers(
     header_labels: list[str], target_name: str, added_prefix: str, stripped_prefix: str
 ) -> list[str]:
@@ -56,6 +88,10 @@ def virtualize_headers(
     location. The preprocessor will discover these virtual header files instead of the real header files provided
     by the dependency. Thus, our comparison of included files of the target under inspection and the header files
     specified by dependencies won't match. To enable matching, we recreate the virtual header file paths here.
+
+    A 'strip_include_prefix' value can be package-relative (no leading '/', stripped from the package-relative header
+    file name) or repository-relative (leading '/', stripped from the repository-relative header path). Both flavors
+    are handled by strip_include_prefix_from_header.
 
     In reality these header will be below the '/bin/' directory for generated code. However, since we either way ignore
     the path before '/bin/' in the analysis, we skip this here.
@@ -71,11 +107,17 @@ def virtualize_headers(
         pkg, file = label.rsplit(":", maxsplit=1)
         pkg = pkg.rsplit("//", maxsplit=1)[1]
 
-        # If the target s from the root package, we don't want a leading '/' due to the empty package path
+        # If the target is from the root package, we don't want a leading '/' due to the empty package path
         pkg_part = "" if pkg == "" else f"{pkg}/"
 
         # Prefixing and stripping logic works on the file path relative to the cc_library target
-        file = file.split(f"{stripped_prefix}/", maxsplit=1)[1] if stripped_prefix else file
+        file = strip_include_prefix_from_header(stripped_prefix=stripped_prefix, pkg=pkg, file=file)
+        if file is None:
+            log.warning(
+                f"Could not strip 'strip_include_prefix' value '{stripped_prefix}' from header '{label}'. "
+                "Skipping the reconstruction of its virtual header paths."
+            )
+            continue
         prefix = f"{added_prefix}/" if added_prefix else ""
         include_root_hash = starlark_hash_as_hex_string(pkg + "/" + target_name)
 
