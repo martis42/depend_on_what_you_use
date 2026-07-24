@@ -5,6 +5,7 @@
 #include "dwyu/cc/aspect/private/analyze_includes/result.h"
 #include "dwyu/cc/aspect/private/analyze_includes/system_under_inspection.h"
 
+#include <string>
 #include <vector>
 
 namespace dwyu {
@@ -13,11 +14,13 @@ namespace dwyu {
 // through the direct dependencies.
 // This function reports unused dependencies and invalid include statements. If 'optimize_impl_deps' is true, it also
 // reports for 'cc_library' targets 'deps' which should be moved into 'implementation_deps'.
+// Dependencies listed in 'ignored_unused_deps' are filtered from the unused deps result.
 Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const std::vector<IncludeStatement>& private_includes,
                         SystemUnderInspection& system_under_inspection,
                         bool report_missing_direct_deps,
                         bool report_unused_deps,
+                        const std::vector<std::string>& ignored_unused_deps,
                         bool optimize_impl_deps);
 
 } // namespace dwyu
