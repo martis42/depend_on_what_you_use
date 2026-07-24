@@ -25,6 +25,7 @@ struct ProgramOptions {
     std::vector<std::string> deps{};
     std::vector<std::string> implementation_deps{};
     std::string ignored_includes_config{};
+    std::vector<std::string> ignored_unused_deps{};
     bool optimize_implementation_deps{};
     bool report_missing_direct_deps{};
     bool report_unused_deps{};
@@ -51,6 +52,8 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     parser.addOptionList("--implementation_deps", options.implementation_deps);
     // Config file in json format specifying which include paths and patterns shall be ignored by the analysis
     parser.addOptionValue("--ignored_includes_config", options.ignored_includes_config);
+    // List of dependency names which shall be ignored for the unused dependencies check
+    parser.addOptionList("--ignored_unused_deps", options.ignored_unused_deps);
     // If this is checked, ensure all 'deps' are indeed used in at least one public file
     parser.addOptionFlag("--optimize_implementation_deps", options.optimize_implementation_deps);
     // If this is checked, the analysis will report missing direct dependencies.
@@ -75,6 +78,7 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "Dependencies                     : " << listToStr(options.deps) << "\n";
         std::cout << "Implementation dependencies      : " << listToStr(options.implementation_deps) << "\n";
         std::cout << "Ignored includes config          : " << options.ignored_includes_config << "\n";
+        std::cout << "Ignored unused deps              : " << listToStr(options.ignored_unused_deps) << "\n";
         std::cout << std::boolalpha;
         std::cout << "Optimize implementation deps     : " << options.optimize_implementation_deps << "\n";
         std::cout << "Report missing direct deps       : " << options.report_missing_direct_deps << "\n";
@@ -90,7 +94,7 @@ int main_impl(const ProgramOptions& options) {
 
     const auto result =
         evaluateIncludes(public_includes, private_includes, system_under_inspection, options.report_missing_direct_deps,
-                         options.report_unused_deps, options.optimize_implementation_deps);
+                         options.report_unused_deps, options.ignored_unused_deps, options.optimize_implementation_deps);
 
     if (!result.isOk() || options.verbose) {
         std::cout << result.toString(options.output) << "\n";

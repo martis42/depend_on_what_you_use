@@ -48,6 +48,7 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         SystemUnderInspection& system_under_inspection,
                         const bool report_missing_direct_deps,
                         const bool report_unused_deps,
+                        const std::vector<std::string>& ignored_unused_deps,
                         const bool optimize_impl_deps) {
     Result result{system_under_inspection.target_under_inspection.name};
 
@@ -84,6 +85,11 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                     }
                 }
             }
+        }
+
+        for (const auto& ignored : ignored_unused_deps) {
+            std::ignore = unused_deps.erase(ignored);
+            std::ignore = unused_impl_deps.erase(ignored);
         }
 
         result.setUnusedDeps(std::move(unused_deps));

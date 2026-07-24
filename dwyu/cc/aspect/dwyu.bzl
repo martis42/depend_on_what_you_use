@@ -436,6 +436,7 @@ def dwyu_cc_aspect_impl(target, ctx):
     args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
     if ctx.attr._ignored_includes:
         args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
+    args.add_all("--ignored_unused_deps", ctx.attr._ignored_unused_deps, omit_if_empty = True)
     if _do_ensure_private_deps(ctx):
         args.add("--optimize_implementation_deps")
     if ctx.attr.dwyu_analysis_reports_missing_direct_deps:

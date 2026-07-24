@@ -12,6 +12,7 @@ def dwyu_cc_aspect_factory(
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
         ignored_includes = None,
+        ignored_unused_deps = [],
         preprocessing_mode = "full",
         recursive = False,
         skip_external_targets = False,
@@ -63,6 +64,11 @@ def dwyu_cc_aspect_factory(
                             The [boost::regex_search](https://www.boost.org/doc/libs/latest/libs/regex/doc/html/boost_regex/ref/regex_search.html) function is used to compare the patterns to the include statements.
                           </li></ul>
                           This feature is demonstrated in the [ignoring_includes example](/examples/ignoring_includes).
+
+        ignored_unused_deps: There might be dependencies triggering the DWYU check for unused dependencies which you want to ignore.
+                             You can provide here a list of targets which will be ignored for the unused dependencies check.<br>
+                             You have to use the Label constructor, you can't use bare strings.
+                             For example: `ignored_unused_deps = [Label("//some:target")]`
 
         preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
                             This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
@@ -150,6 +156,9 @@ def dwyu_cc_aspect_factory(
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,
                 allow_files = [".json"],
+            ),
+            "_ignored_unused_deps": attr.string_list(
+                default = [str(dep) for dep in ignored_unused_deps],
             ),
             "_preprocessing_mode": attr.string(
                 default = preprocessing_mode,
