@@ -3,7 +3,7 @@ load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load("//dwyu/private:utils.bzl", "make_param_file_args")
+load("//dwyu/private:utils.bzl", "make_param_file_args", "string_to_bool")
 
 # Map of '-std=c++XX' to the corresponding standard version
 # Source for this mapping: https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
@@ -28,6 +28,8 @@ _CPLUSPLUS_VERSIONS_MAP = {
     "98": "199711",
 }
 
+PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
+
 def _is_verbose(ctx):
     return ctx.attr.dwyu_verbose
 
@@ -39,6 +41,49 @@ def _hash(value):
     Using '%x' prevents negative numbers being returned
     """
     return "%x" % hash(value)
+
+def _make_dwyu_config(ctx):
+    """
+    Some values can be configured by tags on top of the aspect factory attributes.
+    For those values we have to combine the factory and tag configuration.
+    For single state values the tag overwrites the factory config. For list values the tag adds to the factory config.
+    """
+
+    analysis_ignores_private_headers_from_deps = ctx.attr.dwyu_analysis_ignores_private_headers_from_deps
+    analysis_optimizes_impl_deps = ctx.attr.dwyu_analysis_optimizes_impl_deps
+    analysis_reports_missing_direct_deps = ctx.attr.dwyu_analysis_reports_missing_direct_deps
+    analysis_reports_unused_deps = ctx.attr.dwyu_analysis_reports_unused_deps
+    preprocessing_mode = ctx.attr._preprocessing_mode
+    ignored_includes = []
+    ignored_unused_deps = ctx.attr._ignored_unused_deps[:]
+
+    for tag in ctx.rule.attr.tags:
+        if tag.startswith("dwyu:ignore_private_headers_from_deps="):
+            analysis_ignores_private_headers_from_deps = string_to_bool(tag.split("=", 1)[1])
+        elif tag.startswith("dwyu:optimize_impl_deps="):
+            analysis_optimizes_impl_deps = string_to_bool(tag.split("=", 1)[1])
+        elif tag.startswith("dwyu:report_missing_direct_deps="):
+            analysis_reports_missing_direct_deps = string_to_bool(tag.split("=", 1)[1])
+        elif tag.startswith("dwyu:report_unused_deps="):
+            analysis_reports_unused_deps = string_to_bool(tag.split("=", 1)[1])
+        elif tag.startswith("dwyu:preprocessing_mode="):
+            preprocessing_mode = tag.split("=", 1)[1]
+            if preprocessing_mode not in PREPROCESSOR_MODES:
+                fail("Provided invalid value '{}' for 'dwyu:preprocessing_mode' tag. Supported values are {}".format(preprocessing_mode, PREPROCESSOR_MODES))
+        elif tag.startswith("dwyu:ignore_include="):
+            ignored_includes.append(tag.split("=", 1)[1])
+        elif tag.startswith("dwyu:ignore_unused_dep="):
+            ignored_unused_deps.append(tag.split("=", 1)[1])
+
+    return struct(
+        extra_ignored_includes = ignored_includes,
+        ignored_unused_deps = ignored_unused_deps,
+        preprocessing_mode = preprocessing_mode,
+        ignore_private_headers_from_deps = analysis_ignores_private_headers_from_deps,
+        optimize_impl_deps = analysis_optimizes_impl_deps,
+        report_missing_direct_deps = analysis_reports_missing_direct_deps,
+        report_unused_deps = analysis_reports_unused_deps,
+    )
 
 def _get_target_sources(rule):
     public_files = []
@@ -81,11 +126,11 @@ def _get_includes(ctx, target_cc):
 
     return includes, quote_includes, external_includes, system_includes
 
-def _process_target(ctx, target, output_path, is_target_under_inspection):
+def _process_target(ctx, target, config, output_path, is_target_under_inspection):
     processing_output = ctx.actions.declare_file(output_path)
     header_files = _get_relevant_header(
         target_cc = target.cc_info.compilation_context,
-        include_private_headers = is_target_under_inspection or not ctx.attr.dwyu_analysis_ignores_private_headers_from_deps,
+        include_private_headers = is_target_under_inspection or not config.ignore_private_headers_from_deps,
     )
 
     args = make_param_file_args(ctx)
@@ -107,10 +152,11 @@ def _process_target(ctx, target, output_path, is_target_under_inspection):
 
     return processing_output
 
-def _process_dependencies(ctx, target, deps):
+def _process_dependencies(ctx, target, config, deps):
     return [_process_target(
         ctx,
         target = dep,
+        config = config,
         output_path = "{}_processed_dep_{}.json".format(target.label.name, _hash(str(dep.label))),
         is_target_under_inspection = False,
     ) for dep in deps]
@@ -272,12 +318,12 @@ def _preprocess_deps(ctx):
 
     return target_deps, target_impl_deps
 
-def _do_ensure_private_deps(ctx):
+def _do_ensure_private_deps(ctx, config):
     """
     The implementation_deps feature is only meaningful and available for cc_library, where in contrast to cc_binary
     and cc_test a separation between public and private files exists.
     """
-    return ctx.rule.kind == "cc_library" and ctx.attr.dwyu_analysis_optimizes_impl_deps
+    return ctx.rule.kind == "cc_library" and config.optimize_impl_deps
 
 def _dywu_results_from_deps(deps):
     """
@@ -298,7 +344,7 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
-def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr_prefix):
+def _extract_includes_from_files(ctx, config, target, files, defines, cc_toolchain, attr_prefix):
     """
     For each given file perform a preprocessing step to find all relevant include statements
     """
@@ -333,7 +379,7 @@ def _extract_includes_from_files(ctx, target, files, defines, cc_toolchain, attr
         # The source files could be a TreeArtifact! Thus, process each file as list, although we want to process the individual source files in parallel by default.
         args = make_param_file_args(ctx)
         args.add_all("--files", [file])
-        args.add("--mode", ctx.attr._preprocessing_mode)
+        args.add("--mode", config.preprocessing_mode)
         args.add_all("--include_paths", include_paths)
         args.add_all("--system_include_paths", system_include_paths)
         args.add_all("--defines", defines)
@@ -406,10 +452,13 @@ def dwyu_cc_aspect_impl(target, ctx):
     if not public_files and not private_files:
         return []
 
-    defines = [] if ctx.attr._preprocessing_mode == "fast" else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
+    config = _make_dwyu_config(ctx)
+
+    defines = [] if config.preprocessing_mode == "fast" else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
+        config = config,
         output_path = "{}_processed_target_under_inspection.json".format(target.label.name),
         is_target_under_inspection = True,
     )
@@ -418,13 +467,29 @@ def dwyu_cc_aspect_impl(target, ctx):
 
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
     #      target_under_inspection have the same dependency
-    processed_deps = _process_dependencies(ctx, target = target, deps = target_deps)
-    processed_impl_deps = _process_dependencies(ctx, target = target, deps = target_impl_deps)
+    processed_deps = _process_dependencies(ctx, target = target, config = config, deps = target_deps)
+    processed_impl_deps = _process_dependencies(ctx, target = target, config = config, deps = target_impl_deps)
 
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
 
-    preprocessed_public_files = _extract_includes_from_files(ctx = ctx, target = target, files = public_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "pub")
-    preprocessed_private_files = _extract_includes_from_files(ctx = ctx, target = target, files = private_files, defines = defines, cc_toolchain = cc_toolchain, attr_prefix = "priv")
+    preprocessed_public_files = _extract_includes_from_files(
+        ctx = ctx,
+        config = config,
+        target = target,
+        files = public_files,
+        defines = defines,
+        cc_toolchain = cc_toolchain,
+        attr_prefix = "pub",
+    )
+    preprocessed_private_files = _extract_includes_from_files(
+        ctx = ctx,
+        config = config,
+        target = target,
+        files = private_files,
+        defines = defines,
+        cc_toolchain = cc_toolchain,
+        attr_prefix = "priv",
+    )
 
     args = make_param_file_args(ctx)
     args.add("--output", report_file)
@@ -436,12 +501,13 @@ def dwyu_cc_aspect_impl(target, ctx):
     args.add_all("--implementation_deps", processed_impl_deps, omit_if_empty = False)
     if ctx.attr._ignored_includes:
         args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
-    args.add_all("--ignored_unused_deps", ctx.attr._ignored_unused_deps, omit_if_empty = True)
-    if _do_ensure_private_deps(ctx):
+    args.add_all("--extra_ignored_includes", config.extra_ignored_includes, omit_if_empty = True)
+    args.add_all("--ignored_unused_deps", config.ignored_unused_deps, omit_if_empty = True)
+    if _do_ensure_private_deps(ctx, config):
         args.add("--optimize_implementation_deps")
-    if ctx.attr.dwyu_analysis_reports_missing_direct_deps:
+    if config.report_missing_direct_deps:
         args.add("--report_missing_direct_deps")
-    if ctx.attr.dwyu_analysis_reports_unused_deps:
+    if config.report_unused_deps:
         args.add("--report_unused_deps")
     if _is_verbose(ctx):
         args.add("--verbose")

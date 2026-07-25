@@ -21,6 +21,28 @@ cc_library(
 )
 
 cc_library(
+    name = "superfluous_public_dep_with_tag_opt_in",
+    srcs = ["use_libs.cpp"],
+    hdrs = ["use_libs.h"],
+    tags = ["dwyu:optimize_impl_deps=True"],
+    deps = [
+        "//implementation_deps/support:lib_a",
+        "//implementation_deps/support:lib_b",
+    ],
+)
+
+cc_library(
+    name = "superfluous_public_dep_with_tag_opt_out",
+    srcs = ["use_libs.cpp"],
+    hdrs = ["use_libs.h"],
+    tags = ["dwyu:optimize_impl_deps=False"],
+    deps = [
+        "//implementation_deps/support:lib_a",
+        "//implementation_deps/support:lib_b",
+    ],
+)
+
+cc_library(
     name = "use_complex_includes",
     srcs = ["use_complex_includes.cpp"],
     hdrs = ["use_complex_includes.h"],

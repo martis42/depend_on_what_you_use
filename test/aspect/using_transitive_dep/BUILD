@@ -7,6 +7,20 @@ cc_binary(
     deps = [":direct_dep"],
 )
 
+cc_binary(
+    name = "main_with_tag_opt_in",
+    srcs = ["main.cpp"],
+    tags = ["dwyu:report_missing_direct_deps=True"],
+    deps = [":direct_dep"],
+)
+
+cc_binary(
+    name = "main_with_tag_opt_out",
+    srcs = ["main.cpp"],
+    tags = ["dwyu:report_missing_direct_deps=False"],
+    deps = [":direct_dep"],
+)
+
 cc_library(
     name = "transitive_usage_through_impl_deps",
     srcs = ["transitive_usage_through_impl_deps.h"],

@@ -18,7 +18,8 @@ struct IgnoredIncludes {
     std::vector<boost::regex> include_patterns{};
 };
 
-IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config);
+IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config,
+                                   const std::vector<std::string>& extra_ignored_includes);
 
 bool isIgnoredInclude(const std::string& include, const IgnoredIncludes& ignored_includes);
 

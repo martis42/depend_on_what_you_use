@@ -20,6 +20,26 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "unused_deps_allowed_by_tag",
+    srcs = ["main.cpp"],
+    tags = ["dwyu:report_unused_deps=False"],
+    deps = [
+        ":bar",
+        ":foo",  # unused dependency
+    ],
+)
+
+cc_binary(
+    name = "unused_deps_disallowed_by_tag",
+    srcs = ["main.cpp"],
+    tags = ["dwyu:report_unused_deps=True"],
+    deps = [
+        ":bar",
+        ":foo",  # unused dependency
+    ],
+)
+
 cc_library(
     name = "implementation_deps_lib",
     srcs = ["main.cpp"],

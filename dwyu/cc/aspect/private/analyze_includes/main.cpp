@@ -25,6 +25,7 @@ struct ProgramOptions {
     std::vector<std::string> deps{};
     std::vector<std::string> implementation_deps{};
     std::string ignored_includes_config{};
+    std::vector<std::string> extra_ignored_includes{};
     std::vector<std::string> ignored_unused_deps{};
     bool optimize_implementation_deps{};
     bool report_missing_direct_deps{};
@@ -52,6 +53,8 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     parser.addOptionList("--implementation_deps", options.implementation_deps);
     // Config file in json format specifying which include paths and patterns shall be ignored by the analysis
     parser.addOptionValue("--ignored_includes_config", options.ignored_includes_config);
+    // Include statements which shall be ignored on top of those specified via the config file
+    parser.addOptionList("--extra_ignored_includes", options.extra_ignored_includes);
     // List of dependency names which shall be ignored for the unused dependencies check
     parser.addOptionList("--ignored_unused_deps", options.ignored_unused_deps);
     // If this is checked, ensure all 'deps' are indeed used in at least one public file
@@ -86,7 +89,7 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "\n";
     }
 
-    const auto ignored_includes = getIgnoredIncludes(options.ignored_includes_config);
+    const auto ignored_includes = getIgnoredIncludes(options.ignored_includes_config, options.extra_ignored_includes);
     auto system_under_inspection =
         getSystemUnderInspection(options.target_under_inspection_info, options.deps, options.implementation_deps);
     auto public_includes = getIncludeStatements(options.preprocessed_public_files, ignored_includes);
