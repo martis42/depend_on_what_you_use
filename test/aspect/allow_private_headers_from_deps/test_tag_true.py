@@ -9,7 +9,7 @@ class TestCase(TestCaseBase):
         # We are not seeing unused dependency errors because DWYU thinks the dependencies offer not headers at al and thus prunes them early in the analysis.
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
-                target="//allow_private_headers_from_deps:use_private_headers_from_deps",
+                target="//allow_private_headers_from_deps:forbid_private_headers_from_deps_via_tag",
                 invalid_includes={
                     "allow_private_headers_from_deps/use_private_headers_from_deps.h": [
                         "allow_private_headers_from_deps/private_a.h"
@@ -21,7 +21,9 @@ class TestCase(TestCaseBase):
             )
         )
         actual = self._run_dwyu(
-            target="//allow_private_headers_from_deps:use_private_headers_from_deps", aspect=self.default_aspect
+            target="//allow_private_headers_from_deps:forbid_private_headers_from_deps_via_tag",
+            # Use an aspect allowing private headers from deps to show we can overrule the global setting via a tag on the target under inspection
+            aspect="//allow_private_headers_from_deps:aspect.bzl%dwyu_with_priv_hdrs",
         )
 
         return self._check_result(actual=actual, expected=expected)

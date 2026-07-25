@@ -4,11 +4,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <string>
+#include <vector>
+
 namespace dwyu {
 namespace {
 
 TEST(GetIgnoredIncludes, GivenNoInputReturnEmptyIgnoredIncludes) {
-    const auto ignored_includes = getIgnoredIncludes("");
+    const auto ignored_includes = getIgnoredIncludes("", {});
 
     EXPECT_TRUE(ignored_includes.include_paths.empty());
     EXPECT_TRUE(ignored_includes.include_patterns.empty());
@@ -16,7 +19,7 @@ TEST(GetIgnoredIncludes, GivenNoInputReturnEmptyIgnoredIncludes) {
 
 TEST(GetIgnoredIncludes, GivenEmptyInputReturnEmptyIgnoredIncludes) {
     const auto ignored_includes =
-        getIgnoredIncludes("dwyu/cc/aspect/private/analyze_includes/test/data/ignored_includes_empty.json");
+        getIgnoredIncludes("dwyu/cc/aspect/private/analyze_includes/test/data/ignored_includes_empty.json", {});
 
     EXPECT_TRUE(ignored_includes.include_paths.empty());
     EXPECT_TRUE(ignored_includes.include_patterns.empty());
@@ -24,9 +27,21 @@ TEST(GetIgnoredIncludes, GivenEmptyInputReturnEmptyIgnoredIncludes) {
 
 TEST(GetIgnoredIncludes, ReadIgnoredIncludesCorrectlyFromFile) {
     const auto ignored_includes =
-        getIgnoredIncludes("dwyu/cc/aspect/private/analyze_includes/test/data/ignored_includes.json");
+        getIgnoredIncludes("dwyu/cc/aspect/private/analyze_includes/test/data/ignored_includes.json", {});
 
     EXPECT_THAT(ignored_includes.include_paths, testing::UnorderedElementsAre("foo", "bar"));
+
+    EXPECT_THAT(ignored_includes.include_patterns,
+                testing::UnorderedElementsAre(boost::regex{"foo/.*"}, boost::regex{"bar/.*"}));
+}
+
+TEST(GetIgnoredIncludes, ReadIgnoredIncludesCorrectlyFromFileWithExtraIncludes) {
+    // duplicate 'foo' to ensure that the extra includes are merged correctly with the config file
+    const std::vector<std::string> extra_ignored_includes = {"foo", "extra/include.h"};
+    const auto ignored_includes = getIgnoredIncludes(
+        "dwyu/cc/aspect/private/analyze_includes/test/data/ignored_includes.json", extra_ignored_includes);
+
+    EXPECT_THAT(ignored_includes.include_paths, testing::UnorderedElementsAre("foo", "bar", "extra/include.h"));
 
     EXPECT_THAT(ignored_includes.include_patterns,
                 testing::UnorderedElementsAre(boost::regex{"foo/.*"}, boost::regex{"bar/.*"}));

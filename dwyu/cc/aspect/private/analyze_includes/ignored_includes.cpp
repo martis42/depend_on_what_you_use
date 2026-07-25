@@ -7,12 +7,14 @@
 
 #include <algorithm>
 #include <string>
+#include <tuple>
 #include <unordered_set>
 #include <vector>
 
 namespace dwyu {
 
-IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config) {
+IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config,
+                                   const std::vector<std::string>& extra_ignored_includes) {
     IgnoredIncludes ignored_includes{};
 
     constexpr bool no_error_on_missing_file = true;
@@ -24,6 +26,9 @@ IgnoredIncludes getIgnoredIncludes(const std::string& ignored_includes_config) {
         for (const auto& pattern : ignores_config["ignore_include_patterns"].get<std::vector<std::string>>()) {
             ignored_includes.include_patterns.emplace_back(pattern);
         }
+    }
+    for (const auto& include : extra_ignored_includes) {
+        std::ignore = ignored_includes.include_paths.insert(include);
     }
 
     return ignored_includes;

@@ -7,9 +7,16 @@ cc_library(
 
 # Inspection this with the default configuration should not fail
 cc_library(
-    name = "ignored_by_default_behavior",
+    name = "ignored_by_legacy_default_behavior",
     hdrs = ["bar.h"],
     tags = ["no-dwyu"],
+    deps = [":unused_lib"],
+)
+
+cc_library(
+    name = "ignored_by_new_tagging_syntax",
+    hdrs = ["bar.h"],
+    tags = ["dwyu:skip"],
     deps = [":unused_lib"],
 )
 

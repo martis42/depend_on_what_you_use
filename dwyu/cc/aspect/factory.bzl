@@ -1,10 +1,12 @@
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
-load(":dwyu.bzl", "dwyu_cc_aspect_impl")
+load("//dwyu/private:utils.bzl", "unique_list")
+load(":dwyu.bzl", "PREPROCESSOR_MODES", "dwyu_cc_aspect_impl")
 
-_DEFAULT_SKIPPED_TAGS = ["no-dwyu"]
-_PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
+_LEGACY_SKIPPED_TAGS = ["no-dwyu"]
+_MANDATORY_SKIPPED_TAGS = ["dwyu:skip"]
+_DEFAULT_SKIPPED_TAGS = _LEGACY_SKIPPED_TAGS + _MANDATORY_SKIPPED_TAGS
 
 def dwyu_cc_aspect_factory(
         analysis_ignores_private_headers_from_deps = True,
@@ -21,22 +23,34 @@ def dwyu_cc_aspect_factory(
         target_mapping = None,
         verbose = False):
     """
-    Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
+    Create and configure a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
 
-    Use the factory in a `.bzl` file to instantiate a DWYU aspect:
-    ```starlark
-    load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "dwyu_cc_aspect_factory")
+    You might have targets which require different DWYU settings than the ones set by you with the aspect factory.
+    If this is the case for a separate part of your project, an easy solution can be to create a second aspect instance with different settings and use that for the targets in question.
+    However, if the issue is with individual targets, you can also use the following tags to override the DWYU settings for those specific targets.
+    Using tags to control the DWYU behavior is demonstrated in the [configuration_via_tags example](/examples/configuration_via_tags).<br>
+    The detailed description for the features controlled by these tags can be found below in the documentation of the aspect factory parameters.
+    If a tag sets a single value attribute, the tag value will override the value set by the aspect factory or via `--aspects_parameters`.
+    If a tag sets a list attribute, the tag value will be appended to the list set by the aspect factory.
 
-    your_dwyu_aspect = dwyu_cc_aspect_factory(<aspect_options>)
-    ```
+    | Tag | Description |
+    |---|---|
+    | `dwyu:skip`                                            | Do not perform any DWYU analysis. |
+    | `dwyu:ignore_private_headers_from_deps=[True\\|False]` | Control whether to consider private headers from the `srcs` attribute of dependencies. |
+    | `dwyu:optimize_impl_deps=[True\\|False]`               | Control optimizing implementation dependencies. |
+    | `dwyu:report_missing_direct_deps=[True\\|False]`       | Control reporting missing direct dependencies. |
+    | `dwyu:report_unused_deps=[True\\|False]`               | Control reporting unused dependencies. |
+    | `dwyu:ignore_include=<include>`                        | Ignore the specified include for the _missing direct dependencies_ check. Provide without quoting (aka `<` or `"`). Does not support setting patterns. Multiple uses are accumulated. |
+    | `dwyu:ignore_unused_dep=<dep>`                         | Ignore the specified dependency for the _unused dependencies_ check. Has to use the canonical repo name. The examples show an elegant way to do this. Multiple uses are accumulated. |
+    | `dwyu:preprocessing_mode=<mode>`                       | Control the preprocessing mode. |
 
     Args:
         analysis_ignores_private_headers_from_deps: Setting this to `False` will allow headers listed in the `srcs` attributes of a dependency to fulfill the DWYU checks on top of those from the `hdrs` attribute.
-                                                   By default, DWYU uses only headers from the `hdrs` attribute.</br>
-                                                   Strictly speaking, using headers from the `srcs` attribute of a dependency is wrong, as they are an implementation detail of the dependency.
-                                                   However, Bazel does not enforce this and forwards those private headers to the compile step.
-                                                   Use this flag if you have code outside your control using private headers or simply are not interested in the distinction of public and private headers.</br>
-                                                   This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_ignores_private_headers_from_deps=[True|False]`.
+                                                    By default, DWYU uses only headers from the `hdrs` attribute.</br>
+                                                    Strictly speaking, using headers from the `srcs` attribute of a dependency is wrong, as they are an implementation detail of the dependency.
+                                                    However, Bazel does not enforce this and forwards those private headers to the compile step.
+                                                    Use this flag if you have code outside your control using private headers or simply are not interested in the distinction of public and private headers.</br>
+                                                    This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_ignores_private_headers_from_deps=[True|False]`.
 
         analysis_optimizes_impl_deps: Setting this to `True` will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.
                                       Such dependencies should be moved from `deps` to [implementation_deps](https://bazel.build/reference/be/c-cpp#cc_library.implementation_deps) to optimize the dependency graph of the project.<br>
@@ -125,11 +139,11 @@ def dwyu_cc_aspect_factory(
     if recursive:
         attr_aspects = ["implementation_deps", "deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
-    aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else skipped_tags
+    aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else unique_list(skipped_tags, _MANDATORY_SKIPPED_TAGS)
     aspect_target_mapping = [target_mapping] if target_mapping else []
 
-    if preprocessing_mode not in _PREPROCESSOR_MODES:
-        fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, _PREPROCESSOR_MODES))
+    if preprocessing_mode not in PREPROCESSOR_MODES:
+        fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, PREPROCESSOR_MODES))
 
     return aspect(
         implementation = dwyu_cc_aspect_impl,

@@ -12,6 +12,16 @@ cc_library(
     deps = ["//ignore_includes/support:direct_dep"],
 )
 
+cc_library(
+    name = "use_multiple_headers_ignored_via_tag",
+    hdrs = ["use_multiple_ignored_headers.h"],
+    tags = [
+        "dwyu:ignore_include=support/some_header.h",
+        "dwyu:ignore_include=support/some_other_header.h",
+    ],
+    deps = ["//ignore_includes/support:direct_dep"],
+)
+
 # Has multiple invalid includes, which do however not cause an error due to them matching the ignored patterns
 cc_library(
     name = "use_ignored_patterns",

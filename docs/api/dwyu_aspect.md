@@ -16,14 +16,26 @@ dwyu_cc_aspect_factory(<a href="#dwyu_cc_aspect_factory-analysis_ignores_private
                        <a href="#dwyu_cc_aspect_factory-verbose">verbose</a>)
 </pre>
 
-Create a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
+Create and configure a "**D**epend on **W**hat **Y**ou **U**se" (DWYU) aspect.
 
-Use the factory in a `.bzl` file to instantiate a DWYU aspect:
-```starlark
-load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "dwyu_cc_aspect_factory")
+You might have targets which require different DWYU settings than the ones set by you with the aspect factory.
+If this is the case for a separate part of your project, an easy solution can be to create a second aspect instance with different settings and use that for the targets in question.
+However, if the issue is with individual targets, you can also use the following tags to override the DWYU settings for those specific targets.
+Using tags to control the DWYU behavior is demonstrated in the [configuration_via_tags example](/examples/configuration_via_tags).<br>
+The detailed description for the features controlled by these tags can be found below in the documentation of the aspect factory parameters.
+If a tag sets a single value attribute, the tag value will override the value set by the aspect factory or via `--aspects_parameters`.
+If a tag sets a list attribute, the tag value will be appended to the list set by the aspect factory.
 
-your_dwyu_aspect = dwyu_cc_aspect_factory(<aspect_options>)
-```
+| Tag | Description |
+|---|---|
+| `dwyu:skip`                                            | Do not perform any DWYU analysis. |
+| `dwyu:ignore_private_headers_from_deps=[True\|False]` | Control whether to consider private headers from the `srcs` attribute of dependencies. |
+| `dwyu:optimize_impl_deps=[True\|False]`               | Control optimizing implementation dependencies. |
+| `dwyu:report_missing_direct_deps=[True\|False]`       | Control reporting missing direct dependencies. |
+| `dwyu:report_unused_deps=[True\|False]`               | Control reporting unused dependencies. |
+| `dwyu:ignore_include=<include>`                        | Ignore the specified include for the _missing direct dependencies_ check. Provide without quoting (aka `<` or `"`). Does not support setting patterns. Multiple uses are accumulated. |
+| `dwyu:ignore_unused_dep=<dep>`                         | Ignore the specified dependency for the _unused dependencies_ check. Has to use the canonical repo name. The examples show an elegant way to do this. Multiple uses are accumulated. |
+| `dwyu:preprocessing_mode=<mode>`                       | Control the preprocessing mode. |
 
 
 **PARAMETERS**
@@ -41,7 +53,7 @@ your_dwyu_aspect = dwyu_cc_aspect_factory(<aspect_options>)
 | <a id="dwyu_cc_aspect_factory-recursive"></a>recursive |  By default, the DWYU aspect analyzes only the target it is being applied to. You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br> This feature is demonstrated in the [recursion example](/examples/recursion).   |  `False` |
 | <a id="dwyu_cc_aspect_factory-skip_external_targets"></a>skip_external_targets |  Sometimes external dependencies are not our under control and thus analyzing them is of little value. If this flag is True, DWYU will automatically skip all targets from external workspaces. This can be useful in combination with the recursive analysis mode.<br> This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).   |  `False` |
 | <a id="dwyu_cc_aspect_factory-skip_toolchain_features"></a>skip_toolchain_features |  A list of C++ toolchain feature strings that control when the DWYU analysis is skipped. When a feature name is prefixed with `-` (e.g. `-layering_check`), the analysis is skipped if that feature is **disabled**. When a feature name has no prefix (e.g. `some_feature`), the analysis is skipped if that feature is **enabled**. This allows gating DWYU on the state of C++ toolchain features configured via the standard `features` attribute.<br> Please note, this is based on the features the active toolchain understands and not string comparison done with the `features` attribute values. Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.   |  `[]` |
-| <a id="dwyu_cc_aspect_factory-skipped_tags"></a>skipped_tags |  Do not execute the DWYU analysis on targets with at least one of those tags. By default skips the analysis for targets tagged with 'no-dwyu'.<br> This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).   |  `["no-dwyu"]` |
+| <a id="dwyu_cc_aspect_factory-skipped_tags"></a>skipped_tags |  Do not execute the DWYU analysis on targets with at least one of those tags. By default skips the analysis for targets tagged with 'no-dwyu'.<br> This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).   |  `["no-dwyu", "dwyu:skip"]` |
 | <a id="dwyu_cc_aspect_factory-target_mapping"></a>target_mapping |  Accepts a [dwyu_make_cc_info_mapping](/docs/api/cc_info_mapping.md) target. Allows virtually combining targets regarding which header can be provided by which dependency. For the full details see the `dwyu_make_cc_info_mapping` documentation.<br> This feature is demonstrated in the [target_mapping example](/examples/target_mapping).   |  `None` |
 | <a id="dwyu_cc_aspect_factory-verbose"></a>verbose |  If `True`, print debugging information about the individual DWYU actions.<br> This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_verbose=[True\|False]`.   |  `False` |
 

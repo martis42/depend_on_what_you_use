@@ -42,6 +42,10 @@ EXAMPLES = [
         expected_success=False,
     ),
     Example(
+        build_cmd="--config=dwyu //configuration_via_tags/...",
+        expected_success=True,
+    ),
+    Example(
         build_cmd="--config=dwyu //define_macros:main",
         expected_success=False,
     ),
