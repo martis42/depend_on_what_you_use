@@ -48,16 +48,11 @@ repos:
       - id: ruff-check
         args: [--fix]
 
-  # https://github.com/astral-sh/ty
-  - repo: local
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.63
     hooks:
       - id: ty
-        name: ty
-        entry: uvx --python=3.12 ty==0.0.48 check
-        types: [python]
-        language: system
-        # To prevent API changes in one file breaking type annotations in another we run on the full repository
-        pass_filenames: false
+        args: [--isolated]
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v22.1.5
