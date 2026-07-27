@@ -15,6 +15,7 @@ boost_version = "1.83.0.bcr.4"
 # Our own boost dependencies
 bazel_dep(name = "boost.filesystem", version = boost_version)
 bazel_dep(name = "boost.regex", version = boost_version)
+bazel_dep(name = "boost.system", version = boost_version)
 
 # Boost dependencies required by 'boost.wave'
 bazel_dep(name = "boost.assert", version = boost_version)
