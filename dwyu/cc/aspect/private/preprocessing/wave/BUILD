@@ -10,6 +10,7 @@ cc_library(
     deps = [
         "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
         "@boost.filesystem",
+        "@boost.system",
         "@boost.wave//:wave",
     ],
 )
@@ -20,6 +21,7 @@ cc_library(
     visibility = ["//dwyu/cc/aspect/private/preprocessing:__subpackages__"],
     deps = [
         "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
+        "//dwyu/cc/private:utils",
         "@boost.wave//:wave",
         "@nlohmann_json//:singleheader-json",
     ],
