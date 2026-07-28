@@ -19,6 +19,7 @@ cc_library(
     hdrs = ["process_files.h"],
     visibility = ["//dwyu/cc/aspect/private/preprocessing:__subpackages__"],
     deps = [
+        "//dwyu/cc/aspect/private/preprocessing/fast_parsing:process_files",
         "//dwyu/cc/aspect/private/preprocessing/lib:included_file",
         "@boost.wave//:wave",
         "@nlohmann_json//:singleheader-json",
