@@ -1,5 +1,5 @@
 You might wish to not execute DWYU on some specific targets.
-An easy way to do so is tagging a target with `no-dwyu`.
+An easy way to do so is tagging a target with `dwyu:skip`.
 You can however also define a custom tag to mark targets which shall be skipped by the DWYU analysis.
 
 Executing the following fails due to the target using a header without a proper dependency.
@@ -8,7 +8,7 @@ Executing the following fails due to the target using a header without a proper 
 bazel build --config=dwyu //skipping_targets:bad_target
 ```
 
-Executing the following succeeds due to the target being tagged with `no-dwyu`.
+Executing the following succeeds due to the target being tagged with `dwyu:skip`.
 
 ```shell
 bazel build --config=dwyu //skipping_targets:bad_target_skipped

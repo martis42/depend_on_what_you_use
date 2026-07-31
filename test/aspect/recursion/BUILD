@@ -53,7 +53,7 @@ cc_library(
 cc_library(
     name = "e",
     hdrs = ["e.h"],
-    tags = ["no-dwyu"],
+    tags = ["dwyu:skip"],
     deps = [":f"],  # unused dependency
 )
 
