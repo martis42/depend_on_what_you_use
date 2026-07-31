@@ -70,7 +70,7 @@ def _create_compile_flags(target, ctx, cc_toolchain):
 
 def _make_quoting_compatible_to_be_run_in_shell(command):
     # We need to copy the list to get a mutable non frozen list
-    mutable_cmd = [flag for flag in command]
+    mutable_cmd = command[:]
     for i, flag in enumerate(mutable_cmd):
         if '"' in flag:
             parts = flag.split('"')
