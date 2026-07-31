@@ -6,7 +6,7 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
-        # We are not seeing unused dependency errors because DWYU thinks the dependencies offer not headers at al and thus prunes them early in the analysis.
+        # We are not seeing unused dependency errors because DWYU thinks the dependencies offer not headers at all and thus prunes them early in the analysis
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
                 target="//allow_private_headers_from_deps:forbid_private_headers_from_deps_via_tag",
