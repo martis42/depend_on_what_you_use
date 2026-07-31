@@ -9,7 +9,7 @@ cc_library(
 cc_library(
     name = "bad_target_skipped",
     hdrs = ["use_transitive_dep.h"],
-    tags = ["no-dwyu"],
+    tags = ["dwyu:skip"],
     deps = [":lib_a"],
 )
 

@@ -121,7 +121,8 @@ def dwyu_cc_aspect_factory(
                                  Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.
 
         skipped_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
-                      By default skips the analysis for targets tagged with 'no-dwyu'.<br>
+                      By default skips the analysis for targets tagged with 'dwyu:skip'.
+                      The legacy tag 'no-dwyu' is also skipped by default.<br>
                       This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         target_mapping: Accepts a [dwyu_make_cc_info_mapping](/docs/api/cc_info_mapping.md) target.
