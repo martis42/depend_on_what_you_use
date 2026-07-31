@@ -11,6 +11,7 @@
 # bugprone-easily-swappable-parameters : Not helpful as we are not creating a library which users could misuse by accident
 # clang-analyzer-cplusplus.NewDeleteLeaks : Too many false positives for using std::unique_ptr with C++11
 # clang-analyzer-optin.core.EnumCastOutOfRange : We would like to use this, but this is incompatible to boost::regex and ExcludeHeaderFilterRegex is not working for clang-analyzer-*
+# cppcoreguidelines-pro-bounds-avoid-unchecked-container-access : Too many false positives with json data structures. Does not recognize code is range checked.
 # fuchsia-default-arguments-calls : Default arguments are often parts of established APIs, the check is too opinionated
 # fuchsia-default-arguments-declarations : We prefer the lean usage offered by default values.
 # hicpp-avoid-c-arrays : Alias to cppcoreguidelines-avoid-c-arrays
@@ -34,6 +35,7 @@ Checks: >
         -bugprone-easily-swappable-parameters,
         -clang-analyzer-cplusplus.NewDeleteLeaks,
         -clang-analyzer-optin.core.EnumCastOutOfRange,
+        -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
         -fuchsia-default-arguments-calls,
         -fuchsia-default-arguments-declarations,
         -hicpp-avoid-c-arrays,
@@ -51,8 +53,8 @@ Checks: >
         -readability-redundant-member-init
 # Abort on findings to ensure we don't overlook new findings by accident
 WarningsAsErrors: "*"
-# Without this findings in header files are ignored. LLVM 22.0 will make showing findings from non system headers the default.
-HeaderFilterRegex: ".*"
+# Ignore headers which are an implementation detail of the toolchain
+ExcludeHeaderFilterRegex: "external/toolchains_llvm.*"
 CheckOptions:
   - key:    misc-include-cleaner.IgnoreHeaders
     value:  'boost/regex.*'
