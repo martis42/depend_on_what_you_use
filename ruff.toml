@@ -36,6 +36,8 @@ ignore = [
     # We omit trailing commas deliberately to keep code in a single line instead of multiple lines due to the formatting
     # rules automatically using a trailing comma as indicator for breaking a statement into multiple lines.
     "COM812",
+    # We are not having a copyright header per file.
+    "CPY001",
     # It is fine that some line are longer than the length limit whenever the formatter finds not better option
     "E501",
     # The performance benefits are not measurable. We prefer simple code with increased readability.
@@ -44,6 +46,7 @@ ignore = [
     "INP001",
     # Number of function arguments is too opinionated
     "PLR0913",
+    "PLR0917",
     # High false positive rate. Often a plain number is the most expressive, e.g. when checking lengths.
     "PLR2004",
     # XML is not an attack vector for DWYU, as we don't process user provided xml content. We generate the xml content
