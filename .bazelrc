@@ -34,6 +34,8 @@ build --cxxopt=-Wc++11-compat
 build --cxxopt=-Wc++11-compat-pedantic
 # Ensure we do not miss a warning by accident
 build --cxxopt=-Werror
+# The Bazel C++ toolchain has unused compiler arguments
+build --cxxopt=-Wno-unused-command-line-argument
 # Ignore compiler warnings in external code outside our control
 build --per_file_copt=boost\..*/src/.*@-w
 build --host_per_file_copt=boost\..*/src/.*@-w
