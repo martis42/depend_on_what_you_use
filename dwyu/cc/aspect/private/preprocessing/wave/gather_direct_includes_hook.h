@@ -6,7 +6,6 @@
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/system/error_code.hpp>
 #include <boost/wave/preprocessing_hooks.hpp>
 
 #include <cstdint>
@@ -26,10 +25,9 @@ namespace dwyu {
 // includes statements using the '<>' notation.
 class GatherDirectIncludesHook : public PreprocessingHooksBase {
   public:
-    explicit GatherDirectIncludesHook(const bool ignore_system_includes, std::vector<IncludedFile>& included_files,
-                             std::string root_file)
+    explicit GatherDirectIncludesHook(const bool ignore_system_includes, std::vector<IncludedFile>& included_files)
         : ignore_system_includes_{ignore_system_includes}, include_depth_{0}, included_files_{included_files},
-          working_dir_{boost::filesystem::current_path()}, root_file_{std::move(root_file)} {}
+          working_dir_{boost::filesystem::current_path()} {}
 
     template <typename ContextT>
     bool locate_include_file(ContextT& ctx,
@@ -44,22 +42,9 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
         const bool file_found = boost::wave::context_policies::default_preprocessing_hooks::locate_include_file(
             ctx, file_path, is_system, current_name, dir_path, native_name);
 
-        // If we are in the root file (aka file under inspection) and this is a relevant include (aka discoverable),
+        // If we are in the root file (aka file under inspection) and this is is a relevant include (aka discoverable),
         // then we add it to the list of relevant includes.
-        //
-        // Determine "are we in the root file?" from the current preprocessing token's physical position rather than a
-        // hand-maintained depth counter. The counter (see 'opened_include_file'/'returning_from_include_file') desyncs
-        // whenever 'PreprocessingHooksBase::throw_exception' swallows a 'severity_error' mid-recursion (e.g. 'bad_include_file'
-        // for a '<system>' header DWYU does not stage): the two callbacks stop being balanced, 'include_depth_' never
-        // returns to 0, and every top-level '#include' after that point is misattributed as nested and dropped. The
-        // token position stays correct regardless of swallowed exceptions.
-        // We use 'boost::filesystem::equivalent' (not a string compare) because Wave reports an absolutized path for
-        // the current file, while the root path arrives relative, so a naive string '==' would never match.
-        boost::system::error_code error_code{};
-        const bool in_root_file =
-            boost::filesystem::equivalent(ctx.get_main_pos().get_file().c_str(), root_file_, error_code) &&
-            !error_code;
-        if (in_root_file && file_found) {
+        if (include_depth_ == 0 && file_found) {
             included_files_.push_back(
                 IncludedFile{std::move(include_statement), makeRelativePath(file_path, working_dir_)});
         }
@@ -103,7 +88,6 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design to make values available to caller
     std::vector<IncludedFile>& included_files_;
     boost::filesystem::path working_dir_;
-    std::string root_file_;
     // NOLINTEND(cppcoreguidelines-use-default-member-init)
 };
 
