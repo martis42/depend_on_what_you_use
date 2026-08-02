@@ -59,3 +59,14 @@
          }
 
          // dynamic predefined macros
+@@ -190,9 +197,9 @@ namespace util {
+
+     public:
+         predefined_macros()
+-          : compilation_time_(__DATE__ " " __TIME__)
++          : compilation_time_("Jan  1 2000 00:00:00")
+         {
+             reset();
+             reset_version();
+             reset_versionstr();
+         }
