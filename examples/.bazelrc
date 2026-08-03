@@ -29,6 +29,9 @@ build:dwyu_custom_skipping --output_groups=dwyu
 build:dwyu_skip_external --aspects=//:aspect.bzl%dwyu_recursive_skip_external
 build:dwyu_skip_external --output_groups=dwyu
 
+build:dwyu_skip_listed_targets --aspects=//:aspect.bzl%dwyu_skip_listed_targets
+build:dwyu_skip_listed_targets --output_groups=dwyu
+
 build:dwyu_map_specific_deps --aspects=//:aspect.bzl%dwyu_map_specific_deps
 build:dwyu_map_specific_deps --output_groups=dwyu
 

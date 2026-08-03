@@ -20,6 +20,13 @@ cc_library(
     deps = [":lib_a"],
 )
 
+# In contrast to the targets above, no tag is required to exclude this target from the analysis
+cc_library(
+    name = "bad_target_in_list",
+    hdrs = ["use_transitive_dep.h"],
+    deps = [":lib_a"],
+)
+
 cc_library(
     name = "lib_a",
     hdrs = ["lib_a.h"],
