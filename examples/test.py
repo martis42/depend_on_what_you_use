@@ -82,6 +82,10 @@ EXAMPLES = [
         expected_success=True,
     ),
     Example(
+        build_cmd="--config=dwyu_skip_listed_targets //skipping_targets:bad_target_in_list",
+        expected_success=True,
+    ),
+    Example(
         build_cmd="--config=dwyu_skip_external //skipping_targets:use_broken_external_dependency",
         expected_success=True,
     ),
