@@ -42,6 +42,40 @@ def _hash(value):
     """
     return "%x" % hash(value)
 
+def matches_target_pattern(label, pattern):
+    """
+    Check a label against the subset of the Bazel target pattern syntax supported by 'skipped_targets'.
+
+    The pattern is expected to be validated by the aspect factory. Meaning, we do not handle invalid patterns here.
+
+    Args:
+        label: The Label of the target under inspection
+        pattern: A single pattern from the 'skipped_targets' aspect configuration
+
+    Returns:
+        True if the label is matched by the pattern
+    """
+    repo, _, rest = pattern.partition("//")
+
+    # Patterns without a repository prefix refer to the main repository, for which 'repo_name' is an empty string.
+    # Users have to spell out the canonical repository name for external repositories.
+    if repo.lstrip("@") != label.repo_name:
+        return False
+
+    if rest == "...":
+        return True
+    if rest.endswith("/..."):
+        package_prefix = rest[:-len("/...")]
+        return label.package == package_prefix or label.package.startswith(package_prefix + "/")
+
+    package, _, name = rest.partition(":")
+    if package != label.package:
+        return False
+    return name == "all" or name == label.name
+
+def _is_skipped_target(ctx, target):
+    return any([matches_target_pattern(target.label, pattern) for pattern in ctx.attr._skipped_targets])
+
 def _make_dwyu_config(ctx):
     """
     Some values can be configured by tags on top of the aspect factory attributes.
@@ -415,6 +449,12 @@ def dwyu_cc_aspect_impl(target, ctx):
     # We might extend the list of supported rules eventually, but right now we only support and test the core cc_* rules.
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
         return []
+
+    # Skip targets which the user explicitly excluded from the analysis.
+    # In contrast to the other skipping mechanisms we still propagate the reports of the dependencies.
+    # Excluding a single target from the analysis shall not stop the recursive analysis below it.
+    if _is_skipped_target(ctx, target):
+        return [OutputGroupInfo(dwyu = depset(transitive = _gather_transitive_reports(ctx)))]
 
     # If configured, skip external targets
     if ctx.attr._skip_external_targets and _is_external(ctx):
