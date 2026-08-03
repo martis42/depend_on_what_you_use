@@ -8,6 +8,25 @@ _LEGACY_SKIPPED_TAGS = ["no-dwyu"]
 _MANDATORY_SKIPPED_TAGS = ["dwyu:skip"]
 _DEFAULT_SKIPPED_TAGS = _LEGACY_SKIPPED_TAGS + _MANDATORY_SKIPPED_TAGS
 
+def _validate_skipped_targets(patterns):
+    """
+    We support only a small subset of the Bazel target pattern syntax. Everything else is rejected at load time
+    instead of silently never matching anything.
+    """
+    for pattern in patterns:
+        if "//" not in pattern:
+            fail("Invalid 'skipped_targets' pattern '{}'. Patterns have to contain '//'.".format(pattern))
+        if "*" in pattern:
+            fail("Invalid 'skipped_targets' pattern '{}'. Wildcards are not supported.".format(pattern))
+        if pattern.startswith("-"):
+            fail("Invalid 'skipped_targets' pattern '{}'. Negative patterns are not supported.".format(pattern))
+        _, _, rest = pattern.partition("//")
+        if "..." in rest:
+            if not (rest == "..." or rest.endswith("/...")):
+                fail("Invalid 'skipped_targets' pattern '{}'. '...' is only allowed as the final path segment.".format(pattern))
+        elif ":" not in rest:
+            fail("Invalid 'skipped_targets' pattern '{}'. Patterns have to name a target explicitly (e.g. '//foo:bar' or '//foo:all').".format(pattern))
+
 def dwyu_cc_aspect_factory(
         analysis_ignores_private_headers_from_deps = True,
         analysis_optimizes_impl_deps = False,
@@ -20,6 +39,7 @@ def dwyu_cc_aspect_factory(
         skip_external_targets = False,
         skip_toolchain_features = [],
         skipped_tags = _DEFAULT_SKIPPED_TAGS,
+        skipped_targets = [],
         target_mapping = None,
         verbose = False):
     """
@@ -125,6 +145,30 @@ def dwyu_cc_aspect_factory(
                       The legacy tag 'no-dwyu' is also skipped by default.<br>
                       This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
+        skipped_targets: Do not execute the DWYU analysis on targets matching at least one of the given target patterns.
+                         In contrast to `skipped_tags`, this excludes targets without changing their `BUILD` files.
+                         This makes it a good fit for migrating an existing project to DWYU, where the list of not yet
+                         compliant targets should live in a single reviewable place instead of being scattered across
+                         the whole project.<br>
+                         Only a small subset of the [Bazel target pattern syntax](https://bazel.build/run/build#specifying-build-targets) is supported:
+                         <ul><li>
+                           `//foo:bar` : Exactly this target.
+                         </li><li>
+                           `//foo:all` : Every target in exactly this package.
+                         </li><li>
+                           `//foo/...` : Every target in this package and all its subpackages.
+                         </li><li>
+                           `//...` : Every target in the repository.
+                         </li></ul>
+                         Neither `*` globbing nor negative patterns (`-//foo:bar`) are supported.
+                         Invalid patterns cause an error while loading the aspect.<br>
+                         Without an `@repo` prefix a pattern refers to the main repository.
+                         Patterns for external repositories have to use the canonical repository name (e.g. `@rules_cc+`), not the apparent one (e.g. `@rules_cc`).
+                         The canonical name depends on the Bazel version and the module resolution, thus we advise using `skip_external_targets` if you want to exclude external repositories in general.<br>
+                         In contrast to the other skipping mechanisms, the DWYU reports of the dependencies are still propagated.
+                         Meaning, in the recursive analysis mode excluding a target does not stop the analysis of the targets below it.<br>
+                         This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+
         target_mapping: Accepts a [dwyu_make_cc_info_mapping](/docs/api/cc_info_mapping.md) target.
                         Allows virtually combining targets regarding which header can be provided by which dependency.
                         For the full details see the `dwyu_make_cc_info_mapping` documentation.<br>
@@ -145,6 +189,8 @@ def dwyu_cc_aspect_factory(
 
     if preprocessing_mode not in PREPROCESSOR_MODES:
         fail("Provided invalid value '{}' for 'preprocessing_mode'. Supported values are {}".format(preprocessing_mode, PREPROCESSOR_MODES))
+
+    _validate_skipped_targets(skipped_targets)
 
     return aspect(
         implementation = dwyu_cc_aspect_impl,
@@ -189,6 +235,9 @@ def dwyu_cc_aspect_factory(
             ),
             "_skipped_tags": attr.string_list(
                 default = aspect_skipped_tags,
+            ),
+            "_skipped_targets": attr.string_list(
+                default = skipped_targets,
             ),
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoMappingInfo],
