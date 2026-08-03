@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_defines_from_compiler_flags")
+load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_defines_from_compiler_flags", "matches_target_pattern")
 
 def _extract_defines_from_compiler_flags_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -89,12 +89,59 @@ def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
 
     return unittest.end(env)
 
+def _matches_target_pattern_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # Exact target
+    asserts.true(env, matches_target_pattern(Label("//foo:bar"), "//foo:bar"))
+    asserts.false(env, matches_target_pattern(Label("//foo:bar"), "//foo:baz"))
+    asserts.false(env, matches_target_pattern(Label("//foo:bar"), "//other:bar"))
+    asserts.false(env, matches_target_pattern(Label("//foo/sub:bar"), "//foo:bar"))
+
+    # All targets in exactly one package
+    asserts.true(env, matches_target_pattern(Label("//foo:bar"), "//foo:all"))
+    asserts.true(env, matches_target_pattern(Label("//foo:baz"), "//foo:all"))
+    asserts.true(env, matches_target_pattern(Label("//:bar"), "//:all"))
+    asserts.false(env, matches_target_pattern(Label("//foo/sub:bar"), "//foo:all"))
+    asserts.false(env, matches_target_pattern(Label("//other:bar"), "//foo:all"))
+
+    # A package and all its subpackages
+    asserts.true(env, matches_target_pattern(Label("//foo:bar"), "//foo/..."))
+    asserts.true(env, matches_target_pattern(Label("//foo/sub:bar"), "//foo/..."))
+    asserts.true(env, matches_target_pattern(Label("//foo/sub/deep:bar"), "//foo/..."))
+    asserts.false(env, matches_target_pattern(Label("//other:bar"), "//foo/..."))
+
+    # Packages sharing a prefix with the pattern are not matched
+    asserts.false(env, matches_target_pattern(Label("//foobar:x"), "//foo/..."))
+    asserts.false(env, matches_target_pattern(Label("//foobar/sub:x"), "//foo/..."))
+
+    # Everything in the repository
+    asserts.true(env, matches_target_pattern(Label("//:bar"), "//..."))
+    asserts.true(env, matches_target_pattern(Label("//foo:bar"), "//..."))
+    asserts.true(env, matches_target_pattern(Label("//foo/sub/deep:bar"), "//..."))
+
+    # Patterns without repository prefix match only the main repository
+    external_label = Label("@bazel_skylib//lib:unittest.bzl")
+    asserts.false(env, matches_target_pattern(external_label, "//lib:unittest.bzl"))
+    asserts.false(env, matches_target_pattern(external_label, "//..."))
+    asserts.false(env, matches_target_pattern(Label("//foo:bar"), "@some_repo//foo:bar"))
+    asserts.false(env, matches_target_pattern(Label("//foo:bar"), "@some_repo//..."))
+
+    # External repositories are matched by their canonical name
+    asserts.true(env, matches_target_pattern(external_label, "@{}//lib:unittest.bzl".format(external_label.repo_name)))
+    asserts.true(env, matches_target_pattern(external_label, "@{}//...".format(external_label.repo_name)))
+    asserts.false(env, matches_target_pattern(external_label, "@{}//lib:other".format(external_label.repo_name)))
+
+    return unittest.end(env)
+
 extract_defines_from_compiler_flags_test = unittest.make(_extract_defines_from_compiler_flags_test_impl)
 extract_cpp_standard_from_compiler_flags_test = unittest.make(_extract_cpp_standard_from_compiler_flags_test_impl)
+matches_target_pattern_test = unittest.make(_matches_target_pattern_test_impl)
 
 def dwyu_aspect_test_suite(name):
     unittest.suite(
         name,
         extract_defines_from_compiler_flags_test,
         extract_cpp_standard_from_compiler_flags_test,
+        matches_target_pattern_test,
     )
