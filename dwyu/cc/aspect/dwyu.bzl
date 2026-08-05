@@ -44,13 +44,13 @@ def _hash(value):
 
 def matches_target_pattern(label, pattern):
     """
-    Check a label against the subset of the Bazel target pattern syntax supported by 'skipped_targets'.
+    Check a label against the subset of the Bazel target pattern syntax supported by 'skip_targets'.
 
     The pattern is expected to be validated by the aspect factory. Meaning, we do not handle invalid patterns here.
 
     Args:
         label: The Label of the target under inspection
-        pattern: A single pattern from the 'skipped_targets' aspect configuration
+        pattern: A single pattern from the 'skip_targets' aspect configuration
 
     Returns:
         True if the label is matched by the pattern
@@ -74,7 +74,7 @@ def matches_target_pattern(label, pattern):
     return name == "all" or name == label.name
 
 def _is_skipped_target(ctx, target):
-    return any([matches_target_pattern(target.label, pattern) for pattern in ctx.attr._skipped_targets])
+    return any([matches_target_pattern(target.label, pattern) for pattern in ctx.attr._skip_targets])
 
 def _make_dwyu_config(ctx):
     """

@@ -26,7 +26,7 @@ Alternatively, you can list the targets to be excluded directly in the aspect co
 This is useful if you want to keep the list of excluded targets in a single place, for example while migrating an existing project to DWYU.
 Apart from naming a target exactly, you can also exclude all targets in a package (`//foo:all`) or all targets in a package and its subpackages (`//foo/...`).
 
-Executing the following succeeds due to the target being listed in the `skipped_targets` attribute of the aspect.
+Executing the following succeeds due to the target being listed in the `skip_targets` attribute of the aspect.
 See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the config and the aspect configuration.
 
 ```shell
