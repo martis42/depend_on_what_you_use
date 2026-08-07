@@ -378,6 +378,14 @@ def _gather_transitive_reports(ctx):
             reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
     return reports
 
+def _return_on_skip(ctx):
+    """
+    In recursive mode we have to decide if skipping a target also stops the recursive analysis of its dependencies.
+    """
+    if ctx.attr._recursion_stops_on_skip:
+        return []
+    return [OutputGroupInfo(dwyu = depset(transitive = _gather_transitive_reports(ctx)))]
+
 def _extract_includes_from_files(ctx, config, target, files, defines, cc_toolchain, attr_prefix):
     """
     For each given file perform a preprocessing step to find all relevant include statements
@@ -446,23 +454,27 @@ def dwyu_cc_aspect_impl(target, ctx):
         OutputGroup containing the generated report file
     """
 
+    #
+    # Check whether DWYU should run on this target
+    #
+
     # We might extend the list of supported rules eventually, but right now we only support and test the core cc_* rules.
     if not ctx.rule.kind in ["cc_binary", "cc_library", "cc_test"]:
-        return []
+        return _return_on_skip(ctx)
 
     # Skip targets which the user explicitly excluded from the analysis.
     # In contrast to the other skipping mechanisms we still propagate the reports of the dependencies.
     # Excluding a single target from the analysis shall not stop the recursive analysis below it.
     if _is_skipped_target(ctx, target):
-        return [OutputGroupInfo(dwyu = depset(transitive = _gather_transitive_reports(ctx)))]
+        return _return_on_skip(ctx)
 
     # If configured, skip external targets
     if ctx.attr._skip_external_targets and _is_external(ctx):
-        return []
+        return _return_on_skip(ctx)
 
     # Skip targets which explicitly opt-out
     if any([tag in ctx.attr._skip_tags for tag in ctx.rule.attr.tags]):
-        return []
+        return _return_on_skip(ctx)
 
     cc_toolchain = find_cc_toolchain(ctx)
     feature_configuration = cc_common.configure_features(
@@ -478,19 +490,23 @@ def dwyu_cc_aspect_impl(target, ctx):
                 feature_configuration = feature_configuration,
                 feature_name = feature[1:],
             ):
-                return []
+                return _return_on_skip(ctx)
         elif cc_common.is_enabled(
             feature_configuration = feature_configuration,
             feature_name = feature,
         ):
-            return []
+            return _return_on_skip(ctx)
 
     public_files, private_files = _get_target_sources(ctx.rule)
 
     # We skip targets which have no source files. cc_* targets can also be of value if they only specify the 'deps'
     # attribute without own sources. But those targets are not of interest for DWYU.
     if not public_files and not private_files:
-        return []
+        return _return_on_skip(ctx)
+
+    #
+    # Execute DWYU analysis for the target under inspection
+    #
 
     config = _make_dwyu_config(ctx)
 

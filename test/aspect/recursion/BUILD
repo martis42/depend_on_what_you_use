@@ -25,6 +25,7 @@ cc_library(
 cc_library(
     name = "a",
     hdrs = ["a.h"],
+    tags = ["custom_skip_tag"],
     deps = [":c"],
 )
 

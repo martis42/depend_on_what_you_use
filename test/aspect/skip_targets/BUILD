@@ -15,32 +15,6 @@ cc_library(
 )
 
 ##
-## Targets for testing the recursive analysis mode
-##
-
-cc_library(
-    name = "top",
-    hdrs = ["top.h"],
-    deps = [":middle"],
-)
-
-# Skipping the analysis of this target shall not stop the analysis of the targets below it
-cc_library(
-    name = "middle",
-    hdrs = ["middle.h"],
-    deps = [
-        ":bottom",
-        ":unused_lib",  # unused dependency
-    ],
-)
-
-cc_library(
-    name = "bottom",
-    hdrs = ["bottom.h"],
-    deps = [":unused_lib"],  # unused dependency
-)
-
-##
 ## Support Targets
 ##
 
