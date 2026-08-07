@@ -20,7 +20,14 @@ Consequently, if a project uses conditional include statements based on macros n
 We consider this however a rare edge case.
 Most projects use conditional include statements based on macros set by Bazel to accommodate for variation points in the build process, which DWYU can process just fine.
 
-If your project is impacted by this edge case, you can try some mitigation strategies:
+There are also preprocessor constructs our preprocessing cannot evaluate at all, since they are not part of the C++11 standard our preprocessing implements.
+Examples are `__has_include` or invoking a variadic macro without arguments for the variadic part.
+When preprocessing a file hits such a construct, DWYU automatically falls back to lexically scanning that file for include statements, like `preprocessing_mode = "fast"` does.
+Thereby, include statements are never silently dropped due to such constructs.
+The trade-off is that for the affected files conditional include statements are over-reported, as the lexical scanning cannot evaluate the conditional logic around them.
+If the aspect's `verbose` option is enabled, the preprocessing reports each file for which this fallback is used.
+
+If your project is impacted by those edge cases, you can try some mitigation strategies:
 
 - You can use the `preprocessing_mode = "fast"` DWYU aspect option to disable preprocessing.
   As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
