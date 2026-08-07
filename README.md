@@ -13,6 +13,7 @@
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-used-blue)](https://clang.llvm.org/extra/clang-tidy/)
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/martis42/depend_on_what_you_use/badge)](https://scorecard.dev/viewer/?uri=github.com/martis42/depend_on_what_you_use)
 
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
