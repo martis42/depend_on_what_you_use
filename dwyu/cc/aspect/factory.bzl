@@ -37,9 +37,10 @@ def dwyu_cc_aspect_factory(
         preprocessing_mode = "full",
         recursive = False,
         skip_external_targets = False,
+        skip_tags = _DEFAULT_SKIPPED_TAGS,
         skip_targets = [],
         skip_toolchain_features = [],
-        skipped_tags = _DEFAULT_SKIPPED_TAGS,
+        skipped_tags = [],
         target_mapping = None,
         verbose = False):
     """
@@ -133,6 +134,11 @@ def dwyu_cc_aspect_factory(
                                This can be useful in combination with the recursive analysis mode.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
+        skip_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
+                   By default skips the analysis for targets tagged with 'dwyu:skip'.
+                   The legacy tag 'no-dwyu' is also skipped by default.<br>
+                   This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+
         skip_targets: Do not execute the DWYU analysis on targets matching at least one of the given target patterns.
                       In contrast to `skipped_tags`, this excludes targets without changing their `BUILD` files.
                       This makes it a good fit for migrating an existing project to DWYU, where the list of not yet compliant targets should live in a single reviewable place instead of being scattered across the whole project.<br>
@@ -162,10 +168,8 @@ def dwyu_cc_aspect_factory(
                                  Please note, this is based on the features the active toolchain understands and not string comparison done with the `features` attribute values.
                                  Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.
 
-        skipped_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
-                      By default skips the analysis for targets tagged with 'dwyu:skip'.
-                      The legacy tag 'no-dwyu' is also skipped by default.<br>
-                      This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+        skipped_tags: Deprecated option, use `skip_tags` instead.
+                      Will be replaced in a future release.
 
         target_mapping: Accepts a [dwyu_make_cc_info_mapping](/docs/api/cc_info_mapping.md) target.
                         Allows virtually combining targets regarding which header can be provided by which dependency.
@@ -182,7 +186,16 @@ def dwyu_cc_aspect_factory(
     if recursive:
         attr_aspects = ["implementation_deps", "deps"]
     aspect_ignored_includes = [ignored_includes] if ignored_includes else []
-    aspect_skipped_tags = _DEFAULT_SKIPPED_TAGS if skipped_tags == _DEFAULT_SKIPPED_TAGS else unique_list(skipped_tags, _MANDATORY_SKIPPED_TAGS)
+
+    if skip_tags != _DEFAULT_SKIPPED_TAGS and skipped_tags:
+        fail("Both 'skip_tags' and 'skipped_tags' are set. Please use only 'skip_tags'.")
+    if skipped_tags:
+        # buildifier: disable=print
+        print("DWYU - WARNING: Option 'skipped_tags' is deprecated and will be removed in a future release. Please use 'skip_tags' instead.")
+        aspect_skip_tags = unique_list(skipped_tags, _MANDATORY_SKIPPED_TAGS)
+    else:
+        aspect_skip_tags = _DEFAULT_SKIPPED_TAGS if skip_tags == _DEFAULT_SKIPPED_TAGS else unique_list(skip_tags, _MANDATORY_SKIPPED_TAGS)
+
     aspect_target_mapping = [target_mapping] if target_mapping else []
 
     if preprocessing_mode not in PREPROCESSOR_MODES:
@@ -228,14 +241,14 @@ def dwyu_cc_aspect_factory(
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
             ),
+            "_skip_tags": attr.string_list(
+                default = aspect_skip_tags,
+            ),
             "_skip_targets": attr.string_list(
                 default = skip_targets,
             ),
             "_skip_toolchain_features": attr.string_list(
                 default = skip_toolchain_features,
-            ),
-            "_skipped_tags": attr.string_list(
-                default = aspect_skipped_tags,
             ),
             "_target_mapping": attr.label_list(
                 providers = [DwyuCcInfoMappingInfo],
