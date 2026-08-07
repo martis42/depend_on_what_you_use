@@ -36,6 +36,7 @@ def dwyu_cc_aspect_factory(
         ignored_unused_deps = [],
         preprocessing_mode = "full",
         recursive = False,
+        recursion_stops_on_skip = False,
         skip_external_targets = False,
         skip_tags = _DEFAULT_SKIPPED_TAGS,
         skip_targets = [],
@@ -128,6 +129,9 @@ def dwyu_cc_aspect_factory(
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
                    You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
                    This feature is demonstrated in the [recursion example](/examples/recursion).
+
+        recursion_stops_on_skip: If `True`, skipping a target will also stop the recursive analysis of its dependencies.
+                                 This does not just influence the behavior of the `skip_*` options, but also skipping to inbuilt logic (e.g. skipping incompatible rule types).
 
         skip_external_targets: Sometimes external dependencies are not our under control and thus analyzing them is of little value.
                                If this flag is True, DWYU will automatically skip all targets from external workspaces.
@@ -234,6 +238,9 @@ def dwyu_cc_aspect_factory(
             ),
             "_preprocessing_mode": attr.string(
                 default = preprocessing_mode,
+            ),
+            "_recursion_stops_on_skip": attr.bool(
+                default = recursion_stops_on_skip,
             ),
             "_recursive": attr.bool(
                 default = recursive,
