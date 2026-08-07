@@ -484,17 +484,18 @@ def dwyu_cc_aspect_impl(target, ctx):
         unsupported_features = ctx.disabled_features,
     )
 
+    for feature in ctx.attr._skip_features:
+        if feature.startswith("-"):
+            if feature[1:] in ctx.disabled_features:
+                return _return_on_skip(ctx)
+        elif feature in ctx.features:
+            return _return_on_skip(ctx)
+
     for feature in ctx.attr._skip_toolchain_features:
         if feature.startswith("-"):
-            if not cc_common.is_enabled(
-                feature_configuration = feature_configuration,
-                feature_name = feature[1:],
-            ):
+            if not cc_common.is_enabled(feature_configuration = feature_configuration, feature_name = feature[1:]):
                 return _return_on_skip(ctx)
-        elif cc_common.is_enabled(
-            feature_configuration = feature_configuration,
-            feature_name = feature,
-        ):
+        elif cc_common.is_enabled(feature_configuration = feature_configuration, feature_name = feature):
             return _return_on_skip(ctx)
 
     public_files, private_files = _get_target_sources(ctx.rule)
