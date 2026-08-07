@@ -38,6 +38,7 @@ def dwyu_cc_aspect_factory(
         recursive = False,
         recursion_stops_on_skip = False,
         skip_external_targets = False,
+        skip_features = [],
         skip_tags = _DEFAULT_SKIPPED_TAGS,
         skip_targets = [],
         skip_toolchain_features = [],
@@ -137,6 +138,13 @@ def dwyu_cc_aspect_factory(
                                If this flag is True, DWYU will automatically skip all targets from external workspaces.
                                This can be useful in combination with the recursive analysis mode.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
+
+        skip_features: Skip the DWYU analysis based on the features set for the target under inspection.
+                       In contrast to `skip_toolchain_features`, this is based on plain string matching against the features requested via the `features` attribute (or inherited otherwise).
+                       It is irrelevant if the CC toolchain knows those features or considers them active.<br>
+                       When a feature name is prefixed with `-` (e.g. `-my_feature`), the analysis is skipped if that feature is **disabled** (aka contained in `ctx.disabled_features`).
+                       When a feature name has no prefix (e.g. `my_feature`), the analysis is skipped if that feature is **enabled** (aka contained in `ctx.features`).
+                       No matter how many features are configured here, as soon as one match is found the analysis is skipped.
 
         skip_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
                    Targets tagged with `dwyu:skip` are always skipped, no matter what is configured here.<br>
@@ -246,6 +254,9 @@ def dwyu_cc_aspect_factory(
             ),
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
+            ),
+            "_skip_features": attr.string_list(
+                default = skip_features,
             ),
             "_skip_tags": attr.string_list(
                 default = aspect_skip_tags,
