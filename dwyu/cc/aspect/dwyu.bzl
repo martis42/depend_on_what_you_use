@@ -461,7 +461,7 @@ def dwyu_cc_aspect_impl(target, ctx):
         return []
 
     # Skip targets which explicitly opt-out
-    if any([tag in ctx.attr._skipped_tags for tag in ctx.rule.attr.tags]):
+    if any([tag in ctx.attr._skip_tags for tag in ctx.rule.attr.tags]):
         return []
 
     cc_toolchain = find_cc_toolchain(ctx)
