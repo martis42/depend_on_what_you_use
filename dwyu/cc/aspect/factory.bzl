@@ -6,7 +6,7 @@ load(":dwyu.bzl", "PREPROCESSOR_MODES", "dwyu_cc_aspect_impl")
 
 _LEGACY_SKIPPED_TAGS = ["no-dwyu"]
 _MANDATORY_SKIPPED_TAGS = ["dwyu:skip"]
-_DEFAULT_SKIPPED_TAGS = _LEGACY_SKIPPED_TAGS + _MANDATORY_SKIPPED_TAGS
+_DEFAULT_SKIPPED_TAGS = _MANDATORY_SKIPPED_TAGS + _LEGACY_SKIPPED_TAGS
 
 def _validate_skip_targets(patterns):
     """
@@ -135,8 +135,7 @@ def dwyu_cc_aspect_factory(
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         skip_tags: Do not execute the DWYU analysis on targets with at least one of those tags.
-                   By default skips the analysis for targets tagged with 'dwyu:skip'.
-                   The legacy tag 'no-dwyu' is also skipped by default.<br>
+                   Targets tagged with `dwyu:skip` are always skipped, no matter what is configured here.<br>
                    This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         skip_targets: Do not execute the DWYU analysis on targets matching at least one of the given target patterns.
