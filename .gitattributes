@@ -1,6 +1,10 @@
-# Ignore some directories for 'git archive', aka release cutting
-.bcr export-ignore
-.github export-ignore
+#################################
+# Configuration for 'git archive'
+# See https://git-scm.com/docs/git-archive#ATTRIBUTES
+
+# During exporting, we ignore content relevant only for development to keep release artifacts minimal.
+# People wanting to use the full repository are expected to clone it.
+# We keep '.github' and various configs since they are used by various scanners to analyze our project.
 examples export-ignore
 scripts export-ignore
 test export-ignore
