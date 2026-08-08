@@ -94,3 +94,27 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Applying fixes
         run: python test/apply_fixes/execute_tests.py
+
+  # Single stable status check to depend on in branch protection, instead of every individual (and matrix-expanded) job.
+  # This makes it easier and less error prone to maintain branch protection rules.
+  all-checks-passed:
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - pre-commit
+      - unit-tests
+      - sub-workspaces-tests
+      - quality-checks
+      - integration-tests-workspace_integration
+      - integration-tests-examples
+      - integration-tests-aspect
+      - integration-tests-apply-fixes
+    steps:
+      - name: Verify all required jobs succeeded
+        run: |
+          for result in ${{ join(needs.*.result, ' ') }}; do
+            if [[ "$result" != "success" ]]; then
+              echo "A required job did not succeed (result: $result)."
+              exit 1
+            fi
+          done
