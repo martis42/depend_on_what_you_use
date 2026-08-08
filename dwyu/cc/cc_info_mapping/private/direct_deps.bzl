@@ -4,16 +4,19 @@ load(":providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/...")
 
-def _is_relevant_dep(ctx, dep):
-    """
-    Determine whether a dependency is relevant for the mapping of headers.
-    We consider a dependency relevant if it provides CcInfo and is not an implementation dependency.
-    """
-    if CcInfo not in dep:
-        return False
-    if not TODO_FILTER:
-        return True
-    return dep.label in TODO_FILTER
+# Aspect attributes only support 'string' parameters with a fixed 'values' restriction, so the rule's
+# 'filter' string_list attribute cannot be forwarded into the aspect directly (https://bazel.build/rules/lib/globals/bzl#aspect).
+# Thus the aspect exposes each direct dependency's compilation_context individually and the rule applies the
+# 'filter' attribute itself when merging them.
+_DwyuDirectDepsCcInfo = provider(
+    "Compilation contexts of a target and its direct dependencies, to be filtered and merged by the rule using this aspect.",
+    fields = {
+        "dep_compilation_contexts": "dict mapping the Label of a direct dependency providing CcInfo to its compilation_context",
+        "linking_context": "linking_context of the target the aspect was applied to",
+        "own_compilation_context": "compilation_context of the target the aspect was applied to",
+        "target": "Label of the target the aspect was applied to",
+    },
+)
 
 def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
@@ -22,24 +25,44 @@ def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
 
     # 'cc_*' targets can depend on things like sh_library not providing CcInfo
-    cc_targets = [target] + [dep for dep in ctx.rule.attr.deps if _is_relevant_dep(ctx, dep)]
-    aggregated_compilation_context = cc_common.merge_compilation_contexts(
-        compilation_contexts = [tgt[CcInfo].compilation_context for tgt in cc_targets],
-    )
+    dep_compilation_contexts = {
+        dep.label: dep[CcInfo].compilation_context
+        for dep in ctx.rule.attr.deps
+        if CcInfo in dep
+    }
 
-    return DwyuRemappedCcInfo(target = target.label, cc_info = CcInfo(
-        compilation_context = aggregated_compilation_context,
+    return _DwyuDirectDepsCcInfo(
+        target = target.label,
         linking_context = target[CcInfo].linking_context,
-    ))
+        own_compilation_context = target[CcInfo].compilation_context,
+        dep_compilation_contexts = dep_compilation_contexts,
+    )
 
 _aggregate_direct_deps_aspect = aspect(
     implementation = _aggregate_direct_deps_aspect_impl,
-    provides = [DwyuRemappedCcInfo],
+    provides = [_DwyuDirectDepsCcInfo],
     attr_aspects = [],
 )
 
 def _mapping_to_direct_deps_impl(ctx):
-    return ctx.attr.target[DwyuRemappedCcInfo]
+    info = ctx.attr.target[_DwyuDirectDepsCcInfo]
+
+    # Canonical labels are absolute, so resolving them via Label() here is not affected by this .bzl file's package.
+    filter_labels = [Label(canonical_name) for canonical_name in ctx.attr.filter]
+
+    selected_compilation_contexts = [info.own_compilation_context]
+    for label, compilation_context in info.dep_compilation_contexts.items():
+        if not filter_labels or label in filter_labels:
+            selected_compilation_contexts.append(compilation_context)
+
+    aggregated_compilation_context = cc_common.merge_compilation_contexts(
+        compilation_contexts = selected_compilation_contexts,
+    )
+
+    return DwyuRemappedCcInfo(target = info.target, cc_info = CcInfo(
+        compilation_context = aggregated_compilation_context,
+        linking_context = info.linking_context,
+    ))
 
 mapping_to_direct_deps = rule(
     implementation = _mapping_to_direct_deps_impl,

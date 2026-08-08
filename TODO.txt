@@ -1,0 +1,5 @@
+set boost::wave language level based on C++ version discovered by __cplusplus ?
+Can we by doing so drop the patch for overwriting static defines ?
+
+
+examples/skipping_targets/README.md - mention skipping individual external deps
