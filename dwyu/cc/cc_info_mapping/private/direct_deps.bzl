@@ -4,6 +4,17 @@ load(":providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/...")
 
+def _is_relevant_dep(ctx, dep):
+    """
+    Determine whether a dependency is relevant for the mapping of headers.
+    We consider a dependency relevant if it provides CcInfo and is not an implementation dependency.
+    """
+    if CcInfo not in dep:
+        return False
+    if not TODO_FILTER:
+        return True
+    return dep.label in TODO_FILTER
+
 def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
     We deliberately ignore implementation_deps since headers provided by them shall by design not be used by consumers
@@ -11,7 +22,7 @@ def _aggregate_direct_deps_aspect_impl(target, ctx):
     """
 
     # 'cc_*' targets can depend on things like sh_library not providing CcInfo
-    cc_targets = [target] + [dep for dep in ctx.rule.attr.deps if CcInfo in dep]
+    cc_targets = [target] + [dep for dep in ctx.rule.attr.deps if _is_relevant_dep(ctx, dep)]
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
         compilation_contexts = [tgt[CcInfo].compilation_context for tgt in cc_targets],
     )
