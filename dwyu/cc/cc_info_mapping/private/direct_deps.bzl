@@ -34,11 +34,15 @@ mapping_to_direct_deps = rule(
     implementation = _mapping_to_direct_deps_impl,
     provides = [DwyuRemappedCcInfo],
     attrs = {
+        "filter": attr.string_list(doc = "List of canonical target names of the targets which shall be mapped"),
         "target": attr.label(aspects = [_aggregate_direct_deps_aspect], providers = [CcInfo]),
     },
     doc = """
-Make headers from all direct dependencies available as if they where provided by the main target itself.
+Make headers from direct dependencies available as if they where provided by the main target itself.
 We do so by merging the compilation_context information from the direct dependencies into the main target's CcInfo.
 We explicitly ignore implementation_deps, as allowing to map them would break their design of not being visible to users of the target.
+
+By default map all direct dependencies.
+If the `filter` attribute is provided, only map direct dependencies matching the canonical target names from the `filter` attribute.
     """,
 )

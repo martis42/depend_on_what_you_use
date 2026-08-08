@@ -67,22 +67,59 @@ def dwyu_make_cc_info_mapping(name, mapping):
     mappings = []
     for target, map_to in mapping.items():
         mapping_action = "{}_mapping_{}".format(name, label_to_name(target))
-        if map_to == MAP_DIRECT_DEPS:
-            mapping_to_direct_deps(
-                name = mapping_action,
-                target = target,
-            )
-        elif map_to == MAP_TRANSITIVE_DEPS:
-            mapping_to_transitive_deps(
-                name = mapping_action,
-                target = target,
-            )
-        else:
+        if isinstance(map_to, list):
             explicit_mapping(
                 name = mapping_action,
                 target = target,
                 map_to = map_to,
             )
+        elif isinstance(map_to, str):
+            # Legacy cases which falls back to 'map all deps'
+            if map_to == MAP_DIRECT_DEPS:
+                mapping_to_direct_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = [],
+                )
+            elif map_to == MAP_TRANSITIVE_DEPS:
+                mapping_to_transitive_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = [],
+                )
+            else:
+                fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+        elif isinstance(map_to, dict):
+            if [MAP_DIRECT_DEPS] == map_to.keys():
+                value = map_to[MAP_DIRECT_DEPS]
+                if isinstance(value, str) and value.lower() == "all":
+                    filter = []
+                elif isinstance(value, list):
+                    filter = value
+                else:
+                    fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+                mapping_to_direct_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = filter,
+                )
+            if [MAP_TRANSITIVE_DEPS] == map_to.keys():
+                value = map_to[MAP_TRANSITIVE_DEPS]
+                if isinstance(value, str) and value.lower() == "all":
+                    filter = []
+                elif isinstance(value, list):
+                    filter = value
+                else:
+                    fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+                mapping_to_transitive_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = filter,
+                )
+            else:
+                fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+        else:
+            fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
         mappings.append(mapping_action)
 
     _make_remapping_info(
