@@ -47,6 +47,14 @@ _make_remapping_info = rule(
     },
 )
 
+def _extract_mapping_value(map, key):
+    value = map[key]
+    if type(value) == "string" and value.lower() == "all":
+        return []
+    elif type(value) == "list":
+        return value
+    return None
+
 def dwyu_make_cc_info_mapping(name, mapping):
     """
     Map include paths available from one or several targets to another target.
@@ -54,35 +62,91 @@ def dwyu_make_cc_info_mapping(name, mapping):
     Create a mapping allowing treating targets as if they themselves would offer header files, which in fact are coming from their dependencies.
     This enables the DWYU analysis to skip over some usage of headers provided by transitive dependencies without raising an error.
 
+    Example usage:
+
+    ```starlark
+    dwyu_make_cc_info_mapping(
+        name = "my_mapping",
+        mapping = {
+            "//target/mapped/to/specific:targets": ["//other/target"],
+            "//target/mapped/to/some/direct:dependencies": {
+                MAP_DIRECT_DEPS: ["//direct/dependency:foo", "//direct/dependency:bar"],
+            },
+            "//target/mapped/to/all/direct:dependencies": {
+                MAP_TRANSITIVE_DEPS: "all",
+            },
+        },
+    )
+    ```
+
     Using this rule and the various mapping techniques is demonstrated in the [target_mapping example](/examples/target_mapping).
 
     Args:
         name: Unique name for this target. Will be the prefix for all private intermediate targets.
         mapping: Dictionary containing various targets and how they should be mapped. Possible mappings are:<br>
                  - An explicit list of targets which are mapped to the main target.
-                   Be careful only to choose targets which are dependencies of the main target! <br>
-                 - The `MAP_DIRECT_DEPS` token which tells the rule to map all direct dependencies to the main target. <br>
-                 - The `MAP_TRANSITIVE_DEPS` token which tells the rule to map recursively all transitive dependencies to the main target.
+                   Be careful only to choose targets which are dependencies of the main target!
+                   If you can't use this due to visibility restrictions, consider using the `MAP_DIRECT_DEPS` mode instead with appropriate target filters.<br>
+                 - The `MAP_DIRECT_DEPS` mode tells the rule to map direct dependencies to the main target.
+                   Choose `all` to automatically map all direct dependencies.
+                   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies.
+                   Using `MAP_DIRECT_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all direct dependencies.
+                   This legacy behavior will be removed in a future release.<br>
+                 - The `MAP_TRANSITIVE_DEPS` mode tells the rule to map direct and transitive dependencies to the main target.
+                   Choose `all` to automatically map all dependencies.
+                   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies for which the transitive dependencies are mapped as well.
+                   Meaning, only direct dependencies are valid entries in the filter list.
+                   Using `MAP_TRANSITIVE_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all dependencies.
+                   This legacy behavior will be removed in a future release.<br>
     """
     mappings = []
     for target, map_to in mapping.items():
         mapping_action = "{}_mapping_{}".format(name, label_to_name(target))
-        if map_to == MAP_DIRECT_DEPS:
-            mapping_to_direct_deps(
-                name = mapping_action,
-                target = target,
-            )
-        elif map_to == MAP_TRANSITIVE_DEPS:
-            mapping_to_transitive_deps(
-                name = mapping_action,
-                target = target,
-            )
-        else:
+        if type(map_to) == "list":
             explicit_mapping(
                 name = mapping_action,
                 target = target,
                 map_to = map_to,
             )
+        elif type(map_to) == "string":
+            # Legacy cases falling back to 'map all deps'
+            if map_to == MAP_DIRECT_DEPS:
+                mapping_to_direct_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = [],
+                )
+            elif map_to == MAP_TRANSITIVE_DEPS:
+                mapping_to_transitive_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = [],
+                )
+            else:
+                fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+        elif type(map_to) == "dict":
+            if [MAP_DIRECT_DEPS] == map_to.keys():
+                filter = _extract_mapping_value(map_to, MAP_DIRECT_DEPS)
+                if filter == None:
+                    fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+                mapping_to_direct_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = filter,
+                )
+            elif [MAP_TRANSITIVE_DEPS] == map_to.keys():
+                filter = _extract_mapping_value(map_to, MAP_TRANSITIVE_DEPS)
+                if filter == None:
+                    fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+                mapping_to_transitive_deps(
+                    name = mapping_action,
+                    target = target,
+                    filter = filter,
+                )
+            else:
+                fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
+        else:
+            fail("DWYU: Invalid mapping value for target {}: {}".format(target, map_to))
         mappings.append(mapping_action)
 
     _make_remapping_info(

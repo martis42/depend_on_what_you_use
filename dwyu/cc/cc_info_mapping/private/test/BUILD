@@ -36,6 +36,12 @@ mapping_to_direct_deps(
     target = ":lib_with_non_cc_dep",
 )
 
+mapping_to_direct_deps(
+    name = "mapping_to_direct_deps_with_filter",
+    filter = ["//dwyu/cc/cc_info_mapping/private/test:dep_layer_1"],
+    target = ":lib_with_two_deps",
+)
+
 #
 # Transitive dependency mappings
 #
@@ -58,6 +64,12 @@ mapping_to_transitive_deps(
 mapping_to_transitive_deps(
     name = "mapping_to_transitive_deps_with_no_deps_attr",
     target = ":lib_with_custom_cc_dep",
+)
+
+mapping_to_transitive_deps(
+    name = "mapping_to_transitive_deps_with_filter",
+    filter = ["//dwyu/cc/cc_info_mapping/private/test:dep_layer_1"],
+    target = ":lib_with_two_deps",
 )
 
 #
@@ -92,6 +104,20 @@ cc_library(
     name = "lib_with_deps",
     hdrs = ["lib.h"],
     deps = [":dep_layer_1"],
+)
+
+cc_library(
+    name = "extra_dep",
+    hdrs = ["extra_dep.h"],
+)
+
+cc_library(
+    name = "lib_with_two_deps",
+    hdrs = ["lib.h"],
+    deps = [
+        ":dep_layer_1",
+        ":extra_dep",
+    ],
 )
 
 cc_library(

@@ -38,6 +38,23 @@ Map include paths available from one or several targets to another target.
 Create a mapping allowing treating targets as if they themselves would offer header files, which in fact are coming from their dependencies.
 This enables the DWYU analysis to skip over some usage of headers provided by transitive dependencies without raising an error.
 
+Example usage:
+
+```starlark
+dwyu_make_cc_info_mapping(
+    name = "my_mapping",
+    mapping = {
+        "//target/mapped/to/specific:targets": ["//other/target"],
+        "//target/mapped/to/some/direct:dependencies": {
+            MAP_DIRECT_DEPS: ["//direct/dependency:foo", "//direct/dependency:bar"],
+        },
+        "//target/mapped/to/all/direct:dependencies": {
+            MAP_TRANSITIVE_DEPS: "all",
+        },
+    },
+)
+```
+
 Using this rule and the various mapping techniques is demonstrated in the [target_mapping example](/examples/target_mapping).
 
 
@@ -47,6 +64,6 @@ Using this rule and the various mapping techniques is demonstrated in the [targe
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
 | <a id="dwyu_make_cc_info_mapping-name"></a>name |  Unique name for this target. Will be the prefix for all private intermediate targets.   |  none |
-| <a id="dwyu_make_cc_info_mapping-mapping"></a>mapping |  Dictionary containing various targets and how they should be mapped. Possible mappings are:<br> - An explicit list of targets which are mapped to the main target.   Be careful only to choose targets which are dependencies of the main target! <br> - The `MAP_DIRECT_DEPS` token which tells the rule to map all direct dependencies to the main target. <br> - The `MAP_TRANSITIVE_DEPS` token which tells the rule to map recursively all transitive dependencies to the main target.   |  none |
+| <a id="dwyu_make_cc_info_mapping-mapping"></a>mapping |  Dictionary containing various targets and how they should be mapped. Possible mappings are:<br> - An explicit list of targets which are mapped to the main target.   Be careful only to choose targets which are dependencies of the main target!   If you can't use this due to visibility restrictions, consider using the `MAP_DIRECT_DEPS` mode instead with appropriate target filters.<br> - The `MAP_DIRECT_DEPS` mode tells the rule to map direct dependencies to the main target.   Choose `all` to automatically map all direct dependencies.   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies.   Using `MAP_DIRECT_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all direct dependencies.   This legacy behavior will be removed in a future release.<br> - The `MAP_TRANSITIVE_DEPS` mode tells the rule to map direct and transitive dependencies to the main target.   Choose `all` to automatically map all dependencies.   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies for which the transitive dependencies are mapped as well.   Meaning, only direct dependencies are valid entries in the filter list.   Using `MAP_TRANSITIVE_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all dependencies.   This legacy behavior will be removed in a future release.<br>   |  none |
 
 
