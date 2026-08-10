@@ -58,6 +58,12 @@ local_path_override(
     path = "implementation_deps/external_repo",
 )
 
+bazel_dep(name = "target_mapping_test_repo")
+local_path_override(
+    module_name = "target_mapping_test_repo",
+    path = "target_mapping/external_repo",
+)
+
 bazel_dep(name = "skip_external_deps_test_repo")
 local_path_override(
     module_name = "skip_external_deps_test_repo",

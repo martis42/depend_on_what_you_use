@@ -7,7 +7,7 @@ cc_library(
     visibility = ["//target_mapping:__subpackages__"],
     deps = [
         ":b",
-        # Test travsing direct deps is robust against non C/CPP deps
+        # Test traversing direct deps is robust against non C/CPP deps
         ":non_cc_thing",
     ],
 )
@@ -18,7 +18,7 @@ cc_library(
     visibility = ["//target_mapping/mapping:__pkg__"],
     deps = [
         ":c",
-        # Test travsing transitive deps is robust against non C/CPP deps
+        # Test traversing transitive deps is robust against non C/CPP deps
         ":non_cc_thing",
     ],
 )
@@ -26,6 +26,17 @@ cc_library(
 cc_library(
     name = "c",
     hdrs = ["c.h"],
+)
+
+# Used to test the 'filter' feature of dwyu_make_cc_info_mapping, combining an internal and an external dependency.
+cc_library(
+    name = "with_external_dep",
+    hdrs = ["with_external_dep.h"],
+    visibility = ["//target_mapping:__subpackages__"],
+    deps = [
+        ":b",
+        "@target_mapping_test_repo//:ext",
+    ],
 )
 
 sh_library(

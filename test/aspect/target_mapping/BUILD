@@ -18,3 +18,23 @@ cc_library(
     srcs = ["use_lib_b.cpp"],
     implementation_deps = ["//target_mapping/libs:a"],
 )
+
+# Targets used to test the 'filter' feature of dwyu_make_cc_info_mapping.
+
+cc_binary(
+    name = "use_ext_via_with_external_dep",
+    srcs = ["use_ext_via_with_external_dep.cpp"],
+    deps = ["//target_mapping/libs:with_external_dep"],
+)
+
+cc_binary(
+    name = "use_b_via_with_external_dep",
+    srcs = ["use_b_via_with_external_dep.cpp"],
+    deps = ["//target_mapping/libs:with_external_dep"],
+)
+
+cc_binary(
+    name = "use_c_via_with_external_dep",
+    srcs = ["use_c_via_with_external_dep.cpp"],
+    deps = ["//target_mapping/libs:with_external_dep"],
+)

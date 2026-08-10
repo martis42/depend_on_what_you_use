@@ -5,6 +5,7 @@ load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transi
 load(":custom_rules.bzl", "cc_info_without_deps")
 load(":direct_deps_test.bzl", "direct_deps_test_suite")
 load(":explicit_mapping_test.bzl", "explicit_mapping_test_suite")
+load(":to_canonical.bzl", "to_canonical")
 load(":transitive_deps_test.bzl", "transitive_deps_test_suite")
 
 #
@@ -23,7 +24,7 @@ transitive_deps_test_suite(name = "transitive_deps_tests")
 
 mapping_to_direct_deps(
     name = "mapping_to_direct_deps",
-    target = ":lib_with_deps",
+    target = ":lib_with_dep",
 )
 
 mapping_to_direct_deps(
@@ -36,13 +37,19 @@ mapping_to_direct_deps(
     target = ":lib_with_non_cc_dep",
 )
 
+mapping_to_direct_deps(
+    name = "mapping_to_direct_deps_with_filter",
+    filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_1")],
+    target = ":lib_with_two_deps",
+)
+
 #
 # Transitive dependency mappings
 #
 
 mapping_to_transitive_deps(
     name = "mapping_to_transitive_deps",
-    target = ":lib_with_deps",
+    target = ":lib_with_dep",
 )
 
 mapping_to_transitive_deps(
@@ -58,6 +65,12 @@ mapping_to_transitive_deps(
 mapping_to_transitive_deps(
     name = "mapping_to_transitive_deps_with_no_deps_attr",
     target = ":lib_with_custom_cc_dep",
+)
+
+mapping_to_transitive_deps(
+    name = "mapping_to_transitive_deps_with_filter",
+    filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_1")],
+    target = ":lib_with_two_deps",
 )
 
 #
@@ -89,9 +102,23 @@ cc_library(
 )
 
 cc_library(
-    name = "lib_with_deps",
-    hdrs = ["lib.h"],
+    name = "lib_with_dep",
+    hdrs = ["lib_with_dep.h"],
     deps = [":dep_layer_1"],
+)
+
+cc_library(
+    name = "extra_dep",
+    hdrs = ["extra_dep.h"],
+)
+
+cc_library(
+    name = "lib_with_two_deps",
+    hdrs = ["lib_with_two_deps.h"],
+    deps = [
+        ":dep_layer_1",
+        ":extra_dep",
+    ],
 )
 
 cc_library(
@@ -111,7 +138,7 @@ genrule(
 
 cc_library(
     name = "lib_with_non_cc_dep",
-    hdrs = ["lib.h"],
+    hdrs = ["lib_with_non_cc_dep.h"],
     deps = [":non_cc_dep"],
 )
 

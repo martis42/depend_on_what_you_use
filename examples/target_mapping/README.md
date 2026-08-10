@@ -30,8 +30,11 @@ bazel build --config=dwyu_map_direct_deps //target_mapping:use_lib_c
 ```
 
 We can fix this problem easily with another kind of target mapping.
-Executing the following succeeds as we tell DWYU to that library `a` provides the headers from all its transitive dependencies including library `c`.
+Executing the following succeeds as we tell DWYU to that library `a` provides the headers from dependency `b` including all its transitive dependencies including library `c`.
 
 ```shell
 bazel build --config=dwyu_map_transitive_deps //target_mapping:use_lib_c
 ```
+
+If we would use dependency `e`, the analysis would still fail as we mapped only `b` and its transitive dependencies.
+Like with the direct dependency mapping, we simply could have mapped all direct and transitive of `a` into `a` itself to overcome such a case.
