@@ -28,6 +28,17 @@ cc_library(
     hdrs = ["c.h"],
 )
 
+# Used to test the 'filter' feature of dwyu_make_cc_info_mapping, combining an internal and an external dependency.
+cc_library(
+    name = "with_external_dep",
+    hdrs = ["with_external_dep.h"],
+    visibility = ["//target_mapping:__subpackages__"],
+    deps = [
+        ":b",
+        "@target_mapping_test_repo//:ext",
+    ],
+)
+
 sh_library(
     name = "non_cc_thing",
     srcs = ["non_cc_thing.sh"],

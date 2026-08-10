@@ -61,6 +61,7 @@ _aggregate_transitive_deps_aspect = aspect(
 def _mapping_to_transitive_deps_impl(ctx):
     info = ctx.attr.target[_DwyuTransitiveDepsCcInfo]
 
+    # TODO better string based logic
     # Canonical labels are absolute, so resolving them via Label() here is not affected by this .bzl file's package.
     filter_labels = [Label(canonical_name) for canonical_name in ctx.attr.filter]
 
@@ -75,6 +76,7 @@ def _mapping_to_transitive_deps_impl(ctx):
         compilation_contexts = selected_compilation_contexts,
     )
 
+    # TODO why copy so much instead of using what is already known here?
     return DwyuRemappedCcInfo(target = info.target, cc_info = CcInfo(
         compilation_context = aggregated_compilation_context,
         linking_context = info.linking_context,

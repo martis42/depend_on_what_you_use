@@ -14,6 +14,8 @@ class TestCase(TestCaseBase):
                 unused_public_deps=["//target_mapping/libs:a"],
             )
         )
-        actual = self._run_dwyu(target=target, aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_direct_deps"))
+        actual = self._run_dwyu(
+            target=target, aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_direct_deps_legacy")
+        )
 
         return self._check_result(actual=actual, expected=expected)
