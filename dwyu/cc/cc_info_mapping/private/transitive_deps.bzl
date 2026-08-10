@@ -8,16 +8,13 @@ _DwyuTransitiveDepsCcInfo = provider(
     "Cc_info of a target's direct dependencies, each already recursively aggregated, to be filtered and merged by the rule using this aspect.",
     fields = {
         "dep_cc_infos": "dict mapping the Label of a direct dependency to its recursively aggregated CcInfo",
-        "linking_context": "linking_context of the target the aspect was applied to, or None if it does not provide CcInfo",
-        "own_compilation_context": "compilation_context of the target the aspect was applied to, or None if it does not provide CcInfo",
-        "target": "Label of the target the aspect was applied to",
     },
 )
 
 def _aggregate_transitive_deps_aspect_impl(target, ctx):
     # A custom rule might offer CcInfo, but not have a 'deps' attribute.
     # We assume a custom rule using the concept of dependencies to other CcInfo provider targets would use the canonical 'deps' attribute and ignore targets without 'deps' attribute.
-    dep_cc_infos = {
+    deps_remapped_cc_infos = {
         dep.label: dep[DwyuRemappedCcInfo].cc_info
         for dep in getattr(ctx.rule.attr, "deps", [])
     }
@@ -26,29 +23,19 @@ def _aggregate_transitive_deps_aspect_impl(target, ctx):
     if CcInfo not in target:
         return [
             DwyuRemappedCcInfo(target = target.label, cc_info = CcInfo()),
-            _DwyuTransitiveDepsCcInfo(
-                target = target.label,
-                linking_context = None,
-                own_compilation_context = None,
-                dep_cc_infos = dep_cc_infos,
-            ),
+            _DwyuTransitiveDepsCcInfo(dep_cc_infos = deps_remapped_cc_infos),
         ]
 
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
-        compilation_contexts = [target[CcInfo].compilation_context] + [cci.compilation_context for cci in dep_cc_infos.values()],
+        compilation_contexts = [target[CcInfo].compilation_context] + [cci.compilation_context for cci in deps_remapped_cc_infos.values()],
     )
 
     return [
-        DwyuRemappedCcInfo(target = target.label, cc_info = CcInfo(
-            compilation_context = aggregated_compilation_context,
-            linking_context = target[CcInfo].linking_context,
-        )),
-        _DwyuTransitiveDepsCcInfo(
+        DwyuRemappedCcInfo(
             target = target.label,
-            linking_context = target[CcInfo].linking_context,
-            own_compilation_context = target[CcInfo].compilation_context,
-            dep_cc_infos = dep_cc_infos,
+            cc_info = CcInfo(compilation_context = aggregated_compilation_context),
         ),
+        _DwyuTransitiveDepsCcInfo(dep_cc_infos = deps_remapped_cc_infos),
     ]
 
 _aggregate_transitive_deps_aspect = aspect(
@@ -59,16 +46,15 @@ _aggregate_transitive_deps_aspect = aspect(
 )
 
 def _mapping_to_transitive_deps_impl(ctx):
-    info = ctx.attr.target[_DwyuTransitiveDepsCcInfo]
+    cc_info = ctx.attr.target[CcInfo]
+    deps_cc_info = ctx.attr.target[_DwyuTransitiveDepsCcInfo]
 
     # TODO better string based logic
     # Canonical labels are absolute, so resolving them via Label() here is not affected by this .bzl file's package.
     filter_labels = [Label(canonical_name) for canonical_name in ctx.attr.filter]
 
-    selected_compilation_contexts = []
-    if info.own_compilation_context != None:
-        selected_compilation_contexts.append(info.own_compilation_context)
-    for label, cc_info in info.dep_cc_infos.items():
+    selected_compilation_contexts = [cc_info.compilation_context]
+    for label, cc_info in deps_cc_info.dep_cc_infos.items():
         if not filter_labels or label in filter_labels:
             selected_compilation_contexts.append(cc_info.compilation_context)
 
@@ -76,11 +62,13 @@ def _mapping_to_transitive_deps_impl(ctx):
         compilation_contexts = selected_compilation_contexts,
     )
 
-    # TODO why copy so much instead of using what is already known here?
-    return DwyuRemappedCcInfo(target = info.target, cc_info = CcInfo(
-        compilation_context = aggregated_compilation_context,
-        linking_context = info.linking_context,
-    ))
+    return DwyuRemappedCcInfo(
+        target = ctx.attr.target.label,
+        cc_info = CcInfo(
+            compilation_context = aggregated_compilation_context,
+            linking_context = cc_info.linking_context,
+        ),
+    )
 
 mapping_to_transitive_deps = rule(
     implementation = _mapping_to_transitive_deps_impl,

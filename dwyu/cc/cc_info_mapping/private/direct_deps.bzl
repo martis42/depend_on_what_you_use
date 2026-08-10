@@ -7,10 +7,7 @@ visibility("//dwyu/cc/cc_info_mapping/...")
 _DwyuDirectDepsCcInfo = provider(
     "Compilation contexts of a target and its direct dependencies, to be filtered and merged by the rule using this aspect.",
     fields = {
-        "dep_compilation_contexts": "dict mapping the Label of a direct dependency providing CcInfo to its compilation_context",
-        "linking_context": "linking_context of the target the aspect was applied to",
-        "own_compilation_context": "compilation_context of the target the aspect was applied to",
-        "target": "Label of the target the aspect was applied to",
+        "compilation_contexts": "dict mapping the Label of a direct dependency providing CcInfo to its compilation_context",
     },
 )
 
@@ -27,12 +24,7 @@ def _aggregate_direct_deps_aspect_impl(target, ctx):
         if CcInfo in dep
     }
 
-    return _DwyuDirectDepsCcInfo(
-        target = target.label,
-        linking_context = target[CcInfo].linking_context,
-        own_compilation_context = target[CcInfo].compilation_context,
-        dep_compilation_contexts = dep_compilation_contexts,
-    )
+    return _DwyuDirectDepsCcInfo(compilation_contexts = dep_compilation_contexts)
 
 _aggregate_direct_deps_aspect = aspect(
     implementation = _aggregate_direct_deps_aspect_impl,
@@ -41,14 +33,15 @@ _aggregate_direct_deps_aspect = aspect(
 )
 
 def _mapping_to_direct_deps_impl(ctx):
-    info = ctx.attr.target[_DwyuDirectDepsCcInfo]
+    cc_info = ctx.attr.target[CcInfo]
+    deps_cc_info = ctx.attr.target[_DwyuDirectDepsCcInfo]
 
     # TODO better string based logic
     # Canonical labels are absolute, so resolving them via Label() here is not affected by this .bzl file's package.
     filter_labels = [Label(canonical_name) for canonical_name in ctx.attr.filter]
 
-    selected_compilation_contexts = [info.own_compilation_context]
-    for label, compilation_context in info.dep_compilation_contexts.items():
+    selected_compilation_contexts = [cc_info.compilation_context]
+    for label, compilation_context in deps_cc_info.compilation_contexts.items():
         if not filter_labels or label in filter_labels:
             selected_compilation_contexts.append(compilation_context)
 
@@ -56,11 +49,13 @@ def _mapping_to_direct_deps_impl(ctx):
         compilation_contexts = selected_compilation_contexts,
     )
 
-    # TODO why copy so much instead of using what is already known here?
-    return DwyuRemappedCcInfo(target = info.target, cc_info = CcInfo(
-        compilation_context = aggregated_compilation_context,
-        linking_context = info.linking_context,
-    ))
+    return DwyuRemappedCcInfo(
+        target = ctx.attr.target.label,
+        cc_info = CcInfo(
+            compilation_context = aggregated_compilation_context,
+            linking_context = cc_info.linking_context,
+        ),
+    )
 
 mapping_to_direct_deps = rule(
     implementation = _mapping_to_direct_deps_impl,
