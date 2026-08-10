@@ -37,8 +37,6 @@ on:
         required: false
         type: string
 
-permissions: read-all
-
 jobs:
   publish:
     uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@ad6879fd015a01c3e3b1b318fe3c061f928ac2fb # v1.4.2
