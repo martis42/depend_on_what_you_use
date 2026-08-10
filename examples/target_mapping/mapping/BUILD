@@ -1,4 +1,5 @@
 load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
 
@@ -12,13 +13,13 @@ dwyu_make_cc_info_mapping(
 dwyu_make_cc_info_mapping(
     name = "map_direct_deps",
     mapping = {
-        "//target_mapping/libs:a": MAP_DIRECT_DEPS,
+        "//target_mapping/libs:a": {MAP_DIRECT_DEPS: "all"},
     },
 )
 
 dwyu_make_cc_info_mapping(
     name = "map_transitive_deps",
     mapping = {
-        "//target_mapping/libs:a": MAP_TRANSITIVE_DEPS,
+        "//target_mapping/libs:a": {MAP_TRANSITIVE_DEPS: [to_canonical("//target_mapping/libs:b")]},
     },
 )
