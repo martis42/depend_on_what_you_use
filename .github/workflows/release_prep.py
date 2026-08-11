@@ -16,11 +16,17 @@ from pathlib import Path
 RELEASE_NOTES_TEMPLATE = """
 TBD summary
 
-## Breaking Changes
+## Noteworthy Changes
+
+### Changed
+
+TBD - Mark what is breaking !
+
+### Fixed
 
 TBD
 
-## Noteworthy Changes
+### Added
 
 TBD
 
