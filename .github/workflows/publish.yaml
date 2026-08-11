@@ -37,6 +37,10 @@ on:
         required: false
         type: string
 
+# Be explicit about global default permissions.
+# We use "deny by default" since using "read-all" here would clash with the reusable-workflow call from release.yaml
+permissions: {}
+
 jobs:
   publish:
     # Cannot be SHA-pinned since the slsa-verifier rejects SHA-pinned builder refs in the SLSA provenance
