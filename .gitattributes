@@ -1,11 +1,4 @@
-#################################
 # Configuration for 'git archive'
 # See https://git-scm.com/docs/git-archive#ATTRIBUTES
-
-# During exporting, we ignore content relevant only for development to keep release artifacts minimal.
-# People wanting to use the full repository are expected to clone it.
-# We keep '.github' and various configs since they are used by various scanners to analyze our project.
-examples export-ignore
-scripts export-ignore
-test export-ignore
-tools export-ignore
+# We are not using 'export-ignore' because our repository is either way small and excluding content can easily break workflows without one immediately realizing.
+# Also, not using 'export-ignore' gives users of Bazel git_override() the same view on this project like using a normal release does.
