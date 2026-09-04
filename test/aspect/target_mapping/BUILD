@@ -1,40 +1,23 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
-cc_binary(
-    name = "use_lib_b",
-    srcs = ["use_lib_b.cpp"],
-    deps = ["//target_mapping/libs:a"],
-)
+# With the correct mapping config the targets do not raise an unused dependency error for //target_mapping/libs:mapped_dep.
+# Due to the mapping we believe //target_mapping/libs:mapped_dep offers the headers we include in the test targets
 
 cc_binary(
-    name = "use_lib_c",
-    srcs = ["use_lib_c.cpp"],
-    deps = ["//target_mapping/libs:a"],
+    name = "use_lib_a_and_ext_a",
+    srcs = ["use_lib_a_and_ext_a.cpp"],
+    deps = ["//target_mapping/libs:mapped_dep"],
 )
 
 cc_library(
-    name = "use_lib_b_privately",
-    srcs = ["use_lib_b.cpp"],
-    implementation_deps = ["//target_mapping/libs:a"],
-)
-
-# Targets used to test the 'filter' feature of dwyu_make_cc_info_mapping.
-
-cc_binary(
-    name = "use_ext_via_with_external_dep",
-    srcs = ["use_ext_via_with_external_dep.cpp"],
-    deps = ["//target_mapping/libs:with_external_dep"],
+    name = "use_lib_a_and_ext_a_privately",
+    srcs = ["use_lib_a_and_ext_a.cpp"],
+    implementation_deps = ["//target_mapping/libs:mapped_dep"],
 )
 
 cc_binary(
-    name = "use_b_via_with_external_dep",
-    srcs = ["use_b_via_with_external_dep.cpp"],
-    deps = ["//target_mapping/libs:with_external_dep"],
-)
-
-cc_binary(
-    name = "use_c_via_with_external_dep",
-    srcs = ["use_c_via_with_external_dep.cpp"],
-    deps = ["//target_mapping/libs:with_external_dep"],
+    name = "use_lib_b_and_ext_b",
+    srcs = ["use_lib_b_and_ext_b.cpp"],
+    deps = ["//target_mapping/libs:mapped_dep"],
 )

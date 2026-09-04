@@ -1,3 +1,3 @@
-int doExt() {
+int doExtB() {
     return 42;
 }
