@@ -6,12 +6,13 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
-        target = "//target_mapping:use_lib_c"
+        target = "//target_mapping:use_lib_b_and_ext_b"
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
                 target=target,
-                invalid_includes={"target_mapping/use_lib_c.cpp": ["target_mapping/libs/c.h"]},
-                unused_public_deps=["//target_mapping/libs:a"],
+                invalid_includes={"target_mapping/use_lib_b_and_ext_b.cpp": ["target_mapping/libs/b.h", "ext_b.h"]},
+                # We see an unused dependency error because we use none of the headers mapped into //target_mapping/libs:mapped_dep
+                unused_public_deps=["//target_mapping/libs:mapped_dep"],
             )
         )
         actual = self._run_dwyu(

@@ -7,8 +7,8 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         actual = self._run_dwyu(
-            target="//target_mapping:use_lib_b",
-            aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_transitive_deps_legacy"),
+            target=["//target_mapping:use_lib_a_and_ext_a", "//target_mapping:use_lib_a_and_ext_a_privately"],
+            aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_direct_deps_legacy"),
         )
 
         return self._check_result(actual=actual, expected=ExpectedSuccess())
