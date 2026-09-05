@@ -11,9 +11,16 @@ DWYU_REPORT = "DWYU Report:"
 
 def normalize_file_path(path: str) -> str:
     """
+    1)
     On Windows DWYU reports Windows file paths with backslashes, but our tests expect POSIX-style paths with forward slashes.
+    2)
+    Paths pointing to external workspaces should be normalized to the subpath inside the external workspace
     """
-    return path.replace("\\", "/")
+    path = path.replace("\\", "/")
+    if path.startswith("external/"):
+        # external/foo+/some/path.txt -> some/path.txt
+        path = path.split("/", 2)[2]
+    return path
 
 
 def normalize_file_paths(paths: Iterable[str]) -> list[str]:
@@ -46,7 +53,7 @@ class ExpectedDwyuFailure:
         if set(normalize_file_paths(reported_invalid_includes.keys())) != set(self.invalid_includes.keys()):
             return False
         for src_file, includes in reported_invalid_includes.items():
-            if set(self.invalid_includes.get(normalize_file_path(src_file), [])) != set(includes):
+            if set(self.invalid_includes.get(normalize_file_path(src_file), [])) != set(normalize_file_paths(includes)):
                 return False
 
         if set(self.unused_public_deps) != set(normalize_target_names(report_data.get("unused_deps", []))):
