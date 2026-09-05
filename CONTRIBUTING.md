@@ -14,6 +14,20 @@
 Feel free to directly create pull requests for small improvements like fixing typos without creating an issue first.
 Please have a look at the rules for [contributing code](#contributing-code) before doing so.
 
+# AI Agents based contribution
+
+This projects accepts contributions created by AI Agents.
+There are however some conditions for this:
+
+- No unreviewed AI slop.
+  If you propose a new feature or fix and an AI Agent implements this, we still expect you to ..
+  - perform a first review yourself
+  - understand what was done
+  - be able to answer questions about the contribution
+- No extensive rewrites just because the Agent can easily do so.
+  Pull Requests still have to be reasonably reviewable by a human reviewer.
+- All existing contribution guidelines also apply to AI Agents based contributions.
+
 # Contributing code
 
 ## Commits
