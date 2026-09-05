@@ -151,12 +151,16 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
 
 # Assumptions of use
 
-##### The code has to be compilable
+#### The code has to be compilable
 
 DWYU assumes the code under inspection compiles with the Bazel configuration used to execute DWYU (e.g. setting `--config=foo`).
 There is no guarantee DWYU will do something meaningful for non compilable code.
 
-##### Include paths have to be unambiguous
+This also applies to header only code.
+Meaning, we assume a header only library depends directly or transitively on all headers it uses.
+A header only library using a header which is not in its dependency tree is something we consider a violation of our assumptions of use.
+
+#### Include paths have to be unambiguous
 
 There shall not be multiple header files in the dependency tree of a target matching an include statement.
 Even if analyzing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
