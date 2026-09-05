@@ -35,7 +35,7 @@ jobs:
 
   quality-checks:
     runs-on: ubuntu-24.04
-    needs: [ unit-tests ]
+    needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Execute sanitizers
@@ -73,7 +73,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ unit-tests, integration-tests-examples ]
+    needs: [ unit-tests ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Aspect
@@ -89,7 +89,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ unit-tests, integration-tests-examples ]
+    needs: [ unit-tests ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Applying fixes
