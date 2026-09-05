@@ -1,9 +1,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
+load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
-load(":custom_rules.bzl", "cc_info_without_deps")
+load(":custom_rules.bzl", "cc_info_with_custom_deps")
 load(":direct_deps_test.bzl", "direct_deps_test_suite")
+load(":explicit_deps_test.bzl", "explicit_deps_test_suite")
 load(":explicit_mapping_test.bzl", "explicit_mapping_test_suite")
 load(":to_canonical.bzl", "to_canonical")
 load(":transitive_deps_test.bzl", "transitive_deps_test_suite")
@@ -15,6 +17,8 @@ load(":transitive_deps_test.bzl", "transitive_deps_test_suite")
 direct_deps_test_suite(name = "direct_deps_tests")
 
 explicit_mapping_test_suite(name = "explicit_mapping_tests")
+
+explicit_deps_test_suite(name = "explicit_deps_tests")
 
 transitive_deps_test_suite(name = "transitive_deps_tests")
 
@@ -87,6 +91,38 @@ explicit_mapping(
 )
 
 #
+# Explicit target mappings
+#
+
+mapping_to_explicit_deps(
+    name = "mapping_to_explicit_direct_dep",
+    mapped_targets = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_1")],
+    target = ":lib_with_two_deps",
+)
+
+mapping_to_explicit_deps(
+    name = "mapping_to_explicit_transitive_dep",
+    mapped_targets = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_2")],
+    target = ":lib_with_dep",
+)
+
+mapping_to_explicit_deps(
+    name = "mapping_to_target_outside_dependency_tree_fails",
+    mapped_targets = [to_canonical("//non/existing:dep")],
+    tags = ["manual"],  # prevent this being analyzed outside the analysis test
+    target = ":lib_with_dep",
+)
+
+mapping_to_explicit_deps(
+    name = "mapping_to_explicit_deps_using_custom_rules",
+    mapped_targets = [
+        to_canonical("//dwyu/cc/cc_info_mapping/private/test:extra_dep"),
+        to_canonical("//dwyu/cc/cc_info_mapping/private/test:lib_with_dep"),
+    ],
+    target = ":lib_with_custom_deps",
+)
+
+#
 # Support targets
 #
 
@@ -142,7 +178,7 @@ cc_library(
     deps = [":non_cc_dep"],
 )
 
-cc_info_without_deps(
+cc_info_with_custom_deps(
     name = "custom_cc_dep",
     hdrs = ["custom_dep.h"],
 )
@@ -151,4 +187,23 @@ cc_library(
     name = "lib_with_custom_cc_dep",
     hdrs = ["lib_with_custom_cc_dep.h"],
     deps = [":custom_cc_dep"],
+)
+
+cc_info_with_custom_deps(
+    name = "custom_cc_info_with_custom_deps",
+    hdrs = ["custom_cc_info_with_custom_deps.h"],
+    multiple_deps = [":lib_with_dep"],
+    # Explicitly specify attributes not using targets as input to confirm our logic skips over them
+    non_target_attr = "some_value",
+    non_target_list_attr = [
+        "value1",
+        "value2",
+    ],
+    single_dep = ":extra_dep",
+)
+
+cc_library(
+    name = "lib_with_custom_deps",
+    hdrs = ["lib_with_custom_deps.h"],
+    deps = [":custom_cc_info_with_custom_deps"],
 )

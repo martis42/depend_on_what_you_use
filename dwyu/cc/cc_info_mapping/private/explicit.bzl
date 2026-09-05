@@ -23,6 +23,8 @@ explicit_mapping = rule(
         "target": attr.label(providers = [CcInfo]),
     },
     doc = """
+DEPRECATED: This rule is superseded by 'mapping_to_explicit_deps'.
+
 Make headers from all explicitly listed targets available as if they where provided by the main target itself.
 We do so by merging the compilation_context information from the listed targets into the main target's CcInfo.
     """,

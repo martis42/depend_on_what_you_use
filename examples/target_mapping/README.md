@@ -10,7 +10,7 @@ You yee the mappings used in this example in [mapping](./mapping/BUILD).
 
 See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the configs and the aspect configurations.
 
-Executing the following does not fail as we tell DWYU that library `a` provides the headers from library `b`.
+Executing the following does not fail as we explicitly map library `b` to `a`, telling DWYU that `a` provides the headers from `b`.
 
 ```shell
 bazel build --config=dwyu_map_specific_deps //target_mapping:use_lib_b

@@ -17,6 +17,12 @@ cc_library(
 )
 
 cc_binary(
+    name = "use_lib_a_b_and_ext_b",
+    srcs = ["use_lib_a_b_and_ext_b.cpp"],
+    deps = ["//target_mapping/libs:mapped_dep"],
+)
+
+cc_binary(
     name = "use_lib_b_and_ext_b",
     srcs = ["use_lib_b_and_ext_b.cpp"],
     deps = ["//target_mapping/libs:mapped_dep"],
