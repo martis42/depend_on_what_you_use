@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_EXPLICIT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
 load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
@@ -6,7 +6,9 @@ package(default_visibility = ["//target_mapping:__pkg__"])
 dwyu_make_cc_info_mapping(
     name = "map_specific_deps",
     mapping = {
-        "//target_mapping/libs:a": ["//target_mapping/libs:b"],
+        "//target_mapping/libs:a": {
+            MAP_EXPLICIT_DEPS: [to_canonical("//target_mapping/libs:b")],
+        },
     },
 )
 

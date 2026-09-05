@@ -5,6 +5,7 @@ bzl_library(
     srcs = [
         "direct_deps.bzl",
         "explicit.bzl",
+        "explicit_deps.bzl",
         "providers.bzl",
         "transitive_deps.bzl",
     ],

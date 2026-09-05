@@ -25,12 +25,14 @@ Then a test can specify only the dependency to `@com_google_googletest//:gtest_m
 
 load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
+load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/private:utils.bzl", "label_to_name")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
+MAP_EXPLICIT_DEPS = "__DWYU_MAP_EXPLICIT_DEPS__"
 MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
 
 def _make_remapping_info_impl(ctx):
@@ -75,7 +77,9 @@ def dwyu_make_cc_info_mapping(name, mapping):
             "//target/mapped/to/all/transitive:dependencies": {
                 MAP_TRANSITIVE_DEPS: "all",
             },
-            "//target/mapped/to/specific:targets": ["//other/target"],
+            "//target/mapped/to/specific:targets": {
+                MAP_EXPLICIT_DEPS: ["@@//other:target"]
+            },
         },
     )
     ```
@@ -97,15 +101,20 @@ def dwyu_make_cc_info_mapping(name, mapping):
                    Meaning, only direct dependencies are valid entries in the filter list.
                    Using `MAP_TRANSITIVE_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all dependencies.
                    This legacy behavior will be removed in a future release.<br>
+                 - The `MAP_EXPLICIT_DEPS` mode tells the rule to map a list of CcInfo-providing targets to the main target.
+                   The list has to use the canonical target names and the targets have to be from the dependency tree of the main target.
+                   For this mapping rule, the dependency tree is not just defined by the `deps` attribute of the rules_cc rules.
+                   All rules with all attributes providing CcInfo-providing targets are traversed.</br>
                  - An explicit list of targets which are mapped to the main target.
-                   Be careful only to choose targets which are dependencies of the main target!
-                   We recommend using `MAP_DIRECT_DEPS` or `MAP_TRANSITIVE_DEPS` with filtering instead of this.
-                   Those should be semantically more correct in most cases and are not limited by visibility restrictions.<br>
+                   This is a legacy behavior which will be removed eventually.
+                   Use `MAP_EXPLICIT_DEPS` instead.</br>
     """
     mappings = []
     for target, map_to in mapping.items():
         mapping_action = "{}_mapping_{}".format(name, label_to_name(target))
         if type(map_to) == "list":
+            # buildifier: disable=print
+            print("DWYU - WARNING: Legacy style for defining explicit target mappings. Please have a look at https://github.com/martis42/depend_on_what_you_use/blob/main/docs/api/cc_info_mapping.md for the new style.")
             explicit_mapping(
                 name = mapping_action,
                 target = target,
@@ -141,6 +150,12 @@ def dwyu_make_cc_info_mapping(name, mapping):
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_TRANSITIVE_DEPS),
+                )
+            elif [MAP_EXPLICIT_DEPS] == map_to.keys():
+                mapping_to_explicit_deps(
+                    name = mapping_action,
+                    mapped_targets = _extract_mapping_value(target, map_to, MAP_EXPLICIT_DEPS),
+                    target = target,
                 )
             else:
                 fail("DWYU: Invalid mapping type for target {}: {}".format(target, map_to))

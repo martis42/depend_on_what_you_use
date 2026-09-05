@@ -13,7 +13,6 @@ cc_library(
 cc_library(
     name = "b",
     hdrs = ["b.h"],
-    visibility = ["//target_mapping/mapping:__pkg__"],
     deps = [":c"],
 )
 

@@ -1,4 +1,4 @@
-load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_EXPLICIT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
 load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
@@ -37,16 +37,27 @@ dwyu_make_cc_info_mapping(
 )
 
 dwyu_make_cc_info_mapping(
-    name = "map_transitive_deps_all",
+    name = "map_direct_deps_filtered",
     mapping = {
-        "//target_mapping/libs:mapped_dep": {MAP_TRANSITIVE_DEPS: "all"},
+        "//target_mapping/libs:mapped_dep": {MAP_DIRECT_DEPS: [to_canonical("@target_mapping_test_repo//:ext_a")]},
     },
 )
 
 dwyu_make_cc_info_mapping(
-    name = "map_direct_deps_filtered",
+    name = "map_explicit_deps",
     mapping = {
-        "//target_mapping/libs:mapped_dep": {MAP_DIRECT_DEPS: [to_canonical("@target_mapping_test_repo//:ext_a")]},
+        "//target_mapping/libs:mapped_dep": {MAP_EXPLICIT_DEPS: [
+            to_canonical("//target_mapping/libs:a"),
+            # Test we don't require visibility on this target
+            to_canonical("@target_mapping_test_repo//:ext_b"),
+        ]},
+    },
+)
+
+dwyu_make_cc_info_mapping(
+    name = "map_transitive_deps_all",
+    mapping = {
+        "//target_mapping/libs:mapped_dep": {MAP_TRANSITIVE_DEPS: "all"},
     },
 )
 
