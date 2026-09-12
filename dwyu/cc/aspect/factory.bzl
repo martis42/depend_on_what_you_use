@@ -27,6 +27,7 @@ def _validate_skip_targets(patterns):
         elif ":" not in rest:
             fail("Invalid 'skip_targets' pattern '{}'. Patterns have to name a target explicitly (e.g. '//foo:bar' or '//foo:all').".format(pattern))
 
+# buildifier: disable=canonical-repository
 def dwyu_cc_aspect_factory(
         analysis_ignores_private_headers_from_deps = True,
         analysis_optimizes_impl_deps = False,
@@ -166,7 +167,7 @@ def dwyu_cc_aspect_factory(
                       Neither `*` globbing nor negative patterns (`-//foo:bar`) are supported.
                       Invalid patterns cause an error while loading the aspect.<br>
                       Without an `@repo` prefix a pattern refers to the main repository.
-                      Patterns for external repositories have to use the canonical repository name (e.g. `@rules_cc+`), not the apparent one (e.g. `@rules_cc`).
+                      Patterns for external repositories have to use the canonical repository name (e.g. `@@rules_cc+`), not the apparent one (e.g. `@rules_cc`).
                       The canonical name depends on the Bazel version and the module resolution, thus we advise using `skip_external_targets` if you want to exclude external repositories in general.<br>
                       In contrast to the other skipping mechanisms, the DWYU reports of the dependencies are still propagated.
                       Meaning, in the recursive analysis mode excluding a target does not stop the analysis of the targets below it.<br>
