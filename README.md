@@ -234,6 +234,10 @@ The following things specifically are not considered breaking changes:
 - The report files DWYU generates to facilitate running automatic fixes are considered an implementation detail.
 - Raising the minimum required version for a dependency or Bazel.
 
+Our interpretation of _backwards incompatible change_ is the behavior changing without the user being able to trivially adapt.
+Meaning, we will rename config options or change default values in minor version bumps, since the user can trivially adapt things in the DWYU config.
+Only removing an option without replacement or changing the behavior without possibility to configure the old behavior are considered breaking changes on major version level.
+
 # Contributing
 
 See [Contributing](CONTRIBUTING.md).
