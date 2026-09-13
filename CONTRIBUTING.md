@@ -42,6 +42,10 @@ All contributions require a review from the [code owners](.github/CODEOWNERS).
 
 No feature shall be changed or introduced without adapting or adding tests accordingly.
 
+## Documentation
+
+The documentation and changelog have to be adapted for user facing changes.
+
 ## Code Quality
 
 The project uses several formatters and linters which are executed with [prek](https://github.com/j178/prek) or [pre-commit](https://github.com/pre-commit/pre-commit).
