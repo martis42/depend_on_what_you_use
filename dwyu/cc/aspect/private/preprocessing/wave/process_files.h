@@ -1,6 +1,7 @@
 #ifndef DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PROCESS_FILES_H
 #define DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PROCESS_FILES_H
 
+#include "dwyu/cc/aspect/private/preprocessing/fast_parsing/process_files.h"
 #include "dwyu/cc/aspect/private/preprocessing/lib/included_file.h"
 #include "dwyu/cc/private/utils.h"
 
@@ -121,12 +122,29 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
         auto file_content = detail::makeContextInput(file);
 
         std::vector<IncludedFile> included_files{};
-        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(),
-                     PreprocessingHookT{ignore_system_includes, included_files}};
+        bool state_corrupted{false};
+        PreprocessingHookT hook{ignore_system_includes, included_files};
+        hook.state_corruption_flag = &state_corrupted;
+        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(), hook};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
         if (!detail::preprocessFile(ctx)) {
-            abortWithError("Preprocessing failed for file '", file, "'");
+            state_corrupted = true;
+        }
+
+        if (state_corrupted) {
+            // A swallowed exception (other than the expected 'file not found' for unstaged system headers) can
+            // corrupt Wave's conditional/include bookkeeping, after which include statements are silently dropped
+            // (e.g. '__has_include' or empty '__VA_ARGS__' constructs Wave's C++11 mode cannot evaluate). The
+            // preprocessed result cannot be trusted, so extract this file's includes with the lexical scanner
+            // instead. It cannot evaluate conditionals, but it can only over-report includes, never drop them.
+            if (verbose) {
+                std::cout << "Preprocessing of '" << file
+                          << "' hit an unsupported construct, falling back to lexical include scanning\n";
+            }
+            output_json.push_back(
+                extractIncludesWithFastParsing({file}, include_paths, system_include_paths, verbose)[0]);
+            continue;
         }
 
         if (verbose) {

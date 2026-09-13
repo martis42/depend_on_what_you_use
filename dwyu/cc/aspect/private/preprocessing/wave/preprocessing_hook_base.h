@@ -2,6 +2,7 @@
 #define DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PREPROCESSING_HOOK_BASE_H
 
 #include <boost/wave/cpp_exceptions.hpp>
+#include <boost/wave/cpplexer/cpplexer_exceptions.hpp>
 #include <boost/wave/preprocessing_hooks.hpp>
 
 #include <string>
@@ -11,6 +12,22 @@ namespace dwyu {
 
 // Base class with behavior common to all our preprocessing modi
 struct PreprocessingHooksBase : public boost::wave::context_policies::default_preprocessing_hooks {
+    // When set, flags swallowed exceptions which may have corrupted the preprocessor state (anything but the
+    // expected 'bad_include_file' for headers DWYU deliberately does not stage). The caller uses this to fall
+    // back to the 'fast' lexical scanner for the affected file, since after such an exception the Wave
+    // conditional/include bookkeeping can no longer be trusted and includes may be silently dropped.
+    bool* state_corruption_flag{nullptr};
+
+    static bool is_benign_swallow(const boost::wave::preprocess_exception& exception) {
+        return exception.get_errorcode() == boost::wave::preprocess_exception::bad_include_file;
+    }
+
+    template <typename ExceptionT>
+    static bool is_benign_swallow(const ExceptionT& exception) {
+        std::ignore = exception;
+        return false;
+    }
+
     template <typename ContextT, typename ContainerT>
     bool found_warning_directive(ContextT const& ctx, ContainerT const& message) {
         std::ignore = ctx;
@@ -59,6 +76,9 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
         if (exception.get_severity() == boost::wave::util::severity::severity_remark ||
             exception.get_severity() == boost::wave::util::severity::severity_warning ||
             exception.get_severity() == boost::wave::util::severity::severity_error) {
+            if ((state_corruption_flag != nullptr) && !is_benign_swallow(exception)) {
+                *state_corruption_flag = true;
+            }
             return;
         }
         boost::wave::context_policies::default_preprocessing_hooks::throw_exception(ctx, exception);
