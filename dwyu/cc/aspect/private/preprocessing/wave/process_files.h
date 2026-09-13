@@ -62,6 +62,11 @@ void configureContext(const std::vector<std::string>& include_paths,
     // '__cplusplus' to communicate this to the preprocessor.
     ctx.set_language(boost::wave::language_support::support_cpp11, reset_macros);
 
+    // '__has_include()' is a standard feature of C++17. But it was supported by most compilers already before.
+    // Being able to parse this has no negative side effects on code aimed at C++11 or C++14. Thus, we enable it
+    // universally to maximize the amount of code our preprocessor can parse properly.
+    ctx.set_language(boost::wave::language_support::support_option_has_include, reset_macros);
+
     for (const auto& path : include_paths) {
         std::ignore = ctx.add_include_path(path.c_str());
     }
