@@ -16,12 +16,6 @@ def boost_wave():
         urls = ["https://github.com/boostorg/wave/archive/" + git_ref + ".tar.gz"],
         build_file = Label("//third_party/boost/wave:wave.BUILD"),
         patches = [
-            # Bazel sets the macros __DATE__ and __TIME__ to the constant value 'redacted' to make sure the output of
-            # CC actions is as static as possible to ensure caching of build actions works properly. This constant
-            # value is however breaking some internal logic in boost::wave, which consumes those macros.
-            # As far as we can tell, nothing of relevance with respect to our use cases is done in boost::wave with
-            # that information. Thus, we simply disable the failing logic in boost::wave by commenting it out.
-            Label("//third_party/boost/wave:ignore_time_and_version.patch"),
             # boost::wave is setting some macros based on internal logic and does not allow overwriting them
             # (e.g. __cplusplus). However, we want full control over all macros. Thus, we introduce a flag allowing
             # us to overwrite all macros on demand.
