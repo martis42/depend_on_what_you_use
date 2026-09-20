@@ -14,6 +14,7 @@ _CPP_AMENDMENTS_VERSIONS_MAP = {
     "2a": "20",
     "2b": "23",
     "2c": "26",
+    "2d": "29",
 }
 
 # Map of the C++ standard versions to the the corresponding '__cplusplus' value
@@ -24,7 +25,7 @@ _CPLUSPLUS_VERSIONS_MAP = {
     "17": "201703",
     "20": "202002",
     "23": "202302",
-    "26": "202400",  # TODO Update when C++26 is properly released in 2026
+    "26": "202603",
     "98": "199711",
 }
 
