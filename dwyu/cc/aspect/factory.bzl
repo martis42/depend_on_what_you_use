@@ -35,6 +35,7 @@ def dwyu_cc_aspect_factory(
         analysis_reports_unused_deps = True,
         ignored_includes = None,
         ignored_unused_deps = [],
+        preprocessing_fallback = False,
         preprocessing_mode = "full",
         recursive = False,
         recursion_stops_on_skip = False,
@@ -108,6 +109,14 @@ def dwyu_cc_aspect_factory(
                              You have to use the Label constructor, you can't use bare strings.
                              For example: `ignored_unused_deps = [Label("//some:target")]`
 
+        preprocessing_fallback: Setting this to `True` makes the preprocessing modes `full` and `ignore_system_includes` fall back to the `fast` mode for files which `boost::wave` cannot preprocess properly.<br>
+                                We use `boost::wave` in its C++11 language mode, in which it cannot evaluate constructs of newer C++ standards like `__has_include` or invoking a variadic macro without arguments for the variadic part.
+                                Hitting such a construct can make `boost::wave` silently skip the remaining include statements of the affected file.
+                                DWYU then falsely reports the dependencies providing the skipped headers as unused.<br>
+                                With the fallback, the include statements of the affected files are extracted as in the `fast` mode.
+                                Include statements are then never dropped, at the cost of conditional include logic not being resolved for those files.
+                                If `verbose` is enabled, the preprocessing reports each file for which the fallback is used.<br>
+
         preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
                             This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
                             We perform a preprocessing to be able to ignore CC toolchain headers and resolve conditional include logic (`#ifdef` around include statements) and other preprocessor directives influencing include statements (e.g. a macro defining the to be included header path).<br>
@@ -116,15 +125,12 @@ def dwyu_cc_aspect_factory(
                               `full`: (Default).<br>
                               In this mode, we use the [`boost::wave`](https://github.com/boostorg/wave) library to preprocess the code.
                               This also involves recursively preprocessing all included header files.
-                              While this mode is the slowest, it is able to handle most kinds of conditional include logic or macros influencing include statements.<br>
-                              If preprocessing a file hits a construct `boost::wave` cannot evaluate (e.g. `__has_include`), we automatically fall back to extracting the include statements of the affected file as the `fast` mode does.
-                              This way include statements are never silently dropped due to such constructs, at the cost of conditional include logic not being resolved for the affected files.
+                              While this mode is the slowest, it is able to handle most kinds of conditional include logic or macros influencing include statements.
                             </li><li>
                               `ignore_system_includes`: Works similar to `full`, but should be faster for most projects.<br>
                               In this mode, we do not look into header files included as system includes (aka using the '<>' notation) during the preprocessing step.
                               Often, the system includes are not relevant for the conditional include logic in the user's code.
-                              At the same time they can point to large and complex headers which take a lot of time to preprocess (e.g. <gtest/gtest.h>).<br>
-                              The automatic fallback to extracting include statements as the `fast` mode does works as described for `full`.
+                              At the same time they can point to large and complex headers which take a lot of time to preprocess (e.g. <gtest/gtest.h>).
                             </li><li>
                               `fast`: The fastest preprocessing mode, which does however not support conditional include logic or macros influencing include statements.<br>
                               In this mode, we do not use `boost::wave` to preprocess the code.
@@ -246,6 +252,9 @@ def dwyu_cc_aspect_factory(
             ),
             "_ignored_unused_deps": attr.string_list(
                 default = [str(dep) for dep in ignored_unused_deps],
+            ),
+            "_preprocessing_fallback": attr.bool(
+                default = preprocessing_fallback,
             ),
             "_preprocessing_mode": attr.string(
                 default = preprocessing_mode,

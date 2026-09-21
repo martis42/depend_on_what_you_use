@@ -2,9 +2,9 @@ load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 # The targets here use preprocessor constructs which boost::wave cannot evaluate in our C++11 language mode.
-# The preprocessing recovers from this by falling back to lexically scanning the affected file for include statements.
-# Without the fallback, include statements after such constructs are silently dropped and the dependencies providing
-# them are falsely reported as unused.
+# By default, include statements after such constructs are silently dropped and the dependencies providing them are
+# falsely reported as unused. With the 'preprocessing_fallback' aspect option, the preprocessing recovers from this by
+# falling back to lexically scanning the affected file for include statements.
 
 cc_binary(
     name = "use_empty_variadic_macro",

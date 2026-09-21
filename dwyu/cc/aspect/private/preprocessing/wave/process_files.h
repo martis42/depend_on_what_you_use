@@ -116,6 +116,7 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                                                const std::vector<std::string>& system_include_paths,
                                                const std::vector<std::string>& defines,
                                                const bool ignore_system_includes,
+                                               const bool fallback_to_fast_mode,
                                                const bool verbose) {
     auto output_json = nlohmann::json::array();
     for (const auto& file : files) {
@@ -127,23 +128,31 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                      PreprocessingHookT{ignore_system_includes, included_files, state_corrupted}};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
-        if (!detail::preprocessFile(ctx)) {
-            state_corrupted = true;
+        const bool preprocessing_succeeded = detail::preprocessFile(ctx);
+        if (!preprocessing_succeeded && !fallback_to_fast_mode) {
+            abortWithError("Preprocessing failed for file '", file, "'");
         }
 
-        if (state_corrupted) {
-            // A swallowed exception (other than the expected 'file not found' for unstaged system headers) can
-            // corrupt Wave's conditional/include bookkeeping, after which include statements are silently dropped
-            // (e.g. '__has_include' or empty '__VA_ARGS__' constructs Wave's C++11 mode cannot evaluate). The
-            // preprocessed result cannot be trusted, so extract this file's includes with the lexical scanner
-            // instead. It cannot evaluate conditionals, but it can only over-report includes, never drop them.
+        if (!preprocessing_succeeded || state_corrupted) {
+            // boost::wave hit something it cannot process (e.g. '__has_include' or an empty '__VA_ARGS__', which our
+            // C++11 language mode does not support). Its conditional and include bookkeeping can no longer be trusted
+            // and include statements might have been silently dropped.
+            if (fallback_to_fast_mode) {
+                // The lexical scanning of the 'fast' mode cannot evaluate conditional include logic, but it can only
+                // over-report include statements and never drop them.
+                if (verbose) {
+                    std::cout << "Preprocessing of '" << file
+                              << "' hit an unsupported construct, falling back to the 'fast' mode for this file\n";
+                }
+                output_json.push_back(
+                    extractIncludesWithFastParsing({file}, include_paths, system_include_paths, verbose)[0]);
+                continue;
+            }
             if (verbose) {
                 std::cout << "Preprocessing of '" << file
-                          << "' hit an unsupported construct, falling back to lexical include scanning\n";
+                          << "' hit an unsupported construct, include statements might be missing. The aspect option "
+                             "'preprocessing_fallback' can mitigate this\n";
             }
-            output_json.push_back(
-                extractIncludesWithFastParsing({file}, include_paths, system_include_paths, verbose)[0]);
-            continue;
         }
 
         if (verbose) {

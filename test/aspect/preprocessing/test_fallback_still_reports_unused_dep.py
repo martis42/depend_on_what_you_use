@@ -14,6 +14,6 @@ class TestCase(TestCaseBase):
         expected = ExpectedFailure(
             ExpectedDwyuFailure(target=target, unused_public_deps=["//preprocessing/fallback:lib_unused"])
         )
-        actual = self._run_dwyu(target=target, aspect=self.default_aspect)
+        actual = self._run_dwyu(target=target, aspect="//preprocessing:aspect.bzl%dwyu_fallback")
 
         return self._check_result(actual=actual, expected=expected)
