@@ -25,9 +25,11 @@ namespace dwyu {
 // includes statements using the '<>' notation.
 class GatherDirectIncludesHook : public PreprocessingHooksBase {
   public:
-    explicit GatherDirectIncludesHook(const bool ignore_system_includes, std::vector<IncludedFile>& included_files)
-        : ignore_system_includes_{ignore_system_includes}, include_depth_{0}, included_files_{included_files},
-          working_dir_{boost::filesystem::current_path()} {}
+    explicit GatherDirectIncludesHook(const bool ignore_system_includes,
+                                      std::vector<IncludedFile>& included_files,
+                                      bool& state_corrupted)
+        : PreprocessingHooksBase{state_corrupted}, ignore_system_includes_{ignore_system_includes}, include_depth_{0},
+          included_files_{included_files}, working_dir_{boost::filesystem::current_path()} {}
 
     template <typename ContextT>
     bool locate_include_file(ContextT& ctx,

@@ -123,9 +123,8 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
 
         std::vector<IncludedFile> included_files{};
         bool state_corrupted{false};
-        PreprocessingHookT hook{ignore_system_includes, included_files};
-        hook.state_corruption_flag = &state_corrupted;
-        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(), hook};
+        ContextT ctx{file_content.begin(), file_content.end(), file.c_str(),
+                     PreprocessingHookT{ignore_system_includes, included_files, state_corrupted}};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
         if (!detail::preprocessFile(ctx)) {
