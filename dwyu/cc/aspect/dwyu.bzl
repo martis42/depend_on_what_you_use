@@ -423,6 +423,8 @@ def _extract_includes_from_files(ctx, config, target, files, defines, cc_toolcha
         args = make_param_file_args(ctx)
         args.add_all("--files", [file])
         args.add("--mode", config.preprocessing_mode)
+        if ctx.attr._preprocessing_fallback:
+            args.add("--fallback_to_fast_mode")
         args.add_all("--include_paths", include_paths)
         args.add_all("--system_include_paths", system_include_paths)
         args.add_all("--defines", defines)

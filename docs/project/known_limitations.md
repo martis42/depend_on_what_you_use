@@ -20,8 +20,16 @@ Consequently, if a project uses conditional include statements based on macros n
 We consider this however a rare edge case.
 Most projects use conditional include statements based on macros set by Bazel to accommodate for variation points in the build process, which DWYU can process just fine.
 
-If your project is impacted by this edge case, you can try some mitigation strategies:
+There are also preprocessor constructs our preprocessing cannot evaluate, since we use `boost::wave` in its C++11 language mode.
+Examples are `__has_include` or invoking a variadic macro without arguments for the variadic part.
+Hitting such a construct can make `boost::wave` silently skip the remaining include statements of the affected file.
+DWYU then falsely reports the dependencies providing the skipped headers as unused.
 
+If your project is impacted by those edge cases, you can try some mitigation strategies:
+
+- You can use the `preprocessing_fallback = True` DWYU aspect option.
+  The include statements of files hitting an unsupported construct are then extracted like `preprocessing_mode = "fast"` does, while all other files are still preprocessed normally.
+  If the aspect's `verbose` option is enabled, the preprocessing reports each file for which this fallback is used.
 - You can use the `preprocessing_mode = "fast"` DWYU aspect option to disable preprocessing.
   As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
 - You can use `--cxxopt=-DSomeMacro=42` to manually set the missing macro via Bazel to make it known to Bazel.

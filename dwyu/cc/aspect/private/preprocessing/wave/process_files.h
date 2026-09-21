@@ -1,6 +1,7 @@
 #ifndef DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PROCESS_FILES_H
 #define DWYU_CC_ASPECT_PRIVATE_PREPROCESSING_WAVE_PROCESS_FILES_H
 
+#include "dwyu/cc/aspect/private/preprocessing/fast_parsing/process_files.h"
 #include "dwyu/cc/aspect/private/preprocessing/lib/included_file.h"
 #include "dwyu/cc/private/utils.h"
 
@@ -115,18 +116,43 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                                                const std::vector<std::string>& system_include_paths,
                                                const std::vector<std::string>& defines,
                                                const bool ignore_system_includes,
+                                               const bool fallback_to_fast_mode,
                                                const bool verbose) {
     auto output_json = nlohmann::json::array();
     for (const auto& file : files) {
         auto file_content = detail::makeContextInput(file);
 
         std::vector<IncludedFile> included_files{};
+        bool state_corrupted{false};
         ContextT ctx{file_content.begin(), file_content.end(), file.c_str(),
-                     PreprocessingHookT{ignore_system_includes, included_files}};
+                     PreprocessingHookT{ignore_system_includes, included_files, state_corrupted}};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
-        if (!detail::preprocessFile(ctx)) {
+        const bool preprocessing_succeeded = detail::preprocessFile(ctx);
+        if (!preprocessing_succeeded && !fallback_to_fast_mode) {
             abortWithError("Preprocessing failed for file '", file, "'");
+        }
+
+        if (!preprocessing_succeeded || state_corrupted) {
+            // boost::wave hit something it cannot process (e.g. '__has_include' or an empty '__VA_ARGS__', which our
+            // C++11 language mode does not support). Its conditional and include bookkeeping can no longer be trusted
+            // and include statements might have been silently dropped.
+            if (fallback_to_fast_mode) {
+                // The lexical scanning of the 'fast' mode cannot evaluate conditional include logic, but it can only
+                // over-report include statements and never drop them.
+                if (verbose) {
+                    std::cout << "Preprocessing of '" << file
+                              << "' hit an unsupported construct, falling back to the 'fast' mode for this file\n";
+                }
+                output_json.push_back(
+                    extractIncludesWithFastParsing({file}, include_paths, system_include_paths, verbose)[0]);
+                continue;
+            }
+            if (verbose) {
+                std::cout << "Preprocessing of '" << file
+                          << "' hit an unsupported construct, include statements might be missing. The aspect option "
+                             "'preprocessing_fallback' can mitigate this\n";
+            }
         }
 
         if (verbose) {
