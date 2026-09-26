@@ -17,16 +17,16 @@ _CPP_AMENDMENTS_VERSIONS_MAP = {
     "2d": "29",
 }
 
-# Map of the C++ standard versions to the the corresponding '__cplusplus' value
+# Map of possible '__cplusplus' values to the corresponding C++ standard version
 # Source for the mapping: https://en.cppreference.com/w/cpp/preprocessor/replace#Predefined_macros
 _CPLUSPLUS_VERSIONS_MAP = {
-    "11": "201103",
-    "14": "201402",
-    "17": "201703",
-    "20": "202002",
-    "23": "202302",
-    "26": "202603",
-    "98": "199711",
+    "199711": "98",
+    "201103": "11",
+    "201402": "14",
+    "201703": "17",
+    "202002": "20",
+    "202302": "23",
+    "202603": "26",
 }
 
 PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
@@ -269,9 +269,22 @@ def extract_cpp_standard_from_compiler_flags(compiler_flags):
         if cpp_standard.isdigit() or cpp_standard == "latest":
             return cpp_standard
 
-        return _CPP_AMENDMENTS_VERSIONS_MAP.get(cpp_standard, "unknown")
+        return _CPP_AMENDMENTS_VERSIONS_MAP.get(cpp_standard, None)
 
-    return "unknown"
+    return None
+
+def extract_cpp_standard_from_defines(defines):
+    cpp_standard = None
+    for define in defines:
+        if define.startswith("__cplusplus="):
+            standard_value = define.split("=")[1]
+            standard_value = standard_value.replace("L", "")
+            cpp_standard_candidate = _CPLUSPLUS_VERSIONS_MAP.get(standard_value, None)
+            if cpp_standard_candidate == None:
+                # buildifier: disable=print
+                print("WARNING: Found '__cplusplus' value '{}' in define '{}' which does not match the expected values: {}".format(standard_value, define, _CPLUSPLUS_VERSIONS_MAP.keys()))
+            cpp_standard = cpp_standard_candidate
+    return cpp_standard
 
 def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, feature_configuration):
     """
@@ -284,6 +297,10 @@ def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, featu
     - https://clang.llvm.org/docs/ClangCommandLineReference.html
     - https://gcc.gnu.org/onlinedocs/gcc/Option-Index.html#Option-Index
     - https://learn.microsoft.com/en-us/cpp/build/reference/compiler-options?view=msvc-170
+
+    Returns:
+        A list of preprocessor defines extracted from the compiler command line flags
+        The C++ standard used for the compilation
     """
     defines = []
     if hasattr(ctx.rule.attr, "implementation_deps"):
@@ -314,16 +331,19 @@ def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, featu
 
     defines = extract_defines_from_compiler_flags(compiler_command_line_flags)
 
-    # If somebody did set the C++ version explicitly, we are not going to overwrite it
-    if any(["__cplusplus" in m for m in defines]):
-        return defines
+    # A C++ standard set via macro '__cplusplus' has priority over compiler flags (e.g. --std=c++20).
+    # This decision is based on how gcc and clang behave during compilation of code.
+    cpp_standard_defines = extract_cpp_standard_from_defines(defines)
+    if cpp_standard_defines != None:
+        cpp_standard = cpp_standard_defines
+    else:
+        cpp_standard_flags = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+        if cpp_standard_flags != None:
+            cpp_standard = cpp_standard_flags
+        else:
+            fail("Failed to determine C++ standard from compiler flags and defines.")
 
-    cpp_standard = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
-    cplusplus_value = _CPLUSPLUS_VERSIONS_MAP.get(cpp_standard, None)
-    if cplusplus_value:
-        defines.append("__cplusplus={}".format(cplusplus_value))
-
-    return defines
+    return defines, cpp_standard
 
 def _exchange_cc_info(deps, mapping):
     transformed = []
@@ -387,7 +407,7 @@ def _return_on_skip(ctx):
         return []
     return [OutputGroupInfo(dwyu = depset(transitive = _gather_transitive_reports(ctx)))]
 
-def _extract_includes_from_files(ctx, config, target, files, defines, cc_toolchain, attr_prefix):
+def _extract_includes_from_files(ctx, config, target, files, defines, cpp_standard, cc_toolchain, attr_prefix):
     """
     For each given file perform a preprocessing step to find all relevant include statements
     """
@@ -428,6 +448,7 @@ def _extract_includes_from_files(ctx, config, target, files, defines, cc_toolcha
         args.add_all("--include_paths", include_paths)
         args.add_all("--system_include_paths", system_include_paths)
         args.add_all("--defines", defines)
+        args.add("--cpp_standard", cpp_standard)
         args.add("--output", pp_output)
         if _is_verbose(ctx):
             args.add("--verbose")
@@ -514,7 +535,12 @@ def dwyu_cc_aspect_impl(target, ctx):
 
     config = _make_dwyu_config(ctx)
 
-    defines = [] if config.preprocessing_mode == "fast" else _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
+    if config.preprocessing_mode == "fast":
+        defines = []
+        cpp_standard = ""
+    else:
+        defines, cpp_standard = _parse_compiler_command(ctx, target[CcInfo].compilation_context, cc_toolchain, feature_configuration)
+
     processed_target = _process_target(
         ctx,
         target = struct(label = target.label, cc_info = target[CcInfo]),
@@ -538,6 +564,7 @@ def dwyu_cc_aspect_impl(target, ctx):
         target = target,
         files = public_files,
         defines = defines,
+        cpp_standard = cpp_standard,
         cc_toolchain = cc_toolchain,
         attr_prefix = "pub",
     )
@@ -547,6 +574,7 @@ def dwyu_cc_aspect_impl(target, ctx):
         target = target,
         files = private_files,
         defines = defines,
+        cpp_standard = cpp_standard,
         cc_toolchain = cc_toolchain,
         attr_prefix = "priv",
     )

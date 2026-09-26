@@ -6,8 +6,6 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
-        actual = self._run_dwyu(
-            target="//preprocessing/fallback:use_has_include_guard", aspect="//preprocessing:aspect.bzl%dwyu_fallback"
-        )
+        actual = self._run_dwyu(target="//preprocessing/cpp_standard:all", aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=ExpectedSuccess())

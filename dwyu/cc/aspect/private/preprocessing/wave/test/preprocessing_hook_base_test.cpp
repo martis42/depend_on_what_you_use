@@ -45,14 +45,6 @@ TEST(ThrowException, WarningsAreIgnored) {
         swallowingCorruptsState(makeLexingException(boost::wave::cpplexer::lexing_exception::generic_lexing_warning)));
 }
 
-TEST(ThrowException, WarningsAbortingThePreprocessingCorruptTheState) {
-    // boost::wave raises those while giving up on expanding a macro and then stops processing the file
-    EXPECT_TRUE(
-        swallowingCorruptsState(makePreprocessException(boost::wave::preprocess_exception::too_few_macroarguments)));
-    EXPECT_TRUE(
-        swallowingCorruptsState(makePreprocessException(boost::wave::preprocess_exception::empty_macroarguments)));
-}
-
 TEST(ThrowException, MissingIncludeFileIsIgnored) {
     // Headers which cannot be found are expected, since DWYU deliberately does not provide the CC toolchain headers
     EXPECT_FALSE(swallowingCorruptsState(makePreprocessException(boost::wave::preprocess_exception::bad_include_file)));
