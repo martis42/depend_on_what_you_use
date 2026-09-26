@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_defines_from_compiler_flags", "matches_target_pattern")
+load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_cpp_standard_from_defines", "extract_defines_from_compiler_flags", "matches_target_pattern")
 
 def _extract_defines_from_compiler_flags_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -50,10 +50,10 @@ def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
     env = unittest.begin(ctx)
 
     # None if empty list is provided
-    asserts.equals(env, "unknown", extract_cpp_standard_from_compiler_flags([]))
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags([]))
 
     # None if nothing can be found
-    asserts.equals(env, "unknown", extract_cpp_standard_from_compiler_flags(["whatever"]))
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["whatever"]))
 
     # Last definition wins
     asserts.equals(env, "98", extract_cpp_standard_from_compiler_flags(["-std=c++20", "whatever", "-std=c++98"]))
@@ -83,9 +83,45 @@ def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
     asserts.equals(env, "latest", extract_cpp_standard_from_compiler_flags(["/std:c++latest"]))
 
     # Unknown for bogus input
-    asserts.equals(env, "unknown", extract_cpp_standard_from_compiler_flags(["-std=foo"]))
-    asserts.equals(env, "unknown", extract_cpp_standard_from_compiler_flags(["-std=c++1g"]))
-    asserts.equals(env, "unknown", extract_cpp_standard_from_compiler_flags(["/std:c++23bar"]))
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["-std=foo"]))
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["-std=c++1g"]))
+    asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["/std:c++23bar"]))
+
+    return unittest.end(env)
+
+def _extract_cpp_standard_from_defines_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # None if empty list is provided
+    asserts.equals(env, None, extract_cpp_standard_from_defines([]))
+
+    # None if no '__cplusplus' define can be found
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["Foo", "Bar=42"]))
+
+    # None if '__cplusplus' is defined without a value
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["__cplusplus"]))
+
+    # Similar named macros are ignored
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["__cplusplus_foo=201103", "my__cplusplus=201103"]))
+
+    # Known values
+    asserts.equals(env, "98", extract_cpp_standard_from_defines(["__cplusplus=199711"]))
+    asserts.equals(env, "11", extract_cpp_standard_from_defines(["__cplusplus=201103"]))
+    asserts.equals(env, "26", extract_cpp_standard_from_defines(["__cplusplus=202603"]))
+
+    # Value with 'L' suffix
+    asserts.equals(env, "17", extract_cpp_standard_from_defines(["__cplusplus=201703L"]))
+
+    # Other defines are ignored
+    asserts.equals(env, "20", extract_cpp_standard_from_defines(["Foo", "__cplusplus=202002", "Bar=42"]))
+
+    # Last definition wins
+    asserts.equals(env, "11", extract_cpp_standard_from_defines(["__cplusplus=202002", "__cplusplus=201103"]))
+
+    # Unknown values are ignored
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["__cplusplus=123456"]))
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["__cplusplus=foo"]))
+    asserts.equals(env, None, extract_cpp_standard_from_defines(["__cplusplus=201402", "__cplusplus=123456"]))
 
     return unittest.end(env)
 
@@ -136,6 +172,7 @@ def _matches_target_pattern_test_impl(ctx):
 
 extract_defines_from_compiler_flags_test = unittest.make(_extract_defines_from_compiler_flags_test_impl)
 extract_cpp_standard_from_compiler_flags_test = unittest.make(_extract_cpp_standard_from_compiler_flags_test_impl)
+extract_cpp_standard_from_defines_test = unittest.make(_extract_cpp_standard_from_defines_test_impl)
 matches_target_pattern_test = unittest.make(_matches_target_pattern_test_impl)
 
 def dwyu_aspect_test_suite(name):
@@ -143,5 +180,6 @@ def dwyu_aspect_test_suite(name):
         name,
         extract_defines_from_compiler_flags_test,
         extract_cpp_standard_from_compiler_flags_test,
+        extract_cpp_standard_from_defines_test,
         matches_target_pattern_test,
     )

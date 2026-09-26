@@ -33,6 +33,7 @@ struct ProgramOptions {
     std::vector<std::string> include_paths{};
     std::vector<std::string> system_include_paths{};
     std::vector<std::string> defines{};
+    std::string cpp_standard{};
     std::string output{};
     bool fallback_to_fast_mode{false};
     bool verbose{false};
@@ -54,6 +55,8 @@ ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCh
     parser.addOptionList("--system_include_paths", options.system_include_paths);
     // Macros defined by the CC toolchain or the user
     parser.addOptionList("--defines", options.defines);
+    // Which C++ standard to use for preprocessing the code
+    parser.addOptionValue("--cpp_standard", options.cpp_standard);
     // Stores the discovered includes in this file
     parser.addOptionValue("--output", options.output);
     // Print debugging information
@@ -74,8 +77,8 @@ nlohmann::json extractIncludesFromFiles(const ProgramOptions& options) {
                                               GatherDirectIncludesHook>;
         const bool ignore_system_includes = options.mode == "ignore_system_includes";
         return extractIncludesWithPreprocessor<ContextT, GatherDirectIncludesHook>(
-            options.files, options.include_paths, options.system_include_paths, options.defines, ignore_system_includes,
-            options.fallback_to_fast_mode, options.verbose);
+            options.files, options.include_paths, options.system_include_paths, options.defines, options.cpp_standard,
+            ignore_system_includes, options.fallback_to_fast_mode, options.verbose);
     }
     if (options.mode == "fast") {
         return extractIncludesWithFastParsing(options.files, options.include_paths, options.system_include_paths,
@@ -97,6 +100,7 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "Include paths        : " << listToStr(options.include_paths) << "\n";
         std::cout << "System include paths : " << listToStr(options.system_include_paths) << "\n";
         std::cout << "Defines              : " << listToStr(options.defines) << "\n";
+        std::cout << "C++ Standard         : " << options.cpp_standard << "\n";
     }
 
     auto output_json = extractIncludesFromFiles(options);

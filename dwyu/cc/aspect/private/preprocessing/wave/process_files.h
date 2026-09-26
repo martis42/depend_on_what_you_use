@@ -34,34 +34,50 @@ inline std::string makeContextInput(const std::string& file) {
 template <typename ContextT>
 void resetMacro(ContextT& ctx, const std::string& macro) {
     constexpr bool even_predefined{true};
-    constexpr bool even_special{true};
 
     const auto position_equal_sign = macro.find('=');
     if (position_equal_sign == std::string::npos) {
         // Basic define without value
-        std::ignore = ctx.remove_macro_definition(macro, even_predefined, even_special);
+        std::ignore = ctx.remove_macro_definition(macro, even_predefined);
     }
     else {
         // Define with value, e.g. 'FOO=42'
-        std::ignore = ctx.remove_macro_definition(macro.substr(0, position_equal_sign), even_predefined, even_special);
+        std::ignore = ctx.remove_macro_definition(macro.substr(0, position_equal_sign), even_predefined);
     }
+}
+
+inline boost::wave::language_support getLanguageSupport(const std::string& cpp_standard) {
+    if (cpp_standard == "98") {
+        // A lot of code exists which has no newline at the end and all established compilers are able to handle this.
+        return boost::wave::enable_no_newline_at_end_of_file(boost::wave::language_support::support_cpp);
+    }
+    if (cpp_standard == "11") {
+        return boost::wave::language_support::support_cpp11;
+    }
+    if (cpp_standard == "14") {
+        return boost::wave::language_support::support_cpp14;
+    }
+    if (cpp_standard == "17") {
+        return boost::wave::language_support::support_cpp17;
+    }
+    if (cpp_standard == "20") {
+        return boost::wave::language_support::support_cpp20;
+    }
+    if (cpp_standard == "23" || cpp_standard == "latest") {
+        return boost::wave::language_support::support_cpp23;
+    }
+    abortWithError("Failed to configure preprocessing due to unsupported C++ standard '", cpp_standard, "'");
 }
 
 template <typename ContextT>
 void configureContext(const std::vector<std::string>& include_paths,
                       const std::vector<std::string>& system_include_paths,
                       const std::vector<std::string>& defines,
+                      const std::string& cpp_standard,
                       ContextT& ctx) {
+    // Preprocessing has to know which language features to expect based on the C++ standard used by the client.
     constexpr bool reset_macros{true};
-
-    // A lot of code exists which has no newline at the end and all established compilers are able to handle this
-    ctx.set_language(boost::wave::language_support::support_option_no_newline_at_end_of_file, reset_macros);
-
-    // Since we require C++11 as minimum to compile our own tool and C++11 is mostly the established minimum standard
-    // nowadays, setting C++11 as language seems like a sane default.
-    // If a projects wants to user newer C++ versions and they are relevant for preprocessing, they can set
-    // '__cplusplus' to communicate this to the preprocessor.
-    ctx.set_language(boost::wave::language_support::support_cpp11, reset_macros);
+    ctx.set_language(getLanguageSupport(cpp_standard), reset_macros);
 
     for (const auto& path : include_paths) {
         std::ignore = ctx.add_include_path(path.c_str());
@@ -70,8 +86,8 @@ void configureContext(const std::vector<std::string>& include_paths,
         std::ignore = ctx.add_sysinclude_path(path.c_str());
     }
     for (const auto& macro : defines) {
-        // Some macros are set by boost::wave internally. Whenever we receive a macro defined on Bazel level, we
-        // want to use this value and not the boost::wave default/heuristic.
+        // Some macros are set by boost::wave internally.
+        // Whenever we receive a macro defined on Bazel level, we want to make sure we use our value.
         resetMacro(ctx, macro);
         constexpr bool is_predefined{true};
         std::ignore = ctx.add_macro_definition(macro, is_predefined);
@@ -122,6 +138,7 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                                                const std::vector<std::string>& include_paths,
                                                const std::vector<std::string>& system_include_paths,
                                                const std::vector<std::string>& defines,
+                                               const std::string& cpp_standard,
                                                const bool ignore_system_includes,
                                                const bool fallback_to_fast_mode,
                                                const bool verbose) {
@@ -133,7 +150,7 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
         bool state_corrupted{false};
         ContextT ctx{file_content.begin(), file_content.end(), file.c_str(),
                      PreprocessingHookT{ignore_system_includes, included_files, state_corrupted}};
-        detail::configureContext(include_paths, system_include_paths, defines, ctx);
+        detail::configureContext(include_paths, system_include_paths, defines, cpp_standard, ctx);
 
         // Without the fallback the failure aborts the action, thus the details are always needed
         const bool print_errors = !fallback_to_fast_mode || verbose;
@@ -144,12 +161,10 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
         }
 
         if (!preprocessing_succeeded || state_corrupted) {
-            // boost::wave hit something it cannot process (e.g. '__has_include' or an empty '__VA_ARGS__', which our
-            // C++11 language mode does not support). Its conditional and include bookkeeping can no longer be trusted
-            // and include statements might have been silently dropped.
+            // boost::wave hit something it cannot process.
+            // The include depth bookkeeping can no longer be trusted and include statements might have been silently dropped.
             if (fallback_to_fast_mode) {
-                // The lexical scanning of the 'fast' mode cannot evaluate conditional include logic, but it can only
-                // over-report include statements and never drop them.
+                // The lexical scanning of the 'fast' mode cannot evaluate conditional include logic, but it can only over-report include statements and never drop them.
                 if (verbose) {
                     std::cout << "Preprocessing of '" << file
                               << "' hit an unsupported construct, falling back to the 'fast' mode for this file\n";

@@ -110,8 +110,7 @@ def dwyu_cc_aspect_factory(
                              For example: `ignored_unused_deps = [Label("//some:target")]`
 
         preprocessing_fallback: Setting this to `True` makes the preprocessing modes `full` and `ignore_system_includes` fall back to the `fast` mode for files which `boost::wave` cannot preprocess properly.<br>
-                                We use `boost::wave` in its C++11 language mode, in which it cannot evaluate constructs of newer C++ standards like `__has_include` or invoking a variadic macro without arguments for the variadic part.
-                                Hitting such a construct can make `boost::wave` silently skip the remaining include statements of the affected file.
+                                This can be required when `boost::wave` encounters constructs it cannot handle properly and due to a broken preprocessor state we ignore include statements.
                                 DWYU then falsely reports the dependencies providing the skipped headers as unused.<br>
                                 With the fallback, the include statements of the affected files are extracted as in the `fast` mode.
                                 Include statements are then never dropped, at the cost of conditional include logic not being resolved for those files.<br>

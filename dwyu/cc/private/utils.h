@@ -22,7 +22,7 @@ void printToError(T&& first, Args&&... rest) {
 }
 
 template <typename... Args>
-void abortWithError(Args&&... args) {
+[[noreturn]] void abortWithError(Args&&... args) {
     std::cerr << "ERROR: ";
     printToError(std::forward<Args>(args)...);
     std::cerr << "\n";

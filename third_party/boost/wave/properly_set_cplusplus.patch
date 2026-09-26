@@ -1,0 +1,270 @@
+--- a/include/boost/wave/cpplexer/re2clex/cpp_re2c_lexer.hpp
++++ b/include/boost/wave/cpplexer/re2clex/cpp_re2c_lexer.hpp
+@@ -153,9 +153,15 @@ lexer<IteratorT, PositionT, TokenT>::lexer(IteratorT const &first,
+     scanner.act_in_cpp0x_mode = false;
+ #endif
+
++#if BOOST_WAVE_SUPPORT_CPP1Y != 0
++    scanner.act_in_cpp0x_mode = boost::wave::need_cpp1y(language_)
++        || boost::wave::need_cpp0x(language_);
++#endif
++
+ #if BOOST_WAVE_SUPPORT_CPP2A != 0
+     scanner.act_in_cpp2a_mode = boost::wave::need_cpp2a(language_);
+     scanner.act_in_cpp0x_mode = boost::wave::need_cpp2a(language_)
++        || boost::wave::need_cpp1y(language_)
+         || boost::wave::need_cpp0x(language_);
+ #else
+     scanner.act_in_cpp2a_mode = false;
+@@ -167,6 +173,7 @@ lexer<IteratorT, PositionT, TokenT>::lexer(IteratorT const &first,
+         || boost::wave::need_cpp2a(language_);
+     scanner.act_in_cpp0x_mode = boost::wave::need_cpp2b(language_)
+         || boost::wave::need_cpp2a(language_)
++        || boost::wave::need_cpp1y(language_)
+         || boost::wave::need_cpp0x(language_);
+ #else
+     scanner.act_in_cpp2b_mode = false;
+
+--- a/include/boost/wave/language_support.hpp
++++ b/include/boost/wave/language_support.hpp
+@@ -41,6 +41,11 @@ enum language_support {
+     support_cpp0x = support_option_variadics | support_option_long_long |
+         support_option_no_newline_at_end_of_file | 0x10,
+     support_cpp11 = support_cpp0x,
++#if BOOST_WAVE_SUPPORT_CPP1Y != 0
++    //  support flags for C++14
++    support_cpp1y = support_option_variadics | support_option_long_long |
++        support_option_no_newline_at_end_of_file | 0x400000,
++    support_cpp14 = support_cpp1y,
+ #if BOOST_WAVE_SUPPORT_CPP1Z != 0
+     // support flags for C++17
+     support_option_has_include = 0x10000,
+@@ -68,6 +73,7 @@ enum language_support {
+     support_cpp23 = support_cpp2b,
+ #endif
+ #endif
++#endif
+ #endif
+
+     support_option_mask = 0xFFC0,
+@@ -121,6 +127,56 @@ need_cpp0x(language_support language)
+
+ #endif
+
++///////////////////////////////////////////////////////////////////////////////
++//
++//  need_cpp1y
++//
++//      Extract, if the language to support is C++14
++//
++///////////////////////////////////////////////////////////////////////////////
++#if BOOST_WAVE_SUPPORT_CPP1Y != 0
++
++inline bool
++need_cpp1y(language_support language)
++{
++    return (language & ~support_option_mask) == support_cpp1y;
++}
++
++#else
++
++inline bool
++need_cpp1y(language_support language)
++{
++    return false;
++}
++
++#endif
++
++///////////////////////////////////////////////////////////////////////////////
++//
++//  need_cpp1z
++//
++//      Extract if the language to support is C++17
++//
++///////////////////////////////////////////////////////////////////////////////
++#if BOOST_WAVE_SUPPORT_CPP1Z != 0
++
++inline bool
++need_cpp1z(language_support language)
++{
++    return (language & ~support_option_mask) == support_cpp1z;
++}
++
++#else
++
++inline bool
++need_cpp1z(language_support language)
++{
++    return false;
++}
++
++#endif
++
+ ///////////////////////////////////////////////////////////////////////////////
+ //
+ //  need_cpp2a
+
+--- a/include/boost/wave/util/cpp_macromap.hpp
++++ b/include/boost/wave/util/cpp_macromap.hpp
+@@ -2223,6 +2223,28 @@ macromap<ContextT>::init_predefined_macros(char const *fname,
+         }
+         else
+ #endif
++#if BOOST_WAVE_SUPPORT_CPP1Y != 0
++        if (boost::wave::need_cpp1y(ctx.get_language())) {
++            // define C++14 specifics
++            for (int i = 0; 0 != predef.static_data_cpp1y(i).name; ++i) {
++                predefined_macros::static_macros const& m = predef.static_data_cpp1y(i);
++                predefine_macro(current_scope, m.name,
++                    token_type(m.token_id, m.value, pos));
++            }
++        }
++        else
++#endif
++    #if BOOST_WAVE_SUPPORT_CPP1Z != 0
++        if (boost::wave::need_cpp1z(ctx.get_language())) {
++            // define C++17 specifics
++            for (int i = 0; 0 != predef.static_data_cpp1z(i).name; ++i) {
++            predefined_macros::static_macros const& m = predef.static_data_cpp1z(i);
++            predefine_macro(current_scope, m.name,
++                token_type(m.token_id, m.value, pos));
++            }
++        }
++        else
++    #endif
+ #if BOOST_WAVE_SUPPORT_CPP2A != 0
+             if (boost::wave::need_cpp2a(ctx.get_language())) {
+             // define C++20 specifics
+@@ -2234,6 +2256,17 @@ macromap<ContextT>::init_predefined_macros(char const *fname,
+         }
+         else
+ #endif
++    #if BOOST_WAVE_SUPPORT_CPP2B != 0
++        if (boost::wave::need_cpp2b(ctx.get_language())) {
++            // define C++23 specifics
++            for (int i = 0; 0 != predef.static_data_cpp2b(i).name; ++i) {
++            predefined_macros::static_macros const& m = predef.static_data_cpp2b(i);
++            predefine_macro(current_scope, m.name,
++                token_type(m.token_id, m.value, pos));
++            }
++        }
++        else
++    #endif
+         {
+             // define C++ specifics
+             for (int i = 0; 0 != predef.static_data_cpp(i).name; ++i) {
+
+--- a/include/boost/wave/util/cpp_macromap_predef.hpp
++++ b/include/boost/wave/util/cpp_macromap_predef.hpp
+@@ -238,6 +238,40 @@ namespace util {
+         }
+ #endif
+
++#if BOOST_WAVE_SUPPORT_CPP1Y != 0
++    // C++14 mode
++    static_macros const& static_data_cpp1y(std::size_t i) const
++    {
++    static static_macros data[] = {
++        { "__STDC__", T_INTLIT, "1" },
++        { "__cplusplus", T_INTLIT, "201402L" },
++        { "__STDC_VERSION__", T_INTLIT, "199901L" },
++        { "__STDC_HOSTED__", T_INTLIT, "0" },
++        { "__WAVE_HAS_VARIADICS__", T_INTLIT, "1" },
++        { 0, T_EOF, 0 }
++        };
++        BOOST_ASSERT(i < sizeof(data)/sizeof(data[0]));
++        return data[i];
++    }
++#endif
++
++#if BOOST_WAVE_SUPPORT_CPP1Z != 0
++    // C++17 mode
++    static_macros const& static_data_cpp1z(std::size_t i) const
++    {
++    static static_macros data[] = {
++        { "__STDC__", T_INTLIT, "1" },
++        { "__cplusplus", T_INTLIT, "201703L" },
++        { "__STDC_VERSION__", T_INTLIT, "199901L" },
++        { "__STDC_HOSTED__", T_INTLIT, "0" },
++        { "__WAVE_HAS_VARIADICS__", T_INTLIT, "1" },
++        { 0, T_EOF, 0 }
++        };
++        BOOST_ASSERT(i < sizeof(data)/sizeof(data[0]));
++        return data[i];
++    }
++#endif
++
+ #if BOOST_WAVE_SUPPORT_CPP2A != 0
+         // C++20 mode
+         static_macros const& static_data_cpp2a(std::size_t i) const
+@@ -255,6 +289,23 @@ namespace util {
+         }
+ #endif
+
++    #if BOOST_WAVE_SUPPORT_CPP2B != 0
++        // C++23 mode
++        static_macros const& static_data_cpp2b(std::size_t i) const
++        {
++        static static_macros data[] = {
++            { "__STDC__", T_INTLIT, "1" },
++            { "__cplusplus", T_INTLIT, "202302L" },
++            { "__STDC_VERSION__", T_INTLIT, "199901L" },
++            { "__STDC_HOSTED__", T_INTLIT, "0" },
++            { "__WAVE_HAS_VARIADICS__", T_INTLIT, "1" },
++            { 0, T_EOF, 0 }
++            };
++            BOOST_ASSERT(i < sizeof(data)/sizeof(data[0]));
++            return data[i];
++        }
++    #endif
++
+ #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0
+         // C99 mode
+         static_macros const& static_data_c99(std::size_t i) const
+
+--- a/include/boost/wave/wave_config.hpp
++++ b/include/boost/wave/wave_config.hpp
+@@ -103,11 +103,24 @@
+ #define BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS 1
+ #endif
+
++///////////////////////////////////////////////////////////////////////////////
++//  Decide whether to support C++14
++//
++#if !defined(BOOST_WAVE_SUPPORT_CPP1Y)
++#  define BOOST_WAVE_SUPPORT_CPP1Y 1
++#  undef BOOST_WAVE_SUPPORT_CPP0X
++#  define BOOST_WAVE_SUPPORT_CPP0X 1
++#  undef BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS
++#  define BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS 1
++#endif
++
+ ///////////////////////////////////////////////////////////////////////////////
+ //  Decide whether to support C++17
+ //
+ #if !defined(BOOST_WAVE_SUPPORT_CPP1Z)
+ #  define BOOST_WAVE_SUPPORT_CPP1Z 1
++#  undef BOOST_WAVE_SUPPORT_CPP1Y
++#  define BOOST_WAVE_SUPPORT_CPP1Y 1
+ #  undef BOOST_WAVE_SUPPORT_CPP0X
+ #  define BOOST_WAVE_SUPPORT_CPP0X 1
+ #  undef BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS
+@@ -131,6 +144,8 @@
+ #  define BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS 1
+ #  undef BOOST_WAVE_SUPPORT_CPP1Z
+ #  define BOOST_WAVE_SUPPORT_CPP1Z 1
++#  undef BOOST_WAVE_SUPPORT_CPP1Y
++#  define BOOST_WAVE_SUPPORT_CPP1Y 1
+ #  if !defined(BOOST_WAVE_SUPPORT_HAS_INCLUDE)
+ #    define BOOST_WAVE_SUPPORT_HAS_INCLUDE 1
+ #  endif
+@@ -155,6 +170,8 @@
+ #  define BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS 1
+ #  undef BOOST_WAVE_SUPPORT_CPP1Z
+ #  define BOOST_WAVE_SUPPORT_CPP1Z 1
++#  undef BOOST_WAVE_SUPPORT_CPP1Y
++#  define BOOST_WAVE_SUPPORT_CPP1Y 1
+ #  if !defined(BOOST_WAVE_SUPPORT_HAS_INCLUDE)
+ #    define BOOST_WAVE_SUPPORT_HAS_INCLUDE 1
+ #  endif
