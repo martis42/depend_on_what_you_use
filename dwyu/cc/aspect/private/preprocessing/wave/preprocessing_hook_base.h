@@ -11,6 +11,39 @@ namespace dwyu {
 
 // Base class with behavior common to all our preprocessing modi
 struct PreprocessingHooksBase : public boost::wave::context_policies::default_preprocessing_hooks {
+    // 'state_corrupted' is set to true when we swallow an exception after which the boost::wave state can no longer
+    // be trusted. The conditional and include bookkeeping might be broken, causing include statements to be silently
+    // dropped. The caller owns the flag and can use it to process the affected file with a different strategy.
+    explicit PreprocessingHooksBase(bool& state_corrupted) : state_corrupted_{state_corrupted} {}
+
+    // Swallowing an error is expected to corrupt the preprocessor state. The exception is 'bad_include_file', which
+    // is raised for each header which cannot be found. This is the norm for us, since DWYU deliberately does not
+    // provide the CC toolchain headers to the preprocessing.
+    static bool is_benign_swallow(const boost::wave::preprocess_exception& exception) {
+        return exception.get_errorcode() == boost::wave::preprocess_exception::bad_include_file;
+    }
+
+    template <typename ExceptionT>
+    static bool is_benign_swallow(const ExceptionT& exception) {
+        std::ignore = exception;
+        return false;
+    }
+
+    // Swallowing a warning is normally harmless. However, boost::wave raises these two warnings while giving up on
+    // expanding a macro invoked with too few arguments (e.g. a variadic macro invoked without variadic arguments,
+    // which is valid since C++20). boost::wave then reports the end of the input and thus silently stops preprocessing
+    // the remainder of the file.
+    static bool aborts_preprocessing(const boost::wave::preprocess_exception& exception) {
+        return exception.get_errorcode() == boost::wave::preprocess_exception::too_few_macroarguments ||
+               exception.get_errorcode() == boost::wave::preprocess_exception::empty_macroarguments;
+    }
+
+    template <typename ExceptionT>
+    static bool aborts_preprocessing(const ExceptionT& exception) {
+        std::ignore = exception;
+        return false;
+    }
+
     template <typename ContextT, typename ContainerT>
     bool found_warning_directive(ContextT const& ctx, ContainerT const& message) {
         std::ignore = ctx;
@@ -52,17 +85,30 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
 
     template <typename ContextT, typename ExceptionT>
     void throw_exception(const ContextT& ctx, const ExceptionT& exception) {
-        // We ignore most exceptions.
-        // Remarks and warnings are either way not relevant for us
-        // Even errors have to be ignored because they can easily appear due to parsing code with a wrong
-        // configuration. For a detailed explanation see the comment in the 'found_error_directive' callback.
-        if (exception.get_severity() == boost::wave::util::severity::severity_remark ||
-            exception.get_severity() == boost::wave::util::severity::severity_warning ||
-            exception.get_severity() == boost::wave::util::severity::severity_error) {
+        // We ignore most exceptions, but remember if doing so corrupted the preprocessor state.
+        const auto severity = exception.get_severity();
+        if (severity == boost::wave::util::severity::severity_remark ||
+            severity == boost::wave::util::severity::severity_warning) {
+            // Remarks and warnings are either way not relevant for us
+            if (aborts_preprocessing(exception)) {
+                state_corrupted_ = true;
+            }
+            return;
+        }
+        if (severity == boost::wave::util::severity::severity_error) {
+            // Even errors have to be ignored because they can easily appear due to parsing code with a wrong
+            // configuration. For a detailed explanation see the comment in the 'found_error_directive' callback.
+            if (!is_benign_swallow(exception)) {
+                state_corrupted_ = true;
+            }
             return;
         }
         boost::wave::context_policies::default_preprocessing_hooks::throw_exception(ctx, exception);
     }
+
+  private:
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) By design to make the value available to caller
+    bool& state_corrupted_;
 };
 
 } // namespace dwyu

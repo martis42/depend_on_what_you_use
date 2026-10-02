@@ -35,6 +35,7 @@ struct ProgramOptions {
     std::vector<std::string> system_include_paths{};
     std::vector<std::string> defines{};
     std::string output{};
+    bool fallback_to_fast_mode{false};
     bool verbose{false};
 };
 
@@ -46,6 +47,8 @@ ProgramOptions parseProgramOptions(const int argc, ProgramOptionsParser::ConstCh
     parser.addOptionList("--files", options.files);
     // Which preprocessing strategy is being used
     parser.addOptionValue("--mode", options.mode);
+    // Extract the include statements of files boost::wave cannot process properly as the 'fast' mode does
+    parser.addOptionFlag("--fallback_to_fast_mode", options.fallback_to_fast_mode);
     // Include paths relevant for discovering included headers
     parser.addOptionList("--include_paths", options.include_paths);
     // Include paths relevant for discovering included headers for system include statements using the '<>' notation
@@ -73,7 +76,7 @@ nlohmann::json extractIncludesFromFiles(const ProgramOptions& options) {
         const bool ignore_system_includes = options.mode == "ignore_system_includes";
         return extractIncludesWithPreprocessor<ContextT, GatherDirectIncludesHook>(
             options.files, options.include_paths, options.system_include_paths, options.defines, ignore_system_includes,
-            options.verbose);
+            options.fallback_to_fast_mode, options.verbose);
     }
     if (options.mode == "fast") {
         return extractIncludesWithFastParsing(options.files, options.include_paths, options.system_include_paths,
