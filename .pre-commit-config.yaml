@@ -49,7 +49,7 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.65
+    rev: v0.0.82
     hooks:
       - id: ty
         args: [--isolated]
