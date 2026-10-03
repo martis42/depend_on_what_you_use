@@ -4,7 +4,7 @@
     "config:recommended",
     ":dependencyDashboard",
     ":enablePreCommit",
-    "schedule:monthly",
+    "schedule:weekly",
     ":semanticCommits",
     ":semanticPrefixChore",
     ":label(renovate)"
@@ -28,5 +28,6 @@
     "zstd"
   ],
   "minimumReleaseAge": "14 days",
-  "minimumReleaseAgeBehaviour": "timestamp-optional"
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "prHourlyLimit": 6
 }
