@@ -8,7 +8,7 @@ permissions: read-all
 
 jobs:
   pre-commit:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install uv
@@ -16,7 +16,7 @@ jobs:
       - uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece # v3.0.0
 
   unit-tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -24,7 +24,7 @@ jobs:
         run: bazel test //...
 
   sub-workspaces-tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -34,7 +34,7 @@ jobs:
         run: ./scripts/build_examples.sh
 
   quality-checks:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ pre-commit ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -48,7 +48,7 @@ jobs:
         run: ./scripts/ensure_cpp11_compatibility.sh
 
   integration-tests-workspace_integration:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ unit-tests ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -98,7 +98,7 @@ jobs:
   # Single stable status check to depend on in branch protection, instead of every individual (and matrix-expanded) job.
   # This makes it easier and less error prone to maintain branch protection rules.
   all-checks-passed:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: always()
     needs:
       - pre-commit
