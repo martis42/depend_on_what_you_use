@@ -8,8 +8,8 @@ genrule(
         "baz.h",
     ],
     cmd = """
-echo '// bar header' > $(location bar.h)
-echo '// baz header' > $(location baz.h)
+echo '// bar header' > $(execpath bar.h)
+echo '// baz header' > $(execpath baz.h)
 """,
 )
 
