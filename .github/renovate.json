@@ -17,12 +17,16 @@
   ],
   "ignoreDeps": [
     "bazel_skylib",
+    "buildozer",
     "bzip2",
+    "macos-15",
     "nlohmann_json",
     "platforms",
     "protobuf",
     "rules_cc",
     "rules_python",
+    "ubuntu-24.04",
+    "windows-2022",
     "xz",
     "zlib",
     "zstd"
