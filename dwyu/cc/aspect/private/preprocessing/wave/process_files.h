@@ -139,7 +139,8 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
         const bool print_errors = !fallback_to_fast_mode || verbose;
         const bool preprocessing_succeeded = detail::preprocessFile(ctx, print_errors);
         if (!preprocessing_succeeded && !fallback_to_fast_mode) {
-            abortWithError("Preprocessing failed for file '", file, "'");
+            abortWithError("Preprocessing failed for file '", file,
+                           "'. The aspect option 'preprocessing_fallback' can potentially mitigate this.");
         }
 
         if (!preprocessing_succeeded || state_corrupted) {
@@ -160,7 +161,7 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
             if (verbose) {
                 std::cout << "Preprocessing of '" << file
                           << "' hit an unsupported construct, include statements might be missing. The aspect option "
-                             "'preprocessing_fallback' can mitigate this\n";
+                             "'preprocessing_fallback' can potentially mitigate this\n";
             }
         }
 
