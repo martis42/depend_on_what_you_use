@@ -1,4 +1,6 @@
 [environment]
+# Minimum Python version which we support
+python-version = "3.10"
 extra-paths = ["./test/aspect"]
 
 [rules]

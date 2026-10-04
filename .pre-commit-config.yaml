@@ -49,7 +49,12 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.65
+    # Release >= 0.0.76 triggers:  warning[uv-metadata]: `uv workspace metadata` failed with status exit status: 2: error: No `pyproject.toml` found in current directory or any parent directory
+    # Next update possible after:
+    # https://github.com/astral-sh/ty-pre-commit/issues/30
+    # https://github.com/astral-sh/uv/pull/21777
+    # are available
+    rev: v0.0.75
     hooks:
       - id: ty
         args: [--isolated]
