@@ -79,7 +79,7 @@ void configureContext(const std::vector<std::string>& include_paths,
 }
 
 template <typename ContextT>
-bool preprocessFile(ContextT& ctx) {
+bool preprocessFile(ContextT& ctx, const bool print_errors) {
     boost::wave::util::file_position_type current_position{};
     try {
         auto first = ctx.begin();
@@ -91,14 +91,21 @@ bool preprocessFile(ContextT& ctx) {
         }
         return true;
     } catch (const boost::wave::cpp_exception& ex) {
-        std::cerr << "ERROR: Caught 'boost::wave::cpp_exception':\n";
-        std::cerr << ex.file_name() << ":" << ex.line_no() << " - " << ex.description() << "\n";
+        if (print_errors) {
+            std::cerr << "ERROR: Caught 'boost::wave::cpp_exception':\n";
+            std::cerr << ex.file_name() << ":" << ex.line_no() << " - " << ex.description() << "\n";
+        }
     } catch (const std::exception& ex) {
-        std::cerr << "ERROR: Caught 'std::exception':\n";
-        std::cerr << current_position.get_file() << ":" << current_position.get_line() << " - " << ex.what() << "\n";
+        if (print_errors) {
+            std::cerr << "ERROR: Caught 'std::exception':\n";
+            std::cerr << current_position.get_file() << ":" << current_position.get_line() << " - " << ex.what()
+                      << "\n";
+        }
     } catch (...) {
-        std::cerr << "ERROR: Caught unknown exception:\n";
-        std::cerr << current_position.get_file() << ":" << current_position.get_line() << "\n";
+        if (print_errors) {
+            std::cerr << "ERROR: Caught unknown exception:\n";
+            std::cerr << current_position.get_file() << ":" << current_position.get_line() << "\n";
+        }
     }
     return false;
 }
@@ -128,7 +135,9 @@ nlohmann::json extractIncludesWithPreprocessor(const std::vector<std::string>& f
                      PreprocessingHookT{ignore_system_includes, included_files, state_corrupted}};
         detail::configureContext(include_paths, system_include_paths, defines, ctx);
 
-        const bool preprocessing_succeeded = detail::preprocessFile(ctx);
+        // Without the fallback the failure aborts the action, thus the details are always needed
+        const bool print_errors = !fallback_to_fast_mode || verbose;
+        const bool preprocessing_succeeded = detail::preprocessFile(ctx, print_errors);
         if (!preprocessing_succeeded && !fallback_to_fast_mode) {
             abortWithError("Preprocessing failed for file '", file, "'");
         }
