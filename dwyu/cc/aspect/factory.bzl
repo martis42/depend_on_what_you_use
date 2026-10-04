@@ -114,8 +114,7 @@ def dwyu_cc_aspect_factory(
                                 Hitting such a construct can make `boost::wave` silently skip the remaining include statements of the affected file.
                                 DWYU then falsely reports the dependencies providing the skipped headers as unused.<br>
                                 With the fallback, the include statements of the affected files are extracted as in the `fast` mode.
-                                Include statements are then never dropped, at the cost of conditional include logic not being resolved for those files.
-                                If `verbose` is enabled, the preprocessing reports each file for which the fallback is used.<br>
+                                Include statements are then never dropped, at the cost of conditional include logic not being resolved for those files.<br>
 
         preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
                             This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
