@@ -2,12 +2,12 @@ import logging
 import shlex
 import subprocess
 from dataclasses import dataclass
-from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from test.apply_fixes.test_case import TestCaseBase
 from test.support.bazel import get_bazel_binary, get_current_workspace
+from test.support.module_loader import load_module_from_file
 from test.support.result import Error
 
 log = logging.getLogger()
@@ -53,7 +53,7 @@ class ApplyFixesIntegrationTestsExecutor:
         tests = []
         for test in self.test_definitions:
             if not self.requested_tests or any(requested in test.name for requested in self.requested_tests):
-                module = SourceFileLoader("", str(test.script.resolve())).load_module()
+                module = load_module_from_file(test.script)
                 tests.append(
                     module.TestCase(
                         name=test.name,

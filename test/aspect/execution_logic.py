@@ -1,6 +1,5 @@
 import logging
 import subprocess
-from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from re import fullmatch
 
@@ -13,6 +12,7 @@ from test.support.bazel import (
     get_explicit_bazel_version,
     make_bazel_version_env,
 )
+from test.support.module_loader import load_module_from_file
 from test.support.result import Error
 
 log = logging.getLogger()
@@ -127,7 +127,7 @@ def main(
     for test in test_files:
         name = file_to_test_name(test)
         if (requested_tests and any(requested in name for requested in requested_tests)) or (not requested_tests):
-            module = SourceFileLoader("", str(test.resolve())).load_module()
+            module = load_module_from_file(test)
             tests.append(module.TestCase(name=name, verbose=verbose))
 
     if bazel:
