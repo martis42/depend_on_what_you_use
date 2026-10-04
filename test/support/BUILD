@@ -5,6 +5,7 @@ py_library(
     testonly = True,
     srcs = [
         "bazel.py",
+        "module_loader.py",
         "platform.py",
         "result.py",
     ],
