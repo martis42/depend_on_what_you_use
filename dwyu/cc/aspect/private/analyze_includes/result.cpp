@@ -16,9 +16,8 @@ using json = nlohmann::json;
 namespace dwyu {
 namespace {
 
-// Make a map where the files of the target under inspection containing an include statement missing an associated
-// direct dependency are the keys. The value is a list of all the Bazel sandbox paths of the included files missing
-// a direct dependency.
+// Make a map where the files of the target under inspection containing an include statement missing an associated direct dependency are the keys.
+// The value is a list of all the Bazel sandbox paths of the included files missing a direct dependency.
 std::map<std::string, std::vector<std::string>> makeMissingIncludesMap(const std::vector<IncludeStatement>& includes) {
     std::map<std::string, std::vector<std::string>> map{};
     for (const auto& include : includes) {
@@ -120,8 +119,7 @@ nlohmann::json Result::toJson(const bool use_implementation_deps) const {
     data["unused_implementation_deps"] = unused_impl_deps_;
     data["deps_which_should_be_private"] = public_dep_which_should_be_private_;
     // The fixing script has to know if it should add missing private dependencies to 'deps' or 'implementation_deps'.
-    // Only cc_library targets with the 'optimize_implementation_deps' flag set to true should add missing private
-    // dependencies to 'implementation_deps'.
+    // Only cc_library targets with the 'optimize_implementation_deps' flag set to true should add missing private dependencies to 'implementation_deps'.
     data["use_implementation_deps"] = use_implementation_deps;
     return data;
 }

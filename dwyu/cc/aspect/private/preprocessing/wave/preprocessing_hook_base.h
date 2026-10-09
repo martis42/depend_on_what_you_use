@@ -11,14 +11,14 @@ namespace dwyu {
 
 // Base class with behavior common to all our preprocessing modi
 struct PreprocessingHooksBase : public boost::wave::context_policies::default_preprocessing_hooks {
-    // 'state_corrupted' is set to true when we swallow an exception after which the boost::wave state can no longer
-    // be trusted. The conditional and include bookkeeping might be broken, causing include statements to be silently
-    // dropped. The caller owns the flag and can use it to process the affected file with a different strategy.
+    // 'state_corrupted' is set to true when we swallow a severe exception after which the boost::wave state can no longer be trusted.
+    // The conditional and include bookkeeping might be broken, causing include statements to be silently dropped.
+    // The caller owns the flag and can use it to process the affected file with a different strategy.
     explicit PreprocessingHooksBase(bool& state_corrupted) : state_corrupted_{state_corrupted} {}
 
-    // Swallowing an error is expected to corrupt the preprocessor state. The exception is 'bad_include_file', which
-    // is raised for each header which cannot be found. This is the norm for us, since DWYU deliberately does not
-    // provide the CC toolchain headers to the preprocessing.
+    // Swallowing an error can potentially corrupt the preprocessor state.
+    // The exception is 'bad_include_file', which is raised for each header which cannot be found.
+    // This is the norm for us, since DWYU deliberately does not provide the CC toolchain headers to the preprocessing.
     static bool is_benign_swallow(const boost::wave::preprocess_exception& exception) {
         return exception.get_errorcode() == boost::wave::preprocess_exception::bad_include_file;
     }
@@ -96,8 +96,8 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
             return;
         }
         if (severity == boost::wave::util::severity::severity_error) {
-            // Even errors have to be ignored because they can easily appear due to parsing code with a wrong
-            // configuration. For a detailed explanation see the comment in the 'found_error_directive' callback.
+            // Even errors have to be ignored because they can easily appear due to parsing code with a wrong configuration.
+            // For a detailed explanation see the comment in the 'found_error_directive' callback.
             if (!is_benign_swallow(exception)) {
                 state_corrupted_ = true;
             }

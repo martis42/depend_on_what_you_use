@@ -45,9 +45,8 @@ struct SystemUnderInspection {
 };
 
 // This function will drop dependencies not offering any headers.
-// Some dependencies contain no headers and provide only libraries to link against. Since our analysis is based on
-// includes we are not interested in those and throw them away to prevent them raising findings regarding unused
-// dependencies.
+// Some dependencies contain no headers and provide only libraries to link against.
+// Since our analysis is based on includes we are not interested in those and throw them away to prevent them raising findings regarding unused dependencies.
 SystemUnderInspection getSystemUnderInspection(const std::string& target_under_inspection,
                                                const std::vector<std::string>& deps,
                                                const std::vector<std::string>& impl_deps);

@@ -52,8 +52,8 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const bool optimize_impl_deps) {
     Result result{system_under_inspection.target_under_inspection.name};
 
-    // These computations always have to happen, even if 'report_missing_direct_deps' is false. They compute the
-    // information which is used by the other checks.
+    // These computations always have to happen, even if 'report_missing_direct_deps' is false.
+    // They compute the information which is used by the other checks.
     auto public_includes_without_direct_dep = findIncludesWithoutDirectDependency(
         public_includes, TargetUsage::Status::Public, system_under_inspection.target_under_inspection.header_files,
         system_under_inspection.headers_to_public_deps_map);

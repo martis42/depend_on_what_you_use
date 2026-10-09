@@ -4,12 +4,11 @@
 #include "dwyu/cc/private/program_options.h"
 #include "dwyu/cc/private/utils.h"
 
-// In transitive include 'boost/wave/util/time_conversion_helper.hpp' in constructor time_conversion_helper a
-// BOOST_ASSERT is used to ensure a correct compile time is configured. This compile time is always wrong in our
-// context due to Bazel setting __TIME__ and __DATE__ to "redacted". We cannot overwrite this, as some CC toolchains
-// do not allow setting custom values for those macros. The compile time is however not used in any code path
-// relevant for the DWYU analysis. Thus, we disable this BOOST_ASSERT to ensure our preprocessing tool works,
-// even if we are in a debug build.
+// In transitive include 'boost/wave/util/time_conversion_helper.hpp' in constructor time_conversion_helper a BOOST_ASSERT is used to ensure a correct compile time is configured.
+// This compile time is always wrong in our context due to Bazel setting __TIME__ and __DATE__ to "redacted".
+// We cannot overwrite this, as some CC toolchains do not allow setting custom values for those macros.
+// The compile time is however not used in any code path relevant for the DWYU analysis.
+// Thus, we disable this BOOST_ASSERT to ensure our preprocessing tool works, even if we are in a debug build.
 #define BOOST_DISABLE_ASSERTS
 #include <boost/wave/cpp_context.hpp>
 #undef BOOST_DISABLE_ASSERTS

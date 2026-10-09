@@ -10,10 +10,9 @@
 
 namespace dwyu {
 
-// For the given include statements of the target under inspection, check which included header files are available
-// through the direct dependencies.
-// This function reports unused dependencies and invalid include statements. If 'optimize_impl_deps' is true, it also
-// reports for 'cc_library' targets 'deps' which should be moved into 'implementation_deps'.
+// For the given include statements of the target under inspection, check which included header files are available through the direct dependencies.
+// This function reports unused dependencies and invalid include statements.
+// If 'optimize_impl_deps' is true, it also reports for 'cc_library' targets 'deps' which should be moved into 'implementation_deps'.
 // Dependencies listed in 'ignored_unused_deps' are filtered from the unused deps result.
 Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const std::vector<IncludeStatement>& private_includes,
