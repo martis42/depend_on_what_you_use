@@ -7,11 +7,13 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         actual = self._run_dwyu(
-            target="//preprocessing:select_includes_via_external_macros_with_cli_cxxopt",
+            target="//preprocessing/conditional_includes:select_includes_via_external_macros_with_cli_cxxopt",
             extra_args=[
                 "--cxxopt=-DTOGGLE",
                 "--cxxopt=-DTHE_ANSWER=42",
-                '--cxxopt=-DLIB_A_FILE_PATH="support/lib_a.h"',
+                '--cxxopt=-DLIB_A_FILE_PATH="preprocessing/support/lib_a.h"',
+                "--cxxopt=-DDEFAULT_VALUE_MACRO",
+                "--cxxopt=-DSQUARE_FROM_BUILD(x)=((x)*(x))",
             ],
             aspect=self.default_aspect,
         )
