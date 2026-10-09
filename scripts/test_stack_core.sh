@@ -8,7 +8,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 source "$SCRIPT_DIR"/print_msg.sh
 
 print_msg "Pre-commit checks"
-pre-commit run --all-files
+prek run --all-files
 
 print_msg "Execute unit tests and ensure docs are up to date"
 bazel test //...
