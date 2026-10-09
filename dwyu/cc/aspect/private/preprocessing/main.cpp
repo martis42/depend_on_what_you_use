@@ -96,11 +96,12 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "\n";
         std::cout << ">> Preprocessing " << listToStr(options.files) << "\n";
         std::cout << "\n";
-        std::cout << "Mode                 : " << options.mode << "\n";
-        std::cout << "Include paths        : " << listToStr(options.include_paths) << "\n";
-        std::cout << "System include paths : " << listToStr(options.system_include_paths) << "\n";
-        std::cout << "Defines              : " << listToStr(options.defines) << "\n";
-        std::cout << "C++ Standard         : " << options.cpp_standard << "\n";
+        std::cout << "Mode                  : " << options.mode << "\n";
+        std::cout << "Fallback to fast mode : " << options.fallback_to_fast_mode << "\n";
+        std::cout << "Include paths         : " << listToStr(options.include_paths) << "\n";
+        std::cout << "System include paths  : " << listToStr(options.system_include_paths) << "\n";
+        std::cout << "Defines               : " << listToStr(options.defines) << "\n";
+        std::cout << "C++ Standard          : " << options.cpp_standard << "\n";
     }
 
     auto output_json = extractIncludesFromFiles(options);
