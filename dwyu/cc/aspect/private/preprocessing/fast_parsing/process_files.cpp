@@ -56,8 +56,8 @@ std::vector<IncludedFile> makeResolvedIncludes(const std::set<std::string>& incl
         // 'find_include_file()' will set this to the absolute path of the discovered file
         auto file_path = includeWithoutQuotes(include);
 
-        // We ignore files which cannot be found. Those are the headers provided by the Bazel CC toolchain for which
-        // we do not perform any dependency analysis
+        // We ignore files which cannot be found.
+        // Those are the headers provided by the Bazel CC toolchain for which we do not perform any dependency analysis
         if (include_paths.find_include_file(file_path, unused_dir_path, isSystemInclude(include), current_file)) {
             resolved_includes.push_back(IncludedFile{include, makeRelativePath(file_path, working_dir)});
         }

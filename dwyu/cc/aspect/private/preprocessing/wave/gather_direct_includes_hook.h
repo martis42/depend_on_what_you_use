@@ -16,13 +16,10 @@
 
 namespace dwyu {
 
-// Recursively preprocess all resolvable includes statements, aka includes for which we can locate a file. If a
-// include statement cannot be resolved, we assume this include statement is not relevant for our analysis (e.g. a
-// CC toolchain header).
-// While doing so, we remember the direct include statements of the root file (aka file under inspection) and
-// their resolved paths.
-// If 'ignore_system_includes' is true, our preprocessing does not recurse into system includes, aka
-// includes statements using the '<>' notation.
+// Recursively preprocess all resolvable includes statements, aka includes for which we can locate a file.
+// If a include statement cannot be resolved, we assume this include statement is not relevant for our analysis (e.g. a CC toolchain header).
+// While doing so, we remember the direct include statements of the root file (aka file under inspection) and their resolved paths.
+// If 'ignore_system_includes' is true, our preprocessing does not recurse into system includes, aka includes statements using the '<>' notation.
 class GatherDirectIncludesHook : public PreprocessingHooksBase {
   public:
     explicit GatherDirectIncludesHook(const bool ignore_system_includes,
@@ -44,8 +41,7 @@ class GatherDirectIncludesHook : public PreprocessingHooksBase {
         const bool file_found = boost::wave::context_policies::default_preprocessing_hooks::locate_include_file(
             ctx, file_path, is_system, current_name, dir_path, native_name);
 
-        // If we are in the root file (aka file under inspection) and this is is a relevant include (aka discoverable),
-        // then we add it to the list of relevant includes.
+        // If we are in the root file (aka file under inspection) and this is is a relevant include (aka discoverable), then we add it to the list of relevant includes.
         if (include_depth_ == 0 && file_found) {
             included_files_.push_back(
                 IncludedFile{std::move(include_statement), makeRelativePath(file_path, working_dir_)});
