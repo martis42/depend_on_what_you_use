@@ -28,6 +28,9 @@ cmd = [
 process = subprocess.run(cmd, check=True, capture_output=True, text=True)
 reply = json.loads(process.stdout.strip())
 
+if isinstance(reply, dict):
+    raise SystemExit(f"GitHub API request failed: {reply.get('message', reply)}")
+
 for release in reply:
     print(f"Release '{release['tag_name']}'")
     for asset in release["assets"]:
