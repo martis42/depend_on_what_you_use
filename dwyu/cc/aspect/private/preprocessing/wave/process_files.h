@@ -86,10 +86,9 @@ void configureContext(const std::vector<std::string>& include_paths,
         std::ignore = ctx.add_sysinclude_path(path.c_str());
     }
     for (const auto& macro : defines) {
-        // Some macros are set by boost::wave internally.
-        // Whenever we receive a macro defined on Bazel level, we want to make sure we use our value.
+        // We prefer the values set via Bazel over whatever boost::wave might have predefined internally.
         resetMacro(ctx, macro);
-        constexpr bool is_predefined{true};
+        constexpr bool is_predefined{false};
         std::ignore = ctx.add_macro_definition(macro, is_predefined);
     }
 }
