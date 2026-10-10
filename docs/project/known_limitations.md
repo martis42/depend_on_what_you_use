@@ -5,7 +5,7 @@ C++ code using [C++ modules](https://en.cppreference.com/w/cpp/language/modules.
 Although, `rules_cc` supports C++ modules by now, this is at the time of writing this a new feature for Bazel C++ projects and not yet widely used.
 Also, the preprocessing library [boost wave](https://github.com/boostorg/wave) we depend on is not supporting C++ modules.
 
-## Some cases of conditional include statements
+## Conditional include statements based on unknown macros
 
 DWYU does not compile the code.
 It uses a preprocessor library to parse it and extract the relevant include statements.
@@ -20,20 +20,34 @@ Consequently, if a project uses conditional include statements based on macros n
 We consider this however a rare edge case.
 Most projects use conditional include statements based on macros set by Bazel to accommodate for variation points in the build process, which DWYU can process just fine.
 
-There are also preprocessor constructs our preprocessing cannot evaluate, since we use `boost::wave` in its C++11 language mode.
-Examples are `__has_include` or invoking a variadic macro without arguments for the variadic part.
-Hitting such a construct can make `boost::wave` silently skip the remaining include statements of the affected file.
-DWYU then falsely reports the dependencies providing the skipped headers as unused.
-
 If your project is impacted by those edge cases, you can try some mitigation strategies:
 
-- You can use the `preprocessing_fallback = True` DWYU aspect option.
-  The include statements of files hitting an unsupported construct are then extracted like `preprocessing_mode = "fast"` does, while all other files are still preprocessed normally.
-  If the aspect's `verbose` option is enabled, the preprocessing reports each file for which this fallback is used.
 - You can use the `preprocessing_mode = "fast"` DWYU aspect option to disable preprocessing.
   As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
 - You can use `--cxxopt=-DSomeMacro=42` to manually set the missing macro via Bazel to make it known to Bazel.
   This works best if you define a Bazel config for execution the DWYU aspect and make the cxxopt part of the config.
+
+## Missing preprocessor features
+
+If you are using the preprocessing modes `full` or `ignore_system_includes` code using the following cannot be processed properly:
+
+- We do not guarantee support of any non-standard compiler extensions, even if they are popular ones.
+  Concrete examples of things not supported by boost wave:
+  - `__COUNTER__`
+  - `__has_include_next()` (`#include_next` is available though)
+- C++20 `__has_cpp_attribute(..)` is not yet supported by boost wave
+- C++20 `__cpp_*` macros for language features are not yet supported by boost wave
+- C++20 `__cpp_lib_*` macros for library features are not known since we don't parse the CC Toolchain headers and thus do not know about `<version>`
+- C++23 `#elifdef` is not yet supported by boost wave
+- C++26 and later are not yet supported by boost wave
+
+If your project is impacted by those cases, you can try some mitigation strategies:
+
+- You can use the `preprocessing_mode = "fast"` DWYU aspect option to disable preprocessing.
+  As long as you don't use select statements to dynamically switch between different dependencies for your targets this still allows a proper DWYU analysis.
+- You can use the `preprocessing_fallback = True` DWYU aspect option.
+  The include statements of files hitting an unsupported construct are then extracted like `preprocessing_mode = "fast"` does, while all other files are still preprocessed normally.
+  If the aspect's `verbose` option is enabled, the preprocessing reports each file for which this fallback is used.
 
 ## Specifying include paths via `copts` and similar
 
