@@ -220,8 +220,7 @@ cc_binary(
     }),
     deps = [
         "//preprocessing/support:lib_a",
-        # TODO uncomment when #undef is fixed
-        #"//preprocessing/support:lib_b",
+        "//preprocessing/support:lib_b",
     ],
 )
 
