@@ -29,6 +29,10 @@ _CPLUSPLUS_VERSIONS_MAP = {
     "202603": "26",
 }
 
+# While we are able to parse a wide range of version identifiers and associate them with specific c++ standards, our preprocessor is limited to specific versions.
+# Keep in sync to 'getLanguageSupport(..)' from dwyu/cc/aspect/private/preprocessing/wave/process_files.h
+_SUPPORTED_CPP_STANDARDS = ["98", "03", "11", "14", "17", "20", "23"]
+
 PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
 
 def _is_verbose(ctx):
@@ -241,9 +245,19 @@ def extract_defines_from_compiler_flags(compiler_flags):
     return defines.values()
 
 def extract_cpp_standard_from_compiler_flags(compiler_flags):
-    # Concrete examples for possible values:
-    # - https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
-    # - https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170
+    """
+    Concrete examples for possible values:
+    - https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
+    - https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170
+
+    We map C++03 to C++98.
+    boost.wave has no dedicated handling for C++03 and from preprocessor perspective and regarding the __cplusplus value both are identical.
+
+    Args:
+        compiler_flags: A list of compiler flags to extract the C++ standard from.
+    Returns:
+        The extracted C++ standard as a string, "latest" or None
+    """
     cpp_standard = None
 
     expect_value = False
@@ -267,6 +281,8 @@ def extract_cpp_standard_from_compiler_flags(compiler_flags):
             cpp_standard = cpp_standard.replace("preview", "")
 
         if cpp_standard.isdigit() or cpp_standard == "latest":
+            if cpp_standard == "03":
+                cpp_standard = "98"
             return cpp_standard
 
         return _CPP_AMENDMENTS_VERSIONS_MAP.get(cpp_standard, None)
@@ -284,6 +300,25 @@ def extract_cpp_standard_from_defines(defines):
                 # buildifier: disable=print
                 print("WARNING: Found '__cplusplus' value '{}' in define '{}' which does not match the expected values: {}".format(standard_value, define, _CPLUSPLUS_VERSIONS_MAP.keys()))
             cpp_standard = cpp_standard_candidate
+    return cpp_standard
+
+def _extract_cpp_standard(compiler_command_line_flags, defines):
+    """
+    A C++ standard set via macro '__cplusplus' has priority over compiler flags (e.g. --std=c++20).
+    This decision is based on how gcc and clang behave during compilation of code.
+    """
+    cpp_standard_defines = extract_cpp_standard_from_defines(defines)
+    if cpp_standard_defines != None:
+        cpp_standard = cpp_standard_defines
+    else:
+        cpp_standard_flags = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
+        if cpp_standard_flags != None:
+            cpp_standard = cpp_standard_flags
+        else:
+            fail("Failed to determine C++ standard from compiler flags and defines.")
+    if cpp_standard not in _SUPPORTED_CPP_STANDARDS:
+        fail("Unsupported C++ standard: {}. Supported standards are: {}.".format(cpp_standard, _SUPPORTED_CPP_STANDARDS))
+
     return cpp_standard
 
 def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, feature_configuration):
@@ -330,18 +365,7 @@ def _parse_compiler_command(ctx, target_compilation_context, cc_toolchain, featu
     )
 
     defines = extract_defines_from_compiler_flags(compiler_command_line_flags)
-
-    # A C++ standard set via macro '__cplusplus' has priority over compiler flags (e.g. --std=c++20).
-    # This decision is based on how gcc and clang behave during compilation of code.
-    cpp_standard_defines = extract_cpp_standard_from_defines(defines)
-    if cpp_standard_defines != None:
-        cpp_standard = cpp_standard_defines
-    else:
-        cpp_standard_flags = extract_cpp_standard_from_compiler_flags(compiler_command_line_flags)
-        if cpp_standard_flags != None:
-            cpp_standard = cpp_standard_flags
-        else:
-            fail("Failed to determine C++ standard from compiler flags and defines.")
+    cpp_standard = _extract_cpp_standard(compiler_command_line_flags, defines)
 
     return defines, cpp_standard
 
