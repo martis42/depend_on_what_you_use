@@ -4,7 +4,7 @@
     "config:recommended",
     ":dependencyDashboard",
     ":enablePreCommit",
-    "schedule:weekly",
+    "schedule:monthly",
     ":semanticCommits",
     ":semanticPrefixChore",
     ":label(renovate)"
@@ -33,5 +33,5 @@
   ],
   "minimumReleaseAge": "14 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
-  "prHourlyLimit": 6
+  "prHourlyLimit": 16
 }
