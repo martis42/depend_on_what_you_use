@@ -46,6 +46,7 @@ void resetMacro(ContextT& ctx, const std::string& macro) {
     }
 }
 
+// Keep in sync to '_SUPPORTED_CPP_STANDARDS' from dwyu/cc/aspect/dwyu.bzl
 inline boost::wave::language_support getLanguageSupport(const std::string& cpp_standard) {
     if (cpp_standard == "98") {
         // A lot of code exists which has no newline at the end and all established compilers are able to handle this.

@@ -66,6 +66,9 @@ def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
     # MSVC style CLI style
     asserts.equals(env, "23", extract_cpp_standard_from_compiler_flags(["/std:c++23"]))
 
+    # C++03 is mapped to C++98
+    asserts.equals(env, "98", extract_cpp_standard_from_compiler_flags(["-std=c++03"]))
+
     # Amendments versions
     asserts.equals(env, "11", extract_cpp_standard_from_compiler_flags(["-std=c++0x"]))
     asserts.equals(env, "14", extract_cpp_standard_from_compiler_flags(["-std=cc++1y"]))
