@@ -341,10 +341,6 @@ cc_binary(
 cc_binary(
     name = "select_includes_via_raw_string_literal",
     srcs = ["select_includes_via_raw_string_literal.cpp"],
-    tags = [
-        # boost.wave does not ignore includes in raw string literals
-        "manual",
-    ],
     deps = ["//preprocessing/support:lib_a"],
 )
 
