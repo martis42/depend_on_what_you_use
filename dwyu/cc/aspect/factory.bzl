@@ -36,7 +36,7 @@ def dwyu_cc_aspect_factory(
         ignored_includes = None,
         ignored_unused_deps = [],
         preprocessing_fallback = False,
-        preprocessing_mode = "full",
+        preprocessing_mode = "fast",
         recursive = False,
         recursion_stops_on_skip = False,
         skip_external_targets = False,
@@ -110,29 +110,34 @@ def dwyu_cc_aspect_factory(
                              For example: `ignored_unused_deps = [Label("//some:target")]`
 
         preprocessing_fallback: Setting this to `True` makes the preprocessing modes `full` and `ignore_system_includes` fall back to the `fast` mode for files which `boost::wave` cannot preprocess properly.<br>
-                                This can be required when `boost::wave` encounters constructs it cannot handle properly and due to a broken preprocessor state we ignore include statements.
+                                This can be required when `boost::wave` encounters constructs it cannot handle properly and due to this we might fail to discover include statements.
                                 DWYU then falsely reports the dependencies providing the skipped headers as unused.<br>
                                 With the fallback, the include statements of the affected files are extracted as in the `fast` mode.
                                 Include statements are then never dropped, at the cost of conditional include logic not being resolved for those files.<br>
 
-        preprocessing_mode: DWYU performs a preprocessing step on the code to extract the relevant include statements.
-                            This options allows configuring different strategies for this with varying speed and capabilities tradeoffs.<br>
-                            We perform a preprocessing to be able to ignore CC toolchain headers and resolve conditional include logic (`#ifdef` around include statements) and other preprocessor directives influencing include statements (e.g. a macro defining the to be included header path).<br>
+        preprocessing_mode: DWYU performs a preprocessing step on the code under inspection to extract the relevant include statements.
+                            This options allows configuring different strategies for this preprocessing step with varying speed and capabilities tradeoffs.<br>
+                            The `full` and `ignore_system_includes` options utilize the [`boost::wave`](https://github.com/boostorg/wave) library to process preprocessor statements in the code under inspection.
+                            This allows DWYU to handle conditional include logic (`#ifdef` around include statements) and other preprocessor directives influencing include statements (e.g. a macro defining the to be included header path).
+                            This works in most cases, but is significantly slower than the `fast` mode.
+                            Also, there are some edge cases in which we cannot guarantee correct preprocessing.
+                            Thus, preprocessing with `boost::wave` should be done only by projects actually using conditional include logic.
+                            <br>
                             The available preprocessing modes are:
                             <ul><li>
-                              `full`: (Default).<br>
-                              In this mode, we use the [`boost::wave`](https://github.com/boostorg/wave) library to preprocess the code.
-                              This also involves recursively preprocessing all included header files.
+                              `fast`: (Default)
+                              In this mode we extract all include statements from the file under inspection without caring about preprocessor statements.
+                              This is the fastest preprocessing mode, which does however not support conditional include logic or macros influencing include statements.<br>
+                            </li><li>
+                              `full`:
+                              In this mode we process preprocessor statements in the file under inspection, allowing DWYU to handle conditional include logic and macros influencing include statements.
+                              This also involves recursively preprocessing all included header files with exception of the CC toolchain headers, which we skip.
                               While this mode is the slowest, it is able to handle most kinds of conditional include logic or macros influencing include statements.
                             </li><li>
-                              `ignore_system_includes`: Works similar to `full`, but should be faster for most projects.<br>
-                              In this mode, we do not look into header files included as system includes (aka using the '<>' notation) during the preprocessing step.
+                              `ignore_system_includes`: Works similar to `full`, but should be faster for most projects.
+                              In this mode, we do not look into header files included as system includes (aka using the `<>` notation) during the preprocessing step.
                               Often, the system includes are not relevant for the conditional include logic in the user's code.
                               At the same time they can point to large and complex headers which take a lot of time to preprocess (e.g. <gtest/gtest.h>).
-                            </li><li>
-                              `fast`: The fastest preprocessing mode, which does however not support conditional include logic or macros influencing include statements.<br>
-                              In this mode, we do not use `boost::wave` to preprocess the code.
-                              We simply extract all existing include statements without looking into the recursively included headers.
                             </li></ul>
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
