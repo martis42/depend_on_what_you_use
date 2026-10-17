@@ -54,15 +54,6 @@ cc_library(
 )
 
 cc_library(
-    name = "use_defines",
-    srcs = ["use_defines.cpp"],
-    hdrs = ["use_defines.h"],
-    implementation_deps = [
-        "//implementation_deps/support:lib_with_defines",
-    ],
-)
-
-cc_library(
     name = "use_external",
     srcs = ["use_external.cpp"],
     hdrs = ["use_external.h"],

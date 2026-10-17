@@ -1,4 +1,5 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 cc_binary(
     name = "select_includes_via_angle_brackets",
@@ -43,15 +44,20 @@ cc_binary(
     ],
 )
 
-cc_binary(
+cc_library(
     name = "select_includes_via_dep_defines",
     srcs = ["select_includes_via_dep_defines.cpp"],
-    deps = [
-        "//preprocessing/conditional_includes/support:lib_exporting_defines",
+    hdrs = ["select_includes_via_dep_defines.h"],
+    implementation_deps = [
+        "//preprocessing/conditional_includes/support:lib_exporting_defines_a",
         "//preprocessing/support:lib_a",
         "//preprocessing/support:lib_b",
         "//preprocessing/support:lib_c",
         "//preprocessing/support:lib_d",
+        "//preprocessing/support:lib_e",
+    ],
+    deps = [
+        "//preprocessing/conditional_includes/support:lib_exporting_defines_b",
     ],
 )
 
