@@ -15,7 +15,7 @@ class TestCase(TestCaseBase):
                 "--cxxopt=-DDEFAULT_VALUE_MACRO",
                 "--cxxopt=-DSQUARE_FROM_BUILD(x)=((x)*(x))",
             ],
-            aspect=self.default_aspect,
+            aspect="//preprocessing:aspect.bzl%dwyu_full",
         )
 
         return self._check_result(actual=actual, expected=ExpectedSuccess())

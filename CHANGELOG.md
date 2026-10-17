@@ -26,7 +26,10 @@ How to read the changelog:
 
 ### Changed
 
-- [aspect] Use the C++ standard of the Bazel configuration and CC toolchain when preprocessing, instead of always using C++11.
+- [aspect] The default value of option `preprocessing_mode` is now `fast`.
+  There are too many edge cases of hard to understand errors or overlooked problems for keeping the `boost::wave` based preprocessing modes the default.
+  The `preprocessing_mode` values `full` and `ignore_system_includes` should be used only by projects actually utilizing conditional include statements.
+- [aspect] Use the C++ standard of the Bazel configuration and CC toolchain when preprocessing with `preprocessing_mode` values `full` or `ignore_system_includes`, instead of always using C++11.
   Please note, if your code uses preprocessor relevant language constructs newer than you project C/C++ language standard and your compiler manages this by some extension mechanism, this won't be parseable by the DWYU preprocessor.
 - [target_mapping] The explicit mapping mode in `dwyu_make_cc_info_mapping` has been reworked:
   - You can only map targets from the dependency tree and no longer by accident map unrelated targets.

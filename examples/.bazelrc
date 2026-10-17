@@ -8,7 +8,8 @@ common --experimental_convenience_symlinks=ignore
 build:dwyu --aspects=//:aspect.bzl%dwyu
 build:dwyu --output_groups=dwyu
 
-build:dwyu_with_macros --config=dwyu
+build:dwyu_with_macros --aspects=//:aspect.bzl%dwyu_preprocessing_full
+build:dwyu_with_macros --output_groups=dwyu
 # 'FOO' is defined when DWYU preprocesses the code
 build:dwyu_with_macros --cxxopt=-DFOO
 # The C++ standard is set to C++20 when DWYU preprocesses the code
