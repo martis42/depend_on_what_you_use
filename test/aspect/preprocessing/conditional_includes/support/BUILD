@@ -3,19 +3,35 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 package(default_visibility = ["//preprocessing:__subpackages__"])
 
 cc_library(
-    name = "lib_exporting_defines",
-    hdrs = ["lib_exporting_defines.h"],
+    name = "lib_exporting_defines_a",
+    hdrs = ["lib_exporting_defines_a.h"],
     defines = [
         "DEP_EXPORTED_DEFINE",
-        "DEP_EXPORTED_VALUE=42",
     ],
+    # Local defines are not supposed to be visible to users of this library
     local_defines = ["DEP_LOCAL_DEFINE"],
-    deps = [":lib_exporting_defines_transitively"],
+    deps = [":lib_exporting_defines_transitively_a"],
 )
 
 cc_library(
-    name = "lib_exporting_defines_transitively",
-    defines = ["DEP_TRANSITIVE_DEFINE"],
+    name = "lib_exporting_defines_b",
+    hdrs = ["lib_exporting_defines_b.h"],
+    defines = [
+        "DEP_EXPORTED_VALUE=42",
+    ],
+    # Defines coming from implementation deps are not supposed to be visible to users of this library
+    implementation_deps = [":lib_exporting_defines_transitively_b"],
+    local_defines = ["DEP_LOCAL_DEFINE"],
+)
+
+cc_library(
+    name = "lib_exporting_defines_transitively_a",
+    defines = ["DEP_TRANSITIVE_DEFINE_A"],
+)
+
+cc_library(
+    name = "lib_exporting_defines_transitively_b",
+    defines = ["DEP_TRANSITIVE_DEFINE_B"],
 )
 
 cc_library(
