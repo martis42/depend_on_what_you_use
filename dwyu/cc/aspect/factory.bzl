@@ -71,10 +71,10 @@ def dwyu_cc_aspect_factory(
 
     Args:
         analysis_ignores_private_headers_from_deps: Setting this to `False` will allow headers listed in the `srcs` attributes of a dependency to fulfill the DWYU checks on top of those from the `hdrs` attribute.
-                                                    By default, DWYU uses only headers from the `hdrs` attribute.</br>
+                                                    By default, DWYU uses only headers from the `hdrs` attribute.<br>
                                                     Strictly speaking, using headers from the `srcs` attribute of a dependency is wrong, as they are an implementation detail of the dependency.
                                                     However, Bazel does not enforce this and forwards those private headers to the compile step.
-                                                    Use this flag if you have code outside your control using private headers or simply are not interested in the distinction of public and private headers.</br>
+                                                    Use this flag if you have code outside your control using private headers or simply are not interested in the distinction of public and private headers.<br>
                                                     This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_ignores_private_headers_from_deps=[True|False]`.
 
         analysis_optimizes_impl_deps: Setting this to `True` will raise an error for `cc_library` targets where headers from a `deps` dependency are used only in private files.

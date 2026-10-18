@@ -104,10 +104,10 @@ def dwyu_make_cc_info_mapping(name, mapping):
                  - The `MAP_EXPLICIT_DEPS` mode tells the rule to map a list of CcInfo-providing targets to the main target.
                    The list has to use the canonical target names and the targets have to be from the dependency tree of the main target.
                    For this mapping rule, the dependency tree is not just defined by the `deps` attribute of the rules_cc rules.
-                   All rules with all attributes providing CcInfo-providing targets are traversed.</br>
+                   All rules with all attributes providing CcInfo-providing targets are traversed.<br>
                  - An explicit list of targets which are mapped to the main target.
                    This is a legacy behavior which will be removed eventually.
-                   Use `MAP_EXPLICIT_DEPS` instead.</br>
+                   Use `MAP_EXPLICIT_DEPS` instead.<br>
     """
     mappings = []
     for target, map_to in mapping.items():
