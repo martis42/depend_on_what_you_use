@@ -63,49 +63,13 @@ git_override(
 
 ## Use DWYU
 
-### Configure the aspect
+DWYU is a Bazel aspect.
+You configure it by creating an aspect in your workspace with a factory function and then performing a bazel build command.
+If DWYU detects no issues you see a successful bazel build.
+When DWYU discovers an error, you see a failed build and an error message explaining the problem.
 
-The DWYU aspect is created in your project by a [factory function offering various options](docs/api/dwyu_aspect.md) to configure the aspect.
-Various illustrations for configuring and using the DWYU aspect can be seen in the [examples](/examples).
-
-Example `.bzl` file creating a DWYU aspect with default configuration:
-
-```starlark
-load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "dwyu_cc_aspect_factory")
-
-your_dwyu_aspect = dwyu_cc_aspect_factory()
-```
-
-### Use the aspect
-
-Assuming you created the DWYU aspect in file `//:aspect.bzl`, execute it on a target pattern:<br>
-`bazel build --aspects=//:aspect.bzl%your_dwyu_aspect --output_groups=dwyu <target_pattern>`
-
-If no problem is found, the command will return successfully without further output.<br>
-If a problem is detected, the build command will fail with an error and a description of the problem will be printed in the terminal.
-For example:
-
-```
-================================================================================
-DWYU analyzing: '<analyzed_target>'
-
-Result: Failure
-
-Unused dependencies in 'deps' (none of their headers are referenced):
-  Dependency='//some/target/with_an_unused:dependency'
-===============================================================================
-```
-
-**Hint**: Using `--keep_going` allows you to see all existing errors at once instead of the analysis aborting on the first detected issue.
-
-### Create a rule invoking the aspect
-
-You can invoke the aspect from within a rule.
-This can be useful to make the execution part of a bazel build on dedicated targets without having to manually execute the longish aspect build command.
-
-The Bazel documentation for invoking an aspect from within a rule can be found [here](https://bazel.build/rules/aspects#invoking_the_aspect_from_a_rule).
-
-This is demonstrated in the [rule_using_dwyu example](/examples/rule_using_dwyu).
+The [user guide](/docs/project/aspect_user_guide.md) contains a full walkthrough how to configure and use the DWYU aspect.
+Also, we have some [examples](/examples).
 
 # Applying automatic fixes
 
