@@ -1,17 +1,22 @@
-# Guidance for using and configuring DWYU
+<!-- mdformat-toc start --slug=github --maxlevel=2 --minlevel=1 -->
 
-- [1. How to use the DWYU tool](#1-how-to-use-the-dwyu-tool)
-- [2. Target selection](#2-target-selection)
-- [3. Available checks and their configuration](#3-available-checks-and-their-configuration)
-- [4. Targets that cannot comply with DWYU's rules](#4-targets-that-cannot-comply-with-dwyus-rules)
-- [5. Preprocessing](#5-preprocessing)
-- [6. Executing DWYU on specific targets during normal builds](#6-executing-dwyu-on-specific-targets-during-normal-builds)
+- [Guide for using and configuring DWYU](#guide-for-using-and-configuring-dwyu)
+  - [1. How to use the DWYU tool](#1-how-to-use-the-dwyu-tool)
+  - [2. Target selection](#2-target-selection)
+  - [3. Available checks and their configuration](#3-available-checks-and-their-configuration)
+  - [4. Targets that cannot comply with DWYU's rules](#4-targets-that-cannot-comply-with-dwyus-rules)
+  - [5. Preprocessing](#5-preprocessing)
+  - [6. Executing DWYU on specific targets during normal builds](#6-executing-dwyu-on-specific-targets-during-normal-builds)
+
+<!-- mdformat-toc end -->
+
+# Guide for using and configuring DWYU<a name="guide-for-using-and-configuring-dwyu"></a>
 
 This guide explains common use cases for using and configuring DWYU.
 All DWYU aspect options are documented in the [aspect documentation](/docs/api/dwyu_aspect.md).<br>
 See the [troubleshooting guide](/docs/project/troubleshooting.md) for issues that do not fit clearly in this guide.
 
-## 1. How to use the DWYU tool
+## 1. How to use the DWYU tool<a name="1-how-to-use-the-dwyu-tool"></a>
 
 DWYU is a Bazel [aspect](https://bazel.build/extending/aspects).
 
@@ -53,7 +58,7 @@ Unused dependencies in 'deps' (none of their headers are referenced):
 ===============================================================================
 ```
 
-## 2. Target selection
+## 2. Target selection<a name="2-target-selection"></a>
 
 ### A target pattern
 
@@ -70,7 +75,7 @@ Please note, DWYU will also recurse into targets from your external dependencies
 This might cause a lot of findings in code outside of your control.
 You can limit recursion to targets from your own workspace with the DWYU aspect option `skip_external_targets = True`.
 
-## 3. Available checks and their configuration
+## 3. Available checks and their configuration<a name="3-available-checks-and-their-configuration"></a>
 
 ### Check options
 
@@ -110,7 +115,7 @@ That means, in its analysis DWYU ignores header files from the `srcs` attribute 
 If your stack does not follow this `cc_*` rules design, you can tell DWYU to also consider headers from the `srcs` attribute of `cc_library` dependencies.
 You do so by using the `analysis_ignores_private_headers_from_deps = False` DWYU aspect option.
 
-## 4. Targets that cannot comply with DWYU's rules
+## 4. Targets that cannot comply with DWYU's rules<a name="4-targets-that-cannot-comply-with-dwyus-rules"></a>
 
 Not all targets in your stack may be able to follow the rules enforced by DWYU.
 Some targets may intentionally use a different design, or an external dependency may be modeled in a way that is incompatible with DWYU's expectations.
@@ -135,7 +140,7 @@ The naming difference of _CcInfo mapping_ vs. _target mapping_ is a case of bad 
 The implementation merges `CcInfo` providers, but the user-facing behavior is that we virtually map the headers provided by one target onto another target.<br>
 After setting up a target mapping, pass it to the DWYU aspect with the `target_mapping` option.
 
-## 5. Preprocessing
+## 5. Preprocessing<a name="5-preprocessing"></a>
 
 ### The problem
 
@@ -210,7 +215,7 @@ Details are in the [known limitations](/docs/project/known_limitations.md#condit
 
 See the [aspect documentation](/docs/api/dwyu_aspect.md) for how individual targets can override this setting with the `dwyu:preprocessing_mode=<mode>` tag.
 
-## 6. Executing DWYU on specific targets during normal builds
+## 6. Executing DWYU on specific targets during normal builds<a name="6-executing-dwyu-on-specific-targets-during-normal-builds"></a>
 
 You can invoke the DWYU aspect from within a rule.
 This can be useful to make the execution part of a bazel build on dedicated targets without having to execute the aspect based build command in a dedicated step.
