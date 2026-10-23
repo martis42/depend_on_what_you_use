@@ -1,13 +1,13 @@
 # Bug reports
 
-- Make sure you are aware of the [known limitations](docs/project/known_limitations.md).
+- Make sure you are aware of the [known limitations](/docs/project/known_limitations.md).
 - Please provide a minimal example for reproducing the bug.
 
 # Feature changes/requests
 
 - Please create an [issue](https://github.com/martis42/depend_on_what_you_use/issues) before changing features or introducing new features.
   Discussing your idea first makes sure it is in the interest of the project and your work will not be in vain due to following an undesired direction.
-- Make sure you are aware of the existing [design rationales](docs/project/design_rationales.md).
+- Make sure you are aware of the existing [design rationales](/docs/project/design_rationales.md).
 
 # Trivial changes
 
@@ -36,7 +36,7 @@ Commit messages should follow the [conventional commits](https://www.conventiona
 
 ## Reviews
 
-All contributions require a review from the [code owners](.github/CODEOWNERS).
+All contributions require a review from the [code owners](/.github/CODEOWNERS).
 
 ## Testing
 
@@ -53,8 +53,8 @@ Given you have `prek` or `pre-commit` locally installed, you can run all basic c
 
 There are also bash scripts for executing most steps of the CI:
 
-- [test_stack_core.sh](./scripts/test_stack_core.sh) - Unit tests, quality checks and making sure the examples compile
-- [test_stack_integration.sh](./scripts/test_stack_integration.sh) - Test suite executing the various integration tests
+- [test_stack_core.sh](/scripts/test_stack_core.sh) - Unit tests, quality checks and making sure the examples compile
+- [test_stack_integration.sh](/scripts/test_stack_integration.sh) - Test suite executing the various integration tests
 
 ## Code Style
 

@@ -42,7 +42,7 @@ The main features are:
   This has to be explicitly enabled.
   See the [aspect documentation](docs/api/dwyu_aspect.md) for further details.
 
-More information about the idea behind DWYU and the implementation of the project is available in [the docs](docs).
+More information about the idea behind DWYU and the implementation of the project is available in [the docs](/docs).
 
 # Getting started
 
@@ -204,7 +204,7 @@ Only removing an option without replacement or changing the behavior without pos
 
 # Contributing
 
-See [Contributing](CONTRIBUTING.md).
+See [Contributing](/CONTRIBUTING.md).
 
 # License
 
@@ -212,4 +212,4 @@ Copyright © 2022-present, [Martin Medler](https://github.com/martis42). <br>
 This project licensed under the [MIT](https://opensource.org/licenses/MIT) license.
 
 This projects references several other projects which each have individual licenses.
-See the content of [third_party](third_party) and [MODULE.bazel](MODULE.bazel) for all references to other projects.
+See the content of [third_party](/third_party) and [MODULE.bazel](/MODULE.bazel) for all references to other projects.
