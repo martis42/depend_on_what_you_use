@@ -7,7 +7,7 @@ on:
 permissions: read-all
 
 jobs:
-  pre-commit:
+  formatting-and-linting:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -17,7 +17,7 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Run unit tests
@@ -25,7 +25,7 @@ jobs:
 
   sub-workspaces-tests:
     runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Aspect integration tests scripts unit tests
@@ -35,7 +35,7 @@ jobs:
 
   quality-checks:
     runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Execute sanitizers
@@ -49,7 +49,7 @@ jobs:
 
   integration-tests-workspace_integration:
     runs-on: ubuntu-24.04
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Workspace integration
@@ -61,7 +61,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Examples
@@ -73,7 +73,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Aspect
@@ -89,7 +89,7 @@ jobs:
         os: [ ubuntu-24.04, macos-15, windows-2022 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    needs: [ pre-commit ]
+    needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Integration tests - Applying fixes
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: always()
     needs:
-      - pre-commit
+      - formatting-and-linting
       - unit-tests
       - sub-workspaces-tests
       - quality-checks
