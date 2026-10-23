@@ -1,13 +1,25 @@
-# Noteworthy project design decisions
+<!-- mdformat-toc start --slug=github --maxlevel=2 --minlevel=1 -->
 
-## Why use Boost Wave instead of preprocessor X
+- [Noteworthy project design decisions](#noteworthy-project-design-decisions)
+  - [Why use Boost Wave instead of preprocessor X](#why-use-boost-wave-instead-of-preprocessor-x)
+  - [Why use a multi step automatic fixes workflow](#why-use-a-multi-step-automatic-fixes-workflow)
+- [Rejected Concepts](#rejected-concepts)
+  - [Includes parsing via .d files](#includes-parsing-via-d-files)
+  - [Using the Bazel CC toolchain preprocessor](#using-the-bazel-cc-toolchain-preprocessor)
+  - [Preprocessing the complete source tree including all transitive includes down to system level](#preprocessing-the-complete-source-tree-including-all-transitive-includes-down-to-system-level)
+
+<!-- mdformat-toc end -->
+
+# Noteworthy project design decisions<a name="noteworthy-project-design-decisions"></a>
+
+## Why use Boost Wave instead of preprocessor X<a name="why-use-boost-wave-instead-of-preprocessor-x"></a>
 
 The decision was mostly based on [Boost Wave](https://github.com/boostorg/wave) being easy to integrate with Bazel and working for all our test cases.
 
 We also looked into using the LLVM preprocessor.
 Although a [LLVM Bazel setup](https://github.com/llvm/llvm-project/tree/main/utils/bazel) exists, it is experimental and lacking support at the time of writing this.
 
-## Why use a multi step automatic fixes workflow
+## Why use a multi step automatic fixes workflow<a name="why-use-a-multi-step-automatic-fixes-workflow"></a>
 
 Having to execute a separate tool to apply fixes seems bothersome.
 Ideally, DWYU would perform fixes while analyzing the problems.<br>
@@ -26,9 +38,9 @@ Then, we use a separate tool to process the results and apply fixes to the BUILD
 There are no problems regarding the sandboxing, since we utilize `bazel run` to execute the fixing tool.
 A tool being executed like this can access any part of the host system.
 
-# Rejected Concepts
+# Rejected Concepts<a name="rejected-concepts"></a>
 
-## Includes parsing via .d files
+## Includes parsing via .d files<a name="includes-parsing-via-d-files"></a>
 
 Most modern compilers can generate `.d` files which document the headers required to compile a source file.
 Essentially, this makes parsing of source code and aggregating the include statements with custom tooling superfluous.
@@ -70,7 +82,7 @@ Without this distinction we cannot compare the include statements to the list of
 
 At the time of writing this no way could be found to configure GCC to generate `.d` files matching our requirements.
 
-## Using the Bazel CC toolchain preprocessor
+## Using the Bazel CC toolchain preprocessor<a name="using-the-bazel-cc-toolchain-preprocessor"></a>
 
 Running our own preprocessing is slow and provides imperfect results.
 On a first glance it seems like using the highly optimized CC toolchain preprocessor which is also used while you compile code might be a better choice.
@@ -149,7 +161,7 @@ This is due to `lib.h` including `transitive.h` itself.
 After this the include guard of `transitive.h` is active and the second inclusion in `main.cpp` is ignored without any trace or warning about it being skipped.
 Consequently, we are missing the information to report this problem.
 
-## Preprocessing the complete source tree including all transitive includes down to system level
+## Preprocessing the complete source tree including all transitive includes down to system level<a name="preprocessing-the-complete-source-tree-including-all-transitive-includes-down-to-system-level"></a>
 
 After realizing we [can't use the CC toolchain preprocessor](#using-the-bazel-cc-toolchain-preprocessor) we investigated finding a C/C++ preprocessor library.
 While implementing prototypes for the new C++ based preprocessing step, we tried performing a full preprocessing, like the real compilation step does.
