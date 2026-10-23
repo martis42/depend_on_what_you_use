@@ -15,6 +15,8 @@
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/martis42/depend_on_what_you_use/badge)](https://scorecard.dev/viewer/?uri=github.com/martis42/depend_on_what_you_use)
 
+<!-- mdformat-toc start --slug=github --maxlevel=1 --minlevel=1 -->
+
 - [Depend on what you use (DWYU)](#depend-on-what-you-use-dwyu)
 - [Getting started](#getting-started)
 - [Applying automatic fixes](#applying-automatic-fixes)
@@ -27,7 +29,9 @@
 - [Contributing](#contributing)
 - [License](#license)
 
-# Depend on what you use (DWYU)
+<!-- mdformat-toc end -->
+
+# Depend on what you use (DWYU)<a name="depend-on-what-you-use-dwyu"></a>
 
 DWYU is a Bazel aspect for C++ projects making sure the headers your Bazel targets are using are aligned with their dependency lists.
 
@@ -44,9 +48,9 @@ The main features are:
 
 More information about the idea behind DWYU and the implementation of the project is available in [the docs](/docs).
 
-# Getting started
+# Getting started<a name="getting-started"></a>
 
-## Get DWYU
+## Get DWYU<a name="get-dwyu"></a>
 
 Choose a release from the [release page](https://github.com/martis42/depend_on_what_you_use/releases) and follow the instructions.
 
@@ -61,7 +65,7 @@ git_override(
 )
 ```
 
-## Use DWYU
+## Use DWYU<a name="use-dwyu"></a>
 
 DWYU is a Bazel aspect.
 You configure it by creating an aspect in your workspace with a factory function and then performing a bazel build command.
@@ -71,7 +75,7 @@ When DWYU discovers an error, you see a failed build and an error message explai
 The [user guide](/docs/project/aspect_user_guide.md) contains a full walkthrough how to configure and use the DWYU aspect.
 Also, we have some [examples](/examples).
 
-# Applying automatic fixes
+# Applying automatic fixes<a name="applying-automatic-fixes"></a>
 
 > [!WARNING]
 > Please note that **the tool cannot guarantee that your build is not being broken** by the changes.
@@ -113,9 +117,9 @@ Unfortunately, the tool cannot promise perfect results due to various constraint
   Consequently, buildozer cannot work on targets which are generated inside a macro or whose name is constructed.
 - Adding missing direct dependencies is based on a heuristic and not guaranteed to find the correct dependency.
 
-# Assumptions of use
+# Assumptions of use<a name="assumptions-of-use"></a>
 
-#### The code has to be compilable
+#### The code has to be compilable<a name="the-code-has-to-be-compilable"></a>
 
 DWYU assumes the code under inspection compiles with the Bazel configuration used to execute DWYU (e.g. setting `--config=foo`).
 There is no guarantee DWYU will do something meaningful for non compilable code.
@@ -124,12 +128,12 @@ This also applies to header only code.
 Meaning, we assume a header only library depends directly or transitively on all headers it uses.
 A header only library using a header which is not in its dependency tree is something we consider a violation of our assumptions of use.
 
-#### Include paths have to be unambiguous
+#### Include paths have to be unambiguous<a name="include-paths-have-to-be-unambiguous"></a>
 
 There shall not be multiple header files in the dependency tree of a target matching an include statement.
 Even if analyzing the code works initially, it might break at any time if the ordering of paths in the analysis changes.
 
-# Supported Platforms
+# Supported Platforms<a name="supported-platforms"></a>
 
 **Linux** is fully supported.<br>
 All tests and quality checks run on GitHub Ubuntu workers.
@@ -138,32 +142,32 @@ All tests and quality checks run on GitHub Ubuntu workers.
 All our integration tests run on GitHub Macos and Windows workers.
 Bugs we can reproduce via the CI workers with reasonable effort will be fixed.
 
-### Aspect
+### Aspect<a name="aspect"></a>
 
 | Tool  | Constraints                                                                                      |
 | ----- | ------------------------------------------------------------------------------------------------ |
 | C++   | Minimum required C++ standard is C++11.                                                          |
 | Bazel | Minimum required version is 7.6.0. We test all supported major versions and the rolling release. |
 
-### Applying fixes
+### Applying fixes<a name="applying-fixes"></a>
 
 | Tool   | Constraints                                                                                                |
 | ------ | ---------------------------------------------------------------------------------------------------------- |
 | Python | Integration tests check 3.10.                                                                              |
 | Bazel  | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
 
-# Known limitations
+# Known limitations<a name="known-limitations"></a>
 
 DWYU has some limitations.
 You find the details about those in [these docs](docs/project/known_limitations.md).
 
-# Troubleshooting
+# Troubleshooting<a name="troubleshooting"></a>
 
 When encountering problems while using DWYU, you find common problems and suggested solutions in [these docs](docs/project/troubleshooting.md).
 
-# Alternatives to DWYU
+# Alternatives to DWYU<a name="alternatives-to-dwyu"></a>
 
-## Layering check
+## Layering check<a name="layering-check"></a>
 
 To make sure no headers from transitive are used you can use [Layering check with Clang](https://maskray.me/blog/2022-09-25-layering-check-with-clang), which is natively supported by Bazel.
 An example for a CC toolchain supporting this feature is https://github.com/bazel-contrib/toolchains_llvm.
@@ -178,7 +182,7 @@ Still, there are reasons to consider using DWYU instead of or in addition to lay
 - DWYU allows optimizing the usage of [implementation_deps](#implementation_deps).
 - DWYU offers automatic fixes for detected issues.
 
-## Gazelle
+## Gazelle<a name="gazelle"></a>
 
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) is a tool automatically creating `BUILD` files for your code.
 `rules_cc` does not offer a standard Gazelle plugin for C/C++.
@@ -189,7 +193,7 @@ Automatically generating correct BUILD files based on your source code is a more
 A reason for using DWYU instead of `gazelle_cc` can be if your project uses conditional include statements based on custom conditions.
 According to [their documentation](https://github.com/EngFlow/gazelle_cc#-gazellecc_platform-os-arch-constraint_label-macrovalue-), `gazelle_cc` is only supporting \<os> and \<arch> based conditional includes.
 
-# Versioning
+# Versioning<a name="versioning"></a>
 
 This project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -202,11 +206,11 @@ Our interpretation of _backwards incompatible change_ is the behavior changing w
 Meaning, we will rename config options or change default values in minor version bumps, since the user can trivially adapt things in the DWYU config.
 Only removing an option without replacement or changing the behavior without possibility to configure the old behavior are considered breaking changes on major version level.
 
-# Contributing
+# Contributing<a name="contributing"></a>
 
 See [Contributing](/CONTRIBUTING.md).
 
-# License
+# License<a name="license"></a>
 
 Copyright © 2022-present, [Martin Medler](https://github.com/martis42). <br>
 This project licensed under the [MIT](https://opensource.org/licenses/MIT) license.

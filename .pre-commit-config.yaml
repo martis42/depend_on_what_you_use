@@ -28,6 +28,7 @@ repos:
         exclude: ^docs/api/.*.md$
         additional_dependencies:
           - mdformat-gfm
+          - mdformat-toc
 
   # Documentation for checks: https://github.com/bazelbuild/buildtools/blob/main/WARNINGS.md
   # We use all checks, even non default ones with those exceptions:
