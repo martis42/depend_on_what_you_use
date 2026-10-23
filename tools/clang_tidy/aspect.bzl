@@ -148,7 +148,7 @@ clang_tidy = aspect(
             allow_single_file = True,
         ),
         "_tool_clang_tidy": attr.label(
-            default = Label("@llvm_toolchain//:clang-tidy"),
+            default = Label("@llvm//tools:clang-tidy"),
             allow_files = True,
             executable = True,
             cfg = "exec",
