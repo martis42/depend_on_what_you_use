@@ -164,7 +164,7 @@ def dwyu_cc_aspect_factory(
                    This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         skip_targets: Do not execute the DWYU analysis on targets matching at least one of the given target patterns.
-                      In contrast to `skipped_tags`, this excludes targets without changing their `BUILD` files.
+                      In contrast to `skip_tags`, this excludes targets without changing their `BUILD` files.
                       This makes it a good fit for migrating an existing project to DWYU, where the list of not yet compliant targets should live in a single reviewable place instead of being scattered across the whole project.<br>
                       Only a small subset of the [Bazel target pattern syntax](https://bazel.build/run/build#specifying-build-targets) is supported:
                       <ul><li>
