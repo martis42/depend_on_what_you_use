@@ -17,9 +17,9 @@ It also detects unused dependencies and can validate `implementation_deps` usage
 
 ## Contribution Rules
 
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) before making non-trivial changes.
+- Read [CONTRIBUTING.md](/CONTRIBUTING.md) before making non-trivial changes.
 - Feature changes require a prior issue discussion; trivial documentation and typo fixes may be proposed directly.
-- Read [docs/project/design_rationales.md](docs/project/design_rationales.md) before changing behavior or design.
+- Read [docs/project/design_rationales.md](/docs/project/design_rationales.md) before changing behavior or design.
 - Update or add tests whenever behavior changes.
 - Use Conventional Commits for commit messages.
 - All contributions require review from the code owners.

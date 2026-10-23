@@ -3,7 +3,7 @@ This directory contains the integration tests for the DWYU aspect.
 The tests are executed with various supported Bazel versions.
 [bazelisk](https://github.com/bazelbuild/bazelisk) has to be available on `PATH`.
 
-The test cases and their expected behavior are defined in [execute_tests.py](execute_tests.py).
+The test cases and their expected behavior are defined in [execute_tests.py](/test/aspect/execute_tests.py).
 
 Execute all tests with various Bazel versions:<br>
 `./execute_tests.py`
