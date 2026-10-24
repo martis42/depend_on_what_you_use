@@ -24,6 +24,8 @@ How to read the changelog:
 
 ## Unreleased
 
+## [1.2.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.2.0) - 2026.10.23
+
 ### Changed
 
 - [aspect] The default value of option `preprocessing_mode` is now `fast`.
