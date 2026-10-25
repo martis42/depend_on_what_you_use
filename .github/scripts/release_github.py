@@ -5,6 +5,8 @@ import subprocess
 
 from release_constants import BCR_FORK_OWNER, BCR_REPO, MODULE_NAME
 
+RELEASES_PAGE_SIZE = 10
+
 
 def gh_api(*args: str) -> str:
     return subprocess.run(["gh", "api", *args], check=True, capture_output=True, text=True).stdout
@@ -22,10 +24,15 @@ def find_bcr_pr(tag: str) -> dict:
 
 def find_release(repo: str, tag: str) -> dict:
     # Draft releases are not accessible via their tag, thus we have to search the list of all releases
-    release_ids = gh_api(
-        f"repos/{repo}/releases", "--paginate", "--jq", f'.[] | select(.tag_name == "{tag}") | .id'
-    ).split()
-    if not release_ids:
-        msg = f"No release found for tag '{tag}'"
-        raise RuntimeError(msg)
-    return json.loads(gh_api(f"repos/{repo}/releases/{release_ids[0]}"))
+    # The API lists releases newest first. We usually look for a just created release, so small pages suffice.
+    page = 1
+    while True:
+        releases = json.loads(gh_api(f"repos/{repo}/releases?per_page={RELEASES_PAGE_SIZE}&page={page}"))
+        for release in releases:
+            if release["tag_name"] == tag:
+                return release
+        if len(releases) < RELEASES_PAGE_SIZE:
+            break
+        page += 1
+    msg = f"No release found for tag '{tag}'"
+    raise RuntimeError(msg)
