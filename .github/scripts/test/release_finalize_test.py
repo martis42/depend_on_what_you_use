@@ -5,7 +5,7 @@ from unittest import mock
 
 import release_finalize
 import release_prep
-from release_constants import BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
+from release_constants import BCR_WARNING_END, BCR_WARNING_START
 from release_finalize import is_newest_release, remove_bcr_warning
 
 
@@ -127,11 +127,6 @@ class TestMain(unittest.TestCase):
     def test_patch_for_old_release_is_not_latest(self) -> None:
         _, update = self.run_main(make_release(self.BODY), newest=False)
         self.assertEqual(update.call_args.kwargs["make_latest"], "false")
-
-    def test_failed_changes_marker_aborts(self) -> None:
-        result, update = self.run_main(make_release(f"{FAILED_CHANGES_MARKER}\n{self.BODY}"))
-        self.assertEqual(result, 1)
-        update.assert_not_called()
 
     def test_unmerged_bcr_pr_aborts(self) -> None:
         result, update = self.run_main(make_release(self.BODY), merged=False)

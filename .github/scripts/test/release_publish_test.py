@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 
 import release_publish
-from release_constants import BCR_PR_PLACEHOLDER, FAILED_CHANGES_MARKER
+from release_constants import BCR_PR_PLACEHOLDER
 
 
 def make_release(body: str, *, draft: bool = False) -> dict:
@@ -25,11 +25,9 @@ class TestMain(unittest.TestCase):
         update.assert_called_once_with("owner/repo", 7, draft=False, prerelease=True)
 
     def test_problematic_release_notes_only_cause_warnings(self) -> None:
-        for text in (BCR_PR_PLACEHOLDER, FAILED_CHANGES_MARKER):
-            with self.subTest(text=text):
-                result, update = self.run_main(make_release(f"notes {text}", draft=True))
-                self.assertEqual(result, 0)
-                update.assert_called_once_with("owner/repo", 7, draft=False, prerelease=True)
+        result, update = self.run_main(make_release(f"notes {BCR_PR_PLACEHOLDER}", draft=True))
+        self.assertEqual(result, 0)
+        update.assert_called_once_with("owner/repo", 7, draft=False, prerelease=True)
 
     def test_published_release_is_left_alone(self) -> None:
         result, update = self.run_main(make_release("notes", draft=False))

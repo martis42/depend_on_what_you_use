@@ -13,7 +13,7 @@ import argparse
 import logging
 import sys
 
-from release_constants import BCR_PR_PLACEHOLDER, FAILED_CHANGES_MARKER
+from release_constants import BCR_PR_PLACEHOLDER
 from release_github import find_release, setup_logging, update_release
 
 log = logging.getLogger(__name__)
@@ -35,10 +35,8 @@ def main() -> int:
         return 0
 
     # Problems in the release notes are easy to fix manually later and no automated step depends on them
-    body = release["body"] or ""
-    for text in (BCR_PR_PLACEHOLDER, FAILED_CHANGES_MARKER):
-        if text in body:
-            log.warning(f"Release notes of {args.tag} still contain '{text}'. Please fix this manually.")
+    if BCR_PR_PLACEHOLDER in (release["body"] or ""):
+        log.warning(f"Release notes of {args.tag} still contain '{BCR_PR_PLACEHOLDER}'. Please fix this manually.")
 
     update_release(args.repo, release["id"], draft=False, prerelease=True)
     log.info(f"Published release {args.tag} as prerelease")

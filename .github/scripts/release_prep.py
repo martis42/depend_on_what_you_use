@@ -15,6 +15,9 @@ import sys
 from pathlib import Path
 
 from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START
+from release_github import setup_logging
+
+log = logging.getLogger(__name__)
 
 CHANGELOG = Path(__file__).resolve().parents[2] / "CHANGELOG.md"
 
@@ -66,7 +69,8 @@ def make_archive(tag: str) -> Path:
 def extract_release_changelog(tag: str, changelog: Path = CHANGELOG) -> str:
     """
     Return the content between the '## [tag]..' headline and the next release headline '## [previous_version]..'.
-    If the changelog has no section for the tag, return an empty string.
+    Raise a ValueError if the changelog has no section for the tag or the section is empty.
+    A release without documented changes must never be created unnoticed.
     """
     content: list[str] = []
     in_release = False
@@ -77,23 +81,42 @@ def extract_release_changelog(tag: str, changelog: Path = CHANGELOG) -> str:
             content.append(line)
         elif line.startswith(f"## [{tag}]"):
             in_release = True
-    return "\n".join(content).strip()
+
+    if not in_release:
+        msg = f"'{changelog}' has no section '## [{tag}]'"
+        raise ValueError(msg)
+    released_changes = "\n".join(content).strip()
+    if not released_changes:
+        msg = f"The section '## [{tag}]' in '{changelog}' is empty"
+        raise ValueError(msg)
+    return released_changes
 
 
 def create_release_notes(tag: str, changelog: Path = CHANGELOG) -> str:
-    released_changes = extract_release_changelog(tag, changelog)
-    changes = CHANGES_TEMPLATE.format(RELEASED_CHANGES=released_changes) if released_changes else ""
     return RELEASE_NOTES_TEMPLATE.format(
         VERSION=tag,
         BCR_PR=BCR_PR_PLACEHOLDER,
         BCR_WARNING_START=BCR_WARNING_START,
         BCR_WARNING_END=BCR_WARNING_END,
-        CHANGES=changes,
+        CHANGES=CHANGES_TEMPLATE.format(RELEASED_CHANGES=extract_release_changelog(tag, changelog)),
     ).strip()
 
 
-if __name__ == "__main__":
-    logging.basicConfig(format="%(message)s", level=logging.INFO)
+def main() -> int:
     args = cli()
+
+    # Create the release notes first, so we fail before producing any release artifact
+    try:
+        release_notes = create_release_notes(tag=args.tag)
+    except ValueError as error:
+        log.error(f"{error}. Add the changes of this release to the changelog before tagging.")  # noqa: TRY400
+        return 1
+
     make_archive(args.tag)
-    sys.stdout.write(create_release_notes(tag=args.tag) + "\n")
+    sys.stdout.write(release_notes + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    setup_logging()
+    sys.exit(main())
