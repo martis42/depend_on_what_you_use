@@ -23,8 +23,10 @@ jobs:
     # This breaks BCR publishing, see https://github.com/bazel-contrib/publish-to-bcr/issues/263
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.7.0
     with:
-      # We adapt the release notes before we make the release visible and start deployment to the BCR
+      # The publish workflow requires a draft release to upload the attestations, see https://github.com/bazel-contrib/publish-to-bcr#immutable-releases
       draft: true
+      # We use 'prerelease' to mark the release deployment is still "work in progress".
+      # We can't use draft releases for that, since this does not work together with the BCR deployment process requiring access to the release artifacts.
       prerelease: true
       generate_release_notes: true
       release_files: depend_on_what_you_use-*.tar.gz
