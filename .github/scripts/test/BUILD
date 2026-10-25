@@ -26,3 +26,9 @@ py_test(
     srcs = ["release_publish_test.py"],
     deps = ["//.github/scripts:release_publish"],
 )
+
+py_test(
+    name = "release_ready_bcr_pr_test",
+    srcs = ["release_ready_bcr_pr_test.py"],
+    deps = ["//.github/scripts:release_ready_bcr_pr"],
+)

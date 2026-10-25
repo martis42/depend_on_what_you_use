@@ -33,8 +33,11 @@ def main() -> int:
     pr = find_bcr_pr(args.tag)
 
     if pr["state"] != "open":
-        log.info(f"BCR PR {pr['html_url']} is not open. Nothing to do.")
-        return 0
+        if pr.get("merged_at"):
+            log.info(f"BCR PR {pr['html_url']} has already been merged. Nothing to do.")
+            return 0
+        log.error(f"BCR PR {pr['html_url']} was closed without being merged. Please investigate and republish.")
+        return 1
     if not pr["draft"]:
         log.info(f"BCR PR {pr['html_url']} is already ready for review. Nothing to do.")
         return 0
