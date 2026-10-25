@@ -15,8 +15,7 @@ import json
 import subprocess
 import sys
 
-# Must be identical to the placeholder in release_prep.py
-BCR_PR_PLACEHOLDER = "BCR_PR_URL_PLACEHOLDER"
+from release_constants import BCR_PR_PLACEHOLDER
 
 MODULE_NAME = "depend_on_what_you_use"
 BCR_REPO = "bazelbuild/bazel-central-registry"
