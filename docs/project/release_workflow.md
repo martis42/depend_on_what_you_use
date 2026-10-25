@@ -27,11 +27,11 @@ After a release has been finished, we drop the `prerelease` status.
 1. [Manual] Check release notes.
    Did the automatic changelog extraction work?
    In case of a patch to an old release, the released changes have to be added manually.
-1. [Manual] Wait until the BCR deployment PR has been merged
-1. [Manual] Verify the release is indeed consumable via bzlmod by running the [release smoke test](/test/bcr_release/test_release.py) and entering the version being released when prompted.
-1. [Manual] Finalize the release:
-   - Remove the warning about the BCR deployment not yet being done
-   - Drop the prerelease status
+1. [Manual] Wait until the BCR deployment PR has been merged and then rigger the [finalize release workflow](/.github/workflows/release_finalize.yaml) from the GitHub Actions web page and enter the version being released.
+   This will:
+   - Verify the release is indeed consumable via bzlmod by running the [release smoke test](/test/bcr_release/test_release.py).
+   - Remove the warning about the BCR deployment not yet being done from the release notes.
+   - Drop the prerelease status.
    - Mark it as latest release, unless this was a patch for an old release.
 1. [Manual] Update Changelog to release.
    All formerly unreleased parts which have been copied into the release notes should be below a headline for the new release.

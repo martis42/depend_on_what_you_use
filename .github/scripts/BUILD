@@ -9,3 +9,14 @@ py_library(
     imports = ["."],
     visibility = [":__subpackages__"],
 )
+
+py_library(
+    name = "release_finalize",
+    srcs = [
+        "release_finalize.py",
+        "release_github.py",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [":release_prep"],
+)

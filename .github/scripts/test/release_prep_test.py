@@ -87,7 +87,9 @@ class TestIsNewestRelease(unittest.TestCase):
 
 NOTES_FOOTER = """## Using this release
 
+<!-- BCR_WARNING_START -->
 :construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: BCR_PR_URL_PLACEHOLDER
+<!-- BCR_WARNING_END -->
 
 Add to your `MODULE.bazel` file:
 

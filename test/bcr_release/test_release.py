@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import subprocess
 import sys
@@ -69,7 +70,11 @@ if __name__ == "__main__":
     # Ensure we can invoke the script from various places
     os.chdir(script_dir)
 
-    version = input("Which version should be tested?:\n")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--version", help="Version to test. If not provided, it is requested interactively.")
+    args = parser.parse_args()
+
+    version = args.version or input("Which version should be tested?:\n")
     success = run_release_test(module=module_file, version=version)
 
     sys.exit(0 if success else 1)
