@@ -46,3 +46,11 @@ py_library(
         ":release_github",
     ],
 )
+
+py_library(
+    name = "release_ready_bcr_pr",
+    srcs = ["release_ready_bcr_pr.py"],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [":release_github"],
+)
