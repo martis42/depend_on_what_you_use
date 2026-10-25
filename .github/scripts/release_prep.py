@@ -13,6 +13,8 @@ import argparse
 import subprocess
 from pathlib import Path
 
+from release_constants import BCR_PR_PLACEHOLDER
+
 RELEASE_NOTES_TEMPLATE = """
 TBD summary
 
@@ -32,7 +34,7 @@ TBD
 
 ## Using this release
 
-:construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: BCR_PR_URL_PLACEHOLDER
+:construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: {BCR_PR}
 
 Add to your `MODULE.bazel` file:
 
@@ -71,7 +73,7 @@ def make_archive(tag: str) -> Path:
 def print_release_notes(archive: Path, tag: str) -> None:
     checksum_process = subprocess.run(["sha256sum", archive], check=True, capture_output=True, text=True)
     checksum = checksum_process.stdout.split(" ", 1)[0]
-    print(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag).strip())  # noqa: T201
+    print(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER).strip())  # noqa: T201
 
 
 if __name__ == "__main__":
