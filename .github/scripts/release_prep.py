@@ -2,7 +2,6 @@
 
 """
 We create a dedicated release archive instead of relying on in GitHubs builtin option because:
-- It allows us to compute the checksum and automatically add it to the release notes
 - Guarantees stable checksums
 - Enables us to fetch metrics on the downloads
 
@@ -110,23 +109,17 @@ def is_newest_release(tag: str) -> bool:
     return all(existing <= version for existing in existing_versions)
 
 
-def create_release_notes(tag: str, checksum: str, changelog: Path = CHANGELOG) -> str:
+def create_release_notes(tag: str, changelog: Path = CHANGELOG) -> str:
     to_be_released_changes = (
         extract_unreleased_changelog(changelog)
         if is_newest_release(tag)
         else "FAILED_TO_AUTOMATICALLY_ADD_RELEASED_CHANGES"
     )
     changes = CHANGES_TEMPLATE.format(RELEASED_CHANGES=to_be_released_changes) if to_be_released_changes else ""
-    return RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER, CHANGES=changes).strip()
-
-
-def print_release_notes(archive: Path, tag: str) -> None:
-    checksum_process = subprocess.run(["sha256sum", archive], check=True, capture_output=True, text=True)
-    checksum = checksum_process.stdout.split(" ", 1)[0]
-    print(create_release_notes(tag=tag, checksum=checksum))  # noqa: T201
+    return RELEASE_NOTES_TEMPLATE.format(VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER, CHANGES=changes).strip()
 
 
 if __name__ == "__main__":
     args = cli()
-    release_artifact = make_archive(args.tag)
-    print_release_notes(archive=release_artifact, tag=args.tag)
+    make_archive(args.tag)
+    print(create_release_notes(tag=args.tag))  # noqa: T201
