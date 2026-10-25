@@ -8,8 +8,6 @@ from release_constants import BCR_FORK_OWNER, BCR_REPO, MODULE_NAME
 
 log = logging.getLogger(__name__)
 
-RELEASES_PAGE_SIZE = 10
-
 
 def setup_logging() -> None:
     logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -50,14 +48,14 @@ def find_bcr_pr(tag: str) -> dict:
 
 def find_release(repo: str, tag: str) -> dict:
     # Draft releases are not accessible via their tag, thus we have to search the list of all releases
-    # The API lists releases newest first. We usually look for a just created release, so small pages suffice.
+    # The API lists releases newest first
     page = 1
     while True:
-        releases = json.loads(gh_api(f"repos/{repo}/releases?per_page={RELEASES_PAGE_SIZE}&page={page}"))
+        releases = json.loads(gh_api(f"repos/{repo}/releases?per_page=100&page={page}"))
         for release in releases:
             if release["tag_name"] == tag:
                 return release
-        if len(releases) < RELEASES_PAGE_SIZE:
+        if len(releases) < 100:
             break
         page += 1
     msg = f"No release found for tag '{tag}'"
