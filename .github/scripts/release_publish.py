@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+
+"""
+Publish the draft release, but keep it marked as prerelease.
+
+The prerelease status is our marker for the BCR deployment not being finished yet.
+Publishing the release is required before the BCR deployment pull request can be processed, since the BCR needs to download the release artifacts.
+
+Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the contents of the release repository.
+"""
+
+import argparse
+import sys
+
+from release_constants import BCR_PR_PLACEHOLDER
+from release_github import find_release, gh_api
+
+
+def cli() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tag", required=True, help="Tag of the release to publish")
+    parser.add_argument("--repo", required=True, help="Repository hosting the release, e.g. 'owner/name'")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = cli()
+    release = find_release(args.repo, args.tag)
+
+    if not release["draft"]:
+        print(f"Release {args.tag} is already published. Nothing to do.")  # noqa: T201
+        return 0
+
+    # Never publish release notes which are still missing the link to the BCR deployment
+    if BCR_PR_PLACEHOLDER in (release["body"] or ""):
+        print(f"Release notes of {args.tag} still contain the placeholder '{BCR_PR_PLACEHOLDER}'.", file=sys.stderr)  # noqa: T201
+        return 1
+
+    gh_api(
+        f"repos/{args.repo}/releases/{release['id']}",
+        "--method",
+        "PATCH",
+        "--field",
+        "draft=false",
+        "--field",
+        "prerelease=true",
+    )
+    print(f"Published release {args.tag} as prerelease")  # noqa: T201
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
