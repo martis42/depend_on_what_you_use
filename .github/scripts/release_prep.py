@@ -10,27 +10,20 @@ See also https://github.com/bazel-contrib/rules_oci/pull/62
 """
 
 import argparse
+import re
 import subprocess
+import sys
 from pathlib import Path
 
 from release_constants import BCR_PR_PLACEHOLDER
 
-RELEASE_NOTES_TEMPLATE = """
-TBD summary
+CHANGELOG = Path(__file__).resolve().parents[2] / "CHANGELOG.md"
 
-## Noteworthy Changes
+CHANGES_TEMPLATE = """## Noteworthy Changes
 
-### Changed
+{RELEASED_CHANGES}"""
 
-TBD - Mark what is breaking !
-
-### Fixed
-
-TBD
-
-### Added
-
-TBD
+RELEASE_NOTES_TEMPLATE = """{CHANGES}
 
 ## Using this release
 
@@ -70,10 +63,67 @@ def make_archive(tag: str) -> Path:
     return archive
 
 
+def extract_unreleased_changelog(changelog: Path = CHANGELOG) -> str:
+    """
+    Return the content between the '## Unreleased' headline and the first headline of an old release '## [version]'.
+    """
+    content: list[str] = []
+    in_unreleased = False
+    for line in changelog.read_text(encoding="utf-8").splitlines():
+        if in_unreleased:
+            if line.startswith("## ["):
+                break
+            content.append(line)
+        elif line.strip() == "## Unreleased":
+            in_unreleased = True
+    return "\n".join(content).strip()
+
+
+def parse_version(tag: str) -> tuple[int, ...] | None:
+    if re.fullmatch(r"\d+\.\d+\.\d+", tag):
+        return tuple(int(part) for part in tag.split("."))
+    return None
+
+
+def is_newest_release(tag: str) -> bool:
+    """
+    The 'Unreleased' changelog section only describes changes for the next release.
+    Patching an old release must not copy those changes into the release notes.
+    Thus, we only consider a tag for which no newer release tag exists.
+    If we cannot reliably determine the existing tags, we defensively assume this is not the newest release.
+    """
+    version = parse_version(tag)
+    if version is None:
+        return False
+
+    # In CI the checkout might contain only the tag being released
+    fetch = subprocess.run(["git", "fetch", "--tags", "--quiet"], check=False, capture_output=True, text=True)
+    if fetch.returncode != 0:
+        print(f"ERROR: Could not fetch git tags: {fetch.stderr.strip()}", file=sys.stderr)  # noqa: T201
+        return False
+    tags = subprocess.run(["git", "tag", "--list"], check=True, capture_output=True, text=True).stdout.split()
+    if tag not in tags:
+        print(f"ERROR: Tag '{tag}' not found in the local repository", file=sys.stderr)  # noqa: T201
+        return False
+
+    existing_versions = [v for v in map(parse_version, tags) if v is not None]
+    return all(existing <= version for existing in existing_versions)
+
+
+def create_release_notes(tag: str, checksum: str, changelog: Path = CHANGELOG) -> str:
+    to_be_released_changes = (
+        extract_unreleased_changelog(changelog)
+        if is_newest_release(tag)
+        else "FAILED_TO_AUTOMATICALLY_ADD_RELEASED_CHANGES"
+    )
+    changes = CHANGES_TEMPLATE.format(RELEASED_CHANGES=to_be_released_changes) if to_be_released_changes else ""
+    return RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER, CHANGES=changes).strip()
+
+
 def print_release_notes(archive: Path, tag: str) -> None:
     checksum_process = subprocess.run(["sha256sum", archive], check=True, capture_output=True, text=True)
     checksum = checksum_process.stdout.split(" ", 1)[0]
-    print(RELEASE_NOTES_TEMPLATE.format(SHA=checksum, VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER).strip())  # noqa: T201
+    print(create_release_notes(tag=tag, checksum=checksum))  # noqa: T201
 
 
 if __name__ == "__main__":
