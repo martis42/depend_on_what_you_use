@@ -1,8 +1,11 @@
+import subprocess
 import unittest
+from collections.abc import Callable
+from unittest import mock
 
 import release_prep
 from release_constants import BCR_WARNING_END, BCR_WARNING_START
-from release_finalize import remove_bcr_warning
+from release_finalize import is_newest_release, remove_bcr_warning
 
 
 class TestRemoveBcrWarning(unittest.TestCase):
@@ -49,6 +52,51 @@ bazel_dep(name = "depend_on_what_you_use", version = "1.2.3")
         body = f"{BCR_WARNING_START}\na\n{BCR_WARNING_END}\n{BCR_WARNING_START}\nb\n{BCR_WARNING_END}"
         with self.assertRaises(ValueError):
             remove_bcr_warning(body)
+
+
+def fake_git_subprocess(tags: str, fetch_returncode: int = 0) -> Callable[..., subprocess.CompletedProcess]:
+    def run(cmd: list[str], **_: object) -> subprocess.CompletedProcess:
+        if cmd[:2] == ["git", "fetch"]:
+            return subprocess.CompletedProcess(cmd, fetch_returncode, stdout="", stderr="no network")
+        return subprocess.CompletedProcess(cmd, 0, stdout=tags, stderr="")
+
+    return run
+
+
+class TestIsNewestRelease(unittest.TestCase):
+    def is_newest(self, tag: str, tags: str, fetch_returncode: int = 0) -> bool:
+        with mock.patch(
+            "subprocess.run", side_effect=fake_git_subprocess(tags=tags, fetch_returncode=fetch_returncode)
+        ):
+            return is_newest_release(tag)
+
+    def test_highest_tag(self) -> None:
+        self.assertTrue(self.is_newest("1.2.0", "1.0.0\n1.1.0\n1.1.1\n1.2.0\n"))
+
+    def test_only_tag(self) -> None:
+        self.assertTrue(self.is_newest("1.0.0", "1.0.0\n"))
+
+    def test_patch_for_old_release(self) -> None:
+        self.assertFalse(self.is_newest("1.1.1", "1.1.0\n1.1.1\n1.2.0\n"))
+
+    def test_numeric_not_lexicographic_comparison(self) -> None:
+        self.assertTrue(self.is_newest("1.10.0", "1.9.0\n1.10.0\n"))
+        self.assertFalse(self.is_newest("1.9.1", "1.9.1\n1.10.0\n"))
+
+    def test_unrelated_tags_are_ignored(self) -> None:
+        self.assertTrue(self.is_newest("1.0.1", "1.0.0\n1.0.1\nsome-tag\n9.9.9-rc1\n"))
+
+    def test_tag_missing_locally_warns(self) -> None:
+        with self.assertLogs("release_finalize", level="WARNING"):
+            self.assertFalse(self.is_newest("1.2.0", "1.1.0\n"))
+
+    def test_invalid_tag_format_warns(self) -> None:
+        with self.assertLogs("release_finalize", level="WARNING"):
+            self.assertFalse(self.is_newest("v1.2.0", "v1.2.0\n"))
+
+    def test_fetch_failure_warns(self) -> None:
+        with self.assertLogs("release_finalize", level="WARNING"):
+            self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1))
 
 
 if __name__ == "__main__":
