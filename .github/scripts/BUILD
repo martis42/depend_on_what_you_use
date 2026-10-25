@@ -1,24 +1,48 @@
 load("@rules_python//python:py_library.bzl", "py_library")
 
 py_library(
-    name = "release_prep",
-    srcs = [
-        "release_constants.py",
-        "release_github.py",
-        "release_prep.py",
-    ],
+    name = "release_constants",
+    srcs = ["release_constants.py"],
     imports = ["."],
-    visibility = [":__subpackages__"],
 )
 
 py_library(
     name = "release_finalize",
-    srcs = [
-        "release_finalize.py",
-        "release_github.py",
-        "release_publish.py",
-    ],
+    srcs = ["release_finalize.py"],
     imports = ["."],
     visibility = [":__subpackages__"],
-    deps = [":release_prep"],
+    deps = [
+        ":release_constants",
+        ":release_github",
+    ],
+)
+
+py_library(
+    name = "release_github",
+    srcs = ["release_github.py"],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [":release_constants"],
+)
+
+py_library(
+    name = "release_prep",
+    srcs = ["release_prep.py"],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":release_constants",
+        ":release_github",
+    ],
+)
+
+py_library(
+    name = "release_publish",
+    srcs = ["release_publish.py"],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":release_constants",
+        ":release_github",
+    ],
 )
