@@ -15,6 +15,7 @@ py_library(
     srcs = [
         "release_finalize.py",
         "release_github.py",
+        "release_publish.py",
     ],
     imports = ["."],
     visibility = [":__subpackages__"],

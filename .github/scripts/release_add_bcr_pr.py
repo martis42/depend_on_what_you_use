@@ -15,7 +15,7 @@ import logging
 import sys
 
 from release_constants import BCR_PR_PLACEHOLDER
-from release_github import find_bcr_pr, find_release, gh_api
+from release_github import find_bcr_pr, find_release, setup_logging, update_release
 
 log = logging.getLogger(__name__)
 
@@ -39,17 +39,11 @@ def main() -> int:
         log.info(f"Release notes contain no placeholder '{BCR_PR_PLACEHOLDER}'. Nothing to do. PR: {pr_url}")
         return 0
 
-    gh_api(
-        f"repos/{args.repo}/releases/{release['id']}",
-        "--method",
-        "PATCH",
-        "--field",
-        f"body={body.replace(BCR_PR_PLACEHOLDER, pr_url)}",
-    )
+    update_release(args.repo, release["id"], body=body.replace(BCR_PR_PLACEHOLDER, pr_url))
     log.info(f"Added BCR PR {pr_url} to release notes of {args.tag}")
     return 0
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format="%(message)s", level=logging.INFO)
+    setup_logging()
     sys.exit(main())

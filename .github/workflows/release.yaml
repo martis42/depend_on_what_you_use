@@ -55,10 +55,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - name: Add BCR pull request to release notes
         env:
           GH_TOKEN: ${{ github.token }}
-        run: ./.github/scripts/release_add_bcr_pr.py --tag "${{ github.ref_name }}" --repo "${{ github.repository }}"
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: ./.github/scripts/release_add_bcr_pr.py --tag "${TAG}" --repo "${REPO}"
 
   publish-release:
     needs: [ add-bcr-pr-to-release-notes ]
@@ -67,10 +71,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - name: Publish the release but keep it marked as prerelease
         env:
           GH_TOKEN: ${{ github.token }}
-        run: ./.github/scripts/release_publish.py --tag "${{ github.ref_name }}" --repo "${{ github.repository }}"
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: ./.github/scripts/release_publish.py --tag "${TAG}" --repo "${REPO}"
 
   # The BCR needs to be able to download the release artifacts, thus the release must be published before the BCR deployment is made ready.
   ready-bcr-pr:
@@ -80,8 +88,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - name: Mark the BCR deployment PR as ready for review
         env:
           # The default token has no permissions for the BCR repository
           GH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
-        run: ./.github/scripts/release_ready_bcr_pr.py --tag "${{ github.ref_name }}"
+          TAG: ${{ github.ref_name }}
+        run: ./.github/scripts/release_ready_bcr_pr.py --tag "${TAG}"

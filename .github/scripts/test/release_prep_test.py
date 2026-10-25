@@ -5,6 +5,7 @@ from collections.abc import Callable
 from pathlib import Path
 from unittest import mock
 
+import release_constants
 import release_prep
 
 CHANGELOG_CONTENT = """# Changelog
@@ -53,11 +54,11 @@ class TestExtractUnreleasedChangelog(unittest.TestCase):
 
 
 class TestIsNewestRelease(unittest.TestCase):
-    def is_newest(self, tag: str, tags: str, fetch_returncode: int = 0) -> bool:
+    def is_newest(self, tag: str, tags: str, fetch_returncode: int = 0, *, strict: bool = False) -> bool:
         with mock.patch(
             "subprocess.run", side_effect=fake_git_subprocess(tags=tags, fetch_returncode=fetch_returncode)
         ):
-            return release_prep.is_newest_release(tag)
+            return release_prep.is_newest_release(tag, strict=strict)
 
     def test_highest_tag(self) -> None:
         self.assertTrue(self.is_newest("1.2.0", "1.0.0\n1.1.0\n1.1.1\n1.2.0\n"))
@@ -83,6 +84,22 @@ class TestIsNewestRelease(unittest.TestCase):
 
     def test_fetch_failure(self) -> None:
         self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1))
+
+    def test_strict_mode_raises_on_fetch_failure(self) -> None:
+        with self.assertRaises(RuntimeError):
+            self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1, strict=True)
+
+    def test_strict_mode_raises_on_missing_tag(self) -> None:
+        with self.assertRaises(RuntimeError):
+            self.is_newest("1.2.0", "1.1.0\n", strict=True)
+
+    def test_strict_mode_raises_on_invalid_tag_format(self) -> None:
+        with self.assertRaises(RuntimeError):
+            self.is_newest("v1.2.0", "v1.2.0\n", strict=True)
+
+    def test_strict_mode_gives_regular_result_if_determinable(self) -> None:
+        self.assertTrue(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", strict=True))
+        self.assertFalse(self.is_newest("1.1.0", "1.1.0\n1.2.0\n", strict=True))
 
 
 NOTES_FOOTER = """## Using this release
@@ -124,9 +141,9 @@ class TestCreateReleaseNotes(unittest.TestCase):
         self.assertEqual(self.create_notes("1.1.0", changelog, "1.0.0\n1.1.0\n"), expected)
 
     def test_patch_for_old_release_does_not_copy_changes(self) -> None:
-        expected = """## Noteworthy Changes
+        expected = f"""## Noteworthy Changes
 
-FAILED_TO_AUTOMATICALLY_ADD_RELEASED_CHANGES
+{release_constants.FAILED_CHANGES_MARKER}
 
 """ + NOTES_FOOTER.format(version="1.0.1")
         self.assertEqual(self.create_notes("1.0.1", CHANGELOG_CONTENT, "1.0.0\n1.0.1\n1.1.0\n"), expected)

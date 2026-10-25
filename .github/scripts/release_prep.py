@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START
+from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
 
 log = logging.getLogger(__name__)
 
@@ -45,15 +45,14 @@ bazel_dep(name = "depend_on_what_you_use", version = "{VERSION}")
 
 def cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tag", metavar="VERSION", help="Tag for which to cut a release")
+    parser.add_argument("--tag", metavar="VERSION", required=True, help="Tag for which to cut a release")
     return parser.parse_args()
 
 
 def make_archive(tag: str) -> Path:
     """
     The prefix is the same as what GitHub generates for source archives.
-    Thus, users can easily switch between the released archives and the source archives generated for reach commit.
-    To minimize the release size, we filter out development only content via the .gitattributes file.
+    Thus, users can easily switch between the released archives and the source archives generated for each commit.
     """
     archive_format = "tar.gz"
     archive_prefix = f"depend_on_what_you_use-{tag}"
@@ -89,26 +88,32 @@ def parse_version(tag: str) -> tuple[int, ...] | None:
     return None
 
 
-def is_newest_release(tag: str) -> bool:
+def is_newest_release(tag: str, *, strict: bool = False) -> bool:
     """
     The 'Unreleased' changelog section only describes changes for the next release.
     Patching an old release must not copy those changes into the release notes.
     Thus, we only consider a tag for which no newer release tag exists.
     If we cannot reliably determine the existing tags, we defensively assume this is not the newest release.
+    With 'strict' we raise a RuntimeError instead, for callers who must not act on a guess.
     """
+
+    def undetermined(reason: str) -> bool:
+        if strict:
+            raise RuntimeError(reason)
+        log.error(reason)
+        return False
+
     version = parse_version(tag)
     if version is None:
-        return False
+        return undetermined(f"Tag '{tag}' is not a MAJOR.MINOR.PATCH version")
 
     # In CI the checkout might contain only the tag being released
     fetch = subprocess.run(["git", "fetch", "--tags", "--quiet"], check=False, capture_output=True, text=True)
     if fetch.returncode != 0:
-        log.error(f"Could not fetch git tags: {fetch.stderr.strip()}")
-        return False
+        return undetermined(f"Could not fetch git tags: {fetch.stderr.strip()}")
     tags = subprocess.run(["git", "tag", "--list"], check=True, capture_output=True, text=True).stdout.split()
     if tag not in tags:
-        log.error(f"Tag '{tag}' not found in the local repository")
-        return False
+        return undetermined(f"Tag '{tag}' not found in the local repository")
 
     existing_versions = [v for v in map(parse_version, tags) if v is not None]
     return all(existing <= version for existing in existing_versions)
@@ -116,9 +121,7 @@ def is_newest_release(tag: str) -> bool:
 
 def create_release_notes(tag: str, changelog: Path = CHANGELOG) -> str:
     to_be_released_changes = (
-        extract_unreleased_changelog(changelog)
-        if is_newest_release(tag)
-        else "FAILED_TO_AUTOMATICALLY_ADD_RELEASED_CHANGES"
+        extract_unreleased_changelog(changelog) if is_newest_release(tag) else FAILED_CHANGES_MARKER
     )
     changes = CHANGES_TEMPLATE.format(RELEASED_CHANGES=to_be_released_changes) if to_be_released_changes else ""
     return RELEASE_NOTES_TEMPLATE.format(
