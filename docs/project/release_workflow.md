@@ -22,8 +22,9 @@ After a release has been finished, we drop the `prerelease` status.
    - Create a draft release.
    - Open a draft PR for deploying the release to the [BCR](https://github.com/bazelbuild/bazel-central-registry).
    - Add a link to the BCR deployment draft PR into the release notes.
-1. [Manual] Complete the draft release
-   - Copy the relevant unreleased parts of the [changelog](/CHANGELOG.md) into the release notes.
+1. [Manual] Check release notes.
+   Did the automatic changelog extraction work?
+   In case of a patch to an old release, the released changes have to be added manually.
 1. [Manual] Trigger the deployment
    - Publish the GitHub release by removing its draft status, but keep it marked as a **prerelease**.
    - Make the BCR deployment draft PR _ready for review_.
