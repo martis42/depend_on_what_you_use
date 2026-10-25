@@ -52,6 +52,9 @@ jobs:
       release_artifacts_run_id: ${{ inputs.release_artifacts_run_id || github.run_id }}
       registry_fork: martis42/bazel-central-registry-fork
       tag_prefix: ""
+      # The BCR does not allow PR authors to approve their own PRs and the PR is authored by the owner of the PAT.
+      # Thus, the BCR PR reviewer bot treats a maintainer marking a draft PR as "Ready for review" as the approval.
+      # See https://github.com/bazel-contrib/publish-to-bcr#4-consider-whether-to-open-the-pr-as-a-draft
       draft: true
       attest: true
       open_pull_request: true
