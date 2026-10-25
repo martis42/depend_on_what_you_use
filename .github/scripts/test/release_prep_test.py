@@ -1,20 +1,26 @@
-import subprocess
 import tempfile
 import unittest
-from collections.abc import Callable
 from pathlib import Path
-from unittest import mock
 
-import release_constants
 import release_prep
 
 CHANGELOG_CONTENT = """# Changelog
 
 ## Unreleased
 
+- Not yet released
+
+## [1.1.0](https://example.com) - 2026.02.01
+
 ### Fixed
 
 - Something
+
+## [1.0.1](https://example.com) - 2026.01.15
+
+### Changed
+
+- Patch
 
 ## [1.0.0](https://example.com) - 2026.01.01
 
@@ -24,82 +30,34 @@ CHANGELOG_CONTENT = """# Changelog
 """
 
 
-def fake_git_subprocess(tags: str, fetch_returncode: int = 0) -> Callable[..., subprocess.CompletedProcess]:
-    def run(cmd: list[str], **_: object) -> subprocess.CompletedProcess:
-        if cmd[:2] == ["git", "fetch"]:
-            return subprocess.CompletedProcess(cmd, fetch_returncode, stdout="", stderr="no network")
-        return subprocess.CompletedProcess(cmd, 0, stdout=tags, stderr="")
-
-    return run
-
-
-class TestExtractUnreleasedChangelog(unittest.TestCase):
-    def extract(self, content: str) -> str:
+class TestExtractReleaseChangelog(unittest.TestCase):
+    def extract(self, tag: str, content: str) -> str:
         with tempfile.TemporaryDirectory() as tmp:
             changelog = Path(tmp) / "CHANGELOG.md"
             changelog.write_text(content, encoding="utf-8")
-            return release_prep.extract_unreleased_changelog(changelog)
+            return release_prep.extract_release_changelog(tag, changelog)
 
-    def test_content_until_first_old_release(self) -> None:
-        self.assertEqual(self.extract(CHANGELOG_CONTENT), "### Fixed\n\n- Something")
+    def test_content_until_next_release_headline(self) -> None:
+        self.assertEqual(self.extract("1.1.0", CHANGELOG_CONTENT), "### Fixed\n\n- Something")
 
-    def test_empty_unreleased_section(self) -> None:
-        self.assertEqual(self.extract("## Unreleased\n\n## [1.0.0](x) - date\n\n- Old\n"), "")
+    def test_release_in_between_other_releases(self) -> None:
+        self.assertEqual(self.extract("1.0.1", CHANGELOG_CONTENT), "### Changed\n\n- Patch")
 
-    def test_unreleased_section_is_last(self) -> None:
-        self.assertEqual(self.extract("## Unreleased\n\n- New\n"), "- New")
+    def test_release_is_last_section(self) -> None:
+        self.assertEqual(self.extract("1.0.0", CHANGELOG_CONTENT), "### Added\n\n- Old thing")
 
-    def test_no_unreleased_section(self) -> None:
-        self.assertEqual(self.extract("## [1.0.0](x) - date\n\n- Old\n"), "")
+    def test_empty_release_section(self) -> None:
+        self.assertEqual(self.extract("1.1.0", "## [1.1.0](x) - date\n\n## [1.0.0](x) - date\n\n- Old\n"), "")
 
+    def test_version_not_in_changelog(self) -> None:
+        self.assertEqual(self.extract("2.0.0", CHANGELOG_CONTENT), "")
 
-class TestIsNewestRelease(unittest.TestCase):
-    def is_newest(self, tag: str, tags: str, fetch_returncode: int = 0, *, strict: bool = False) -> bool:
-        with mock.patch(
-            "subprocess.run", side_effect=fake_git_subprocess(tags=tags, fetch_returncode=fetch_returncode)
-        ):
-            return release_prep.is_newest_release(tag, strict=strict)
+    def test_unreleased_section_is_ignored(self) -> None:
+        self.assertEqual(self.extract("1.1.0", "## Unreleased\n\n- New\n"), "")
 
-    def test_highest_tag(self) -> None:
-        self.assertTrue(self.is_newest("1.2.0", "1.0.0\n1.1.0\n1.1.1\n1.2.0\n"))
-
-    def test_only_tag(self) -> None:
-        self.assertTrue(self.is_newest("1.0.0", "1.0.0\n"))
-
-    def test_patch_for_old_release(self) -> None:
-        self.assertFalse(self.is_newest("1.1.1", "1.1.0\n1.1.1\n1.2.0\n"))
-
-    def test_numeric_not_lexicographic_comparison(self) -> None:
-        self.assertTrue(self.is_newest("1.10.0", "1.9.0\n1.10.0\n"))
-        self.assertFalse(self.is_newest("1.9.1", "1.9.1\n1.10.0\n"))
-
-    def test_unrelated_tags_are_ignored(self) -> None:
-        self.assertTrue(self.is_newest("1.0.1", "1.0.0\n1.0.1\nsome-tag\n9.9.9-rc1\n"))
-
-    def test_tag_missing_locally(self) -> None:
-        self.assertFalse(self.is_newest("1.2.0", "1.1.0\n"))
-
-    def test_invalid_tag_format(self) -> None:
-        self.assertFalse(self.is_newest("v1.2.0", "v1.2.0\n"))
-
-    def test_fetch_failure(self) -> None:
-        self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1))
-
-    def test_strict_mode_raises_on_fetch_failure(self) -> None:
-        with self.assertRaises(RuntimeError):
-            self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1, strict=True)
-
-    def test_strict_mode_raises_on_missing_tag(self) -> None:
-        with self.assertRaises(RuntimeError):
-            self.is_newest("1.2.0", "1.1.0\n", strict=True)
-
-    def test_strict_mode_raises_on_invalid_tag_format(self) -> None:
-        with self.assertRaises(RuntimeError):
-            self.is_newest("v1.2.0", "v1.2.0\n", strict=True)
-
-    def test_strict_mode_gives_regular_result_if_determinable(self) -> None:
-        self.assertTrue(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", strict=True))
-        self.assertFalse(self.is_newest("1.1.0", "1.1.0\n1.2.0\n", strict=True))
+    def test_version_must_match_completely(self) -> None:
+        self.assertEqual(self.extract("1.1", CHANGELOG_CONTENT), "")
+        self.assertEqual(self.extract("1.1.0", "## [1.1.01](x) - date\n\n- Other\n"), "")
 
 
 NOTES_FOOTER = """## Using this release
@@ -118,14 +76,13 @@ bazel_dep(name = "depend_on_what_you_use", version = "{version}")
 
 
 class TestCreateReleaseNotes(unittest.TestCase):
-    def create_notes(self, tag: str, changelog_content: str, existing_tags: str) -> str:
+    def create_notes(self, tag: str, changelog_content: str) -> str:
         with tempfile.TemporaryDirectory() as tmp:
             changelog = Path(tmp) / "CHANGELOG.md"
             changelog.write_text(changelog_content, encoding="utf-8")
-            with mock.patch("subprocess.run", side_effect=fake_git_subprocess(existing_tags)):
-                return release_prep.create_release_notes(tag=tag, changelog=changelog)
+            return release_prep.create_release_notes(tag=tag, changelog=changelog)
 
-    def test_newest_release_with_unreleased_changes(self) -> None:
+    def test_release_with_changelog_section(self) -> None:
         expected = """## Noteworthy Changes
 
 ### Fixed
@@ -133,20 +90,24 @@ class TestCreateReleaseNotes(unittest.TestCase):
 - Something
 
 """ + NOTES_FOOTER.format(version="1.1.0")
-        self.assertEqual(self.create_notes("1.1.0", CHANGELOG_CONTENT, "1.0.0\n1.1.0\n"), expected)
+        self.assertEqual(self.create_notes("1.1.0", CHANGELOG_CONTENT), expected)
 
-    def test_newest_release_without_unreleased_changes(self) -> None:
-        changelog = "## Unreleased\n\n## [1.0.0](x) - date\n\n- Old\n"
-        expected = NOTES_FOOTER.format(version="1.1.0")
-        self.assertEqual(self.create_notes("1.1.0", changelog, "1.0.0\n1.1.0\n"), expected)
+    def test_patch_for_old_release(self) -> None:
+        expected = """## Noteworthy Changes
 
-    def test_patch_for_old_release_does_not_copy_changes(self) -> None:
-        expected = f"""## Noteworthy Changes
+### Changed
 
-{release_constants.FAILED_CHANGES_MARKER}
+- Patch
 
 """ + NOTES_FOOTER.format(version="1.0.1")
-        self.assertEqual(self.create_notes("1.0.1", CHANGELOG_CONTENT, "1.0.0\n1.0.1\n1.1.0\n"), expected)
+        self.assertEqual(self.create_notes("1.0.1", CHANGELOG_CONTENT), expected)
+
+    def test_release_with_empty_changelog_section(self) -> None:
+        changelog = "## [1.1.0](x) - date\n\n## [1.0.0](x) - date\n\n- Old\n"
+        self.assertEqual(self.create_notes("1.1.0", changelog), NOTES_FOOTER.format(version="1.1.0"))
+
+    def test_release_without_changelog_section(self) -> None:
+        self.assertEqual(self.create_notes("2.0.0", CHANGELOG_CONTENT), NOTES_FOOTER.format(version="2.0.0"))
 
 
 if __name__ == "__main__":

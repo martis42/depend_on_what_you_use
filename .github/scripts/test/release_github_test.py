@@ -50,7 +50,7 @@ def make_release(body: str, *, draft: bool = False, prerelease: bool = True) -> 
 class TestFinalizeMain(unittest.TestCase):
     BODY = f"## Using\n\n{BCR_WARNING_START}\nwarning\n{BCR_WARNING_END}\n\nrest"
 
-    def run_main(self, release: dict, *, merged: bool = True, newest: bool | Exception = True) -> tuple[int, mock.Mock]:
+    def run_main(self, release: dict, *, merged: bool = True, newest: bool = True) -> tuple[int, mock.Mock]:
         bcr_pr = {"html_url": "https://example.com/pr", "merged_at": "2026-01-01" if merged else None}
         with (
             mock.patch("sys.argv", ["release_finalize.py", "--tag", "1.2.3", "--repo", "owner/repo"]),
@@ -70,11 +70,6 @@ class TestFinalizeMain(unittest.TestCase):
     def test_patch_for_old_release_is_not_latest(self) -> None:
         _, update = self.run_main(make_release(self.BODY), newest=False)
         self.assertEqual(update.call_args.kwargs["make_latest"], "false")
-
-    def test_undeterminable_latest_status_aborts(self) -> None:
-        result, update = self.run_main(make_release(self.BODY), newest=RuntimeError("no tags"))
-        self.assertEqual(result, 1)
-        update.assert_not_called()
 
     def test_failed_changes_marker_aborts(self) -> None:
         result, update = self.run_main(make_release(f"{FAILED_CHANGES_MARKER}\n{self.BODY}"))

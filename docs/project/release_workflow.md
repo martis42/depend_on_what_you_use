@@ -11,9 +11,8 @@ After a release has been finished, we drop the `prerelease` status.
 
 1. [Manual] Choose a version:
    - Follow the project's [SemVer interpretation](/README.md#versioning).
-   - Ensure the Changelog has been maintained since the last release.
-   - Ensure the last CI run passed.
-1. [Manual] Create and push a tag matching `MAJOR.MINOR.PATCH`, without a `v` prefix.
+   - Prepare the release by adding a section for the release to the [changelog](/CHANGELOG.md).
+1. [Manual] After the changelog preparation PR merged, create and push a tag matching `MAJOR.MINOR.PATCH`, without a `v` prefix.
    For example:
    - `git tag 1.2.3`
    - `git push origin 1.2.3`
@@ -24,14 +23,9 @@ After a release has been finished, we drop the `prerelease` status.
    - Add a link to the BCR deployment draft PR into the release notes.
    - Publish the GitHub release by removing its draft status, but keep it marked as a **prerelease**.
    - Make the BCR deployment draft PR _ready for review_, which triggers its merge once the BCR checks pass.
-1. [Manual] Check release notes.
-   Did the automatic changelog extraction work?
-   In case of a patch to an old release, the released changes have to be added manually.
 1. [Manual] Wait until the BCR deployment PR has been merged and then trigger the [finalize release workflow](/.github/workflows/release_finalize.yaml) from the GitHub Actions web page and enter the version being released.
    This will:
    - Verify the release is indeed consumable via bzlmod by running the [release smoke test](/test/bcr_release/test_release.py).
    - Remove the warning about the BCR deployment not yet being done from the release notes.
    - Drop the prerelease status.
    - Mark it as latest release, unless this was a patch for an old release.
-1. [Manual] Update Changelog to release.
-   All formerly unreleased parts which have been copied into the release notes should be below a headline for the new release.

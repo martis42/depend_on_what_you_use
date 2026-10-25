@@ -5,18 +5,19 @@ Finalize a release after its BCR deployment has been merged.
 
 - Remove the warning about the BCR deployment not being finished from the release notes.
 - Drop the prerelease status.
-- Mark the release as latest, unless it is a patch for an old release.
+- Mark the release as latest, unless it is a patch for an old release or this cannot be determined.
 
 Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the contents of the release repository.
 """
 
 import argparse
 import logging
+import re
+import subprocess
 import sys
 
 from release_constants import BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
 from release_github import find_bcr_pr, find_release, setup_logging, update_release
-from release_prep import is_newest_release
 
 log = logging.getLogger(__name__)
 
@@ -53,6 +54,38 @@ def create_final_release_notes(body: str) -> str:
     return remove_bcr_warning(body)
 
 
+def parse_version(tag: str) -> tuple[int, ...] | None:
+    if re.fullmatch(r"\d+\.\d+\.\d+", tag):
+        return tuple(int(part) for part in tag.split("."))
+    return None
+
+
+def is_newest_release(tag: str) -> bool:
+    """
+    Return True if no release tag newer than the given tag exists.
+    Patching an old release must not mark it as the latest release.
+    If we cannot reliably determine the existing tags, we log a warning and return False.
+    Not marking a release as latest is preferable to abandoning the whole finalization.
+    """
+    version = parse_version(tag)
+    if version is None:
+        log.warning(f"Tag '{tag}' is not a MAJOR.MINOR.PATCH version. Not marking the release as latest.")
+        return False
+
+    # In CI the checkout might contain only the tag being released
+    fetch = subprocess.run(["git", "fetch", "--tags", "--quiet"], check=False, capture_output=True, text=True)
+    if fetch.returncode != 0:
+        log.warning(f"Could not fetch git tags: {fetch.stderr.strip()}. Not marking the release as latest.")
+        return False
+    tags = subprocess.run(["git", "tag", "--list"], check=True, capture_output=True, text=True).stdout.split()
+    if tag not in tags:
+        log.warning(f"Tag '{tag}' not found in the local repository. Not marking the release as latest.")
+        return False
+
+    existing_versions = [v for v in map(parse_version, tags) if v is not None]
+    return all(existing <= version for existing in existing_versions)
+
+
 def main() -> int:
     args = cli()
     release = find_release(args.repo, args.tag)
@@ -75,12 +108,7 @@ def main() -> int:
         log.error(f"{error}. Refusing to finalize, please adapt the release notes manually.")  # noqa: TRY400
         return 1
 
-    # Do not guess, a wrong decision would permanently affect which release GitHub presents as latest
-    try:
-        make_latest = is_newest_release(args.tag, strict=True)
-    except RuntimeError as error:
-        log.error(f"{error}. Refusing to finalize.")  # noqa: TRY400
-        return 1
+    make_latest = is_newest_release(args.tag)
 
     # The API expects the string values 'true', 'false' or 'legacy' for 'make_latest'
     update_release(
