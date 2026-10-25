@@ -11,15 +11,10 @@ Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the content
 """
 
 import argparse
-import json
-import subprocess
 import sys
 
 from release_constants import BCR_PR_PLACEHOLDER
-
-MODULE_NAME = "depend_on_what_you_use"
-BCR_REPO = "bazelbuild/bazel-central-registry"
-BCR_FORK_OWNER = "martis42"
+from release_github import find_bcr_pr, find_release, gh_api
 
 
 def cli() -> argparse.Namespace:
@@ -29,34 +24,10 @@ def cli() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def gh_api(*args: str) -> str:
-    return subprocess.run(["gh", "api", *args], check=True, capture_output=True, text=True).stdout
-
-
-def find_bcr_pr_url(tag: str) -> str:
-    head = f"{BCR_FORK_OWNER}:{MODULE_NAME}-{tag}"
-    pulls = json.loads(gh_api(f"repos/{BCR_REPO}/pulls?head={head}&state=all"))
-    if not pulls:
-        msg = f"No BCR pull request found for head '{head}'"
-        raise RuntimeError(msg)
-    return pulls[0]["html_url"]
-
-
-def find_release(repo: str, tag: str) -> dict:
-    # Draft releases are not accessible via their tag, thus we have to search the list of all releases
-    release_ids = gh_api(
-        f"repos/{repo}/releases", "--paginate", "--jq", f'.[] | select(.tag_name == "{tag}") | .id'
-    ).split()
-    if not release_ids:
-        msg = f"No release found for tag '{tag}'"
-        raise RuntimeError(msg)
-    return json.loads(gh_api(f"repos/{repo}/releases/{release_ids[0]}"))
-
-
 def main() -> int:
     args = cli()
 
-    pr_url = find_bcr_pr_url(args.tag)
+    pr_url = find_bcr_pr(args.tag)["html_url"]
     release = find_release(args.repo, args.tag)
 
     # Fetch the body right before the update to minimize the risk of overwriting concurrent manual edits
