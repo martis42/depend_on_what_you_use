@@ -66,3 +66,7 @@ Some part is however maintained manually:
 - Each sentence starts in a new line.
 - Sentences are not wrapped, no matter how long they are.
 - `<br>` is used to enforce a newline.
+
+# Releases
+
+Maintainers should follow the [release workflow](/docs/project/release_workflow.md) when preparing and publishing a release.
