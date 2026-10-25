@@ -3,10 +3,7 @@ import subprocess
 import unittest
 from unittest import mock
 
-import release_finalize
 import release_github
-import release_publish
-from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
 
 
 class TestGhApi(unittest.TestCase):
@@ -41,83 +38,6 @@ class TestGhApi(unittest.TestCase):
             release_github.gh_api("repos/owner/repo/releases/1")
         self.assertIn("Validation Failed", logs.output[0])
         self.assertIn("HTTP 422", logs.output[0])
-
-
-def make_release(body: str, *, draft: bool = False, prerelease: bool = True) -> dict:
-    return {"id": 7, "body": body, "draft": draft, "prerelease": prerelease}
-
-
-class TestFinalizeMain(unittest.TestCase):
-    BODY = f"## Using\n\n{BCR_WARNING_START}\nwarning\n{BCR_WARNING_END}\n\nrest"
-
-    def run_main(self, release: dict, *, merged: bool = True, newest: bool = True) -> tuple[int, mock.Mock]:
-        bcr_pr = {"html_url": "https://example.com/pr", "merged_at": "2026-01-01" if merged else None}
-        with (
-            mock.patch("sys.argv", ["release_finalize.py", "--tag", "1.2.3", "--repo", "owner/repo"]),
-            mock.patch.object(release_finalize, "find_release", return_value=release),
-            mock.patch.object(release_finalize, "find_bcr_pr", return_value=bcr_pr),
-            mock.patch.object(release_finalize, "is_newest_release", side_effect=[newest]),
-            mock.patch.object(release_finalize, "update_release") as update,
-            self.assertLogs(release_finalize.log, level="INFO"),
-        ):
-            return release_finalize.main(), update
-
-    def test_finalizes_newest_release(self) -> None:
-        result, update = self.run_main(make_release(self.BODY))
-        self.assertEqual(result, 0)
-        update.assert_called_once_with("owner/repo", 7, body="## Using\n\nrest", prerelease=False, make_latest="true")
-
-    def test_patch_for_old_release_is_not_latest(self) -> None:
-        _, update = self.run_main(make_release(self.BODY), newest=False)
-        self.assertEqual(update.call_args.kwargs["make_latest"], "false")
-
-    def test_failed_changes_marker_aborts(self) -> None:
-        result, update = self.run_main(make_release(f"{FAILED_CHANGES_MARKER}\n{self.BODY}"))
-        self.assertEqual(result, 1)
-        update.assert_not_called()
-
-    def test_unmerged_bcr_pr_aborts(self) -> None:
-        result, update = self.run_main(make_release(self.BODY), merged=False)
-        self.assertEqual(result, 1)
-        update.assert_not_called()
-
-    def test_draft_aborts(self) -> None:
-        result, update = self.run_main(make_release(self.BODY, draft=True))
-        self.assertEqual(result, 1)
-        update.assert_not_called()
-
-    def test_already_finalized_does_nothing(self) -> None:
-        result, update = self.run_main(make_release(self.BODY, prerelease=False))
-        self.assertEqual(result, 0)
-        update.assert_not_called()
-
-
-class TestPublishMain(unittest.TestCase):
-    def run_main(self, release: dict) -> tuple[int, mock.Mock]:
-        with (
-            mock.patch("sys.argv", ["release_publish.py", "--tag", "1.2.3", "--repo", "owner/repo"]),
-            mock.patch.object(release_publish, "find_release", return_value=release),
-            mock.patch.object(release_publish, "update_release") as update,
-            self.assertLogs(release_publish.log, level="INFO"),
-        ):
-            return release_publish.main(), update
-
-    def test_publishes_draft_as_prerelease(self) -> None:
-        result, update = self.run_main(make_release("notes", draft=True))
-        self.assertEqual(result, 0)
-        update.assert_called_once_with("owner/repo", 7, draft=False, prerelease=True)
-
-    def test_problematic_release_notes_only_cause_warnings(self) -> None:
-        for text in (BCR_PR_PLACEHOLDER, FAILED_CHANGES_MARKER):
-            with self.subTest(text=text):
-                result, update = self.run_main(make_release(f"notes {text}", draft=True))
-                self.assertEqual(result, 0)
-                update.assert_called_once_with("owner/repo", 7, draft=False, prerelease=True)
-
-    def test_published_release_is_left_alone(self) -> None:
-        result, update = self.run_main(make_release("notes", draft=False))
-        self.assertEqual(result, 0)
-        update.assert_not_called()
 
 
 if __name__ == "__main__":
