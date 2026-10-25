@@ -32,7 +32,7 @@ TBD
 
 ## Using this release
 
-:construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: TBD
+:construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: BCR_PR_URL_PLACEHOLDER
 
 Add to your `MODULE.bazel` file:
 
