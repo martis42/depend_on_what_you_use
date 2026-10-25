@@ -40,5 +40,29 @@ class TestGhApi(unittest.TestCase):
         self.assertIn("HTTP 422", logs.output[0])
 
 
+class TestFindRelease(unittest.TestCase):
+    def find(self, pages: list[list[dict]], tag: str = "1.2.3") -> tuple[dict, mock.Mock]:
+        with mock.patch.object(release_github, "gh_api", side_effect=[json.dumps(p) for p in pages]) as gh_api:
+            return release_github.find_release("owner/repo", tag), gh_api
+
+    def test_release_on_first_page(self) -> None:
+        release = {"tag_name": "1.2.3"}
+        result, gh_api = self.find([[{"tag_name": "1.2.4"}, release]])
+        self.assertEqual(result, release)
+        gh_api.assert_called_once_with("repos/owner/repo/releases?per_page=100&page=1")
+
+    def test_release_on_later_page(self) -> None:
+        release = {"tag_name": "1.2.3"}
+        full_page = [{"tag_name": f"0.0.{i}"} for i in range(100)]
+        result, gh_api = self.find([full_page, [release]])
+        self.assertEqual(result, release)
+        self.assertEqual(gh_api.call_count, 2)
+
+    def test_unknown_release_raises(self) -> None:
+        full_page = [{"tag_name": f"0.0.{i}"} for i in range(100)]
+        with self.assertRaises(RuntimeError):
+            self.find([full_page, [{"tag_name": "0.1.0"}]])
+
+
 if __name__ == "__main__":
     unittest.main()
