@@ -14,8 +14,8 @@ import argparse
 import logging
 import sys
 
-from release_constants import BCR_WARNING_END, BCR_WARNING_START
-from release_github import find_bcr_pr, find_release, gh_api
+from release_constants import BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
+from release_github import find_bcr_pr, find_release, setup_logging, update_release
 from release_prep import is_newest_release
 
 log = logging.getLogger(__name__)
@@ -46,6 +46,13 @@ def remove_bcr_warning(body: str) -> str:
     return "\n".join(lines[: starts[0]] + lines[end:])
 
 
+def create_final_release_notes(body: str) -> str:
+    if FAILED_CHANGES_MARKER in body:
+        msg = f"Release notes still contain '{FAILED_CHANGES_MARKER}'"
+        raise ValueError(msg)
+    return remove_bcr_warning(body)
+
+
 def main() -> int:
     args = cli()
     release = find_release(args.repo, args.tag)
@@ -63,28 +70,30 @@ def main() -> int:
         return 1
 
     try:
-        new_body = remove_bcr_warning(release["body"] or "")
+        new_body = create_final_release_notes(release["body"] or "")
     except ValueError as error:
         log.error(f"{error}. Refusing to finalize, please adapt the release notes manually.")  # noqa: TRY400
         return 1
 
-    make_latest = is_newest_release(args.tag)
+    # Do not guess, a wrong decision would permanently affect which release GitHub presents as latest
+    try:
+        make_latest = is_newest_release(args.tag, strict=True)
+    except RuntimeError as error:
+        log.error(f"{error}. Refusing to finalize.")  # noqa: TRY400
+        return 1
 
-    gh_api(
-        f"repos/{args.repo}/releases/{release['id']}",
-        "--method",
-        "PATCH",
-        "--field",
-        f"body={new_body}",
-        "--field",
-        "prerelease=false",
-        "--field",
-        f"make_latest={str(make_latest).lower()}",
+    # The API expects the string values 'true', 'false' or 'legacy' for 'make_latest'
+    update_release(
+        args.repo,
+        release["id"],
+        body=new_body,
+        prerelease=False,
+        make_latest=str(make_latest).lower(),
     )
     log.info(f"Finalized release {args.tag}. Marked as latest: {make_latest}")
     return 0
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format="%(message)s", level=logging.INFO)
+    setup_logging()
     sys.exit(main())

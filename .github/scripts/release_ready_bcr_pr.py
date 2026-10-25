@@ -17,7 +17,7 @@ import logging
 import subprocess
 import sys
 
-from release_github import find_bcr_pr
+from release_github import find_bcr_pr, setup_logging
 
 log = logging.getLogger(__name__)
 
@@ -45,5 +45,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format="%(message)s", level=logging.INFO)
+    setup_logging()
     sys.exit(main())

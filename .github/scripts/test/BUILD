@@ -14,3 +14,9 @@ py_test(
         "//.github/scripts:release_prep",
     ],
 )
+
+py_test(
+    name = "release_github_test",
+    srcs = ["release_github_test.py"],
+    deps = ["//.github/scripts:release_finalize"],
+)
