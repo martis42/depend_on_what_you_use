@@ -14,7 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from release_constants import BCR_PR_PLACEHOLDER
+from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START
 
 CHANGELOG = Path(__file__).resolve().parents[2] / "CHANGELOG.md"
 
@@ -26,7 +26,9 @@ RELEASE_NOTES_TEMPLATE = """{CHANGES}
 
 ## Using this release
 
+{BCR_WARNING_START}
 :construction: **Deployment to BCR is not yet finished.** The release will be usable via bzlmod after this PR merged: {BCR_PR}
+{BCR_WARNING_END}
 
 Add to your `MODULE.bazel` file:
 
@@ -116,7 +118,13 @@ def create_release_notes(tag: str, changelog: Path = CHANGELOG) -> str:
         else "FAILED_TO_AUTOMATICALLY_ADD_RELEASED_CHANGES"
     )
     changes = CHANGES_TEMPLATE.format(RELEASED_CHANGES=to_be_released_changes) if to_be_released_changes else ""
-    return RELEASE_NOTES_TEMPLATE.format(VERSION=tag, BCR_PR=BCR_PR_PLACEHOLDER, CHANGES=changes).strip()
+    return RELEASE_NOTES_TEMPLATE.format(
+        VERSION=tag,
+        BCR_PR=BCR_PR_PLACEHOLDER,
+        BCR_WARNING_START=BCR_WARNING_START,
+        BCR_WARNING_END=BCR_WARNING_END,
+        CHANGES=changes,
+    ).strip()
 
 
 if __name__ == "__main__":

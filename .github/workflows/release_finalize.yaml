@@ -1,0 +1,51 @@
+name: Finalize release
+
+# Manually triggered once the BCR deployment pull request of a release has been merged.
+# See docs/project/release_workflow.md
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Tag of the release to finalize, e.g. 1.2.3
+        required: true
+        type: string
+
+permissions: read-all
+
+# Protect against accidentally starting this workflow twice for the same release.
+# Otherwise two runs could read and write the release notes at the same time.
+# We queue the second run instead of cancelling the first one, since cancelling could interrupt the release being edited.
+concurrency:
+  group: release-finalize-${{ inputs.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate tag format
+        env:
+          TAG: ${{ inputs.tag_name }}
+        run: |
+          if ! [[ "${TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag '${TAG}' does not match MAJOR.MINOR.PATCH"
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Verify the release is consumable via bzlmod
+        env:
+          TAG: ${{ inputs.tag_name }}
+        run: python3 test/bcr_release/test_release.py --version "${TAG}"
+
+  finalize:
+    needs: [ smoke-test ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Finalize the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag_name }}
+        run: ./.github/scripts/release_finalize.py --tag "${TAG}" --repo "${{ github.repository }}"
