@@ -53,7 +53,22 @@ def parse_version(tag: str) -> tuple[int, ...] | None:
     return None
 
 
-def is_newest_release(tag: str) -> bool:
+def list_remote_tags(repo: str) -> list[str]:
+    """
+    Ask the remote for its tag names instead of fetching them.
+    Fetching would download objects, which can be a lot in a shallow CI checkout, while we only need the names.
+    """
+    output = subprocess.run(
+        ["git", "ls-remote", "--tags", "--refs", f"https://github.com/{repo}.git"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    prefix = "refs/tags/"
+    return [ref.removeprefix(prefix) for _, ref in (line.split("\t") for line in output.splitlines())]
+
+
+def is_newest_release(repo: str, tag: str) -> bool:
     """
     Return True if no release tag newer than the given tag exists.
     Patching an old release must not mark it as the latest release.
@@ -65,14 +80,13 @@ def is_newest_release(tag: str) -> bool:
         log.warning(f"Tag '{tag}' is not a MAJOR.MINOR.PATCH version. Not marking the release as latest.")
         return False
 
-    # In CI the checkout might contain only the tag being released
-    fetch = subprocess.run(["git", "fetch", "--tags", "--quiet"], check=False, capture_output=True, text=True)
-    if fetch.returncode != 0:
-        log.warning(f"Could not fetch git tags: {fetch.stderr.strip()}. Not marking the release as latest.")
+    try:
+        tags = list_remote_tags(repo)
+    except subprocess.CalledProcessError as error:
+        log.warning(f"Could not list tags of '{repo}': {error.stderr.strip()}. Not marking the release as latest.")
         return False
-    tags = subprocess.run(["git", "tag", "--list"], check=True, capture_output=True, text=True).stdout.split()
     if tag not in tags:
-        log.warning(f"Tag '{tag}' not found in the local repository. Not marking the release as latest.")
+        log.warning(f"Tag '{tag}' not found in '{repo}'. Not marking the release as latest.")
         return False
 
     existing_versions = [v for v in map(parse_version, tags) if v is not None]
@@ -97,7 +111,7 @@ def main() -> int:
 
     new_body = remove_bcr_warning(release["body"] or "")
 
-    make_latest = is_newest_release(args.tag)
+    make_latest = is_newest_release(args.repo, args.tag)
 
     # The API expects the string values 'true', 'false' or 'legacy' for 'make_latest'
     update_release(

@@ -55,21 +55,20 @@ bazel_dep(name = "depend_on_what_you_use", version = "1.2.3")
             remove_bcr_warning(body)
 
 
-def fake_git_subprocess(tags: str, fetch_returncode: int = 0) -> Callable[..., subprocess.CompletedProcess]:
+def fake_ls_remote(tags: str, returncode: int = 0) -> Callable[..., subprocess.CompletedProcess]:
     def run(cmd: list[str], **_: object) -> subprocess.CompletedProcess:
-        if cmd[:2] == ["git", "fetch"]:
-            return subprocess.CompletedProcess(cmd, fetch_returncode, stdout="", stderr="no network")
-        return subprocess.CompletedProcess(cmd, 0, stdout=tags, stderr="")
+        if returncode != 0:
+            raise subprocess.CalledProcessError(returncode, cmd, stderr="no network")
+        stdout = "".join(f"0123456789abcdef\trefs/tags/{tag}\n" for tag in tags.split())
+        return subprocess.CompletedProcess(cmd, 0, stdout=stdout, stderr="")
 
     return run
 
 
 class TestIsNewestRelease(unittest.TestCase):
-    def is_newest(self, tag: str, tags: str, fetch_returncode: int = 0) -> bool:
-        with mock.patch(
-            "subprocess.run", side_effect=fake_git_subprocess(tags=tags, fetch_returncode=fetch_returncode)
-        ):
-            return is_newest_release(tag)
+    def is_newest(self, tag: str, tags: str, returncode: int = 0) -> bool:
+        with mock.patch("subprocess.run", side_effect=fake_ls_remote(tags=tags, returncode=returncode)):
+            return is_newest_release("owner/repo", tag)
 
     def test_highest_tag(self) -> None:
         self.assertTrue(self.is_newest("1.2.0", "1.0.0\n1.1.0\n1.1.1\n1.2.0\n"))
@@ -87,7 +86,7 @@ class TestIsNewestRelease(unittest.TestCase):
     def test_unrelated_tags_are_ignored(self) -> None:
         self.assertTrue(self.is_newest("1.0.1", "1.0.0\n1.0.1\nsome-tag\n9.9.9-rc1\n"))
 
-    def test_tag_missing_locally_warns(self) -> None:
+    def test_tag_missing_on_remote_warns(self) -> None:
         with self.assertLogs("release_finalize", level="WARNING"):
             self.assertFalse(self.is_newest("1.2.0", "1.1.0\n"))
 
@@ -95,9 +94,9 @@ class TestIsNewestRelease(unittest.TestCase):
         with self.assertLogs("release_finalize", level="WARNING"):
             self.assertFalse(self.is_newest("v1.2.0", "v1.2.0\n"))
 
-    def test_fetch_failure_warns(self) -> None:
+    def test_listing_failure_warns(self) -> None:
         with self.assertLogs("release_finalize", level="WARNING"):
-            self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1))
+            self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", returncode=1))
 
 
 def make_release(body: str, *, draft: bool = False, prerelease: bool = True) -> dict:
