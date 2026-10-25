@@ -48,11 +48,18 @@ def execute_test() -> bool:
     return True
 
 
-def cleanup(module: Path) -> None:
-    """
-    Revert changes done to the test code
-    """
-    subprocess.run(["git", "checkout", "--", str(module)], check=True)
+def run_release_test(module: Path, version: str) -> bool:
+    original_module_content = module.read_bytes()
+    try:
+        prepare_test(module=module, version=version)
+        success = execute_test()
+        if success:
+            print("SUCCESS\n")
+        else:
+            print("FAILURE\n")
+        return success
+    finally:
+        module.write_bytes(original_module_content)
 
 
 if __name__ == "__main__":
@@ -63,9 +70,6 @@ if __name__ == "__main__":
     os.chdir(script_dir)
 
     version = input("Which version should be tested?:\n")
-
-    prepare_test(module=module_file, version=version)
-    success = execute_test()
-    cleanup(module=module_file)
+    success = run_release_test(module=module_file, version=version)
 
     sys.exit(0 if success else 1)
