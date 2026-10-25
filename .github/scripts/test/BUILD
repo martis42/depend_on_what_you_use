@@ -18,11 +18,11 @@ py_test(
 py_test(
     name = "release_github_test",
     srcs = ["release_github_test.py"],
-    deps = ["//.github/scripts:release_finalize"],
+    deps = ["//.github/scripts:release_github"],
 )
 
 py_test(
     name = "release_publish_test",
     srcs = ["release_publish_test.py"],
-    deps = ["//.github/scripts:release_finalize"],
+    deps = ["//.github/scripts:release_publish"],
 )
