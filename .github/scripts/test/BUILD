@@ -20,3 +20,9 @@ py_test(
     srcs = ["release_github_test.py"],
     deps = ["//.github/scripts:release_finalize"],
 )
+
+py_test(
+    name = "release_publish_test",
+    srcs = ["release_publish_test.py"],
+    deps = ["//.github/scripts:release_finalize"],
+)

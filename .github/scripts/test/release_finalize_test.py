@@ -3,8 +3,9 @@ import unittest
 from collections.abc import Callable
 from unittest import mock
 
+import release_finalize
 import release_prep
-from release_constants import BCR_WARNING_END, BCR_WARNING_START
+from release_constants import BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
 from release_finalize import is_newest_release, remove_bcr_warning
 
 
@@ -97,6 +98,55 @@ class TestIsNewestRelease(unittest.TestCase):
     def test_fetch_failure_warns(self) -> None:
         with self.assertLogs("release_finalize", level="WARNING"):
             self.assertFalse(self.is_newest("1.2.0", "1.1.0\n1.2.0\n", fetch_returncode=1))
+
+
+def make_release(body: str, *, draft: bool = False, prerelease: bool = True) -> dict:
+    return {"id": 7, "body": body, "draft": draft, "prerelease": prerelease}
+
+
+class TestMain(unittest.TestCase):
+    BODY = f"## Using\n\n{BCR_WARNING_START}\nwarning\n{BCR_WARNING_END}\n\nrest"
+
+    def run_main(self, release: dict, *, merged: bool = True, newest: bool = True) -> tuple[int, mock.Mock]:
+        bcr_pr = {"html_url": "https://example.com/pr", "merged_at": "2026-01-01" if merged else None}
+        with (
+            mock.patch("sys.argv", ["release_finalize.py", "--tag", "1.2.3", "--repo", "owner/repo"]),
+            mock.patch.object(release_finalize, "find_release", return_value=release),
+            mock.patch.object(release_finalize, "find_bcr_pr", return_value=bcr_pr),
+            mock.patch.object(release_finalize, "is_newest_release", side_effect=[newest]),
+            mock.patch.object(release_finalize, "update_release") as update,
+            self.assertLogs(release_finalize.log, level="INFO"),
+        ):
+            return release_finalize.main(), update
+
+    def test_finalizes_newest_release(self) -> None:
+        result, update = self.run_main(make_release(self.BODY))
+        self.assertEqual(result, 0)
+        update.assert_called_once_with("owner/repo", 7, body="## Using\n\nrest", prerelease=False, make_latest="true")
+
+    def test_patch_for_old_release_is_not_latest(self) -> None:
+        _, update = self.run_main(make_release(self.BODY), newest=False)
+        self.assertEqual(update.call_args.kwargs["make_latest"], "false")
+
+    def test_failed_changes_marker_aborts(self) -> None:
+        result, update = self.run_main(make_release(f"{FAILED_CHANGES_MARKER}\n{self.BODY}"))
+        self.assertEqual(result, 1)
+        update.assert_not_called()
+
+    def test_unmerged_bcr_pr_aborts(self) -> None:
+        result, update = self.run_main(make_release(self.BODY), merged=False)
+        self.assertEqual(result, 1)
+        update.assert_not_called()
+
+    def test_draft_aborts(self) -> None:
+        result, update = self.run_main(make_release(self.BODY, draft=True))
+        self.assertEqual(result, 1)
+        update.assert_not_called()
+
+    def test_already_finalized_does_nothing(self) -> None:
+        result, update = self.run_main(make_release(self.BODY, prerelease=False))
+        self.assertEqual(result, 0)
+        update.assert_not_called()
 
 
 if __name__ == "__main__":
