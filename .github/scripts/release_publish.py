@@ -10,10 +10,13 @@ Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the content
 """
 
 import argparse
+import logging
 import sys
 
 from release_constants import BCR_PR_PLACEHOLDER
 from release_github import find_release, gh_api
+
+log = logging.getLogger(__name__)
 
 
 def cli() -> argparse.Namespace:
@@ -28,12 +31,12 @@ def main() -> int:
     release = find_release(args.repo, args.tag)
 
     if not release["draft"]:
-        print(f"Release {args.tag} is already published. Nothing to do.")  # noqa: T201
+        log.info(f"Release {args.tag} is already published. Nothing to do.")
         return 0
 
     # Never publish release notes which are still missing the link to the BCR deployment
     if BCR_PR_PLACEHOLDER in (release["body"] or ""):
-        print(f"Release notes of {args.tag} still contain the placeholder '{BCR_PR_PLACEHOLDER}'.", file=sys.stderr)  # noqa: T201
+        log.error(f"Release notes of {args.tag} still contain the placeholder '{BCR_PR_PLACEHOLDER}'.")
         return 1
 
     gh_api(
@@ -45,9 +48,10 @@ def main() -> int:
         "--field",
         "prerelease=true",
     )
-    print(f"Published release {args.tag} as prerelease")  # noqa: T201
+    log.info(f"Published release {args.tag} as prerelease")
     return 0
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     sys.exit(main())

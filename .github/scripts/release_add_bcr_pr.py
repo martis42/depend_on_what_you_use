@@ -11,10 +11,13 @@ Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the content
 """
 
 import argparse
+import logging
 import sys
 
 from release_constants import BCR_PR_PLACEHOLDER
 from release_github import find_bcr_pr, find_release, gh_api
+
+log = logging.getLogger(__name__)
 
 
 def cli() -> argparse.Namespace:
@@ -33,7 +36,7 @@ def main() -> int:
     # Fetch the body right before the update to minimize the risk of overwriting concurrent manual edits
     body = release["body"] or ""
     if BCR_PR_PLACEHOLDER not in body:
-        print(f"Release notes contain no placeholder '{BCR_PR_PLACEHOLDER}'. Nothing to do. PR: {pr_url}")  # noqa: T201
+        log.info(f"Release notes contain no placeholder '{BCR_PR_PLACEHOLDER}'. Nothing to do. PR: {pr_url}")
         return 0
 
     gh_api(
@@ -43,9 +46,10 @@ def main() -> int:
         "--field",
         f"body={body.replace(BCR_PR_PLACEHOLDER, pr_url)}",
     )
-    print(f"Added BCR PR {pr_url} to release notes of {args.tag}")  # noqa: T201
+    log.info(f"Added BCR PR {pr_url} to release notes of {args.tag}")
     return 0
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     sys.exit(main())

@@ -13,10 +13,13 @@ The default GitHub Actions token cannot be used, since it has no permissions for
 """
 
 import argparse
+import logging
 import subprocess
 import sys
 
 from release_github import find_bcr_pr
+
+log = logging.getLogger(__name__)
 
 
 def cli() -> argparse.Namespace:
@@ -30,16 +33,17 @@ def main() -> int:
     pr = find_bcr_pr(args.tag)
 
     if pr["state"] != "open":
-        print(f"BCR PR {pr['html_url']} is not open. Nothing to do.")  # noqa: T201
+        log.info(f"BCR PR {pr['html_url']} is not open. Nothing to do.")
         return 0
     if not pr["draft"]:
-        print(f"BCR PR {pr['html_url']} is already ready for review. Nothing to do.")  # noqa: T201
+        log.info(f"BCR PR {pr['html_url']} is already ready for review. Nothing to do.")
         return 0
 
     subprocess.run(["gh", "pr", "ready", pr["html_url"]], check=True)
-    print(f"Marked BCR PR {pr['html_url']} as ready for review")  # noqa: T201
+    log.info(f"Marked BCR PR {pr['html_url']} as ready for review")
     return 0
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     sys.exit(main())

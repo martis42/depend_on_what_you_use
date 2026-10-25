@@ -9,12 +9,15 @@ See also https://github.com/bazel-contrib/rules_oci/pull/62
 """
 
 import argparse
+import logging
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 from release_constants import BCR_PR_PLACEHOLDER, BCR_WARNING_END, BCR_WARNING_START
+
+log = logging.getLogger(__name__)
 
 CHANGELOG = Path(__file__).resolve().parents[2] / "CHANGELOG.md"
 
@@ -100,11 +103,11 @@ def is_newest_release(tag: str) -> bool:
     # In CI the checkout might contain only the tag being released
     fetch = subprocess.run(["git", "fetch", "--tags", "--quiet"], check=False, capture_output=True, text=True)
     if fetch.returncode != 0:
-        print(f"ERROR: Could not fetch git tags: {fetch.stderr.strip()}", file=sys.stderr)  # noqa: T201
+        log.error(f"Could not fetch git tags: {fetch.stderr.strip()}")
         return False
     tags = subprocess.run(["git", "tag", "--list"], check=True, capture_output=True, text=True).stdout.split()
     if tag not in tags:
-        print(f"ERROR: Tag '{tag}' not found in the local repository", file=sys.stderr)  # noqa: T201
+        log.error(f"Tag '{tag}' not found in the local repository")
         return False
 
     existing_versions = [v for v in map(parse_version, tags) if v is not None]
@@ -128,6 +131,7 @@ def create_release_notes(tag: str, changelog: Path = CHANGELOG) -> str:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     args = cli()
     make_archive(args.tag)
-    print(create_release_notes(tag=args.tag))  # noqa: T201
+    sys.stdout.write(create_release_notes(tag=args.tag) + "\n")
