@@ -47,3 +47,15 @@ jobs:
       release_artifacts_run_id: ${{ github.run_id }}
     secrets:
       BCR_PUBLISH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
+
+  add-bcr-pr-to-release-notes:
+    needs: [ publish ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Add BCR pull request to release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./.github/workflows/release_add_bcr_pr.py --tag "${{ github.ref_name }}" --repo "${{ github.repository }}"
