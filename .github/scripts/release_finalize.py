@@ -16,7 +16,7 @@ import re
 import subprocess
 import sys
 
-from release_constants import BCR_WARNING_END, BCR_WARNING_START, FAILED_CHANGES_MARKER
+from release_constants import BCR_WARNING_END, BCR_WARNING_START
 from release_github import find_bcr_pr, find_release, setup_logging, update_release
 
 log = logging.getLogger(__name__)
@@ -45,13 +45,6 @@ def remove_bcr_warning(body: str) -> str:
     if end < len(lines) and not lines[end].strip():
         end += 1
     return "\n".join(lines[: starts[0]] + lines[end:])
-
-
-def create_final_release_notes(body: str) -> str:
-    if FAILED_CHANGES_MARKER in body:
-        msg = f"Release notes still contain '{FAILED_CHANGES_MARKER}'"
-        raise ValueError(msg)
-    return remove_bcr_warning(body)
 
 
 def parse_version(tag: str) -> tuple[int, ...] | None:
@@ -102,11 +95,7 @@ def main() -> int:
         log.error(f"BCR PR {bcr_pr['html_url']} has not been merged. Refusing to finalize.")
         return 1
 
-    try:
-        new_body = create_final_release_notes(release["body"] or "")
-    except ValueError as error:
-        log.error(f"{error}. Refusing to finalize, please adapt the release notes manually.")  # noqa: TRY400
-        return 1
+    new_body = remove_bcr_warning(release["body"] or "")
 
     make_latest = is_newest_release(args.tag)
 

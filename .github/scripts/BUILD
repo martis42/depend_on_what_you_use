@@ -4,6 +4,7 @@ py_library(
     name = "release_prep",
     srcs = [
         "release_constants.py",
+        "release_github.py",
         "release_prep.py",
     ],
     imports = ["."],
