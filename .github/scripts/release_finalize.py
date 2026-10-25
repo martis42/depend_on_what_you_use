@@ -11,11 +11,14 @@ Requires an authenticated GitHub CLI (GH_TOKEN) with write access to the content
 """
 
 import argparse
+import logging
 import sys
 
 from release_constants import BCR_WARNING_END, BCR_WARNING_START
 from release_github import find_bcr_pr, find_release, gh_api
 from release_prep import is_newest_release
+
+log = logging.getLogger(__name__)
 
 
 def cli() -> argparse.Namespace:
@@ -48,21 +51,21 @@ def main() -> int:
     release = find_release(args.repo, args.tag)
 
     if release["draft"]:
-        print(f"Release {args.tag} is still a draft. Refusing to finalize.", file=sys.stderr)  # noqa: T201
+        log.error(f"Release {args.tag} is still a draft. Refusing to finalize.")
         return 1
     if not release["prerelease"]:
-        print(f"Release {args.tag} is already finalized. Nothing to do.")  # noqa: T201
+        log.info(f"Release {args.tag} is already finalized. Nothing to do.")
         return 0
 
     bcr_pr = find_bcr_pr(args.tag)
     if not bcr_pr.get("merged_at"):
-        print(f"BCR PR {bcr_pr['html_url']} has not been merged. Refusing to finalize.", file=sys.stderr)  # noqa: T201
+        log.error(f"BCR PR {bcr_pr['html_url']} has not been merged. Refusing to finalize.")
         return 1
 
     try:
         new_body = remove_bcr_warning(release["body"] or "")
     except ValueError as error:
-        print(f"{error}. Refusing to finalize, please adapt the release notes manually.", file=sys.stderr)  # noqa: T201
+        log.error(f"{error}. Refusing to finalize, please adapt the release notes manually.")  # noqa: TRY400
         return 1
 
     make_latest = is_newest_release(args.tag)
@@ -78,9 +81,10 @@ def main() -> int:
         "--field",
         f"make_latest={str(make_latest).lower()}",
     )
-    print(f"Finalized release {args.tag}. Marked as latest: {make_latest}")  # noqa: T201
+    log.info(f"Finalized release {args.tag}. Marked as latest: {make_latest}")
     return 0
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     sys.exit(main())
