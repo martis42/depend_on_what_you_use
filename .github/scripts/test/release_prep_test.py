@@ -104,7 +104,7 @@ class TestCreateReleaseNotes(unittest.TestCase):
             changelog = Path(tmp) / "CHANGELOG.md"
             changelog.write_text(changelog_content, encoding="utf-8")
             with mock.patch("subprocess.run", side_effect=fake_git_subprocess(existing_tags)):
-                return release_prep.create_release_notes(tag=tag, checksum="abc123", changelog=changelog)
+                return release_prep.create_release_notes(tag=tag, changelog=changelog)
 
     def test_newest_release_with_unreleased_changes(self) -> None:
         expected = """## Noteworthy Changes
