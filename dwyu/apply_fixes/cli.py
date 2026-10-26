@@ -22,7 +22,7 @@ Buildozer works on a limited set of information, since it looks at BUILD files b
 - The DWYU aspect runs after alias expansion and thus reports the actual names instead of the alias names.
   However, only the alias name is visible to buildozer in a BUILD file in the dependencies of a target.
 
-The script expects 'bazel' to be available on PATH.
+By default, the script expects 'bazel' to be available on PATH; otherwise use '--bazel' to specify an explicit path for 'bazel' or an alternate name for 'bazel'.
     """.strip(),
     )
     parser.add_argument(
@@ -90,6 +90,15 @@ The script expects 'bazel' to be available on PATH.
         Your project might use select statements to exchange dependencies.
         In such cases you should use 'bazel cquery' to allow this script understanding the dependency tree properly.
         To ensure the cquery command uses the same configuration as your DWYU execution, use the options '--bazel-args' and '--bazel-startup-args'.
+        """,
+    )
+    parser.add_argument(
+        "--bazel",
+        type=str,
+        metavar="PATH|NAME",
+        default="bazel",
+        help="""
+        Path to, or alternate name for, the Bazel binary used to execute queries.
         """,
     )
     parser.add_argument(
