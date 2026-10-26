@@ -11,17 +11,17 @@ from dwyu.apply_fixes.apply_fixes import check_bazel_available, get_buildozer_bi
 class TestCheckBazelAvailable(unittest.TestCase):
     @patch("dwyu.apply_fixes.apply_fixes.which", return_value="/usr/bin/bazel")
     def test_bazel_is_available(self, _: MagicMock) -> None:
-        result = check_bazel_available()
+        result = check_bazel_available("bazel")
 
         self.assertTrue(result)
 
     @patch("dwyu.apply_fixes.apply_fixes.which", return_value=None)
     def test_bazel_is_not_available(self, _: MagicMock) -> None:
         with self.assertLogs(level="FATAL") as captured_logs:
-            result = check_bazel_available()
+            result = check_bazel_available("bazel")
 
         self.assertFalse(result)
-        self.assertEqual(captured_logs.output, ["CRITICAL:root:ERROR: 'bazel' was not found on PATH."])
+        self.assertEqual(captured_logs.output, ["CRITICAL:root:ERROR: 'bazel' was not found or is not executable."])
 
 
 class TestGetBuildozerBinary(unittest.TestCase):

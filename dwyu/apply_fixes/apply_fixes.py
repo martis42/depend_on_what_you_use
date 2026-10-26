@@ -29,9 +29,9 @@ class RequestedFixes:
         self.add_missing_deps = main_args.fix_missing_deps or main_args.fix_all
 
 
-def check_bazel_available() -> bool:
-    if not which("bazel"):
-        log.fatal("ERROR: 'bazel' was not found on PATH.")
+def check_bazel_available(bazel: str) -> bool:
+    if not which(bazel):
+        log.fatal(f"ERROR: '{bazel}' was not found or is not executable.")
         return False
     return True
 
@@ -131,7 +131,7 @@ def main(args: Namespace) -> int:
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
-    if not check_bazel_available():
+    if not check_bazel_available(args.bazel):
         return 1
 
     buildozer_binary = get_buildozer_binary(args.buildozer)
@@ -163,6 +163,7 @@ Maybe the tool used the wrong output directory, have a look at the apply_fixes C
 
     bazel_query = BazelQuery(
         workspace=workspace,
+        bazel=args.bazel,
         use_cquery=args.use_cquery,
         query_args=args_string_to_list(args.bazel_args),
         startup_args=args_string_to_list(args.bazel_startup_args),

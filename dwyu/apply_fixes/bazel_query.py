@@ -5,8 +5,11 @@ from dwyu.apply_fixes.utils import execute_and_capture
 
 
 class BazelQuery:
-    def __init__(self, workspace: Path, use_cquery: bool, query_args: list[str], startup_args: list[str]) -> None:
+    def __init__(
+        self, workspace: Path, bazel: str, use_cquery: bool, query_args: list[str], startup_args: list[str]
+    ) -> None:
         self._workspace = workspace
+        self._bazel = bazel
         self._use_cquery = use_cquery
         self._query_args = query_args
         self._startup_args = startup_args
@@ -14,7 +17,7 @@ class BazelQuery:
     def execute(self, query: str, args: list[str], enforce_query: bool = False) -> CompletedProcess:
         query_kind = "query" if not self._use_cquery or enforce_query else "cquery"
         cmd = [
-            "bazel",
+            self._bazel,
             *self._startup_args,
             query_kind,
             *self._query_args,
