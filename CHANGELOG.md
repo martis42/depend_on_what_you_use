@@ -24,7 +24,11 @@ How to read the changelog:
 
 ## Unreleased
 
-### Changed
+### Fixed
+
+- [target_mapping] Accept common rule attributes like visibility or tags.
+
+### Added
 
 - [apply_fixes] Allow providing a custom Bazel binary via `--bazel`
 

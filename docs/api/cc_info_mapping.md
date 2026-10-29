@@ -30,7 +30,7 @@ Then a test can specify only the dependency to `@com_google_googletest//:gtest_m
 <pre>
 load("@depend_on_what_you_use//dwyu/cc/cc_info_mapping:cc_info_mapping.bzl", "dwyu_make_cc_info_mapping")
 
-dwyu_make_cc_info_mapping(<a href="#dwyu_make_cc_info_mapping-name">name</a>, <a href="#dwyu_make_cc_info_mapping-mapping">mapping</a>)
+dwyu_make_cc_info_mapping(<a href="#dwyu_make_cc_info_mapping-name">name</a>, <a href="#dwyu_make_cc_info_mapping-mapping">mapping</a>, <a href="#dwyu_make_cc_info_mapping-kwargs">**kwargs</a>)
 </pre>
 
 Map include paths available from one or several targets to another target.
@@ -68,5 +68,6 @@ Using this rule and the various mapping techniques is demonstrated in the [targe
 | :------------- | :------------- | :------------- |
 | <a id="dwyu_make_cc_info_mapping-name"></a>name |  Unique name for this target. Will be the prefix for all private intermediate targets.   |  none |
 | <a id="dwyu_make_cc_info_mapping-mapping"></a>mapping |  Dictionary containing various targets and how they should be mapped. Possible mappings are:<br> - The `MAP_DIRECT_DEPS` mode tells the rule to map direct dependencies to the main target.   Choose `all` to automatically map all direct dependencies.   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies.   Using `MAP_DIRECT_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all direct dependencies.   This legacy behavior will be removed in a future release.<br> - The `MAP_TRANSITIVE_DEPS` mode tells the rule to map direct dependencies including their transitive dependencies to the main target.   Choose `all` to automatically map all dependencies.   Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies for which the transitive dependencies are mapped as well.   Meaning, only direct dependencies are valid entries in the filter list.   Using `MAP_TRANSITIVE_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all dependencies.   This legacy behavior will be removed in a future release.<br> - The `MAP_EXPLICIT_DEPS` mode tells the rule to map a list of CcInfo-providing targets to the main target.   The list has to use the canonical target names and the targets have to be from the dependency tree of the main target.   For this mapping rule, the dependency tree is not just defined by the `deps` attribute of the rules_cc rules.   All rules with all attributes providing CcInfo-providing targets are traversed.<br> - An explicit list of targets which are mapped to the main target.   This is a legacy behavior which will be removed eventually.   Use `MAP_EXPLICIT_DEPS` instead.<br>   |  none |
+| <a id="dwyu_make_cc_info_mapping-kwargs"></a>kwargs |  Common rule attributes forwarded to underlying targets   |  none |
 
 

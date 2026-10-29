@@ -58,7 +58,7 @@ def _extract_mapping_value(target, map, key):
     fail("DWYU: Invalid mapping value for target {}: {}".format(target, map))
 
 # buildifier: disable=canonical-repository
-def dwyu_make_cc_info_mapping(name, mapping):
+def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
     """
     Map include paths available from one or several targets to another target.
 
@@ -108,6 +108,7 @@ def dwyu_make_cc_info_mapping(name, mapping):
                  - An explicit list of targets which are mapped to the main target.
                    This is a legacy behavior which will be removed eventually.
                    Use `MAP_EXPLICIT_DEPS` instead.<br>
+        **kwargs: Common rule attributes forwarded to underlying targets
     """
     mappings = []
     for target, map_to in mapping.items():
@@ -119,6 +120,7 @@ def dwyu_make_cc_info_mapping(name, mapping):
                 name = mapping_action,
                 target = target,
                 map_to = map_to,
+                **kwargs
             )
         elif type(map_to) == "string":
             # Legacy cases falling back to 'map all deps'
@@ -129,12 +131,14 @@ def dwyu_make_cc_info_mapping(name, mapping):
                     name = mapping_action,
                     target = target,
                     filter = [],
+                    **kwargs
                 )
             elif map_to == MAP_TRANSITIVE_DEPS:
                 mapping_to_transitive_deps(
                     name = mapping_action,
                     target = target,
                     filter = [],
+                    **kwargs
                 )
             else:
                 fail("DWYU: Invalid legacy mapping type for target {}: {}".format(target, map_to))
@@ -144,18 +148,21 @@ def dwyu_make_cc_info_mapping(name, mapping):
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_DIRECT_DEPS),
+                    **kwargs
                 )
             elif [MAP_TRANSITIVE_DEPS] == map_to.keys():
                 mapping_to_transitive_deps(
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_TRANSITIVE_DEPS),
+                    **kwargs
                 )
             elif [MAP_EXPLICIT_DEPS] == map_to.keys():
                 mapping_to_explicit_deps(
                     name = mapping_action,
                     mapped_targets = _extract_mapping_value(target, map_to, MAP_EXPLICIT_DEPS),
                     target = target,
+                    **kwargs
                 )
             else:
                 fail("DWYU: Invalid mapping type for target {}: {}".format(target, map_to))
@@ -166,4 +173,5 @@ def dwyu_make_cc_info_mapping(name, mapping):
     _make_remapping_info(
         name = name,
         remappings = mappings,
+        **kwargs
     )
