@@ -499,7 +499,10 @@ def dwyu_cc_aspect_impl(target, ctx):
         ctx: Context
 
     Returns:
-        OutputGroup containing the generated report file
+        OutputGroups:
+          dwyu: check result
+          dwyu_report: generated report file
+          dwyu_status: analysis exit status
     """
 
     #
@@ -580,7 +583,10 @@ def dwyu_cc_aspect_impl(target, ctx):
     processed_deps = _process_dependencies(ctx, target = target, config = config, deps = target_deps)
     processed_impl_deps = _process_dependencies(ctx, target = target, config = config, deps = target_impl_deps)
 
+    marker_file = ctx.actions.declare_file("{}_dwyu.marker".format(target.label.name))
+    log_file = ctx.actions.declare_file("{}_dwyu.log".format(target.label.name))
     report_file = ctx.actions.declare_file("{}_dwyu_report.json".format(target.label.name))
+    status_file = ctx.actions.declare_file("{}_dwyu.status".format(target.label.name))
 
     preprocessed_public_files = _extract_includes_from_files(
         ctx = ctx,
@@ -628,14 +634,58 @@ def dwyu_cc_aspect_impl(target, ctx):
         direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
         transitive = [target[CcInfo].compilation_context.headers],
     )
-    ctx.actions.run(
-        executable = ctx.executable._tool_analyze_includes,
+    ctx.actions.run_shell(
+        tools = [ctx.attr._tool_analyze_includes.files_to_run],
         inputs = analysis_inputs,
-        outputs = [report_file],
+        outputs = [log_file, report_file, status_file],
         mnemonic = "DwyuAnalyzeTarget",
         progress_message = "Analyze dependencies of {}".format(target.label),
         arguments = [args],
+        command = """
+set -euo pipefail
+
+code=0
+"{tool}" "$@" > "{log}" || code=$?
+printf '%s\n' "$code" > "{status}"
+
+# analysis failure
+if ((code > 1)); then
+  exit $code
+fi
+        """.format(
+            log = log_file.path,
+            status = status_file.path,
+            tool = ctx.executable._tool_analyze_includes.path,
+        ),
     )
 
-    accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
-    return [OutputGroupInfo(dwyu = accumulated_reports)]
+    ctx.actions.run_shell(
+        inputs = [log_file, status_file],
+        outputs = [marker_file],
+        mnemonic = "DwyuCheckTarget",
+        progress_message = "Check dependencies of {}".format(target.label),
+        command = """
+set -euo pipefail
+
+: > "{marker}" # avoid requiring 'touch' on PATH
+
+if (($(<"{status}") != 0)); then
+  IFS= read -r -d '' log < "{log}" || true
+  printf '%s' "$log"
+  exit 1
+fi
+        """.format(
+            log = log_file.path,
+            marker = marker_file.path,
+            status = status_file.path,
+        ),
+    )
+
+    return [OutputGroupInfo(
+        dwyu = depset(
+            direct = [marker_file, report_file],
+            transitive = _gather_transitive_reports(ctx),
+        ),
+        dwyu_report = depset(direct = [report_file]),
+        dwyu_status = depset(direct = [status_file]),
+    )]
