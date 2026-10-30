@@ -50,8 +50,16 @@ jobs:
     needs: [ formatting-and-linting ]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # Cache created by the weekly 'sanitizer_cache.yaml' workflow on main. We only restore, never save.
+      - name: Restore Bazel disk cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/bazel-disk-cache
+          key: bazel-sanitizer-disk-cache-${{ runner.os }}-unused
+          restore-keys: bazel-sanitizer-disk-cache-${{ runner.os }}-
+          fail-on-cache-miss: false
       - name: Execute sanitizers
-        run: bazel test --config=sanitize //dwyu/...
+        run: bazel test --config=sanitize --disk_cache=$HOME/.cache/bazel-disk-cache //dwyu/...
 
   integration-tests-workspace_integration:
     runs-on: ubuntu-24.04
