@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//dwyu/private:utils.bzl", "label_to_name", "string_to_bool", "unique_list")
+load("//dwyu/private:utils.bzl", "label_to_name", "make_private_kwargs", "string_to_bool", "unique_list")
 
 def _label_to_name_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -58,10 +58,42 @@ def _string_to_bool_test_impl(ctx):
 
 string_to_bool_test = unittest.make(_string_to_bool_test_impl)
 
+def _make_private_kwargs_test_impl(ctx):
+    env = unittest.begin(ctx)
+
+    # Neither visibility nor tags exist
+    asserts.equals(env, {"tags": ["manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({}))
+
+    # Unrelated attributes are preserved
+    asserts.equals(env, {"name": "foo", "tags": ["manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({"name": "foo"}))
+
+    # Existing visibility is overwritten
+    asserts.equals(env, {"tags": ["manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({"visibility": ["//visibility:public"]}))
+
+    # Existing tags are kept and manual is appended
+    asserts.equals(env, {"tags": ["foo", "bar", "manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({"tags": ["foo", "bar"]}))
+
+    # Manual is not duplicated
+    asserts.equals(env, {"tags": ["manual", "foo"], "visibility": ["//visibility:private"]}, make_private_kwargs({"tags": ["manual", "foo"]}))
+
+    # Tags set to None or empty
+    asserts.equals(env, {"tags": ["manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({"tags": None}))
+    asserts.equals(env, {"tags": ["manual"], "visibility": ["//visibility:private"]}, make_private_kwargs({"tags": []}))
+
+    # Input is not modified
+    original = {"tags": ["foo"], "visibility": ["//visibility:public"]}
+    make_private_kwargs(original)
+    asserts.equals(env, {"tags": ["foo"], "visibility": ["//visibility:public"]}, original)
+
+    return unittest.end(env)
+
+make_private_kwargs_test = unittest.make(_make_private_kwargs_test_impl)
+
 def utils_test_suite(name):
     unittest.suite(
         name,
         label_to_name_test,
+        make_private_kwargs_test,
         string_to_bool_test,
         unique_list_test,
     )

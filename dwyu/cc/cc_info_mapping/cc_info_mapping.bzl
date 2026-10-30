@@ -28,7 +28,7 @@ load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
-load("//dwyu/private:utils.bzl", "label_to_name")
+load("//dwyu/private:utils.bzl", "label_to_name", "make_private_kwargs")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
@@ -110,6 +110,7 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                    Use `MAP_EXPLICIT_DEPS` instead.<br>
         **kwargs: Common rule attributes forwarded to underlying targets
     """
+    private_kwargs = make_private_kwargs(kwargs)
     mappings = []
     for target, map_to in mapping.items():
         mapping_action = "{}_mapping_{}".format(name, label_to_name(target))
@@ -120,7 +121,7 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                 name = mapping_action,
                 target = target,
                 map_to = map_to,
-                **kwargs
+                **private_kwargs
             )
         elif type(map_to) == "string":
             # Legacy cases falling back to 'map all deps'
@@ -131,14 +132,14 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                     name = mapping_action,
                     target = target,
                     filter = [],
-                    **kwargs
+                    **private_kwargs
                 )
             elif map_to == MAP_TRANSITIVE_DEPS:
                 mapping_to_transitive_deps(
                     name = mapping_action,
                     target = target,
                     filter = [],
-                    **kwargs
+                    **private_kwargs
                 )
             else:
                 fail("DWYU: Invalid legacy mapping type for target {}: {}".format(target, map_to))
@@ -148,21 +149,21 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_DIRECT_DEPS),
-                    **kwargs
+                    **private_kwargs
                 )
             elif [MAP_TRANSITIVE_DEPS] == map_to.keys():
                 mapping_to_transitive_deps(
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_TRANSITIVE_DEPS),
-                    **kwargs
+                    **private_kwargs
                 )
             elif [MAP_EXPLICIT_DEPS] == map_to.keys():
                 mapping_to_explicit_deps(
                     name = mapping_action,
                     mapped_targets = _extract_mapping_value(target, map_to, MAP_EXPLICIT_DEPS),
                     target = target,
-                    **kwargs
+                    **private_kwargs
                 )
             else:
                 fail("DWYU: Invalid mapping type for target {}: {}".format(target, map_to))
