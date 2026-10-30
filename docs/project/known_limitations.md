@@ -1,11 +1,24 @@
-## C++ modules
+<!-- mdformat-toc start --slug=github --maxlevel=2 --minlevel=1 -->
+
+- [Known limitations](#known-limitations)
+  - [C++ modules](#c-modules)
+  - [Conditional include statements based on unknown macros](#conditional-include-statements-based-on-unknown-macros)
+  - [Missing preprocessor features](#missing-preprocessor-features)
+  - [Specifying include paths via `copts` and similar](#specifying-include-paths-via-copts-and-similar)
+  - [Framework includes](#framework-includes)
+
+<!-- mdformat-toc end -->
+
+# Known limitations<a name="known-limitations"></a>
+
+## C++ modules<a name="c-modules"></a>
 
 C++ code using [C++ modules](https://en.cppreference.com/w/cpp/language/modules.html) is not supported by DWYU.
 
 Although, `rules_cc` supports C++ modules by now, this is at the time of writing this a new feature for Bazel C++ projects and not yet widely used.
 Also, the preprocessing library [boost wave](https://github.com/boostorg/wave) we depend on is not supporting C++ modules.
 
-## Conditional include statements based on unknown macros
+## Conditional include statements based on unknown macros<a name="conditional-include-statements-based-on-unknown-macros"></a>
 
 DWYU does not compile the code.
 It uses a preprocessor library to parse it and extract the relevant include statements.
@@ -27,7 +40,7 @@ If your project is impacted by those edge cases, you can try some mitigation str
 - You can use `--cxxopt=-DSomeMacro=42` to manually set the missing macro via Bazel to make it known to Bazel.
   This works best if you define a Bazel config for execution the DWYU aspect and make the cxxopt part of the config.
 
-## Missing preprocessor features
+## Missing preprocessor features<a name="missing-preprocessor-features"></a>
 
 If you are using the preprocessing modes `full` or `ignore_system_includes` code using the following cannot be processed properly:
 
@@ -49,7 +62,7 @@ If your project is impacted by those cases, you can try some mitigation strategi
   The include statements of files hitting an unsupported construct are then extracted like `preprocessing_mode = "fast"` does, while all other files are still preprocessed normally.
   If the aspect's `verbose` option is enabled, the preprocessing reports each file for which this fallback is used.
 
-## Specifying include paths via `copts` and similar
+## Specifying include paths via `copts` and similar<a name="specifying-include-paths-via-copts-and-similar"></a>
 
 Using the C/C++ rules attributes \[`copts`, `conlyopts`, `cxxopts`\] or the command line options \[`--copt`, `--copnlyopt`, `--cxxopt`\] to specify include paths is not supported.
 DWYU relies on the information in the `CcInfo` provider to analyze available include paths from dependencies, which does not include information provided via the copt options.
@@ -57,7 +70,7 @@ DWYU relies on the information in the `CcInfo` provider to analyze available inc
 If a targets has to define special include paths, it should use the proper Bazel API via the C/C++ rules attributes \[`includes`, `include_prefix`, `strip_include_prefix`\].
 Include paths specified by those attributes are respected by DWYU.
 
-## Framework includes
+## Framework includes<a name="framework-includes"></a>
 
 DWYU considers [framework includes](https://bazel.build/rules/lib/builtins/CompilationContext.html#framework_includes) like system headers or CC toolchain headers and thus does not process them.
 Meaning, DWYU assumes those are globally available without the need for explicit dependencies.
