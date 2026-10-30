@@ -1,0 +1,31 @@
+name: Sanitizer cache
+
+# Builds the sanitizer job from scratch on 'main' and stores the Bazel disk cache.
+# Pull requests cannot share caches among each other, but they can restore caches created on the default branch.
+# Thus, the sanitizer job in 'ci.yaml' restores the cache created here.
+# Caches not accessed for 7 days are evicted by GitHub, thus we refresh the cache weekly.
+
+on:
+  schedule:
+    # Every Thursday at 03:00 UTC
+    - cron: "0 3 * * 4"
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  create-cache:
+    # Caches created from other refs would not be usable by pull requests
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # No cache is restored on purpose. A fresh build keeps the stored cache free of stale entries and bounded in size.
+      - name: Build and test with sanitizers
+        run: bazel test --config=sanitize --disk_cache=$HOME/.cache/bazel-disk-cache //dwyu/...
+      # Cache entries are immutable. The run id makes the key unique, the restoring side uses a key prefix.
+      - name: Save Bazel disk cache
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/bazel-disk-cache
+          key: bazel-sanitizer-disk-cache-${{ runner.os }}-${{ github.run_id }}
