@@ -67,7 +67,7 @@ inline boost::wave::language_support getLanguageSupport(const std::string& cpp_s
     if (cpp_standard == "23") {
         return boost::wave::language_support::support_cpp23;
     }
-    if (cpp_standard == "26" || cpp_standard == "latest") {
+    if (cpp_standard == "26") {
         return boost::wave::language_support::support_cpp26;
     }
     abortWithError("Failed to configure preprocessing due to unsupported C++ standard '", cpp_standard, "'");

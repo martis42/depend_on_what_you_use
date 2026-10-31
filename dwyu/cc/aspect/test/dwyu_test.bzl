@@ -83,7 +83,7 @@ def _extract_cpp_standard_from_compiler_flags_test_impl(ctx):
 
     # MVSC variants
     asserts.equals(env, "23", extract_cpp_standard_from_compiler_flags(["/std:c++23preview"]))
-    asserts.equals(env, "latest", extract_cpp_standard_from_compiler_flags(["/std:c++latest"]))
+    asserts.equals(env, "26", extract_cpp_standard_from_compiler_flags(["/std:c++latest"]))
 
     # Unknown for bogus input
     asserts.equals(env, None, extract_cpp_standard_from_compiler_flags(["-std=foo"]))

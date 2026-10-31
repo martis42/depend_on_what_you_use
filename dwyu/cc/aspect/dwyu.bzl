@@ -31,6 +31,7 @@ _CPLUSPLUS_VERSIONS_MAP = {
 
 # While we are able to parse a wide range of version identifiers and associate them with specific c++ standards, our preprocessor is limited to specific versions.
 # Keep in sync to 'getLanguageSupport(..)' from dwyu/cc/aspect/private/preprocessing/wave/process_files.h
+# Keep this list sorted chronologically, the last entry is the default for 'latest'
 _SUPPORTED_CPP_STANDARDS = ["98", "03", "11", "14", "17", "20", "23", "26"]
 
 PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
@@ -280,9 +281,15 @@ def extract_cpp_standard_from_compiler_flags(compiler_flags):
         if "preview" in cpp_standard:
             cpp_standard = cpp_standard.replace("preview", "")
 
-        if cpp_standard.isdigit() or cpp_standard == "latest":
-            if cpp_standard == "03":
-                cpp_standard = "98"
+        if cpp_standard == "latest":
+            return _SUPPORTED_CPP_STANDARDS[-1]
+
+        if cpp_standard == "03":
+            # boost.wave has no dedicated C++03 mode.
+            # We use instead C++98 since it is the same on preprocessor level and C++03 has the same '__cplusplus' value like C++98.
+            return "98"
+
+        if cpp_standard.isdigit():
             return cpp_standard
 
         return _CPP_AMENDMENTS_VERSIONS_MAP.get(cpp_standard, None)
