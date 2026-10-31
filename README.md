@@ -116,7 +116,7 @@ Bugs we can reproduce via the CI workers with reasonable effort will be fixed.
 
 | Tool   | Constraints                                                                                                |
 | ------ | ---------------------------------------------------------------------------------------------------------- |
-| Python | Integration tests check 3.10.                                                                              |
+| Python | Integration tests check 3.11.                                                                              |
 | Bazel  | No known constraint. Integration tests check the Bazel version defined in [.bazelversion](/.bazelversion). |
 
 # Known limitations<a name="known-limitations"></a>

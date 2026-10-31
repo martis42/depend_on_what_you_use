@@ -57,7 +57,7 @@ bazel_dep(name = "stardoc", version = "0.8.1", dev_dependency = True)
 ###
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
-python.toolchain(python_version = "3.10")
+python.toolchain(python_version = "3.11")
 
 llvm = use_extension("@llvm//extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm.version(llvm_version = "22.1.8")

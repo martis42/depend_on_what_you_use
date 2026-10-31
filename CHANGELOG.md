@@ -24,6 +24,10 @@ How to read the changelog:
 
 ## Unreleased
 
+### BREAKING
+
+- Minimum required Python version is now 3.11.
+
 ### Fixed
 
 - [apply_fixes] No longer prevent finding missing direct dependencies by removing unused dependencies.
