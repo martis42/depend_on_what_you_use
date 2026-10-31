@@ -7,11 +7,11 @@ def boost_wave():
     # However, the boost::wave code is backwards compatible to the boost version we use.
     # We want to depend on an old boost to not force an update for clients using boost as well in their project.
     # Also, using an up to date version of boost::wave is important to get the latest bug fixes.
-    git_ref = "e947f3eab8a48bc77e15a49e41b626992e2aa001"
+    git_ref = "38465b8c966b582af128404c4c5e0b798d43c64e"
     maybe(
         http_archive,
         name = "boost.wave",
-        sha256 = "d821212f57010cc52d2caa2d72b54070024c98a32e0431cd13c60cb75bafd969",
+        sha256 = "32754de914c9bccc565a9d8c34e2535f2c9b9ebf6b0aacb02691cd59ff4fffc2",
         strip_prefix = "wave-" + git_ref,
         urls = ["https://github.com/boostorg/wave/archive/" + git_ref + ".tar.gz"],
         build_file = Label("//third_party/boost/wave:wave.BUILD"),

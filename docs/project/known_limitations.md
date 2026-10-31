@@ -52,7 +52,7 @@ If you are using the preprocessing modes `full` or `ignore_system_includes` code
 - C++20 `__cpp_*` macros for language features are not yet supported by boost wave
 - C++20 `__cpp_lib_*` macros for library features are not known since we don't parse the CC Toolchain headers and thus do not know about `<version>`
 - C++23 `#elifdef` is not yet supported by boost wave
-- C++26 and later are not yet supported by boost wave
+- C++26 `#embed` is not yet supported by boost wave
 
 If your project is impacted by those cases, you can try some mitigation strategies:
 
