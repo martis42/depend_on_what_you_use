@@ -35,6 +35,10 @@ _SUPPORTED_CPP_STANDARDS = ["98", "03", "11", "14", "17", "20", "23"]
 
 PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
 
+# Used for 'report_dep_without_headers'. Imaginary header associated with a
+# dependency so it is never matched.
+_DEP_WITHOUT_HEADERS_MARKER = "dwyu_nonexistent_dummy_header.hpp"
+
 def _is_verbose(ctx):
     return ctx.attr.dwyu_verbose
 
@@ -176,6 +180,8 @@ def _process_target(ctx, target, config, output_path, is_target_under_inspection
     args.add("--target", str(target.label))
     args.add("--output", processing_output)
     args.add_all("--header_files", header_files, expand_directories = True, omit_if_empty = False)
+    if not is_target_under_inspection and str(target.label) in ctx.attr._report_dep_without_headers:
+        args.add("--header_files", "{}/{}".format(target.label.package, _DEP_WITHOUT_HEADERS_MARKER))
     if is_target_under_inspection:
         args.add("--is_target_under_inspection")
     if _is_verbose(ctx):
