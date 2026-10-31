@@ -26,6 +26,7 @@ How to read the changelog:
 
 ### Fixed
 
+- [apply_fixes] No longer prevent finding missing direct dependencies by removing unused dependencies.
 - [target_mapping] Accept common rule attributes like visibility or tags.
 
 ### Added
