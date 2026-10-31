@@ -11,7 +11,7 @@ We deviate from this style by having a dedicated section for `BREAKING` breaking
 How to read the changelog:
 
 - `BREAKING`: Breaking changes to user facing behavior.
-  If a feature is marked as experimental or deprecated, we do not consider changes to it as breaking.
+  If a feature is marked as experimental, we do not consider changes to it as breaking.
 - `Removed`: Remove user facing functionality.
   We do not consider removing something with a drop in replacement with the same functionality as breaking change.
 - `Deprecated`: Mark existing user facing functionality as deprecated.
