@@ -30,6 +30,8 @@ How to read the changelog:
 
 ### Added
 
+- [aspect] Basic support for preprocessing C++26 code with DWYU option `preprocessing_mode` values `full` and `ignore_system_includes`.
+  Those modes can however not yet preprocess `#embed` directives.
 - [apply_fixes] Allow providing a custom Bazel binary via `--bazel`.
 
 ## [1.2.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.2.0) - 2026.10.23

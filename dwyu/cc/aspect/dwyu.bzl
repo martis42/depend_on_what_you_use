@@ -31,7 +31,7 @@ _CPLUSPLUS_VERSIONS_MAP = {
 
 # While we are able to parse a wide range of version identifiers and associate them with specific c++ standards, our preprocessor is limited to specific versions.
 # Keep in sync to 'getLanguageSupport(..)' from dwyu/cc/aspect/private/preprocessing/wave/process_files.h
-_SUPPORTED_CPP_STANDARDS = ["98", "03", "11", "14", "17", "20", "23"]
+_SUPPORTED_CPP_STANDARDS = ["98", "03", "11", "14", "17", "20", "23", "26"]
 
 PREPROCESSOR_MODES = ["full", "ignore_system_includes", "fast"]
 
