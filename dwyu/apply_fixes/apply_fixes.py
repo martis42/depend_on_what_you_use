@@ -89,14 +89,6 @@ def perform_fixes(
         target = content["analyzed_target"]
         buildozer_target = buildozer.adapt_target_to_platform(target)
 
-        if requested_fixes.remove_unused_deps:
-            if unused_deps := buildozer.adapt_targets_to_platform(content["unused_deps"]):
-                buildozer.execute(task=f"remove deps {' '.join(unused_deps)}", target=buildozer_target)
-            if unused_impl_deps := buildozer.adapt_targets_to_platform(content["unused_implementation_deps"]):
-                buildozer.execute(
-                    task=f"remove implementation_deps {' '.join(unused_impl_deps)}", target=buildozer_target
-                )
-
         if requested_fixes.move_private_deps_to_impl_deps:
             deps_which_should_be_private = buildozer.adapt_targets_to_platform(content["deps_which_should_be_private"])
             if deps_which_should_be_private:
@@ -125,6 +117,14 @@ def perform_fixes(
                 buildozer=buildozer,
                 use_impl_deps=content["use_implementation_deps"],
             )
+
+        if requested_fixes.remove_unused_deps:
+            if unused_deps := buildozer.adapt_targets_to_platform(content["unused_deps"]):
+                buildozer.execute(task=f"remove deps {' '.join(unused_deps)}", target=buildozer_target)
+            if unused_impl_deps := buildozer.adapt_targets_to_platform(content["unused_implementation_deps"]):
+                buildozer.execute(
+                    task=f"remove implementation_deps {' '.join(unused_impl_deps)}", target=buildozer_target
+                )
 
 
 def main(args: Namespace) -> int:

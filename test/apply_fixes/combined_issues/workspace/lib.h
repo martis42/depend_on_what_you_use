@@ -1,0 +1,8 @@
+#ifndef COMBINED_ISSUES_WORKSPACE_LIB_H
+#define COMBINED_ISSUES_WORKSPACE_LIB_H
+
+int doSth() {
+    return 0;
+}
+
+#endif // COMBINED_ISSUES_WORKSPACE_LIB_H

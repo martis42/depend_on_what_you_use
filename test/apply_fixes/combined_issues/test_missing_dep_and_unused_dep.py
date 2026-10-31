@@ -1,0 +1,24 @@
+from test.apply_fixes.test_case import TestCaseBase
+from test.support.result import Result, Success
+
+
+class TestCase(TestCaseBase):
+    @property
+    def test_target(self) -> str:
+        return "//combined_issues/workspace:use_transitive_dep"
+
+    def execute_test_logic(self) -> Result:
+        self._create_reports(aspect="//combined_issues/workspace:aspect.bzl%dwyu")
+        self._run_automatic_fix(extra_args=["--fix-all"])
+
+        target_deps = self._get_target_deps(self.test_target)
+        target_implementation_deps = self._get_target_impl_deps(self.test_target)
+        expected_deps = {"//combined_issues/workspace:lib"}
+        if expected_deps != target_deps:
+            return self._make_unexpected_deps_error(
+                expected_deps=expected_deps,
+                expected_implementation_deps=set(),
+                actual_deps=target_deps,
+                actual_implementation_deps=target_implementation_deps,
+            )
+        return Success()
