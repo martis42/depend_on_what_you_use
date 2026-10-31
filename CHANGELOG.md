@@ -24,6 +24,10 @@ How to read the changelog:
 
 ## Unreleased
 
+### BREAKING
+
+- Minimum required Python version is now 3.11.
+
 ### Fixed
 
 - [target_mapping] Accept common rule attributes like visibility or tags.

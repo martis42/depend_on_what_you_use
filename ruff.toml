@@ -5,7 +5,7 @@ exclude = [
 line-length = 120
 indent-width = 4
 # Minimum Python version which we support
-target-version = "py310"
+target-version = "py311"
 
 [format]
 quote-style = "double"
