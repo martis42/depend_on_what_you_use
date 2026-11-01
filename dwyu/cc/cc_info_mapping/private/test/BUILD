@@ -1,10 +1,12 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
+load("//dwyu/cc/cc_info_mapping/private:direct_deps_greedily.bzl", "mapping_to_direct_deps_greedily")
 load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps_greedily.bzl", "mapping_to_transitive_deps_greedily")
 load(":custom_rules.bzl", "cc_info_with_custom_deps", "cc_info_with_unmerged_custom_deps")
+load(":direct_deps_greedily_test.bzl", "direct_deps_greedily_test_suite")
 load(":direct_deps_test.bzl", "direct_deps_test_suite")
 load(":explicit_deps_test.bzl", "explicit_deps_test_suite")
 load(":explicit_mapping_test.bzl", "explicit_mapping_test_suite")
@@ -17,6 +19,8 @@ load(":transitive_deps_test.bzl", "transitive_deps_test_suite")
 #
 
 direct_deps_test_suite(name = "direct_deps_tests")
+
+direct_deps_greedily_test_suite(name = "direct_deps_greedily_tests")
 
 explicit_mapping_test_suite(name = "explicit_mapping_tests")
 
@@ -49,6 +53,26 @@ mapping_to_direct_deps(
     name = "mapping_to_direct_deps_with_filter",
     filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_1")],
     target = ":lib_with_two_deps",
+)
+
+#
+# Greedy direct dependency mappings
+#
+
+mapping_to_direct_deps_greedily(
+    name = "mapping_to_direct_deps_greedily",
+    target = ":custom_cc_info_with_unmerged_custom_deps",
+)
+
+mapping_to_direct_deps_greedily(
+    name = "mapping_to_direct_deps_greedily_with_impl_dep",
+    target = ":lib_with_impl_dep",
+)
+
+mapping_to_direct_deps_greedily(
+    name = "mapping_to_direct_deps_greedily_with_filter",
+    filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:extra_dep")],
+    target = ":custom_cc_info_with_unmerged_custom_deps",
 )
 
 #

@@ -16,6 +16,7 @@ def _cc_info_dependencies(rule_attrs):
     dependencies = []
     for attr_name in dir(rule_attrs):
         if attr_name == "implementation_deps":
+            # We deliberately ignore implementation_deps since headers provided by them shall by design not be used by consumers of the target.
             continue
         attr_value = getattr(rule_attrs, attr_name)
         if type(attr_value) == "Target":
