@@ -8,6 +8,7 @@ bzl_library(
         "explicit_deps.bzl",
         "providers.bzl",
         "transitive_deps.bzl",
+        "transitive_deps_greedily.bzl",
     ],
     visibility = ["//dwyu/cc/cc_info_mapping:__pkg__"],
     deps = ["@rules_cc//cc/common"],

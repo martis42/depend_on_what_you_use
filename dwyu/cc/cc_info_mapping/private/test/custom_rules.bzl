@@ -29,3 +29,16 @@ cc_info_with_custom_deps = rule(
         "single_dep": attr.label(providers = [CcInfo]),
     },
 )
+
+def _cc_info_with_unmerged_custom_deps_impl(ctx):
+    return [CcInfo(compilation_context = cc_common.create_compilation_context(headers = depset(ctx.files.hdrs)))]
+
+cc_info_with_unmerged_custom_deps = rule(
+    implementation = _cc_info_with_unmerged_custom_deps_impl,
+    provides = [CcInfo],
+    attrs = {
+        "hdrs": attr.label_list(allow_files = [".h"]),
+        "multiple_deps": attr.label_list(providers = [CcInfo]),
+        "single_dep": attr.label(providers = [CcInfo]),
+    },
+)

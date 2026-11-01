@@ -38,6 +38,8 @@ How to read the changelog:
 - [aspect] Basic support for preprocessing C++26 code with DWYU option `preprocessing_mode` values `full` and `ignore_system_includes`.
   Those modes can however not yet preprocess `#embed` directives.
 - [apply_fixes] Allow providing a custom Bazel binary via `--bazel`.
+- [target_mapping] Add `MAP_TRANSITIVE_DEPS_GREEDILY` to recursively map `CcInfo`-providing dependencies found through all rule attributes.
+  Besides following all rule attributes instead of just `deps`, it behaves like `MAP_TRANSITIVE_DEPS`, including the filtering feature.
 
 ## [1.2.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.2.0) - 2026.10.23
 
