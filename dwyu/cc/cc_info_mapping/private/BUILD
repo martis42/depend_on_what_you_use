@@ -4,6 +4,7 @@ bzl_library(
     name = "cc_info_mapping_impl_bzl",
     srcs = [
         "direct_deps.bzl",
+        "direct_deps_greedily.bzl",
         "explicit.bzl",
         "explicit_deps.bzl",
         "providers.bzl",

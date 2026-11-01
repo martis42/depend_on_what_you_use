@@ -6,6 +6,7 @@ load("//dwyu/cc/aspect:factory.bzl", _dwyu_cc_aspect_factory = "dwyu_cc_aspect_f
 load(
     "//dwyu/cc/cc_info_mapping:cc_info_mapping.bzl",
     _MAP_DIRECT_DEPS = "MAP_DIRECT_DEPS",
+    _MAP_DIRECT_DEPS_GREEDILY = "MAP_DIRECT_DEPS_GREEDILY",
     _MAP_EXPLICIT_DEPS = "MAP_EXPLICIT_DEPS",
     _MAP_TRANSITIVE_DEPS = "MAP_TRANSITIVE_DEPS",
     _MAP_TRANSITIVE_DEPS_GREEDILY = "MAP_TRANSITIVE_DEPS_GREEDILY",
@@ -16,6 +17,7 @@ dwyu_cc_aspect_factory = _dwyu_cc_aspect_factory
 
 dwyu_make_cc_info_mapping = _dwyu_make_cc_info_mapping
 MAP_DIRECT_DEPS = _MAP_DIRECT_DEPS
+MAP_DIRECT_DEPS_GREEDILY = _MAP_DIRECT_DEPS_GREEDILY
 MAP_EXPLICIT_DEPS = _MAP_EXPLICIT_DEPS
 MAP_TRANSITIVE_DEPS = _MAP_TRANSITIVE_DEPS
 MAP_TRANSITIVE_DEPS_GREEDILY = _MAP_TRANSITIVE_DEPS_GREEDILY

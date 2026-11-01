@@ -24,6 +24,7 @@ Then a test can specify only the dependency to `@com_google_googletest//:gtest_m
 """
 
 load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
+load("//dwyu/cc/cc_info_mapping/private:direct_deps_greedily.bzl", "mapping_to_direct_deps_greedily")
 load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
@@ -33,6 +34,7 @@ load("//dwyu/private:utils.bzl", "label_to_name", "make_private_kwargs")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
+MAP_DIRECT_DEPS_GREEDILY = "__DWYU_MAP_DIRECT_DEPS_GREEDILY__"
 MAP_EXPLICIT_DEPS = "__DWYU_MAP_EXPLICIT_DEPS__"
 MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
 MAP_TRANSITIVE_DEPS_GREEDILY = "__DWYU_MAP_TRANSITIVE_DEPS_GREEDILY__"
@@ -97,6 +99,9 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                    Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies.
                    Using `MAP_DIRECT_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all direct dependencies.
                    This legacy behavior will be removed in a future release.<br>
+                 - The `MAP_DIRECT_DEPS_GREEDILY` mode behaves like `MAP_DIRECT_DEPS` but inspects all rule attributes instead of just the `deps` attribute.
+                   There is one exception: the `implementation_deps` attribute is ignored.
+                   This mode allows processing custom rules not using the `deps` attribute to declare their dependencies.<br>
                  - The `MAP_TRANSITIVE_DEPS` mode tells the rule to map direct dependencies including their transitive dependencies to the main target.
                    Choose `all` to automatically map all dependencies.
                    Provide a list of strings with canonical target names to limit the mapping to a subset of direct dependencies for which the transitive dependencies are mapped as well.
@@ -154,6 +159,13 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_DIRECT_DEPS),
+                    **private_kwargs
+                )
+            elif [MAP_DIRECT_DEPS_GREEDILY] == map_to.keys():
+                mapping_to_direct_deps_greedily(
+                    name = mapping_action,
+                    target = target,
+                    filter = _extract_mapping_value(target, map_to, MAP_DIRECT_DEPS_GREEDILY),
                     **private_kwargs
                 )
             elif [MAP_TRANSITIVE_DEPS] == map_to.keys():
