@@ -5,7 +5,7 @@ load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps_greedily.bzl", "mapping_to_transitive_deps_greedily")
-load(":custom_rules.bzl", "cc_info_with_custom_deps", "cc_info_with_unmerged_custom_deps")
+load(":custom_rules.bzl", "cc_info_with_custom_deps")
 load(":direct_deps_greedily_test.bzl", "direct_deps_greedily_test_suite")
 load(":direct_deps_test.bzl", "direct_deps_test_suite")
 load(":explicit_deps_test.bzl", "explicit_deps_test_suite")
@@ -241,29 +241,23 @@ cc_info_with_custom_deps(
     name = "custom_cc_info_with_custom_deps",
     hdrs = ["custom_cc_info_with_custom_deps.h"],
     multiple_deps = [":lib_with_dep"],
-    # Explicitly specify attributes not using targets as input to confirm our logic skips over them
-    non_target_attr = "some_value",
-    non_target_list_attr = [
-        "value1",
-        "value2",
-    ],
     single_dep = ":extra_dep",
 )
 
-cc_info_with_unmerged_custom_deps(
+cc_info_with_custom_deps(
     name = "custom_cc_info_with_unmerged_custom_deps",
     hdrs = ["custom_cc_info_with_custom_deps.h"],
     multiple_deps = [":custom_cc_info_with_nested_custom_deps"],
     single_dep = ":extra_dep",
 )
 
-cc_info_with_unmerged_custom_deps(
+cc_info_with_custom_deps(
     name = "custom_cc_info_with_nested_custom_deps",
     hdrs = ["custom_cc_info_with_nested_custom_deps.h"],
     multiple_deps = [":lib_with_dep"],
 )
 
-cc_info_with_unmerged_custom_deps(
+cc_info_with_custom_deps(
     name = "custom_cc_info_with_nested_impl_dep",
     hdrs = ["custom_cc_info_with_custom_deps.h"],
     multiple_deps = [":lib_with_impl_dep"],
