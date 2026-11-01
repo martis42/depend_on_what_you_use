@@ -12,9 +12,9 @@ class TestCase(TestCaseBase):
         generated_file = generated_sources_prefix + "/" + "tree_artifact/sources.cc/tree_lib.cc"
 
         target = "//tree_artifact:tree_artifact_library"
+        actual = self._run_dwyu(target=target, aspect=self.default_aspect)
         expected = ExpectedFailure(
             [ExpectedDwyuFailure(target=target, invalid_includes={generated_file: ["tree_artifact/some_lib.h"]})]
         )
-        actual = self._run_dwyu(target=target, aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=expected)

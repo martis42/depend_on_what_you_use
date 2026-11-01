@@ -12,9 +12,9 @@ class TestCase(TestCaseBase):
         This makes sure the fallback is really opt-in and documents the behavior users get by default.
         """
         target = "//preprocessing/fallback:breaking_preprocessor"
+        actual = self._run_dwyu(target=target, aspect="//preprocessing:aspect.bzl%dwyu_full")
         expected = ExpectedFailure(
             ExpectedDwyuFailure(target=target, unused_public_deps=["//preprocessing/support:lib_a"])
         )
-        actual = self._run_dwyu(target=target, aspect="//preprocessing:aspect.bzl%dwyu_full")
 
         return self._check_result(actual=actual, expected=expected)

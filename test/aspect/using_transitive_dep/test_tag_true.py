@@ -7,6 +7,12 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         target = "//using_transitive_dep:main_with_tag_opt_in"
+        actual = self._run_dwyu(
+            target=target,
+            aspect=self.default_aspect,
+            # Disable the check for using transitive deps globally, so this can only fail as expected due to activating the check via a tag on the target.
+            extra_args=["--aspects_parameters=dwyu_analysis_reports_missing_direct_deps=False"],
+        )
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
                 target=target,
@@ -17,12 +23,6 @@ class TestCase(TestCaseBase):
                     ]
                 },
             )
-        )
-        actual = self._run_dwyu(
-            target=target,
-            aspect=self.default_aspect,
-            # Disable the check for using transitive deps globally, so this can only fail as expected due to activating the check via a tag on the target.
-            extra_args=["--aspects_parameters=dwyu_analysis_reports_missing_direct_deps=False"],
         )
 
         return self._check_result(actual=actual, expected=expected)
