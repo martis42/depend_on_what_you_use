@@ -1,5 +1,5 @@
-load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
+load(":common.bzl", "cc_info_deps_from_all_attrs", "create_remapped_cc_info")
 load(":providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/...")
@@ -16,18 +16,9 @@ def _dict_diff(lhs, rhs):
 
 def _gather_compilation_context_from_deps_aspect_impl(target, ctx):
     targets_to_compilation_context = {target.label: target[CcInfo].compilation_context}
-    for attr_name in dir(ctx.rule.attr):
-        attr_value = getattr(ctx.rule.attr, attr_name)
-        if type(attr_value) == "Target":
-            dependencies = [attr_value]
-        elif type(attr_value) == "list":
-            dependencies = [dependency for dependency in attr_value if type(dependency) == "Target"]
-        else:
-            continue
-
-        for dependency in dependencies:
-            if _DwyuExplicitTargetsCcInfo in dependency:
-                targets_to_compilation_context.update(dependency[_DwyuExplicitTargetsCcInfo].targets_to_compilation_context)
+    for dependency in cc_info_deps_from_all_attrs(ctx.rule.attr, skip_impl_deps = False):
+        if _DwyuExplicitTargetsCcInfo in dependency:
+            targets_to_compilation_context.update(dependency[_DwyuExplicitTargetsCcInfo].targets_to_compilation_context)
 
     return _DwyuExplicitTargetsCcInfo(targets_to_compilation_context = targets_to_compilation_context)
 
@@ -43,7 +34,7 @@ def _mapping_to_transitive_deps_impl(ctx):
     targets_cc = ctx.attr.target[_DwyuExplicitTargetsCcInfo]
 
     matched_targets = {}
-    selected_compilation_contexts = [ctx.attr.target[CcInfo].compilation_context]
+    selected_compilation_contexts = []
     if ctx.attr.mapped_targets:
         for label, compilation_context in targets_cc.targets_to_compilation_context.items():
             if str(label) in ctx.attr.mapped_targets:
@@ -53,16 +44,9 @@ def _mapping_to_transitive_deps_impl(ctx):
     if len(matched_targets) != len(ctx.attr.mapped_targets):
         fail("Some 'mapped_targets' were not found in the dependency tree: {}".format(_dict_diff(ctx.attr.mapped_targets, matched_targets).keys()))
 
-    aggregated_compilation_context = cc_common.merge_compilation_contexts(
-        compilation_contexts = selected_compilation_contexts,
-    )
-
-    return DwyuRemappedCcInfo(
-        target = ctx.attr.target.label,
-        cc_info = CcInfo(
-            compilation_context = aggregated_compilation_context,
-            linking_context = ctx.attr.target[CcInfo].linking_context,
-        ),
+    return create_remapped_cc_info(
+        target = ctx.attr.target,
+        mapped_compilation_contexts = selected_compilation_contexts,
     )
 
 mapping_to_explicit_deps = rule(
