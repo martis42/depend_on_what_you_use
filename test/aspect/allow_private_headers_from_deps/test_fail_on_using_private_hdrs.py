@@ -6,6 +6,9 @@ from test.support.result import Result
 
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
+        actual = self._run_dwyu(
+            target="//allow_private_headers_from_deps:use_private_headers_from_deps", aspect=self.default_aspect
+        )
         # We are not seeing unused dependency errors because DWYU thinks the dependencies offer not headers at all and thus prunes them early in the analysis
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
@@ -19,9 +22,6 @@ class TestCase(TestCaseBase):
                     ],
                 },
             )
-        )
-        actual = self._run_dwyu(
-            target="//allow_private_headers_from_deps:use_private_headers_from_deps", aspect=self.default_aspect
         )
 
         return self._check_result(actual=actual, expected=expected)

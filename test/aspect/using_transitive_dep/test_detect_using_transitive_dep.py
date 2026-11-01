@@ -7,6 +7,7 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         target = "//using_transitive_dep:main"
+        actual = self._run_dwyu(target=target, aspect=self.default_aspect)
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
                 target=target,
@@ -18,6 +19,5 @@ class TestCase(TestCaseBase):
                 },
             )
         )
-        actual = self._run_dwyu(target=target, aspect=self.default_aspect)
 
         return self._check_result(actual=actual, expected=expected)

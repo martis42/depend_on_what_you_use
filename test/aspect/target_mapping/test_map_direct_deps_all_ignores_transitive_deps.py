@@ -7,6 +7,9 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         target = "//target_mapping:use_lib_b_and_ext_b"
+        actual = self._run_dwyu(
+            target=target, aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_direct_deps_all")
+        )
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
                 target=target,
@@ -14,9 +17,6 @@ class TestCase(TestCaseBase):
                 # We see an unused dependency error because we use none of the headers mapped into //target_mapping/libs:mapped_dep
                 unused_public_deps=["//target_mapping/libs:mapped_dep"],
             )
-        )
-        actual = self._run_dwyu(
-            target=target, aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_direct_deps_all")
         )
 
         return self._check_result(actual=actual, expected=expected)

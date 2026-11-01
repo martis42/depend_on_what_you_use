@@ -11,9 +11,9 @@ class TestCase(TestCaseBase):
         A genuinely unused dependency has to be reported even when the fallback is active for the analyzed source file.
         """
         target = "//preprocessing/fallback:breaking_preprocessor_with_unused_dep"
+        actual = self._run_dwyu(target=target, aspect="//preprocessing:aspect.bzl%dwyu_fallback")
         expected = ExpectedFailure(
             ExpectedDwyuFailure(target=target, unused_public_deps=["//preprocessing/support:lib_b"])
         )
-        actual = self._run_dwyu(target=target, aspect="//preprocessing:aspect.bzl%dwyu_fallback")
 
         return self._check_result(actual=actual, expected=expected)
