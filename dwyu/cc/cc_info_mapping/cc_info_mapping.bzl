@@ -28,12 +28,14 @@ load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
+load("//dwyu/cc/cc_info_mapping/private:transitive_deps_greedily.bzl", "mapping_to_transitive_deps_greedily")
 load("//dwyu/private:utils.bzl", "label_to_name", "make_private_kwargs")
 load(":providers.bzl", "DwyuCcInfoMappingInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
 MAP_EXPLICIT_DEPS = "__DWYU_MAP_EXPLICIT_DEPS__"
 MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
+MAP_TRANSITIVE_DEPS_GREEDILY = "__DWYU_MAP_TRANSITIVE_DEPS_GREEDILY__"
 
 def _make_remapping_info_impl(ctx):
     return DwyuCcInfoMappingInfo(mapping = {
@@ -101,6 +103,9 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                    Meaning, only direct dependencies are valid entries in the filter list.
                    Using `MAP_TRANSITIVE_DEPS` as single value without providing `all` or a filter list is the legacy behavior falling back to mapping all dependencies.
                    This legacy behavior will be removed in a future release.<br>
+                 - The `MAP_TRANSITIVE_DEPS_GREEDILY` mode behaves like the `MAP_TRANSITIVE_DEPS` mode but applies to all rule attributes, not just the `deps` attribute.
+                   There is one exception: the `implementation_deps` attribute is not traversed to not break the rules_cc design.
+                   This mode allows processing custom rules not using the `deps` attribute to declare their dependencies.<br>
                  - The `MAP_EXPLICIT_DEPS` mode tells the rule to map a list of CcInfo-providing targets to the main target.
                    The list has to use the canonical target names and the targets have to be from the dependency tree of the main target.
                    For this mapping rule, the dependency tree is not just defined by the `deps` attribute of the rules_cc rules.
@@ -156,6 +161,13 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                     name = mapping_action,
                     target = target,
                     filter = _extract_mapping_value(target, map_to, MAP_TRANSITIVE_DEPS),
+                    **private_kwargs
+                )
+            elif [MAP_TRANSITIVE_DEPS_GREEDILY] == map_to.keys():
+                mapping_to_transitive_deps_greedily(
+                    name = mapping_action,
+                    target = target,
+                    filter = _extract_mapping_value(target, map_to, MAP_TRANSITIVE_DEPS_GREEDILY),
                     **private_kwargs
                 )
             elif [MAP_EXPLICIT_DEPS] == map_to.keys():
