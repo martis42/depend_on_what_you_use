@@ -115,14 +115,14 @@ mapping_to_transitive_deps_greedily(
 )
 
 mapping_to_transitive_deps_greedily(
-    name = "mapping_to_transitive_deps_greedily_with_filter",
-    filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:extra_dep")],
-    target = ":custom_cc_info_with_unmerged_custom_deps",
+    name = "mapping_to_transitive_deps_greedily_with_nested_impl_dep",
+    target = ":custom_cc_info_with_nested_impl_dep",
 )
 
 mapping_to_transitive_deps_greedily(
-    name = "mapping_to_transitive_deps_greedily_with_nested_impl_dep",
-    target = ":custom_cc_info_with_nested_impl_dep",
+    name = "mapping_to_transitive_deps_greedily_with_filter",
+    filter = [to_canonical("//dwyu/cc/cc_info_mapping/private/test:extra_dep")],
+    target = ":custom_cc_info_with_unmerged_custom_deps",
 )
 
 #
