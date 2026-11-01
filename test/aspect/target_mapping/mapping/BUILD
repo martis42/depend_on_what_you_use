@@ -46,6 +46,11 @@ dwyu_make_cc_info_mapping(
 dwyu_make_cc_info_mapping(
     name = "map_explicit_deps",
     mapping = {
+        "//target_mapping/libs:mapped_custom_dep": {MAP_EXPLICIT_DEPS: [
+            to_canonical("//target_mapping/libs:a"),
+            # Test we don't require visibility on this target
+            to_canonical("@target_mapping_test_repo//:ext_b"),
+        ]},
         "//target_mapping/libs:mapped_dep": {MAP_EXPLICIT_DEPS: [
             to_canonical("//target_mapping/libs:a"),
             # Test we don't require visibility on this target
@@ -71,6 +76,7 @@ dwyu_make_cc_info_mapping(
 dwyu_make_cc_info_mapping(
     name = "map_transitive_deps_greedily_all",
     mapping = {
+        "//target_mapping/libs:mapped_custom_dep": {MAP_TRANSITIVE_DEPS_GREEDILY: "all"},
         "//target_mapping/libs:mapped_dep": {MAP_TRANSITIVE_DEPS_GREEDILY: "all"},
     },
 )

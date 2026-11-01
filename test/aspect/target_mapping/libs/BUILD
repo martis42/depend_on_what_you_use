@@ -1,5 +1,6 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_shell//shell:sh_library.bzl", "sh_library")
+load(":custom_rule.bzl", "custom_lib")
 
 cc_library(
     name = "mapped_dep",
@@ -34,4 +35,18 @@ cc_library(
 sh_library(
     name = "non_cc_thing",
     srcs = ["non_cc_thing.sh"],
+)
+
+cc_library(
+    name = "mapped_custom_dep",
+    visibility = ["//target_mapping:__subpackages__"],
+    deps = [":custom_dep"],
+)
+
+custom_lib(
+    name = "custom_dep",
+    custom_deps = [
+        ":a",
+        "@target_mapping_test_repo//:ext_a",
+    ],
 )
