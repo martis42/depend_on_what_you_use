@@ -3,6 +3,7 @@ load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
 
+# TODO When removing this legacy approach, also remove visibility from mapped targets
 dwyu_make_cc_info_mapping(
     name = "map_specific_deps",
     mapping = {
