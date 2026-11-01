@@ -10,6 +10,7 @@ class TestCase(TestCaseBase):
             target=[
                 "//target_mapping:use_lib_a_and_ext_a",
                 "//target_mapping:use_lib_a_and_ext_a_privately",
+                "//target_mapping:use_lib_a_b_and_ext_b_with_custom_rule",
                 "//target_mapping:use_lib_b_and_ext_b",
             ],
             aspect=self.choose_aspect("//target_mapping:aspect.bzl%map_transitive_deps_greedily_all"),

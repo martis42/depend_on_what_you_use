@@ -27,3 +27,10 @@ cc_binary(
     srcs = ["use_lib_b_and_ext_b.cpp"],
     deps = ["//target_mapping/libs:mapped_dep"],
 )
+
+# Same as 'use_lib_a_b_and_ext_b' but provides dependencies over custom rules
+cc_binary(
+    name = "use_lib_a_b_and_ext_b_with_custom_rule",
+    srcs = ["use_lib_a_b_and_ext_b.cpp"],
+    deps = ["//target_mapping/libs:mapped_custom_dep"],
+)
