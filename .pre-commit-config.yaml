@@ -55,7 +55,7 @@ repos:
     # https://github.com/astral-sh/ty-pre-commit/issues/30
     # https://github.com/astral-sh/uv/pull/21777
     # are available
-    rev: v0.0.75
+    rev: v0.0.89
     hooks:
       - id: ty
         args: [--isolated]
