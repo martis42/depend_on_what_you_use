@@ -58,6 +58,9 @@ test:sanitize --compilation_mode=dbg
 test:sanitize --@llvm//config:asan=true
 test:sanitize --@llvm//config:lsan=true
 test:sanitize --@llvm//config:ubsan=true
+# Avoid linking the standalone UBSan C++ runtime into shared libraries.
+# They references sanitizer internals that the executable's ASan runtime does not export.
+test:sanitize --dynamic_mode=off
 # We want to use 'implicit-conversion', but can't due to boost::regex failing this.
 test:sanitize --cxxopt=-fsanitize=undefined,float-divide-by-zero,unsigned-integer-overflow,local-bounds,vptr,nullability
 test:sanitize --cxxopt=-fno-sanitize-recover=all
@@ -65,8 +68,6 @@ test:sanitize --cxxopt=-O0
 test:sanitize --cxxopt=-g
 test:sanitize --cxxopt=-fno-omit-frame-pointer
 test:sanitize --cxxopt=-fno-sanitize-merge
-# The toolchain links with '-nostdlib++', which skips the sanitizer C++ runtimes needed by e.g. the vptr check
-test:sanitize --linkopt=-fsanitize-link-c++-runtime
 # The asan runtime of hermetic-llvm does not contain the ubsan vptr support clang expects there
 test:sanitize --linkopt=-lclang_rt.ubsan_standalone_cxx
 test:sanitize --action_env="print_stacktrace=1"
