@@ -1,15 +1,8 @@
-load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
+load(":common.bzl", "DwyuDirectDepsCcInfo", "create_remapped_cc_info", "filter_compilation_contexts")
 load(":providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/...")
-
-_DwyuDirectDepsCcInfo = provider(
-    "Compilation contexts of dependencies, to be filtered and merged by the rule using this aspect.",
-    fields = {
-        "deps_to_compilation_context": "Dictionary mapping the Label of a dependency to its CcInfo.compilation_context",
-    },
-)
 
 def _aggregate_direct_deps_aspect_impl(_, ctx):
     """
@@ -24,31 +17,20 @@ def _aggregate_direct_deps_aspect_impl(_, ctx):
         if CcInfo in dep
     }
 
-    return _DwyuDirectDepsCcInfo(deps_to_compilation_context = dep_compilation_contexts)
+    return DwyuDirectDepsCcInfo(deps_to_compilation_context = dep_compilation_contexts)
 
 _aggregate_direct_deps_aspect = aspect(
     implementation = _aggregate_direct_deps_aspect_impl,
-    provides = [_DwyuDirectDepsCcInfo],
+    provides = [DwyuDirectDepsCcInfo],
     attr_aspects = [],
 )
 
 def _mapping_to_direct_deps_impl(ctx):
-    deps_cc = ctx.attr.target[_DwyuDirectDepsCcInfo]
-
-    selected_compilation_contexts = [ctx.attr.target[CcInfo].compilation_context]
-    for label, compilation_context in deps_cc.deps_to_compilation_context.items():
-        if not ctx.attr.filter or str(label) in ctx.attr.filter:
-            selected_compilation_contexts.append(compilation_context)
-
-    aggregated_compilation_context = cc_common.merge_compilation_contexts(
-        compilation_contexts = selected_compilation_contexts,
-    )
-
-    return DwyuRemappedCcInfo(
-        target = ctx.attr.target.label,
-        cc_info = CcInfo(
-            compilation_context = aggregated_compilation_context,
-            linking_context = ctx.attr.target[CcInfo].linking_context,
+    return create_remapped_cc_info(
+        target = ctx.attr.target,
+        mapped_compilation_contexts = filter_compilation_contexts(
+            deps_to_compilation_context = ctx.attr.target[DwyuDirectDepsCcInfo].deps_to_compilation_context,
+            label_filter = ctx.attr.filter,
         ),
     )
 
