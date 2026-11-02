@@ -39,6 +39,7 @@ def dwyu_cc_aspect_factory(
         preprocessing_mode = "fast",
         recursive = False,
         recursion_stops_on_skip = False,
+        report_dep_without_headers = [],
         skip_external_targets = False,
         skip_features = [],
         skip_tags = _DEFAULT_SKIPPED_TAGS,
@@ -146,6 +147,11 @@ def dwyu_cc_aspect_factory(
 
         recursion_stops_on_skip: If `True`, skipping a target will also stop the recursive analysis of its dependencies.
                                  This does not just influence the behavior of the `skip_*` options, but also skipping to inbuilt logic (e.g. skipping incompatible rule types).
+
+        report_dep_without_headers: Dependencies which are reported as unused although they offer no header files.
+                                    Such dependencies are by default not analyzed, since a dependency can offer only a library to link against.
+                                    This can be useful for an aggregate target existing only to group other targets to provide the dependency closure DWYU needs to identify the
+                                    target that provides a header.
 
         skip_external_targets: Sometimes external dependencies are not our under control and thus analyzing them is of little value.
                                If this flag is True, DWYU will automatically skip all targets from external workspaces.
@@ -267,6 +273,9 @@ def dwyu_cc_aspect_factory(
             ),
             "_recursive": attr.bool(
                 default = recursive,
+            ),
+            "_report_dep_without_headers": attr.string_list(
+                default = [str(dep) for dep in report_dep_without_headers],
             ),
             "_skip_external_targets": attr.bool(
                 default = skip_external_targets,
