@@ -21,6 +21,15 @@ repos:
         exclude: ^docs/api/.*.md$
       - id: trailing-whitespace
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+        additional_dependencies:
+          # actionlint has a shellcheck integration which is silently skipped unless shellcheck is installed
+          # Having it as an additional dependency ensures the integration works correctly without dependency on the host system
+          - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
+
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
