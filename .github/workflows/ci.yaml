@@ -65,7 +65,7 @@ jobs:
           restore-keys: bazel-sanitizer-disk-cache-${{ runner.os }}-
           fail-on-cache-miss: false
       - name: Execute sanitizers
-        run: bazel test --config=sanitize --disk_cache=$HOME/.cache/bazel-disk-cache //dwyu/...
+        run: bazel test --config=sanitize --disk_cache="${HOME}/.cache/bazel-disk-cache" //dwyu/...
 
   integration-tests-workspace_integration:
     runs-on: ubuntu-24.04
