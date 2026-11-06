@@ -16,6 +16,10 @@ cc_info_with_custom_deps = rule(
     attrs = {
         "hdrs": attr.label_list(allow_files = [".h"]),
         "multiple_deps": attr.label_list(providers = [CcInfo]),
+        "non_cc_label_attr": attr.label(
+            allow_files = True,
+            doc = "Label attribute whose target does not provide CcInfo. Prove we automatically ignore label attributes not providing CcInfo",
+        ),
         "non_target_attr": attr.string(default = "Prove we automatically ignore attributes not providing CcInfo"),
         "non_target_list_attr": attr.string_list(default = ["Prove", "we", "automatically", "ignore", "attributes", "not", "providing", "CcInfo"]),
         "single_dep": attr.label(providers = [CcInfo]),
