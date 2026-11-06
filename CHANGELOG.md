@@ -32,6 +32,7 @@ How to read the changelog:
 
 - [apply_fixes] No longer prevent finding missing direct dependencies by removing unused dependencies.
 - [target_mapping] Accept common rule attributes like visibility or tags.
+- [target_mapping] Avoid analysis failures when transitive dependency mapping encounters non-C++ targets or files in a `deps` attribute of a custom rule.
 
 ### Added
 

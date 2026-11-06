@@ -12,14 +12,8 @@ def _aggregate_transitive_deps_aspect_impl(target, ctx):
     deps_remapped_cc_info = {
         dep.label: dep[DwyuTransitiveDepsCcInfo].compilation_context
         for dep in getattr(ctx.rule.attr, "deps", [])
+        if DwyuTransitiveDepsCcInfo in dep
     }
-
-    # 'cc_*' targets can depend on things like sh_library not providing CcInfo at all
-    if CcInfo not in target:
-        return DwyuTransitiveDepsCcInfo(
-            compilation_context = cc_common.create_compilation_context(),
-            deps_to_compilation_context = deps_remapped_cc_info,
-        )
 
     aggregated_compilation_context = cc_common.merge_compilation_contexts(
         compilation_contexts = [target[CcInfo].compilation_context] + deps_remapped_cc_info.values(),
@@ -33,6 +27,7 @@ def _aggregate_transitive_deps_aspect_impl(target, ctx):
 _aggregate_transitive_deps_aspect = aspect(
     implementation = _aggregate_transitive_deps_aspect_impl,
     provides = [DwyuTransitiveDepsCcInfo],
+    required_providers = [CcInfo],
     # We deliberately ignore implementation_deps since headers provided by them shall by design not be used by consumers of the target
     attr_aspects = ["deps"],
 )

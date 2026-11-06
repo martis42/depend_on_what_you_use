@@ -40,6 +40,18 @@ def _non_cc_dep_is_skipped_test_impl(ctx):
 
 non_cc_dep_is_skipped_test = analysistest.make(_non_cc_dep_is_skipped_test_impl)
 
+def _custom_non_cc_deps_are_skipped_test_impl(ctx):
+    env = analysistest.begin(ctx)
+
+    headers = analysistest.target_under_test(env)[DwyuRemappedCcInfo].cc_info.compilation_context.direct_headers
+    header_names = [h.basename for h in headers]
+
+    asserts.equals(env, ["custom_cc_info_with_non_cc_deps.h", "dep_layer_1.h"], header_names)
+
+    return analysistest.end(env)
+
+custom_non_cc_deps_are_skipped_test = analysistest.make(_custom_non_cc_deps_are_skipped_test_impl)
+
 def _filter_selects_only_matching_dep_test_impl(ctx):
     env = analysistest.begin(ctx)
 
@@ -66,6 +78,10 @@ def direct_deps_test_suite(name):
         name = "mapping_to_direct_deps_skips_non_cc_deps",
         target_under_test = ":mapping_to_direct_deps_with_non_cc_dep",
     )
+    custom_non_cc_deps_are_skipped_test(
+        name = "mapping_to_direct_deps_skips_custom_non_cc_deps",
+        target_under_test = ":mapping_to_direct_deps_with_custom_non_cc_deps",
+    )
     filter_selects_only_matching_dep_test(
         name = "mapping_to_direct_deps_filter_selects_only_matching_dep",
         target_under_test = ":mapping_to_direct_deps_with_filter",
@@ -76,6 +92,7 @@ def direct_deps_test_suite(name):
             ":mapping_to_direct_deps_finds_headers",
             ":mapping_to_direct_deps_skips_impl_deps",
             ":mapping_to_direct_deps_skips_non_cc_deps",
+            ":mapping_to_direct_deps_skips_custom_non_cc_deps",
             ":mapping_to_direct_deps_filter_selects_only_matching_dep",
         ],
     )
