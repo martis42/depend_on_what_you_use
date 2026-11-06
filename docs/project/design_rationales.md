@@ -165,7 +165,7 @@ Consequently, we are missing the information to report this problem.
 
 After realizing we [can't use the CC toolchain preprocessor](#using-the-bazel-cc-toolchain-preprocessor) we investigated finding a C/C++ preprocessor library.
 While implementing prototypes for the new C++ based preprocessing step, we tried performing a full preprocessing, like the real compilation step does.
-The approach to fully preprocess all transitive includes down to system level ans standard library headers failed, though.
+The approach to fully preprocess all transitive includes down to system level and standard library headers failed, though.
 
 To preprocess those low level headers, a lot of defines have to be set properly.
 We don't know all the relevant defines and their correct value.

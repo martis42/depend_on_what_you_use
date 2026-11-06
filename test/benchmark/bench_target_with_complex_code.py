@@ -110,7 +110,7 @@ def create_test_setup() -> None:
 def main() -> None:
     """
     Benchmarking a single Bazel target with a single source file. This is a large file using a lot of gtest macros.
-    This benchmark ist focused at the performance of the preprocessing step to determine the included header files in the code under inspection.
+    This benchmark is focused at the performance of the preprocessing step to determine the included header files in the code under inspection.
     """
     create_test_setup()
 

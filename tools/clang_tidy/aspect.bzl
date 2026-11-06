@@ -132,7 +132,7 @@ def _clang_tidy_impl(target, ctx):
 #   + Not available via BCR
 #   + Original author no longer works with Bazel: https://github.com/erenon/bazel_clang_tidy/issues/35#issuecomment-1371147567
 # - https://github.com/aspect-build/rules_lint
-#   + Did not work for us advertized. Maybe this is just properly working when using the advertized aspect cli?
+#   + Did not work for us advertised. Maybe this is just properly working when using the advertised aspect cli?
 #   + Quite large with many deps, although we just need a little part. For all the other checks we prefer pre-commit.
 #
 # If anybody finds this code, on the search for executing clang-tidy via Bazel, please note we do not consider this a

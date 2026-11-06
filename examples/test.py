@@ -151,7 +151,7 @@ def main(args: Namespace) -> int:
     """
     Basic testing if the examples behave as desired.
 
-    We ony look for the return code of a command. If a command fails as expected we do not analyze if it fails for the
+    We only look for the return code of a command. If a command fails as expected we do not analyze if it fails for the
     correct reason. These kind of detailed testing is done in the aspect integration tests.
     """
     bazel_binary = args.bazel_bin or str(get_bazel_binary())

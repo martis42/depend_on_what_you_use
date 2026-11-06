@@ -48,7 +48,7 @@ struct PreprocessingHooksBase : public boost::wave::context_policies::default_pr
     // There are a lot of macros defining how the platform works and what system libraries features are available.
     // Those are mostly not provided via the command line, but determined by the CC toolchain preprocessor and compiler internally.
     // We don't have access to those in DWYU.
-    // Various experiments on our side have shown that trying to behave exactly as the compiler is futile or at least requrires an amount of work this hobby project cannot invest.
+    // Various experiments on our side have shown that trying to behave exactly as the compiler is futile or at least requires an amount of work this hobby project cannot invest.
     //
     // Not ignoring errors would be inconsistent.
     // We, also skip the CC toolchain standard library and system headers during preprocessing because of the problem described above.

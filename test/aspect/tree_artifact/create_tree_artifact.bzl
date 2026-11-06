@@ -1,6 +1,6 @@
 def _create_tree_artifact_impl(ctx):
     if not ctx.attr.tree_root.endswith((".h", ".cc")):
-        fail("Target directory must end with a file ending recognized as C++ rule iput")
+        fail("Target directory must end with a file ending recognized as C++ rule input")
 
     tree_artifact = ctx.actions.declare_directory(ctx.attr.tree_root)
 
