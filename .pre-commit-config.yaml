@@ -30,6 +30,11 @@ repos:
           # Having it as an additional dependency ensures the integration works correctly without dependency on the host system
           - "github.com/wasilibs/go-shellcheck/cmd/shellcheck@v0.11.1"
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+    - id: codespell
+
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:

@@ -9,7 +9,7 @@ It also detects unused dependencies and can validate `implementation_deps` usage
 ## Repository Layout
 
 - `dwyu/cc/` contains the public Starlark API and the C++ aspect implementation.
-- `dwyu/apply_fixes/` contains the Python command-line tool that applies fixes in BUILD files for the problems discoverd by DWYU.
+- `dwyu/apply_fixes/` contains the Python command-line tool that applies fixes in BUILD files for the problems discovered by DWYU.
 - `dwyu/private/` contains internal Starlark utilities.
 - `test/` contains unit, integration, workspace, benchmark, and BCR-release tests.
 - `examples/` contains complete Bazel workspaces that demonstrate and test user-facing configurations.

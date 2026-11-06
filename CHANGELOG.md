@@ -71,7 +71,7 @@ How to read the changelog:
 - Add a dedicate user guide giving guidance on the most common configuration steps for using DWYU in [dwyu_user_guide.md](/docs/project/dwyu_user_guide.md).
 - [aspect] Add new option `preprocessing_fallback`, which makes the preprocessing modes `full` and `ignore_system_includes` fall back to the `fast` mode for files `boost::wave` cannot preprocess properly.
   For some code constructs `boost::wave` fails the preprocessing and our include statement discovery logic breaks.
-  With this option enabled, in such a case we rescan the code automatically without preprocessor which might report too many include statements if conditional incudes were used, but never too little.
+  With this option enabled, in such a case we rescan the code automatically without preprocessor which might report too many include statements if conditional includes were used, but never too little.
 
 ## [1.1.2](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.1.2) - 2026.08.11
 

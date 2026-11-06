@@ -22,7 +22,7 @@ std::string includeWithoutQuotes(const std::string& include_statement) {
 
 std::string makeRelativePath(const std::string& file, const bfs::path& parent) {
     // It is important we use 'generic_string()' to get the portable version using forward slashes.
-    // Otherwise, we can't compre those paths to the ones reported by Bazel, which uses the portable format as well.
+    // Otherwise, we can't compare those paths to the ones reported by Bazel, which uses the portable format as well.
     return bfs::path{file}.lexically_relative(parent).generic_string();
 }
 

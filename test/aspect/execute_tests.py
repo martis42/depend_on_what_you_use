@@ -88,7 +88,7 @@ def cli() -> Namespace:
     parser.add_argument(
         "--no_output_base",
         action="store_true",
-        help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated outout bases are a slowdown, as the system is either way thrown away.",
+        help="Do not create a dedicated output base per test. Optimizes CI runs for which dedicated output bases are a slowdown, as the system is either way thrown away.",
     )
     parser.add_argument(
         "--no_extra_args",

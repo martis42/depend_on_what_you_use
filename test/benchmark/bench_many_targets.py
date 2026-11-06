@@ -115,7 +115,7 @@ def create_test_setup() -> None:
 def main() -> None:
     """
     Benchmarking many Bazel targets with only a few dependencies and simple code.
-    This benchmark ist focused at ensuring that many trivial analysis actions are efficient.
+    This benchmark is focused at ensuring that many trivial analysis actions are efficient.
     """
     create_test_setup()
 
