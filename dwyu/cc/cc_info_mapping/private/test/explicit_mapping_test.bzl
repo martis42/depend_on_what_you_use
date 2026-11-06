@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
-load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuRemappedCcInfo")
 
 def _all_mapped_targets_headers_are_included_test_impl(ctx):
     env = analysistest.begin(ctx)

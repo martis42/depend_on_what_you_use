@@ -23,15 +23,15 @@ The mapping feature described here allows defining that `@com_google_googletest/
 Then a test can specify only the dependency to `@com_google_googletest//:gtest_main` without DWYU raising an error while analyzing the test.
 """
 
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping/private:direct_deps.bzl", "mapping_to_direct_deps")
 load("//dwyu/cc/cc_info_mapping/private:direct_deps_greedily.bzl", "mapping_to_direct_deps_greedily")
 load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
-load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps_greedily.bzl", "mapping_to_transitive_deps_greedily")
 load("//dwyu/private:utils.bzl", "label_to_name", "make_private_kwargs")
-load(":providers.bzl", "DwyuCcInfoMappingInfo")
+load(":providers.bzl", "DwyuCcInfoMappingInfo", "DwyuRemappedCcInfo")
 
 MAP_DIRECT_DEPS = "__DWYU_MAP_DIRECT_DEPS__"
 MAP_DIRECT_DEPS_GREEDILY = "__DWYU_MAP_DIRECT_DEPS_GREEDILY__"
@@ -40,10 +40,17 @@ MAP_TRANSITIVE_DEPS = "__DWYU_MAP_TRANSITIVE_DEPS__"
 MAP_TRANSITIVE_DEPS_GREEDILY = "__DWYU_MAP_TRANSITIVE_DEPS_GREEDILY__"
 
 def _make_remapping_info_impl(ctx):
-    return DwyuCcInfoMappingInfo(mapping = {
-        remap[DwyuRemappedCcInfo].target: remap[DwyuRemappedCcInfo].cc_info
-        for remap in ctx.attr.remappings
-    })
+    mapping = {}
+    for remap in ctx.attr.remappings:
+        info = remap[DwyuRemappedCcInfo]
+        if type(info.target) != "Label":
+            fail("DWYU: Remapping {} must provide a Label as target, got {}".format(remap.label, type(info.target)))
+        if type(info.cc_info) != type(CcInfo()):
+            fail("DWYU: Remapping {} must provide a CcInfo as cc_info, got {}".format(remap.label, type(info.cc_info)))
+        if info.target in mapping:
+            fail("DWYU: Multiple remappings for target {}".format(info.target))
+        mapping[info.target] = info.cc_info
+    return DwyuCcInfoMappingInfo(mapping = mapping)
 
 _make_remapping_info = rule(
     implementation = _make_remapping_info_impl,
@@ -62,12 +69,13 @@ def _extract_mapping_value(target, map, key):
     fail("DWYU: Invalid mapping value for target {}: {}".format(target, map))
 
 # buildifier: disable=canonical-repository
-def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
+def dwyu_make_cc_info_mapping(name, mapping = {}, custom_remappings = [], **kwargs):
     """
     Map include paths available from one or several targets to another target.
 
     Create a mapping allowing treating targets as if they themselves would offer header files, which in fact are coming from their dependencies.
     This enables the DWYU analysis to skip over some usage of headers provided by transitive dependencies without raising an error.
+    Mappings changes DWYU's view of dependencies, not the actual compilation dependencies.
 
     Example usage:
 
@@ -90,6 +98,9 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
 
     When using filtering, we recommend using a helper macro, like `def to_canonical(target): return str(Label(target))`, instead of hard coding canonical target names.
     Using this rule and the various mapping techniques is demonstrated in the [target_mapping example](/examples/target_mapping).
+
+    While we offer a variety of mapping strategies, they might not cover all use cases.
+    You can implement your own mapping logic by defining a rule that provides `DwyuRemappedCcInfo` and pass it via the `custom_remappings` argument.
 
     Args:
         name: Unique name for this target. Will be the prefix for all private intermediate targets.
@@ -118,6 +129,10 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
                  - An explicit list of targets which are mapped to the main target.
                    This is a legacy behavior which will be removed eventually.
                    Use `MAP_EXPLICIT_DEPS` instead.<br>
+        custom_remappings: List of targets providing `DwyuRemappedCcInfo`.
+                           This allows implementing and using using your own target mapping strategies.
+                           The mappings provided here will be combined with the built-in ones defined via `mapping`.
+                           A target cannot be mapped multiple times and has to appear either in the `mapping` attribute or in the `custom_remappings` attribute.
         **kwargs: Common rule attributes forwarded to underlying targets
     """
     private_kwargs = make_private_kwargs(kwargs)
@@ -197,6 +212,6 @@ def dwyu_make_cc_info_mapping(name, mapping, **kwargs):
 
     _make_remapping_info(
         name = name,
-        remappings = mappings,
+        remappings = mappings + custom_remappings,
         **kwargs
     )

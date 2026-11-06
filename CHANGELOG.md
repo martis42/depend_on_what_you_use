@@ -42,6 +42,7 @@ How to read the changelog:
 - [target_mapping] Add `MAP_TRANSITIVE_DEPS_GREEDILY` mode to recursively map `CcInfo`-providing dependencies found through all rule attributes.
   Besides following all rule attributes instead of just `deps`, it behaves like `MAP_TRANSITIVE_DEPS`, including the filtering feature.
 - [target_mapping] Add `MAP_DIRECT_DEPS_GREEDILY` mode to map direct `CcInfo`-providing dependencies found through all rule attributes, without following them recursively.
+- [target_mapping] Allow custom mapping rules by implementing your own rule providing `DwyuRemappedCcInfo` which `dwyu_make_cc_info_mapping()` then consumes via the `custom_remappings` attribute.
 
 ## [1.2.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.2.0) - 2026.10.23
 

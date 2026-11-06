@@ -6,7 +6,7 @@ To prevent DWYU from raising errors in such cases, we allow mapping the headers 
 
 The targets in this example use headers from transitive dependencies.
 Still, we can analyze them without DWYU raising an error when using an aspect configured with the corresponding target mapping.
-You yee the mappings used in this example in [mapping](./mapping/BUILD).
+You can see the mappings used in this example in [mapping](./mapping/BUILD).
 
 See the [bazelrc](/examples/.bazelrc) file and [aspect.bzl](/examples/aspect.bzl) for the definition of the configs and the aspect configurations.
 
@@ -38,3 +38,16 @@ bazel build --config=dwyu_map_transitive_deps //target_mapping:use_lib_c
 
 If we would use dependency `e`, the analysis would still fail as we mapped only `b` and its transitive dependencies.
 Like with the direct dependency mapping, we simply could have mapped all direct and transitive of `a` into `a` itself to overcome such a case.
+
+## Custom mapping
+
+You can also implement your own mapping rule that provides `DwyuRemappedCcInfo`.
+The minimal example in [custom_remapping.bzl](./mapping/custom_remapping.bzl) selects direct dependencies whose target names start with a configurable prefix.
+It merges their compilation contexts with the original target's context.
+The [mapping configuration](./mapping/BUILD) selects the prefix `b` for library `a`, so `b` is mapped.
+
+The following command succeeds because the custom mapping makes `b.h` available through `a` for DWYU:
+
+```shell
+bazel build --config=dwyu_map_custom //target_mapping:use_lib_b
+```

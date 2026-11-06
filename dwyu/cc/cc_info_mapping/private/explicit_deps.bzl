@@ -1,6 +1,6 @@
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuRemappedCcInfo")
 load(":common.bzl", "cc_info_deps_from_all_attrs", "create_remapped_cc_info")
-load(":providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/...")
 

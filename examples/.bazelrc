@@ -41,3 +41,6 @@ build:dwyu_map_direct_deps --output_groups=dwyu
 
 build:dwyu_map_transitive_deps --aspects=//:aspect.bzl%dwyu_map_transitive_deps
 build:dwyu_map_transitive_deps --output_groups=dwyu
+
+build:dwyu_map_custom --aspects=//:aspect.bzl%dwyu_map_custom
+build:dwyu_map_custom --output_groups=dwyu

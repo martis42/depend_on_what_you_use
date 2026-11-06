@@ -7,9 +7,24 @@ load(
     "MAP_TRANSITIVE_DEPS_GREEDILY",
     "dwyu_make_cc_info_mapping",
 )
+load(":custom_remapping.bzl", "custom_remapping")
 load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
+
+custom_remapping(
+    name = "custom_remapping",
+    selected_deps = [
+        "//target_mapping/libs:a",
+        "@target_mapping_test_repo//:ext_a",
+    ],
+    target = "//target_mapping/libs:mapped_dep",
+)
+
+dwyu_make_cc_info_mapping(
+    name = "map_custom_strategy",
+    custom_remappings = [":custom_remapping"],
+)
 
 # TODO When removing this legacy approach, also remove visibility from mapped targets
 dwyu_make_cc_info_mapping(

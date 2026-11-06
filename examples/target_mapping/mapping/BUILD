@@ -1,7 +1,19 @@
 load("@depend_on_what_you_use//dwyu/cc:defs.bzl", "MAP_DIRECT_DEPS", "MAP_EXPLICIT_DEPS", "MAP_TRANSITIVE_DEPS", "dwyu_make_cc_info_mapping")
+load(":custom_remapping.bzl", "custom_remapping")
 load(":to_canonical.bzl", "to_canonical")
 
 package(default_visibility = ["//target_mapping:__pkg__"])
+
+custom_remapping(
+    name = "custom_remapping",
+    name_prefix = "b",
+    target = "//target_mapping/libs:a",
+)
+
+dwyu_make_cc_info_mapping(
+    name = "map_custom",
+    custom_remappings = [":custom_remapping"],
+)
 
 dwyu_make_cc_info_mapping(
     name = "map_specific_deps",
