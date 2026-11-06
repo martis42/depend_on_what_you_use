@@ -46,7 +46,7 @@ def _cc_dep_without_deps_attr_is_handled_test_impl(ctx):
     headers = analysistest.target_under_test(env)[DwyuRemappedCcInfo].cc_info.compilation_context.direct_headers
     header_names = [h.basename for h in headers]
 
-    expected_headers = ["lib_with_custom_cc_dep.h", "custom_dep.h"]
+    expected_headers = ["lib_with_custom_cc_dep.h", "custom_cc_dep.h"]
     asserts.equals(env, expected_headers, header_names)
 
     return analysistest.end(env)
