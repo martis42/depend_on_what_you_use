@@ -228,7 +228,7 @@ cc_library(
 
 cc_info_with_custom_deps(
     name = "custom_cc_dep",
-    hdrs = ["custom_dep.h"],
+    hdrs = ["custom_cc_dep.h"],
 )
 
 cc_library(
@@ -246,7 +246,7 @@ cc_info_with_custom_deps(
 
 cc_info_with_custom_deps(
     name = "custom_cc_info_with_unmerged_custom_deps",
-    hdrs = ["custom_cc_info_with_custom_deps.h"],
+    hdrs = ["custom_cc_info_with_unmerged_custom_deps.h"],
     multiple_deps = [":custom_cc_info_with_nested_custom_deps"],
     single_dep = ":extra_dep",
 )
@@ -259,7 +259,7 @@ cc_info_with_custom_deps(
 
 cc_info_with_custom_deps(
     name = "custom_cc_info_with_nested_impl_dep",
-    hdrs = ["custom_cc_info_with_custom_deps.h"],
+    hdrs = ["custom_cc_info_with_nested_impl_dep.h"],
     multiple_deps = [":lib_with_impl_dep"],
 )
 

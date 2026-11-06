@@ -8,8 +8,8 @@ def _all_direct_attributes_are_included_test_impl(ctx):
     header_names = sorted([header.basename for header in headers])
 
     expected_headers = [
-        "custom_cc_info_with_custom_deps.h",
         "custom_cc_info_with_nested_custom_deps.h",
+        "custom_cc_info_with_unmerged_custom_deps.h",
         "extra_dep.h",
     ]
     asserts.equals(env, expected_headers, header_names)
@@ -37,7 +37,7 @@ def _filter_selects_only_matching_direct_attribute_test_impl(ctx):
     headers = analysistest.target_under_test(env)[DwyuRemappedCcInfo].cc_info.compilation_context.direct_headers
     header_names = sorted([header.basename for header in headers])
 
-    expected_headers = ["custom_cc_info_with_custom_deps.h", "extra_dep.h"]
+    expected_headers = ["custom_cc_info_with_unmerged_custom_deps.h", "extra_dep.h"]
     asserts.equals(env, expected_headers, header_names)
 
     return analysistest.end(env)

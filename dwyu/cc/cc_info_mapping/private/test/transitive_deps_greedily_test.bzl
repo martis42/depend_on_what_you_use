@@ -8,8 +8,8 @@ def _transitive_deps_are_aggregated_greedily_test_impl(ctx):
     header_names = sorted([header.basename for header in headers])
 
     expected_headers = [
-        "custom_cc_info_with_custom_deps.h",
         "custom_cc_info_with_nested_custom_deps.h",
+        "custom_cc_info_with_unmerged_custom_deps.h",
         "dep_layer_1.h",
         "dep_layer_2.h",
         "extra_dep.h",
@@ -28,7 +28,7 @@ def _implementation_deps_are_excluded_during_greedy_recursion_test_impl(ctx):
     header_names = sorted([header.basename for header in headers])
 
     expected_headers = [
-        "custom_cc_info_with_custom_deps.h",
+        "custom_cc_info_with_nested_impl_dep.h",
         "lib_with_impl_dep.h",
     ]
     asserts.equals(env, expected_headers, header_names)
@@ -43,7 +43,7 @@ def _greedy_filter_selects_only_matching_direct_dep_test_impl(ctx):
     headers = analysistest.target_under_test(env)[DwyuRemappedCcInfo].cc_info.compilation_context.direct_headers
     header_names = sorted([header.basename for header in headers])
 
-    expected_headers = ["custom_cc_info_with_custom_deps.h", "extra_dep.h"]
+    expected_headers = ["custom_cc_info_with_unmerged_custom_deps.h", "extra_dep.h"]
     asserts.equals(env, expected_headers, header_names)
 
     return analysistest.end(env)
