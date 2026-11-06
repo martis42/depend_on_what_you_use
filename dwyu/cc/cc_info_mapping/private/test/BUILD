@@ -248,6 +248,7 @@ cc_info_with_custom_deps(
     name = "custom_cc_info_with_unmerged_custom_deps",
     hdrs = ["custom_cc_info_with_unmerged_custom_deps.h"],
     multiple_deps = [":custom_cc_info_with_nested_custom_deps"],
+    non_cc_label_attr = ":non_cc_dep",
     single_dep = ":extra_dep",
 )
 
@@ -255,6 +256,7 @@ cc_info_with_custom_deps(
     name = "custom_cc_info_with_nested_custom_deps",
     hdrs = ["custom_cc_info_with_nested_custom_deps.h"],
     multiple_deps = [":lib_with_dep"],
+    non_cc_label_attr = ":non_cc_dep",
 )
 
 cc_info_with_custom_deps(
