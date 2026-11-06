@@ -40,6 +40,18 @@ def _non_cc_dep_is_skipped_test_impl(ctx):
 
 non_cc_dep_is_skipped_test = analysistest.make(_non_cc_dep_is_skipped_test_impl)
 
+def _custom_non_cc_deps_are_skipped_test_impl(ctx):
+    env = analysistest.begin(ctx)
+
+    headers = analysistest.target_under_test(env)[DwyuRemappedCcInfo].cc_info.compilation_context.direct_headers
+    header_names = [h.basename for h in headers]
+
+    asserts.equals(env, ["custom_cc_info_with_non_cc_deps.h", "dep_layer_1.h", "dep_layer_2.h"], header_names)
+
+    return analysistest.end(env)
+
+custom_non_cc_deps_are_skipped_test = analysistest.make(_custom_non_cc_deps_are_skipped_test_impl)
+
 def _cc_dep_without_deps_attr_is_handled_test_impl(ctx):
     env = analysistest.begin(ctx)
 
@@ -79,6 +91,10 @@ def transitive_deps_test_suite(name):
         name = "mapping_to_transitive_deps_skips_non_cc_deps",
         target_under_test = ":mapping_to_transitive_deps_with_non_cc_dep",
     )
+    custom_non_cc_deps_are_skipped_test(
+        name = "mapping_to_transitive_deps_skips_custom_non_cc_deps",
+        target_under_test = ":mapping_to_transitive_deps_with_custom_non_cc_deps",
+    )
     cc_dep_without_deps_attr_is_handled_test(
         name = "mapping_to_transitive_deps_skips_cc_dep_without_deps_attr",
         target_under_test = ":mapping_to_transitive_deps_with_no_deps_attr",
@@ -93,6 +109,7 @@ def transitive_deps_test_suite(name):
             ":mapping_to_transitive_deps_finds_headers",
             ":mapping_to_transitive_deps_skips_impl_deps",
             ":mapping_to_transitive_deps_skips_non_cc_deps",
+            ":mapping_to_transitive_deps_skips_custom_non_cc_deps",
             ":mapping_to_transitive_deps_skips_cc_dep_without_deps_attr",
             ":mapping_to_transitive_deps_filter_selects_only_matching_dep",
         ],

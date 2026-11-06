@@ -5,7 +5,7 @@ load("//dwyu/cc/cc_info_mapping/private:explicit.bzl", "explicit_mapping")
 load("//dwyu/cc/cc_info_mapping/private:explicit_deps.bzl", "mapping_to_explicit_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps.bzl", "mapping_to_transitive_deps")
 load("//dwyu/cc/cc_info_mapping/private:transitive_deps_greedily.bzl", "mapping_to_transitive_deps_greedily")
-load(":custom_rules.bzl", "cc_info_with_custom_deps")
+load(":custom_rules.bzl", "cc_info_with_custom_deps", "cc_info_with_deps", "non_cc_info_with_deps")
 load(":direct_deps_greedily_test.bzl", "direct_deps_greedily_test_suite")
 load(":direct_deps_test.bzl", "direct_deps_test_suite")
 load(":explicit_deps_test.bzl", "explicit_deps_test_suite")
@@ -47,6 +47,11 @@ mapping_to_direct_deps(
 mapping_to_direct_deps(
     name = "mapping_to_direct_deps_with_non_cc_dep",
     target = ":lib_with_non_cc_dep",
+)
+
+mapping_to_direct_deps(
+    name = "mapping_to_direct_deps_with_custom_non_cc_deps",
+    target = ":custom_cc_info_with_non_cc_deps",
 )
 
 mapping_to_direct_deps(
@@ -92,6 +97,11 @@ mapping_to_transitive_deps(
 mapping_to_transitive_deps(
     name = "mapping_to_transitive_deps_with_non_cc_dep",
     target = ":lib_with_non_cc_dep",
+)
+
+mapping_to_transitive_deps(
+    name = "mapping_to_transitive_deps_with_custom_non_cc_deps",
+    target = ":custom_cc_info_with_non_cc_deps",
 )
 
 mapping_to_transitive_deps(
@@ -229,6 +239,26 @@ cc_library(
 cc_info_with_custom_deps(
     name = "custom_cc_dep",
     hdrs = ["custom_cc_dep.h"],
+)
+
+non_cc_info_with_deps(
+    name = "custom_non_cc_dep",
+    deps = [
+        "extra_dep.h",
+        ":extra_dep",
+    ],
+)
+
+cc_info_with_deps(
+    name = "custom_cc_info_with_non_cc_deps",
+    hdrs = ["custom_cc_info_with_non_cc_deps.h"],
+    deps = [
+        # Those should not appear in the mapping because they don't offer CcInfo
+        "lib_with_non_cc_dep.h",
+        ":custom_non_cc_dep",
+        # Provide CcInfo and should appear in the mapping
+        ":dep_layer_1",
+    ],
 )
 
 cc_library(

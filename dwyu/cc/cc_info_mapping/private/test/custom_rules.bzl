@@ -25,3 +25,22 @@ cc_info_with_custom_deps = rule(
         "single_dep": attr.label(providers = [CcInfo]),
     },
 )
+
+cc_info_with_deps = rule(
+    implementation = _cc_info_with_custom_deps_impl,
+    provides = [CcInfo],
+    attrs = {
+        "deps": attr.label_list(allow_files = True),
+        "hdrs": attr.label_list(allow_files = [".h"]),
+    },
+)
+
+def _non_cc_info_with_deps_impl(_ctx):
+    return []
+
+non_cc_info_with_deps = rule(
+    implementation = _non_cc_info_with_deps_impl,
+    attrs = {
+        "deps": attr.label_list(allow_files = True),
+    },
+)
