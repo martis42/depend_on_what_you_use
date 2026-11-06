@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
-load("//dwyu/cc/cc_info_mapping/private:providers.bzl", "DwyuRemappedCcInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuRemappedCcInfo")
 
 def _explicit_direct_target_is_mapped_test_impl(ctx):
     env = analysistest.begin(ctx)

@@ -12,6 +12,8 @@ map_transitive_deps_filtered = dwyu_cc_aspect_factory(target_mapping = Label("//
 map_transitive_deps_greedily_all = dwyu_cc_aspect_factory(target_mapping = Label("//target_mapping/mapping:map_transitive_deps_greedily_all"))
 map_transitive_deps_greedily_filtered = dwyu_cc_aspect_factory(target_mapping = Label("//target_mapping/mapping:map_transitive_deps_greedily_filtered"))
 
+map_custom_strategy = dwyu_cc_aspect_factory(target_mapping = Label("//target_mapping/mapping:map_custom_strategy"))
+
 # Legacy mapping mode
 map_specific_deps = dwyu_cc_aspect_factory(target_mapping = Label("//target_mapping/mapping:map_specific_deps"))
 

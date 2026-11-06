@@ -8,6 +8,7 @@ bzl_library(
         ":providers_bzl",
         "//dwyu/cc/cc_info_mapping/private:cc_info_mapping_impl_bzl",
         "//dwyu/private:utils_bzl",
+        "@rules_cc//cc/common",
     ],
 )
 

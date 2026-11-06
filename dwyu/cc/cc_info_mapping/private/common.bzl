@@ -4,7 +4,7 @@ Shared code private to this package.
 
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
-load(":providers.bzl", "DwyuRemappedCcInfo")
+load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuRemappedCcInfo")
 
 visibility("//dwyu/cc/cc_info_mapping/private/...")
 

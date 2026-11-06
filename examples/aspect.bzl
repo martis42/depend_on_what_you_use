@@ -13,3 +13,4 @@ dwyu_ignoring_includes = dwyu_cc_aspect_factory(ignored_includes = Label("@//ign
 dwyu_map_specific_deps = dwyu_cc_aspect_factory(target_mapping = Label("@//target_mapping/mapping:map_specific_deps"))
 dwyu_map_direct_deps = dwyu_cc_aspect_factory(target_mapping = Label("@//target_mapping/mapping:map_direct_deps"))
 dwyu_map_transitive_deps = dwyu_cc_aspect_factory(target_mapping = Label("@//target_mapping/mapping:map_transitive_deps"))
+dwyu_map_custom = dwyu_cc_aspect_factory(target_mapping = Label("@//target_mapping/mapping:map_custom"))

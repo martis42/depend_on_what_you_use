@@ -105,6 +105,10 @@ EXAMPLES = [
         build_cmd="--config=dwyu_map_transitive_deps //target_mapping:use_lib_c",
         expected_success=True,
     ),
+    Example(
+        build_cmd="--config=dwyu_map_custom //target_mapping:use_lib_b",
+        expected_success=True,
+    ),
 ]
 
 
