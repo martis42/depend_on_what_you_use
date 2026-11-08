@@ -11,6 +11,7 @@
 #include <ios>
 #include <iostream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace dwyu {
@@ -27,6 +28,7 @@ struct ProgramOptions {
     std::string ignored_includes_config{};
     std::vector<std::string> extra_ignored_includes{};
     std::vector<std::string> ignored_unused_deps{};
+    std::vector<std::string> ignored_missing_dependency_headers{};
     bool optimize_implementation_deps{};
     bool report_missing_direct_deps{};
     bool report_unused_deps{};
@@ -57,6 +59,7 @@ ProgramOptions parseProgramOptions(int argc, ProgramOptionsParser::ConstCharArra
     parser.addOptionList("--extra_ignored_includes", options.extra_ignored_includes);
     // List of dependency names which shall be ignored for the unused dependencies check
     parser.addOptionList("--ignored_unused_deps", options.ignored_unused_deps);
+    parser.addOptionList("--ignored_missing_dependency_headers", options.ignored_missing_dependency_headers);
     // If this is checked, ensure all 'deps' are indeed used in at least one public file
     parser.addOptionFlag("--optimize_implementation_deps", options.optimize_implementation_deps);
     // If this is checked, the analysis will report missing direct dependencies.
@@ -76,16 +79,18 @@ int main_impl(const ProgramOptions& options) {
         std::cout << "\n";
         std::cout << ">> Analyzing " << options.target_under_inspection << "\n";
         std::cout << "\n";
-        std::cout << "Preprocessed public files        : " << listToStr(options.preprocessed_public_files) << "\n";
-        std::cout << "Preprocessed private files       : " << listToStr(options.preprocessed_private_files) << "\n";
-        std::cout << "Dependencies                     : " << listToStr(options.deps) << "\n";
-        std::cout << "Implementation dependencies      : " << listToStr(options.implementation_deps) << "\n";
-        std::cout << "Ignored includes config          : " << options.ignored_includes_config << "\n";
-        std::cout << "Ignored unused deps              : " << listToStr(options.ignored_unused_deps) << "\n";
+        std::cout << "Preprocessed public files          : " << listToStr(options.preprocessed_public_files) << "\n";
+        std::cout << "Preprocessed private files         : " << listToStr(options.preprocessed_private_files) << "\n";
+        std::cout << "Dependencies                       : " << listToStr(options.deps) << "\n";
+        std::cout << "Implementation dependencies        : " << listToStr(options.implementation_deps) << "\n";
+        std::cout << "Ignored includes config            : " << options.ignored_includes_config << "\n";
+        std::cout << "Ignored unused deps                : " << listToStr(options.ignored_unused_deps) << "\n";
+        std::cout << "Ignored missing dependency headers : " << listToStr(options.ignored_missing_dependency_headers)
+                  << "\n";
         std::cout << std::boolalpha;
-        std::cout << "Optimize implementation deps     : " << options.optimize_implementation_deps << "\n";
-        std::cout << "Report missing direct deps       : " << options.report_missing_direct_deps << "\n";
-        std::cout << "Report unused deps               : " << options.report_unused_deps << "\n";
+        std::cout << "Optimize implementation deps       : " << options.optimize_implementation_deps << "\n";
+        std::cout << "Report missing direct deps         : " << options.report_missing_direct_deps << "\n";
+        std::cout << "Report unused deps                 : " << options.report_unused_deps << "\n";
         std::cout << "\n";
     }
 
@@ -94,10 +99,13 @@ int main_impl(const ProgramOptions& options) {
         getSystemUnderInspection(options.target_under_inspection_info, options.deps, options.implementation_deps);
     auto public_includes = getIncludeStatements(options.preprocessed_public_files, ignored_includes);
     auto private_includes = getIncludeStatements(options.preprocessed_private_files, ignored_includes);
+    const std::unordered_set<std::string> ignored_missing_dependency_headers{
+        options.ignored_missing_dependency_headers.begin(), options.ignored_missing_dependency_headers.end()};
 
     const auto result =
         evaluateIncludes(public_includes, private_includes, system_under_inspection, options.report_missing_direct_deps,
-                         options.report_unused_deps, options.ignored_unused_deps, options.optimize_implementation_deps);
+                         options.report_unused_deps, options.ignored_unused_deps, options.optimize_implementation_deps,
+                         ignored_missing_dependency_headers);
 
     if (!result.isOk() || options.verbose) {
         std::cout << result.toString(options.output) << "\n";

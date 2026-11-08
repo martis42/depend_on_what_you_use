@@ -75,3 +75,9 @@ local_path_override(
     module_name = "ignore_unused_deps_test_repo",
     path = "ignore_unused_deps/external_repo",
 )
+
+bazel_dep(name = "ignore_external_dependencies_test_repo")
+local_path_override(
+    module_name = "ignore_external_dependencies_test_repo",
+    path = "ignore_external_dependencies/external_repo",
+)

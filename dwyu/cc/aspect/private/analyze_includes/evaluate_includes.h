@@ -6,6 +6,7 @@
 #include "dwyu/cc/aspect/private/analyze_includes/system_under_inspection.h"
 
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace dwyu {
@@ -20,7 +21,8 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         bool report_missing_direct_deps,
                         bool report_unused_deps,
                         const std::vector<std::string>& ignored_unused_deps,
-                        bool optimize_impl_deps);
+                        bool optimize_impl_deps,
+                        const std::unordered_set<std::string>& ignored_missing_dependency_headers);
 
 } // namespace dwyu
 

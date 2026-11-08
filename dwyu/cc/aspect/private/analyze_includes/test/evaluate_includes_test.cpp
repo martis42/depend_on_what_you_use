@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace dwyu {
@@ -47,6 +48,33 @@ std::shared_ptr<CcDependency> makeDep(const std::string& name) {
     return std::make_shared<CcDependency>(CcDependency{name, {}});
 }
 
+TEST(EvaluateIncludes, IgnoreMissingHeadersWithoutDisablingImplementationDepsOptimization) {
+    const std::vector<IncludeStatement> public_includes{{"public.h", "<external.h>", "external/header.h"},
+                                                        {"public.h", "<internal.h>", "project/external/internal.h"}};
+    const std::vector<IncludeStatement> private_includes{{"private.cc", "<external.h>", "external/header.h"},
+                                                         {"private.cc", "<used.h>", "external/used.h"}};
+    const SystemUnderInspection::HeadersToDepsMap public_deps{{"external/used.h", {makeDep("@external//:used")}}};
+    auto system =
+        SystemUnderInspection{CcTargetUnderInspection{"//:target", {}}, public_deps, makeAllDeps(public_deps, {})};
+    const bool report_missing_direct_deps = true;
+    const bool report_unused_deps = true;
+    const bool optimize_impl_deps = true;
+    const std::unordered_set<std::string> ignored_ext_headers{"external/header.h", "external/used.h"};
+
+    const auto result = evaluateIncludes(public_includes, private_includes, system, report_missing_direct_deps,
+                                         report_unused_deps, {}, optimize_impl_deps, ignored_ext_headers);
+
+    EXPECT_FALSE(result.isOk());
+
+    const auto json = result.toJson(optimize_impl_deps);
+    EXPECT_THAT(json["public_includes_without_dep"]["public.h"].get<std::vector<std::string>>(),
+                testing::ElementsAre("project/external/internal.h"));
+    EXPECT_TRUE(json["private_includes_without_dep"].empty());
+    EXPECT_TRUE(json["unused_deps"].empty());
+    EXPECT_THAT(json["deps_which_should_be_private"].get<std::vector<std::string>>(),
+                testing::ElementsAre("@external//:used"));
+}
+
 TEST(EvaluateIncludes, SuccessForNoInput) {
     const std::vector<IncludeStatement> pub_includes{};
     const std::vector<IncludeStatement> priv_includes{};
@@ -57,10 +85,11 @@ TEST(EvaluateIncludes, SuccessForNoInput) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -86,10 +115,11 @@ TEST(EvaluateIncludes, SuccessForAllChecks) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = true;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -121,10 +151,11 @@ TEST(EvaluateIncludes, DetectIncludesWithoutMatchingDependency) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_FALSE(result.isOk());
 
@@ -162,10 +193,11 @@ TEST(EvaluateIncludes, DetectTheTargetUnderInspectionProvidingTheHeaders) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = true;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -199,10 +231,11 @@ TEST(EvaluateIncludes, DetectUnusedDependencies) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_FALSE(result.isOk());
 
@@ -232,10 +265,11 @@ TEST(EvaluateIncludes, UsingASingleHeaderIsSufficientToMarkADependencyAsUsed) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -262,10 +296,11 @@ TEST(EvaluateIncludes, UsingAHeaderMarksAllAssociatedDependenciesAsUsed) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -296,10 +331,11 @@ TEST(EvaluateIncludes, DetectDepsWhichShouldBePrivate) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = true;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_FALSE(result.isOk());
 
@@ -326,10 +362,11 @@ TEST(EvaluateIncludes, AllowMissingDirectDependencies) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -353,10 +390,11 @@ TEST(EvaluateIncludes, AllowUnusedDependencies) {
     const bool report_unused_deps = false;
     const std::vector<std::string> ignored_unused_deps{};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_TRUE(result.isOk());
 
@@ -382,10 +420,11 @@ TEST(EvaluateIncludes, IgnoreUnusedDeps) {
     const bool report_unused_deps = true;
     const std::vector<std::string> ignored_unused_deps{"//pub/dep:a", "//priv/dep:a", "//non:existing"};
     const bool optimize_impl_deps = false;
+    const std::unordered_set<std::string> ignored_ext_headers{};
 
     const auto result =
         evaluateIncludes(pub_includes, priv_includes, system_under_inspection, report_missing_direct_deps,
-                         report_unused_deps, ignored_unused_deps, optimize_impl_deps);
+                         report_unused_deps, ignored_unused_deps, optimize_impl_deps, ignored_ext_headers);
 
     EXPECT_FALSE(result.isOk());
 
