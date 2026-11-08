@@ -36,6 +36,9 @@ How to read the changelog:
 
 ### Added
 
+- [aspect] Add option `ignore_external_dependencies` to ignore most findings caused by external dependencies.
+  This will ignore "_unused dependency_" warnings caused by unused external targets.
+  Also, it ignores "_included header missing a direct dependency_" warnings for headers provided by external targets.
 - [aspect] Basic support for preprocessing C++26 code with DWYU option `preprocessing_mode` values `full` and `ignore_system_includes`.
   Those modes can however not yet preprocess `#embed` directives.
 - [apply_fixes] Allow providing a custom Bazel binary via `--bazel`.

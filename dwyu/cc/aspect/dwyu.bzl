@@ -42,6 +42,9 @@ def _is_verbose(ctx):
 def _is_external(ctx):
     return ctx.label.workspace_root.startswith("external")
 
+def is_external_header(header):
+    return header.owner != None and header.owner.repo_name != ""
+
 def _hash(value):
     """
     Using '%x' prevents negative numbers being returned
@@ -94,6 +97,7 @@ def _make_dwyu_config(ctx):
     analysis_reports_missing_direct_deps = ctx.attr.dwyu_analysis_reports_missing_direct_deps
     analysis_reports_unused_deps = ctx.attr.dwyu_analysis_reports_unused_deps
     preprocessing_mode = ctx.attr._preprocessing_mode
+    ignore_external_dependencies = ctx.attr._ignore_external_dependencies
     ignored_includes = []
     ignored_unused_deps = ctx.attr._ignored_unused_deps[:]
 
@@ -110,6 +114,8 @@ def _make_dwyu_config(ctx):
             preprocessing_mode = tag.split("=", 1)[1]
             if preprocessing_mode not in PREPROCESSOR_MODES:
                 fail("Provided invalid value '{}' for 'dwyu:preprocessing_mode' tag. Supported values are {}".format(preprocessing_mode, PREPROCESSOR_MODES))
+        elif tag.startswith("dwyu:ignore_external_dependencies="):
+            ignore_external_dependencies = string_to_bool(tag.split("=", 1)[1])
         elif tag.startswith("dwyu:ignore_include="):
             ignored_includes.append(tag.split("=", 1)[1])
         elif tag.startswith("dwyu:ignore_unused_dep="):
@@ -118,6 +124,7 @@ def _make_dwyu_config(ctx):
     return struct(
         extra_ignored_includes = ignored_includes,
         ignored_unused_deps = ignored_unused_deps,
+        ignore_external_dependencies = ignore_external_dependencies,
         preprocessing_mode = preprocessing_mode,
         ignore_private_headers_from_deps = analysis_ignores_private_headers_from_deps,
         optimize_impl_deps = analysis_optimizes_impl_deps,
@@ -582,6 +589,19 @@ def dwyu_cc_aspect_impl(target, ctx):
 
     target_deps, target_impl_deps = _preprocess_deps(ctx)
 
+    external_headers = []
+    if config.ignore_external_dependencies:
+        headers = depset(transitive = [target[CcInfo].compilation_context.headers] + [
+            dep[CcInfo].compilation_context.headers
+            for dep in getattr(ctx.rule.attr, "implementation_deps", [])
+        ])
+        external_headers = [header for header in headers.to_list() if is_external_header(header)]
+        config.ignored_unused_deps.extend([
+            str(dep.label)
+            for dep in target_deps + target_impl_deps
+            if dep.label.repo_name != ""
+        ])
+
     # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
     #      target_under_inspection have the same dependency
     processed_deps = _process_dependencies(ctx, target = target, config = config, deps = target_deps)
@@ -622,6 +642,7 @@ def dwyu_cc_aspect_impl(target, ctx):
         args.add("--ignored_includes_config", ctx.files._ignored_includes[0])
     args.add_all("--extra_ignored_includes", config.extra_ignored_includes, omit_if_empty = True)
     args.add_all("--ignored_unused_deps", config.ignored_unused_deps, omit_if_empty = True)
+    args.add_all("--ignored_missing_dependency_headers", external_headers, expand_directories = True, omit_if_empty = True)
     if _do_ensure_private_deps(ctx, config):
         args.add("--optimize_implementation_deps")
     if config.report_missing_direct_deps:
@@ -632,7 +653,7 @@ def dwyu_cc_aspect_impl(target, ctx):
         args.add("--verbose")
 
     analysis_inputs = depset(
-        direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files,
+        direct = [processed_target] + public_files + private_files + processed_deps + processed_impl_deps + ctx.files._ignored_includes + preprocessed_public_files + preprocessed_private_files + external_headers,
         transitive = [target[CcInfo].compilation_context.headers],
     )
     ctx.actions.run(

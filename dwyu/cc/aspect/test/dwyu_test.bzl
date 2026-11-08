@@ -1,5 +1,12 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_cpp_standard_from_defines", "extract_defines_from_compiler_flags", "matches_target_pattern")
+load("//dwyu/cc/aspect:dwyu.bzl", "extract_cpp_standard_from_compiler_flags", "extract_cpp_standard_from_defines", "extract_defines_from_compiler_flags", "is_external_header", "matches_target_pattern")
+
+def _external_header_owner_test_impl(ctx):
+    env = unittest.begin(ctx)
+    asserts.false(env, is_external_header(struct(owner = None)))
+    asserts.false(env, is_external_header(struct(owner = Label("//external:header.h"))))
+    asserts.true(env, is_external_header(struct(owner = Label("@bazel_skylib//lib:unittest.bzl"))))
+    return unittest.end(env)
 
 def _extract_defines_from_compiler_flags_test_impl(ctx):
     env = unittest.begin(ctx)
@@ -177,6 +184,7 @@ extract_defines_from_compiler_flags_test = unittest.make(_extract_defines_from_c
 extract_cpp_standard_from_compiler_flags_test = unittest.make(_extract_cpp_standard_from_compiler_flags_test_impl)
 extract_cpp_standard_from_defines_test = unittest.make(_extract_cpp_standard_from_defines_test_impl)
 matches_target_pattern_test = unittest.make(_matches_target_pattern_test_impl)
+external_header_owner_test = unittest.make(_external_header_owner_test_impl)
 
 def dwyu_aspect_test_suite(name):
     unittest.suite(
@@ -185,4 +193,5 @@ def dwyu_aspect_test_suite(name):
         extract_cpp_standard_from_compiler_flags_test,
         extract_cpp_standard_from_defines_test,
         matches_target_pattern_test,
+        external_header_owner_test,
     )

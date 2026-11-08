@@ -33,6 +33,7 @@ def dwyu_cc_aspect_factory(
         analysis_optimizes_impl_deps = False,
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
+        ignore_external_dependencies = False,
         ignored_includes = None,
         ignored_unused_deps = [],
         preprocessing_fallback = False,
@@ -65,6 +66,7 @@ def dwyu_cc_aspect_factory(
     | `dwyu:optimize_impl_deps=[True\\|False]`               | Control optimizing implementation dependencies. |
     | `dwyu:report_missing_direct_deps=[True\\|False]`       | Control reporting missing direct dependencies. |
     | `dwyu:report_unused_deps=[True\\|False]`               | Control reporting unused dependencies. |
+    | `dwyu:ignore_external_dependencies=[True\\|False]`     | Ignore external dependencies for unused dependency and missing direct dependency checks. |
     | `dwyu:ignore_include=<include>`                        | Ignore the specified include for the _missing direct dependencies_ check. Provide without quoting (aka `<` or `"`). Does not support setting patterns. Multiple uses are accumulated. |
     | `dwyu:ignore_unused_dep=<dep>`                         | Ignore the specified dependency for the _unused dependencies_ check. Has to use the canonical repo name. The examples show an elegant way to do this. Multiple uses are accumulated. |
     | `dwyu:preprocessing_mode=<mode>`                       | Control the preprocessing mode. |
@@ -90,6 +92,11 @@ def dwyu_cc_aspect_factory(
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
                                       This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
+
+        ignore_external_dependencies: Setting this to `True` prevents reporting external targets as unused dependencies and ignores headers owned by external repositories for the missing direct dependency check.
+                                      This does not disable the `implementation_deps` optimization.
+                                      Do not confuse this option with `skip_external_targets` which controls whether the recursion mode recurses into external repositories.
+                                      This option controls whether findings from project internal targets are ignored if they are related to external dependencies.
 
         ignored_includes: The DWYU analysis ignores all files which are provided by the Bazel CC toolchain (e.g. the standard library headers).
                           If you want to ignore additional headers, you can provide a json file with the information to this attribute.<br>
@@ -248,6 +255,9 @@ def dwyu_cc_aspect_factory(
             ),
             "dwyu_verbose": attr.bool(
                 default = verbose,
+            ),
+            "_ignore_external_dependencies": attr.bool(
+                default = ignore_external_dependencies,
             ),
             "_ignored_includes": attr.label_list(
                 default = aspect_ignored_includes,

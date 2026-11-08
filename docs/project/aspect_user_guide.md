@@ -103,10 +103,23 @@ The schema for this JSON file and its full documentation can be found under the 
 Your stack might have targets that must be dependencies even if none of their headers are used.
 Use the `ignored_unused_deps` DWYU aspect option to provide a list of such targets for which _unused dependency_ findings are never reported.
 
+#### Ignoring most issues caused by external dependencies
+
+You might have a lot of third party dependencies not following the DWYU principles or maybe even modeling their C/C++ code wrongly.
+It can be cumbersome to define exceptions for all those cases individually.
+You can automatically ignore most findings caused by external dependencies.
+
+Using aspect option `ignore_external_dependencies = True` will:
+
+- Ignore warnings for unused dependencies caused by unused external targets.
+- Ignore warnings for included headers missing a direct dependency if the header is provided by an external target.
+
+This does not disable the check for dependencies whichare used only privately and should be moved to `implementation_deps`.
+
 ### Usage of private headers
 
 Strictly speaking, header files listed in `srcs` of a `cc_library` should not be used by consumers of the library.
-This is not just a DWYU design decision; it follows the upstream [`cc_*` rules design](https://bazel.build/reference/be/c-cpp#hdrs).<br>
+This is not just a DWYU design decision; it follows the upstream `cc_*` rules [design](https://bazel.build/reference/be/c-cpp#hdrs).<br>
 Unfortunately, the Bazel CC toolchains don't enforce this rule and thus many projects violate it.
 
 By default DWYU follows the intended `cc_*` rules design.

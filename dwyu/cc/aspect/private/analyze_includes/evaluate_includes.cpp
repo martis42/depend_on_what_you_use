@@ -18,7 +18,8 @@ std::vector<IncludeStatement>
 findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& includes,
                                     const TargetUsage::Status usage,
                                     const std::unordered_set<std::string>& own_header_files,
-                                    SystemUnderInspection::HeadersToDepsMap& direct_deps) {
+                                    SystemUnderInspection::HeadersToDepsMap& direct_deps,
+                                    const std::unordered_set<std::string>& ignored_missing_dependency_headers) {
     std::vector<IncludeStatement> invalid_includes{};
 
     for (const auto& include : includes) {
@@ -35,7 +36,10 @@ findIncludesWithoutDirectDependency(const std::vector<IncludeStatement>& include
             continue;
         }
 
-        invalid_includes.push_back(include);
+        if (ignored_missing_dependency_headers.find(include.resolved_include) ==
+            ignored_missing_dependency_headers.end()) {
+            invalid_includes.push_back(include);
+        }
     }
 
     return invalid_includes;
@@ -49,17 +53,18 @@ Result evaluateIncludes(const std::vector<IncludeStatement>& public_includes,
                         const bool report_missing_direct_deps,
                         const bool report_unused_deps,
                         const std::vector<std::string>& ignored_unused_deps,
-                        const bool optimize_impl_deps) {
+                        const bool optimize_impl_deps,
+                        const std::unordered_set<std::string>& ignored_missing_dependency_headers) {
     Result result{system_under_inspection.target_under_inspection.name};
 
     // These computations always have to happen, even if 'report_missing_direct_deps' is false.
     // They compute the information which is used by the other checks.
     auto public_includes_without_direct_dep = findIncludesWithoutDirectDependency(
         public_includes, TargetUsage::Status::Public, system_under_inspection.target_under_inspection.header_files,
-        system_under_inspection.headers_to_public_deps_map);
+        system_under_inspection.headers_to_public_deps_map, ignored_missing_dependency_headers);
     auto private_includes_without_direct_dep = findIncludesWithoutDirectDependency(
         private_includes, TargetUsage::Status::Private, system_under_inspection.target_under_inspection.header_files,
-        system_under_inspection.headers_to_all_deps_map);
+        system_under_inspection.headers_to_all_deps_map, ignored_missing_dependency_headers);
 
     if (report_missing_direct_deps) {
         result.setPublicIncludesWithoutDirectDep(std::move(public_includes_without_direct_dep));
