@@ -602,8 +602,10 @@ def dwyu_cc_aspect_impl(target, ctx):
             if dep.label.repo_name != ""
         ])
 
-    # TODO Investigate if we can prevent running this multiple times for the same dep if multiple
-    #      target_under_inspection have the same dependency
+    # This is not an ideal implementation since we repeat the work when multiple targets under inspection share common dependencies.
+    # However, executing this computation just once (e.g. via another aspect) is not straightforward.
+    # Such a delegation would have to consider among other things our target remapping feature, that it can be configured whether private headers are considered and has to be robust against transitions.
+    # Since expanding the header files into a json list is quite fast, we accept this suboptimal implementation in favor of an overall more robust solution.
     processed_deps = _process_dependencies(ctx, target = target, config = config, deps = target_deps)
     processed_impl_deps = _process_dependencies(ctx, target = target, config = config, deps = target_impl_deps)
 
