@@ -148,15 +148,15 @@ def dwyu_cc_aspect_factory(
                             </li></ul>
 
         recursive: By default, the DWYU aspect analyzes only the target it is being applied to.
-                   You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to True.<br>
+                   You can change this to recursively analyzing dependencies following the `deps` and `implementation_deps` attributes by setting this to `True`.<br>
                    This feature is demonstrated in the [recursion example](/examples/recursion).
 
         recursion_stops_on_skip: If `True`, skipping a target will also stop the recursive analysis of its dependencies.
                                  This does not just influence the behavior of the `skip_*` options, but also skipping to inbuilt logic (e.g. skipping incompatible rule types).
 
-        skip_external_targets: Sometimes external dependencies are not our under control and thus analyzing them is of little value.
-                               If this flag is True, DWYU will automatically skip all targets from external workspaces.
-                               This can be useful in combination with the recursive analysis mode.<br>
+        skip_external_targets: If `True`, DWYU automatically skips analysis of targets from external workspaces.
+                               This can be especially useful in combination with `recursive = True`.
+                               This does not prevent reporting errors for internal targets caused by them wrongly using external targets.<br>
                                This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         skip_features: Skip the DWYU analysis based on the features set for the target under inspection.
@@ -171,7 +171,6 @@ def dwyu_cc_aspect_factory(
                    This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
         skip_targets: Do not execute the DWYU analysis on targets matching at least one of the given target patterns.
-                      In contrast to `skip_tags`, this excludes targets without changing their `BUILD` files.
                       This makes it a good fit for migrating an existing project to DWYU, where the list of not yet compliant targets should live in a single reviewable place instead of being scattered across the whole project.<br>
                       Only a small subset of the [Bazel target pattern syntax](https://bazel.build/run/build#specifying-build-targets) is supported:
                       <ul><li>
