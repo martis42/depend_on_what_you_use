@@ -30,8 +30,10 @@ def normalize_file_paths(paths: Iterable[str]) -> list[str]:
 def normalize_target_name(target: str) -> str:
     """
     For ease of use in test specs we desire the short apparent name style instead of the canonical Bazel target names.
+    This function is only valid for direct external targets using the pattern '@@ext+//...'.
+    Targets using multiple '+' signs are not supported by this normalization function (e.g. results from external extensions).
     """
-    return target.replace("@@", "@").replace("@//", "//")
+    return target.replace("@@", "@").replace("@//", "//").replace("+//", "//")
 
 
 def normalize_target_names(target: Iterable[str]) -> list[str]:

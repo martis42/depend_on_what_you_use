@@ -13,7 +13,7 @@ class TestCase(TestCaseBase):
         )
         expected = ExpectedFailure(
             ExpectedDwyuFailure(
-                target=target, deps_which_should_be_private=["@ignore_external_dependencies_test_repo+//:foo"]
+                target=target, deps_which_should_be_private=["@ignore_external_dependencies_test_repo//:foo"]
             )
         )
 
