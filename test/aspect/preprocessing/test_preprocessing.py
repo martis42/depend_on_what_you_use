@@ -7,7 +7,11 @@ from test.support.result import Result
 class TestCase(TestCaseBase):
     def execute_test_logic(self) -> Result:
         actual = self._run_dwyu(
-            target="//preprocessing/conditional_includes:all", aspect="//preprocessing:aspect.bzl%dwyu_full"
+            target=[
+                "//preprocessing/conditional_includes:all",
+                "//preprocessing/complex_includes:all",
+            ],
+            aspect="//preprocessing:aspect.bzl%dwyu_full",
         )
 
         return self._check_result(actual=actual, expected=ExpectedSuccess())
