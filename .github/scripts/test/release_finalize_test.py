@@ -121,7 +121,14 @@ class TestMain(unittest.TestCase):
     def test_finalizes_newest_release(self) -> None:
         result, update = self.run_main(make_release(self.BODY))
         self.assertEqual(result, 0)
-        update.assert_called_once_with("owner/repo", 7, body="## Using\n\nrest", prerelease=False, make_latest="true")
+        update.assert_called_once_with(
+            "owner/repo",
+            make_release(self.BODY),
+            "1.2.3",
+            body="## Using\n\nrest",
+            prerelease=False,
+            make_latest="true",
+        )
 
     def test_patch_for_old_release_is_not_latest(self) -> None:
         _, update = self.run_main(make_release(self.BODY), newest=False)

@@ -8,9 +8,12 @@ import release_github
 
 class TestGhApi(unittest.TestCase):
     def test_payload_is_sent_as_json_via_stdin(self) -> None:
-        completed = subprocess.CompletedProcess([], 0, stdout="{}", stderr="")
+        completed = subprocess.CompletedProcess([], 0, stdout='{"tag_name": "1.2.3"}', stderr="")
+        release = {"id": 42, "tag_name": "1.2.3", "draft": True}
         with mock.patch("subprocess.run", return_value=completed) as run:
-            release_github.update_release("owner/repo", 42, body="{owner} @file", draft=False, make_latest="true")
+            release_github.update_release(
+                "owner/repo", release, "1.2.3", body="{owner} @file", draft=False, make_latest="true"
+            )
 
         cmd = run.call_args.args[0]
         self.assertEqual(cmd[:3], ["gh", "api", "repos/owner/repo/releases/42"])
@@ -18,8 +21,31 @@ class TestGhApi(unittest.TestCase):
         self.assertEqual(cmd[-2:], ["--input", "-"])
         self.assertEqual(
             json.loads(run.call_args.kwargs["input"]),
-            {"body": "{owner} @file", "draft": False, "make_latest": "true"},
+            {"body": "{owner} @file", "draft": False, "make_latest": "true", "tag_name": "1.2.3"},
         )
+
+    def test_published_release_update_does_not_change_immutable_tag(self) -> None:
+        release = {"id": 42, "tag_name": "1.2.3", "draft": False}
+        with mock.patch.object(release_github, "gh_api", return_value='{"tag_name": "1.2.3"}') as api:
+            release_github.update_release("owner/repo", release, "1.2.3", prerelease=False)
+        api.assert_called_once_with("repos/owner/repo/releases/42", "--method", "PATCH", payload={"prerelease": False})
+
+    def test_update_rejects_mismatched_tag(self) -> None:
+        release = {"id": 42, "tag_name": "untagged-generated", "draft": True}
+        with (
+            mock.patch.object(release_github, "gh_api") as api,
+            self.assertRaisesRegex(RuntimeError, "expected '1.2.3'"),
+        ):
+            release_github.update_release("owner/repo", release, "1.2.3", draft=False)
+        api.assert_not_called()
+
+    def test_update_rejects_unexpected_result_tag(self) -> None:
+        release = {"id": 42, "tag_name": "1.2.3", "draft": True}
+        with (
+            mock.patch.object(release_github, "gh_api", return_value='{"tag_name": "untagged-generated"}'),
+            self.assertRaisesRegex(RuntimeError, "after update, expected '1.2.3'"),
+        ):
+            release_github.update_release("owner/repo", release, "1.2.3", body="notes")
 
     def test_no_payload_means_no_input_option(self) -> None:
         completed = subprocess.CompletedProcess([], 0, stdout="[]", stderr="")
