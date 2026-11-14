@@ -39,7 +39,7 @@ def main() -> int:
         log.info(f"Release notes contain no placeholder '{BCR_PR_PLACEHOLDER}'. Nothing to do. PR: {pr_url}")
         return 0
 
-    update_release(args.repo, release["id"], body=body.replace(BCR_PR_PLACEHOLDER, pr_url))
+    update_release(args.repo, release, args.tag, body=body.replace(BCR_PR_PLACEHOLDER, pr_url))
     log.info(f"Added BCR PR {pr_url} to release notes of {args.tag}")
     return 0
 

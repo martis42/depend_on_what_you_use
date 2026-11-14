@@ -38,7 +38,7 @@ def main() -> int:
     if BCR_PR_PLACEHOLDER in (release["body"] or ""):
         log.warning(f"Release notes of {args.tag} still contain '{BCR_PR_PLACEHOLDER}'. Please fix this manually.")
 
-    update_release(args.repo, release["id"], draft=False, prerelease=True)
+    update_release(args.repo, release, args.tag, draft=False, prerelease=True)
     log.info(f"Published release {args.tag} as prerelease")
     return 0
 

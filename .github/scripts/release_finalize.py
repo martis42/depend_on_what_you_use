@@ -116,7 +116,8 @@ def main() -> int:
     # The API expects the string values 'true', 'false' or 'legacy' for 'make_latest'
     update_release(
         args.repo,
-        release["id"],
+        release,
+        args.tag,
         body=new_body,
         prerelease=False,
         make_latest=str(make_latest).lower(),

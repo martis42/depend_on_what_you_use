@@ -1,6 +1,17 @@
 load("@rules_python//python:py_library.bzl", "py_library")
 
 py_library(
+    name = "release_add_bcr_pr",
+    srcs = ["release_add_bcr_pr.py"],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [
+        ":release_constants",
+        ":release_github",
+    ],
+)
+
+py_library(
     name = "release_constants",
     srcs = ["release_constants.py"],
     imports = ["."],

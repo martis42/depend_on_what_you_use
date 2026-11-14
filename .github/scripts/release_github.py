@@ -32,8 +32,20 @@ def gh_api(*args: str, payload: dict | None = None) -> str:
         raise
 
 
-def update_release(repo: str, release_id: int, **fields: bool | str) -> None:
-    gh_api(f"repos/{repo}/releases/{release_id}", "--method", "PATCH", payload=fields)
+def update_release(repo: str, release: dict, tag: str, **fields: bool | str) -> None:
+    if release["tag_name"] != tag:
+        msg = f"Release {release['id']} has tag '{release['tag_name']}', expected '{tag}'"
+        raise RuntimeError(msg)
+
+    # GitHub can replace a draft's tag with an untagged-* placeholder on a body-only PATCH.
+    # Do not send tag_name for published releases, whose tags may be immutable.
+    if release["draft"]:
+        fields["tag_name"] = tag
+
+    updated = json.loads(gh_api(f"repos/{repo}/releases/{release['id']}", "--method", "PATCH", payload=fields))
+    if updated["tag_name"] != tag:
+        msg = f"Release {release['id']} has tag '{updated['tag_name']}' after update, expected '{tag}'"
+        raise RuntimeError(msg)
 
 
 def find_bcr_pr(tag: str) -> dict:

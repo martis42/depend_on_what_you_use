@@ -24,7 +24,11 @@ py_test(
 py_test(
     name = "release_publish_test",
     srcs = ["release_publish_test.py"],
-    deps = ["//.github/scripts:release_publish"],
+    deps = [
+        "//.github/scripts:release_add_bcr_pr",
+        "//.github/scripts:release_github",
+        "//.github/scripts:release_publish",
+    ],
 )
 
 py_test(
