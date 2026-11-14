@@ -90,7 +90,6 @@ def dwyu_cc_aspect_factory(
 
         analysis_reports_unused_deps: Setting this to `True` will report dependencies which are not used in any of the files of the target under inspection as unused.
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
-                                      This flag is only supported by the C++ based implementation of DWYU.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
 
         ignore_external_dependencies: Setting this to `True` prevents reporting external targets as unused dependencies and ignores headers owned by external repositories for the missing direct dependency check.
@@ -191,10 +190,10 @@ def dwyu_cc_aspect_factory(
                       Meaning, in the recursive analysis mode excluding a target does not stop the analysis of the targets below it.<br>
                       This feature is demonstrated in the [skipping_targets example](/examples/skipping_targets).
 
-        skip_toolchain_features: A list of C++ toolchain feature strings that control when the DWYU analysis is skipped.
+        skip_toolchain_features: A list of CC toolchain feature strings that control when the DWYU analysis is skipped.
                                  When a feature name is prefixed with `-` (e.g. `-layering_check`), the analysis is skipped if that feature is **disabled**.
                                  When a feature name has no prefix (e.g. `some_feature`), the analysis is skipped if that feature is **enabled**.
-                                 This allows gating DWYU on the state of C++ toolchain features configured via the standard `features` attribute.<br>
+                                 This allows gating DWYU on the state of CC toolchain features configured via the standard `features` attribute.<br>
                                  Please note, this is based on the features the active toolchain understands and not string comparison done with the `features` attribute values.
                                  Meaning, changing the toolchain can change the skipping behavior, even if the `features` attributes of your cc_* targets remain constant.
 
