@@ -1,0 +1,11 @@
+# Do not waste memory by keeping idle Bazel servers around
+startup --max_idle_secs=10
+
+# The symlinks are cluttering the file tree without much value
+common --experimental_convenience_symlinks=ignore
+
+build:dwyu --aspects=//:aspect.bzl%dwyu
+build:dwyu --output_groups=dwyu
+
+build:dwyu-fix --aspects=//:aspect.bzl%dwyu_fix
+build:dwyu-fix --output_groups=dwyu_fix
