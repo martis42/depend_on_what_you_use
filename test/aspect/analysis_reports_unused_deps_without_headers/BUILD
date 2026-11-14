@@ -12,6 +12,11 @@ cc_library(
 )
 
 cc_library(
+    name = "private_only",
+    srcs = ["private.h"],
+)
+
+cc_library(
     name = "bar",
     srcs = [":bar.cpp"],
 )
@@ -23,5 +28,15 @@ cc_binary(
         ":aggregate",
         ":bar",
         ":foo",
+    ],
+)
+
+cc_binary(
+    name = "main_private",
+    srcs = ["main_private.cpp"],
+    deps = [
+        ":aggregate",
+        ":foo",
+        ":private_only",
     ],
 )
