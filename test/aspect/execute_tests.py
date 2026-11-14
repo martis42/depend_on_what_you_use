@@ -23,8 +23,7 @@ log = logging.getLogger()
 #
 # Keep this in sync with: MODULE.bazel, README.md, .bcr/presubmit.yml and test/workspace_integration/test.py
 TESTED_VERSIONS = [
-    TestedVersions(bazel="7.6.0"),
-    TestedVersions(bazel="7.x"),
+    TestedVersions(bazel="8.2.0"),
     TestedVersions(bazel="8.x"),
     TestedVersions(bazel="9.x", is_default=True),
     TestedVersions(bazel="rolling"),
@@ -45,7 +44,7 @@ VERSION_SPECIFIC_ARGS = {
     "--incompatible_auto_exec_groups": CompatibleVersions(),
     "--incompatible_disable_non_executable_java_binary": CompatibleVersions(),
     "--incompatible_python_disallow_native_rules": CompatibleVersions(),
-    "--incompatible_use_plus_in_repo_names": CompatibleVersions(minimum="7.3.0"),
+    "--incompatible_use_plus_in_repo_names": CompatibleVersions(),
     "--incompatible_disable_native_repo_rules": CompatibleVersions(),
     # Theoretically of interest for us, but rules_python does not comply to this.
     # "--incompatible_stop_exporting_language_modules": CompatibleVersions(),

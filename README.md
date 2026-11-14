@@ -110,7 +110,7 @@ Bugs we can reproduce via the CI workers with reasonable effort will be fixed.
 | Tool  | Constraints                                                                                      |
 | ----- | ------------------------------------------------------------------------------------------------ |
 | C++   | Minimum required C++ standard is C++11.                                                          |
-| Bazel | Minimum required version is 7.6.0. We test all supported major versions and the rolling release. |
+| Bazel | Minimum required version is 8.2.0. We test all supported major versions and the rolling release. |
 
 ### Applying fixes<a name="applying-fixes"></a>
 
