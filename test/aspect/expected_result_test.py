@@ -106,7 +106,7 @@ class ExpectedDwyuFailureTest(unittest.TestCase):
             unit.check_expectation(
                 make_report_data(
                     unused_deps=["@@//:foo", "@//:bar"],
-                    unused_impl_deps=["@@riff//:raff"],
+                    unused_impl_deps=["@@riff+//:raff"],
                     deps_which_should_be_private=["@//:baz"],
                 )
             )
