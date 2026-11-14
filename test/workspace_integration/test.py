@@ -21,8 +21,7 @@ log = logging.getLogger()
 
 # Keep in sync with: MODULE.bazel, README.md, .bcr/presubmit.yml and test/aspect/execute_tests.py
 BAZEL_VERSIONS_UNDER_TEST = [
-    "7.6.0",
-    "7.x",
+    "8.2.0",
     "8.x",
     "9.x",
     "rolling",
