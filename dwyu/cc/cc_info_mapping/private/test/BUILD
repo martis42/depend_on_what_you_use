@@ -166,7 +166,11 @@ mapping_to_explicit_deps(
 
 mapping_to_explicit_deps(
     name = "mapping_to_target_outside_dependency_tree_fails",
-    mapped_targets = [to_canonical("//non/existing:dep")],
+    mapped_targets = [
+        to_canonical("//non/existing:first"),
+        to_canonical("//dwyu/cc/cc_info_mapping/private/test:dep_layer_1"),
+        to_canonical("//non/existing:second"),
+    ],
     tags = ["manual"],  # prevent this being analyzed outside the analysis test
     target = ":lib_with_dep",
 )

@@ -1,5 +1,6 @@
 load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuRemappedCcInfo")
+load(":to_canonical.bzl", "to_canonical")
 
 def _explicit_direct_target_is_mapped_test_impl(ctx):
     env = analysistest.begin(ctx)
@@ -27,7 +28,10 @@ explicit_transitive_target_is_mapped_test = analysistest.make(_explicit_transiti
 
 def _target_outside_dependency_tree_fails_test_impl(ctx):
     env = analysistest.begin(ctx)
-    asserts.expect_failure(env, "Some 'mapped_targets' were not found in the dependency tree")
+    asserts.expect_failure(env, "Some 'mapped_targets' were not found in the dependency tree: {}".format([
+        to_canonical("//non/existing:first"),
+        to_canonical("//non/existing:second"),
+    ]))
     return analysistest.end(env)
 
 target_outside_dependency_tree_fails_test = analysistest.make(

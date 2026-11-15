@@ -47,4 +47,4 @@ def unique_list(list_a, list_b):
     """
     Combine two lists and return a new list without duplicates, preserving order of first occurrence.
     """
-    return {x: None for x in list_a + list_b}.keys()
+    return list(set(list_a + list_b))

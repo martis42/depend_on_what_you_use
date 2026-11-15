@@ -11,9 +11,6 @@ _DwyuExplicitTargetsCcInfo = provider(
     },
 )
 
-def _dict_diff(lhs, rhs):
-    return {key: True for key in lhs if key not in rhs}
-
 def _gather_compilation_context_from_deps_aspect_impl(target, ctx):
     targets_to_compilation_context = {target.label: target[CcInfo].compilation_context}
     for dependency in cc_info_deps_from_all_attrs(ctx.rule.attr, skip_impl_deps = False):
@@ -33,16 +30,17 @@ _gather_compilation_context_from_deps_aspect = aspect(
 def _mapping_to_transitive_deps_impl(ctx):
     targets_cc = ctx.attr.target[_DwyuExplicitTargetsCcInfo]
 
-    matched_targets = {}
+    mapped_targets = set(ctx.attr.mapped_targets)
+    matched_targets = set()
     selected_compilation_contexts = []
-    if ctx.attr.mapped_targets:
+    if mapped_targets:
         for label, compilation_context in targets_cc.targets_to_compilation_context.items():
-            if str(label) in ctx.attr.mapped_targets:
+            if str(label) in mapped_targets:
                 selected_compilation_contexts.append(compilation_context)
-                matched_targets[str(label)] = True
+                matched_targets.add(str(label))
 
     if len(matched_targets) != len(ctx.attr.mapped_targets):
-        fail("Some 'mapped_targets' were not found in the dependency tree: {}".format(_dict_diff(ctx.attr.mapped_targets, matched_targets).keys()))
+        fail("Some 'mapped_targets' were not found in the dependency tree: {}".format(list(mapped_targets - matched_targets)))
 
     return create_remapped_cc_info(
         target = ctx.attr.target,
