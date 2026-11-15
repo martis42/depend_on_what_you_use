@@ -22,6 +22,7 @@ def _unique_list_test_impl(ctx):
 
     # Duplicates within the combined result are removed, first occurrence is kept
     asserts.equals(env, [1, 2, 3], unique_list([1, 2], [2, 3]))
+    asserts.equals(env, [3, 1, 2], unique_list([3, 1, 3], [2, 1, 2]))
 
     # Duplicates spanning both lists are removed
     asserts.equals(env, [1, 2, 3], unique_list([1, 2, 3], [1, 2, 3]))
