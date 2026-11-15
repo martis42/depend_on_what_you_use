@@ -46,7 +46,7 @@ class TestGetBuildozerBinary(unittest.TestCase):
         result = get_buildozer_binary(None)
 
         self.assertIsNotNone(result)
-        self.assertTrue(result.endswith("buildozer_binary/buildozer.exe"))
+        self.assertTrue(result.endswith("buildozer_binary/buildozer.exe"))  # ty: ignore[missing-union-attribute]
 
     @patch("dwyu.apply_fixes.apply_fixes.Runfiles")
     def test_bundled_binary_not_found(self, mock_runfiles_cls: MagicMock) -> None:

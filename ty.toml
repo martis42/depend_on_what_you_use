@@ -1,10 +1,7 @@
 [environment]
 # Minimum Python version which we support
 python-version = "3.11"
-extra-paths = ["./test/aspect"]
 
 [rules]
-# Does not work with how the dynamically load modules for integration testing
-unresolved-attribute = "ignore"
 # ty cannot discover our bazelized third_party dependencies
-unresolved-import = "ignore"
+import-not-found = "ignore"
