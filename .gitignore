@@ -8,17 +8,18 @@ user.bazelrc
 # Python
 __pycache__
 *.pyc
+.venv/
 venv/
-.coverage
+.coverage/
+.ruff_cache/
 
 # IDEs
-.clwb
-.idea
-.vscode
+.clwb/
+.idea/
+.vscode/
 
 # Test data
-dwyu/cc/aspect/private/analyze_includes/test/benchmark/parsing_examples
-test/benchmark/generated
+test/benchmark/generated/
 
 # Code coverage artifacts
-coverage_data
+coverage_data/
