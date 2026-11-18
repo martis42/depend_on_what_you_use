@@ -116,7 +116,7 @@ class TestCaseBase(ABC):
         return Success() if matching.is_success() else Error(f"DWYU did not behave as expected: {matching.error}")
 
     def _run_dwyu(
-        self, target: str | list[str], aspect: str, extra_args: list[str] | None = None
+        self, target: str | list[str], aspect: str, extra_args: list[str] | None = None, output_group: str = "dwyu"
     ) -> subprocess.CompletedProcess:
         extra_args = extra_args or []
         verbosity = ["--aspects_parameters=dwyu_verbose=True"] if self._verbose else []
@@ -124,7 +124,7 @@ class TestCaseBase(ABC):
             target=target,
             extra_args=[
                 f"--aspects={aspect}",
-                "--output_groups=dwyu",
+                f"--output_groups={output_group}",
                 *verbosity,
                 *extra_args,
             ],

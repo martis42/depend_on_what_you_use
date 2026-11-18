@@ -111,9 +111,11 @@ TEST(Result, dumpToJsonForSuccess) {
     const Result unit{"//:foo"};
 
     const bool use_impl_deps = true;
-    const auto data = unit.toJson(use_impl_deps);
+    const auto data = unit.toJson(use_impl_deps, "");
 
     EXPECT_EQ(data["analyzed_target"], "//:foo");
+    EXPECT_TRUE(data["success"].get<bool>());
+    EXPECT_EQ(data.at("message"), "");
     EXPECT_TRUE(data["public_includes_without_dep"].empty());
     EXPECT_TRUE(data["private_includes_without_dep"].empty());
     EXPECT_TRUE(data["unused_deps"].empty());
@@ -142,9 +144,11 @@ TEST(Result, dumpToJsonForFailure) {
          IncludeStatement{"priv_file_b.cpp", "\"header_buzz_2\"", "sandbox_path/header_buzz_2"}});
 
     const bool use_impl_deps = false;
-    const auto data = unit.toJson(use_impl_deps);
+    const auto data = unit.toJson(use_impl_deps, "Findings for //:bar");
 
     EXPECT_EQ(data["analyzed_target"], "//:bar");
+    EXPECT_FALSE(data["success"].get<bool>());
+    EXPECT_EQ(data.at("message"), "Findings for //:bar");
     EXPECT_EQ(data["unused_deps"], unused_deps);
     EXPECT_EQ(data["unused_implementation_deps"], unused_impl_deps);
     EXPECT_EQ(data["deps_which_should_be_private"], public_deps_which_should_be_private);

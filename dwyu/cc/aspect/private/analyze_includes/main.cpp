@@ -107,20 +107,26 @@ int main_impl(const ProgramOptions& options) {
                          options.report_unused_deps, options.ignored_unused_deps, options.optimize_implementation_deps,
                          ignored_missing_dependency_headers);
 
-    if (!result.isOk() || options.verbose) {
-        std::cout << result.toString(options.output) << "\n";
+    // Findings are communicated via the report.
+    // The analysis_check tool is responsible for failing and for showing the findings to the user.
+    const auto message = result.toString(options.output);
+    if (options.verbose) {
+        std::cout << message << "\n";
     }
 
     std::ofstream output{options.output};
     if (output.is_open()) {
-        output << result.toJson(options.optimize_implementation_deps);
+        output << result.toJson(options.optimize_implementation_deps, message);
         output.close();
+        if (!output) {
+            dwyu::abortWithError("Unable to write output file '", options.output, "'");
+        }
     }
     else {
         dwyu::abortWithError("Unable to open output file '", options.output, "'");
     }
 
-    return result.isOk() ? 0 : 1;
+    return 0;
 }
 
 } // namespace

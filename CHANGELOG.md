@@ -28,6 +28,17 @@ How to read the changelog:
 
 - Minimum required Bazel version is now 8.2.0.
 
+### Added
+
+- [aspect] Add the output group `dwyu_report` to produce consumable reports without failing the build on DWYU findings.
+  Also, add output group `dwyu_check` which fails and prints a terminal message if a DWYU report contains findings.
+  The established output group `dwyu` combines both new output groups and keeps failing on findings.<br>
+  This allows building tooling based on DWYU reports.
+  Furthermore, this pattern enables caching the analysis for a target violating the DWYU rules, which before was not possible due to failed actions never being cached.<br>
+  The new action facilitating the reporting and checking split adds an overhead which is however small enough that we consider it worth it for the gained flexibility and caching.
+  In an artificial benchmark focused on measuring this extra action by analyzing many trivial targets with a cold cache we saw roughly a 10 % DWYU runtime increase.
+  In a real project with non trivial targets, the measured runtime increase should be significantly lower.
+
 ## [1.3.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.3.0) - 2026.11.14
 
 ### BREAKING

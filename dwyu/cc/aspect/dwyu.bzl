@@ -418,24 +418,38 @@ def _do_ensure_private_deps(ctx, config):
     """
     return ctx.rule.kind == "cc_library" and config.optimize_impl_deps
 
-def _dywu_results_from_deps(deps):
+def _dywu_results_from_deps(deps, output_group):
     """
     We cannot rely on DWYU being executed on the dependencies as analysis of the dependency might have been skipped.
     """
-    return [dep[OutputGroupInfo].dwyu for dep in deps if hasattr(dep[OutputGroupInfo], "dwyu")]
+    return [getattr(dep[OutputGroupInfo], output_group) for dep in deps if hasattr(dep[OutputGroupInfo], output_group)]
 
-def _gather_transitive_reports(ctx):
+def _gather_transitive_results(ctx, output_group):
     """
-    In recursive operation mode we have to propagate the DWYU report files of all transitive dependencies to ensure
+    In recursive operation mode we have to propagate the DWYU results of all transitive dependencies to ensure
     the DWYU actions run for all targets. Not doing this will cause DWYU not being executed at all as without returning
-    the report files Bazel prunes the DWYU actions.
+    the result files Bazel prunes the DWYU actions.
     """
-    reports = []
+    results = []
     if ctx.attr._recursive:
-        reports.extend(_dywu_results_from_deps(ctx.rule.attr.deps))
+        results.extend(_dywu_results_from_deps(ctx.rule.attr.deps, output_group))
         if hasattr(ctx.rule.attr, "implementation_deps"):
-            reports.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps))
-    return reports
+            results.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps, output_group))
+    return results
+
+def _make_output_groups(ctx, reports = [], checks = []):
+    """
+    The 'dwyu_report' group contains only the DWYU analysis reports, without failing on findings.
+    The 'dwyu_check' group fails if a report contains findings.
+    The 'dwyu' group contains both.
+    """
+    transitive_reports = depset(direct = reports, transitive = _gather_transitive_results(ctx, "dwyu_report"))
+    transitive_checks = depset(direct = checks, transitive = _gather_transitive_results(ctx, "dwyu_check"))
+    return [OutputGroupInfo(
+        dwyu = depset(transitive = [transitive_reports, transitive_checks]),
+        dwyu_report = transitive_reports,
+        dwyu_check = transitive_checks,
+    )]
 
 def _return_on_skip(ctx):
     """
@@ -443,7 +457,7 @@ def _return_on_skip(ctx):
     """
     if ctx.attr._recursion_stops_on_skip:
         return []
-    return [OutputGroupInfo(dwyu = depset(transitive = _gather_transitive_reports(ctx)))]
+    return _make_output_groups(ctx)
 
 def _extract_includes_from_files(ctx, config, target, files, defines, cpp_standard, cc_toolchain, attr_prefix):
     """
@@ -667,5 +681,17 @@ def dwyu_cc_aspect_impl(target, ctx):
         arguments = [args],
     )
 
-    accumulated_reports = depset(direct = [report_file], transitive = _gather_transitive_reports(ctx))
-    return [OutputGroupInfo(dwyu = accumulated_reports)]
+    check_file = ctx.actions.declare_file("{}_dwyu_check_marker".format(target.label.name))
+    check_args = make_param_file_args(ctx)
+    check_args.add("--report", report_file)
+    check_args.add("--output", check_file)
+    ctx.actions.run(
+        executable = ctx.executable._tool_analysis_check,
+        inputs = [report_file],
+        outputs = [check_file],
+        mnemonic = "DwyuAnalysisCheck",
+        progress_message = "Check DWYU analysis result of {}".format(target.label),
+        arguments = [check_args],
+    )
+
+    return _make_output_groups(ctx, reports = [report_file], checks = [check_file])
