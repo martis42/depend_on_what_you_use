@@ -110,9 +110,11 @@ std::string Result::toString(const std::string& report_path) const {
     return frame + content + frame;
 }
 
-nlohmann::json Result::toJson(const bool use_implementation_deps) const {
+nlohmann::json Result::toJson(const bool use_implementation_deps, const std::string& message) const {
     json data{};
     data["analyzed_target"] = target_;
+    data["success"] = isOk();
+    data["message"] = message;
     data["public_includes_without_dep"] = makeMissingIncludesMap(public_includes_without_direct_dep_);
     data["private_includes_without_dep"] = makeMissingIncludesMap(private_includes_without_direct_dep_);
     data["unused_deps"] = unused_deps_;

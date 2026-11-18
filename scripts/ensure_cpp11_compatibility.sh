@@ -7,6 +7,7 @@ set -o nounset
 # However, since we ignore warnings from third_party code, we need to make sure that the third_party code is also C++11 compatible.
 
 TARGETS=(
+    "//dwyu/cc/aspect/private/analysis_check:main"
     "//dwyu/cc/aspect/private/analyze_includes:main"
     "//dwyu/cc/aspect/private/preprocessing:main"
     "//dwyu/cc/aspect/private/process_target:main"

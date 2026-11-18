@@ -295,6 +295,12 @@ def dwyu_cc_aspect_factory(
                 providers = [DwyuCcInfoMappingInfo],
                 default = aspect_target_mapping,
             ),
+            "_tool_analysis_check": attr.label(
+                default = Label("//dwyu/cc/aspect/private/analysis_check:main"),
+                executable = True,
+                cfg = "exec",
+                doc = "Fail and show the findings if the DWYU analysis report of a target contains findings.",
+            ),
             "_tool_analyze_includes": attr.label(
                 default = Label("//dwyu/cc/aspect/private/analyze_includes:main"),
                 executable = True,
