@@ -136,10 +136,10 @@ def main() -> None:
         jobs=JOBS,
     )
     run_benchmark(
-        aspect="dwyu_pp_fast",
+        aspect="dwyu_pp_full",
         primer=primer,
         bench_target=target,
-        description="DWYU - Preprocessing mode: fast",
+        description="DWYU - Preprocessing mode: full",
         iterations=ITERATIONS,
         jobs=JOBS,
     )
