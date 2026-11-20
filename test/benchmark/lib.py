@@ -3,7 +3,7 @@ import logging
 import shlex
 import subprocess
 from statistics import stdev
-from time import time
+from time import perf_counter
 
 log = logging.getLogger()
 
@@ -42,11 +42,11 @@ def run_benchmark(aspect: str, primer: str, bench_target: str, description: str,
         subprocess.run([*cmd_dwyu, "--", primer], shell=False, check=True, capture_output=capture_output)
 
         # Run benchmark command
-        start = time()
+        start = perf_counter()
         subprocess.run(
             [*cmd_dwyu, *option_jobs, "--", bench_target], shell=False, check=True, capture_output=capture_output
         )
-        duration = time() - start
+        duration = perf_counter() - start
         times.append(duration)
         log.info(f">> Duration {duration:.3f} [s]")
 
