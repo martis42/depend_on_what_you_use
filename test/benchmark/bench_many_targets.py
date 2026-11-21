@@ -25,7 +25,7 @@ LIBS = 10
 LIB_USAGE_PER_DIR = 10
 DIRS_REPEATING_THE_PATTERN = 10
 
-ITERATIONS = 3
+ITERATIONS = 5
 # No need to restrict jobs in a test for parallel work on a whole workspace
 JOBS = -1
 

@@ -24,7 +24,7 @@ from test.benchmark.lib import common_main, run_benchmark  # noqa: E402
 LIB_FILES = 250
 CLASSES_PER_FILE = 75
 
-ITERATIONS = 3
+ITERATIONS = 5
 JOBS = 1
 
 #

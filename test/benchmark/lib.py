@@ -32,6 +32,10 @@ def run_benchmark(aspect: str, primer: str, bench_target: str, description: str,
     log.info(f"\n#### Running Benchmark - {description}\n")
     times = []
     log.debug(f"Benchmarking cmd: {shlex.join(cmd_dwyu)}\n")
+
+    # The first iteration takes longer in most cases.
+    # We did not discover why exactly.
+    # Most likely due to some warmup effects only happening with a full build instead of just building the primer to make the DWYU tools available.
     for n in range(1, iterations + 1):
         log.info(f"\n>> Iteration {n}")
 
