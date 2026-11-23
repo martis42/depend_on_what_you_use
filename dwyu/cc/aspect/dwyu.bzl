@@ -4,6 +4,7 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/private:utils.bzl", "make_param_file_args", "string_to_bool")
+load(":providers.bzl", "DwyuReportInfo")
 
 # Map of '-std=c++XX' to the corresponding standard version
 # Source for this mapping: https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html#index-std-1
@@ -437,27 +438,27 @@ def _gather_transitive_results(ctx, output_group):
             results.extend(_dywu_results_from_deps(ctx.rule.attr.implementation_deps, output_group))
     return results
 
-def _make_output_groups(ctx, reports = [], checks = []):
-    """
-    The 'dwyu_report' group contains only the DWYU analysis reports, without failing on findings.
-    The 'dwyu_check' group fails if a report contains findings.
-    The 'dwyu' group contains both.
-    """
-    transitive_reports = depset(direct = reports, transitive = _gather_transitive_results(ctx, "dwyu_report"))
-    transitive_checks = depset(direct = checks, transitive = _gather_transitive_results(ctx, "dwyu_check"))
-    return [OutputGroupInfo(
-        dwyu = depset(transitive = [transitive_reports, transitive_checks]),
-        dwyu_report = transitive_reports,
-        dwyu_check = transitive_checks,
-    )]
+def _aspect_return_value(ctx, report = None, check = None):
+    direct_report = [report] if report else []
+    direct_check = [check] if check else []
+    transitive_reports = depset(transitive = _gather_transitive_results(ctx, "dwyu_report"))
+    transitive_checks = depset(transitive = _gather_transitive_results(ctx, "dwyu_check"))
+    return [
+        DwyuReportInfo(report = report),
+        OutputGroupInfo(
+            dwyu = depset(direct = direct_report + direct_check, transitive = [transitive_reports, transitive_checks]),
+            dwyu_report = depset(direct = direct_report, transitive = [transitive_reports]),
+            dwyu_check = depset(direct = direct_check, transitive = [transitive_checks]),
+        ),
+    ]
 
 def _return_on_skip(ctx):
     """
     In recursive mode we have to decide if skipping a target also stops the recursive analysis of its dependencies.
     """
     if ctx.attr._recursion_stops_on_skip:
-        return []
-    return _make_output_groups(ctx)
+        return [DwyuReportInfo(report = None)]
+    return _aspect_return_value(ctx)
 
 def _extract_includes_from_files(ctx, config, target, files, defines, cpp_standard, cc_toolchain, attr_prefix):
     """
@@ -694,4 +695,4 @@ def dwyu_cc_aspect_impl(target, ctx):
         arguments = [check_args],
     )
 
-    return _make_output_groups(ctx, reports = [report_file], checks = [check_file])
+    return _aspect_return_value(ctx, report = report_file, check = check_file)

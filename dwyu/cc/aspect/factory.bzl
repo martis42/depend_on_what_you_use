@@ -3,6 +3,7 @@ load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("//dwyu/cc/cc_info_mapping:providers.bzl", "DwyuCcInfoMappingInfo")
 load("//dwyu/private:utils.bzl", "unique_list")
 load(":dwyu.bzl", "PREPROCESSOR_MODES", "dwyu_cc_aspect_impl")
+load(":providers.bzl", "DwyuReportInfo")
 
 _LEGACY_SKIPPED_TAGS = ["no-dwyu"]
 _MANDATORY_SKIPPED_TAGS = ["dwyu:skip"]
@@ -234,6 +235,7 @@ def dwyu_cc_aspect_factory(
 
     return aspect(
         implementation = dwyu_cc_aspect_impl,
+        provides = [DwyuReportInfo],
         attr_aspects = attr_aspects,
         fragments = ["cpp"],
         required_providers = [CcInfo],

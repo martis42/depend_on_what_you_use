@@ -38,6 +38,7 @@ How to read the changelog:
   The new action facilitating the reporting and checking split adds an overhead which is however small enough that we consider it worth it for the gained flexibility and caching.
   In an artificial benchmark focused on measuring this extra action by analyzing many trivial targets with a cold cache we saw roughly a 10 % DWYU runtime increase.
   In a real project with non trivial targets, the measured runtime increase should be significantly lower.
+- [aspect] Return now provider `DwyuReportInfo` giving access to the DWYU report.
 
 ## [1.3.0](https://github.com/martis42/depend_on_what_you_use/releases/tag/1.3.0) - 2026.11.14
 
