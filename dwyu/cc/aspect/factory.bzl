@@ -33,6 +33,7 @@ def dwyu_cc_aspect_factory(
         analysis_optimizes_impl_deps = False,
         analysis_reports_missing_direct_deps = True,
         analysis_reports_unused_deps = True,
+        analysis_reports_unused_deps_without_headers = [],
         ignore_external_dependencies = False,
         ignored_includes = None,
         ignored_unused_deps = [],
@@ -91,6 +92,11 @@ def dwyu_cc_aspect_factory(
         analysis_reports_unused_deps: Setting this to `True` will report dependencies which are not used in any of the files of the target under inspection as unused.
                                       This is useful to identify dependencies which can be removed from the dependency graph of the project.<br>
                                       This flag can also be controlled in a Bazel config or on the command line via `--aspects_parameters=dwyu_analysis_reports_unused_deps=[True|False]`
+
+        analysis_reports_unused_deps_without_headers: Dependencies which are reported as unused although they offer no header files.
+                                                      Such dependencies are by default not analyzed, since a such dependency may offer only a library to link against.
+                                                      This can be useful for an aggregate target existing only to group other targets to provide the dependency closure DWYU needs to identify the
+                                                      target that provides a header.
 
         ignore_external_dependencies: Setting this to `True` prevents reporting external targets as unused dependencies and ignores headers owned by external repositories for the missing direct dependency check.
                                       This does not disable the `implementation_deps` optimization.
@@ -253,6 +259,9 @@ def dwyu_cc_aspect_factory(
             ),
             "dwyu_verbose": attr.bool(
                 default = verbose,
+            ),
+            "_analysis_reports_unused_deps_without_headers": attr.string_list(
+                default = [str(dep) for dep in analysis_reports_unused_deps_without_headers],
             ),
             "_ignore_external_dependencies": attr.bool(
                 default = ignore_external_dependencies,
